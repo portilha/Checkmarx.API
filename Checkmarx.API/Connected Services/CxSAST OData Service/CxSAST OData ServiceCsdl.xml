@@ -1,0 +1,361 @@
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="CxDataRepository" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Project">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="IsPublic" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="Description" Type="Edm.String" />
+        <Property Name="CreatedDate" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="OwnerId" Type="Edm.Int32" />
+        <Property Name="OwningTeamId" Type="Edm.String" />
+        <Property Name="EngineConfigurationId" Type="Edm.Int64" />
+        <Property Name="IssueTrackingSettings" Type="Edm.String" />
+        <Property Name="SourcePath" Type="Edm.String" />
+        <Property Name="SourceProviderCredentials" Type="Edm.String" />
+        <Property Name="ExcludedFiles" Type="Edm.String" />
+        <Property Name="ExcludedFolders" Type="Edm.String" />
+        <Property Name="OriginClientTypeId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="PresetId" Type="Edm.Int64" />
+        <Property Name="LastScanId" Type="Edm.Int64" />
+        <Property Name="TotalProjectScanCount" Type="Edm.Int32" />
+        <Property Name="SchedulingExpression" Type="Edm.String" />
+        <NavigationProperty Name="Scans" Type="Collection(CxDataRepository.Scan)" ContainsTarget="true" />
+        <NavigationProperty Name="CustomFields" Type="Collection(CxDataRepository.ProjectCustomField)" ContainsTarget="true" />
+        <NavigationProperty Name="EngineConfiguration" Type="CxDataRepository.EngineConfiguration" ContainsTarget="true">
+          <ReferentialConstraint Property="EngineConfigurationId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="ClientType" Type="CxDataRepository.ClientType" ContainsTarget="true" />
+        <NavigationProperty Name="OwningUser" Type="CxDataRepository.User" ContainsTarget="true" />
+        <NavigationProperty Name="OwningTeam" Type="CxDataRepository.Team" ContainsTarget="true" />
+        <NavigationProperty Name="Preset" Type="CxDataRepository.Preset" ContainsTarget="true">
+          <ReferentialConstraint Property="PresetId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="LastScan" Type="CxDataRepository.Scan" ContainsTarget="true" />
+      </EntityType>
+      <EntityType Name="Scan">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="SourceId" Type="Edm.String" />
+        <Property Name="Comment" Type="Edm.String" />
+        <Property Name="IsIncremental" Type="Edm.Boolean" />
+        <Property Name="ScanType" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Origin" Type="Edm.String" />
+        <Property Name="OwnerId" Type="Edm.Int32" />
+        <Property Name="OwningTeamId" Type="Edm.String" />
+        <Property Name="InitiatorName" Type="Edm.String" />
+        <Property Name="ProjectName" Type="Edm.String" />
+        <Property Name="PresetName" Type="Edm.String" />
+        <Property Name="TeamName" Type="Edm.String" />
+        <Property Name="Path" Type="Edm.String" />
+        <Property Name="FileCount" Type="Edm.Int64" />
+        <Property Name="LOC" Type="Edm.Int64" />
+        <Property Name="FailedLOC" Type="Edm.Int64" />
+        <Property Name="ProductVersion" Type="Edm.String" />
+        <Property Name="IsForcedScan" Type="Edm.Boolean" />
+        <Property Name="ScanRequestedOn" Type="Edm.DateTimeOffset" />
+        <Property Name="QueuedOn" Type="Edm.DateTimeOffset" />
+        <Property Name="EngineStartedOn" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="EngineFinishedOn" Type="Edm.DateTimeOffset" />
+        <Property Name="ScanCompletedOn" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="ScanDuration" Type="Edm.DateTimeOffset" />
+        <Property Name="ProjectId" Type="Edm.Int64" />
+        <Property Name="EngineServerId" Type="Edm.Int64" />
+        <Property Name="PresetId" Type="Edm.Int64" />
+        <Property Name="QueryLanguageVersionId" Type="Edm.Int32" />
+        <Property Name="ScannedLanguageIds" Type="Edm.Int32" />
+        <Property Name="TotalVulnerabilities" Type="Edm.Int32" />
+        <Property Name="High" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Medium" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Low" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Info" Type="Edm.Int32" Nullable="false" />
+        <Property Name="RiskScore" Type="Edm.Int32" Nullable="false" />
+        <Property Name="QuantityLevel" Type="Edm.Int32" Nullable="false" />
+        <Property Name="StatisticsUpdateDate" Type="Edm.DateTimeOffset" />
+        <Property Name="StatisticsUpToDate" Type="Edm.Int32" Nullable="false" />
+        <Property Name="IsPublic" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="IsLocked" Type="Edm.Boolean" Nullable="false" />
+        <NavigationProperty Name="Results" Type="Collection(CxDataRepository.Result)" ContainsTarget="true" />
+        <NavigationProperty Name="TopScanVulnerabilities" Type="Collection(CxDataRepository.TopScanVulnerability)" ContainsTarget="true" />
+        <NavigationProperty Name="ScannedLanguages" Type="Collection(CxDataRepository.QueryLanguage)" ContainsTarget="true" />
+        <NavigationProperty Name="Project" Type="CxDataRepository.Project" ContainsTarget="true">
+          <ReferentialConstraint Property="ProjectId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="EngineServer" Type="CxDataRepository.EngineServer" ContainsTarget="true">
+          <ReferentialConstraint Property="EngineServerId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="Preset" Type="CxDataRepository.Preset" ContainsTarget="true">
+          <ReferentialConstraint Property="PresetId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="OwningTeam" Type="CxDataRepository.Team" ContainsTarget="true" />
+        <NavigationProperty Name="OwningUser" Type="CxDataRepository.User" ContainsTarget="true" />
+        <NavigationProperty Name="ResultSummary" Type="CxDataRepository.ScanResultSummaryData" ContainsTarget="true" />
+      </EntityType>
+      <EntityType Name="ProjectCustomField">
+        <Key>
+          <PropertyRef Name="ProjectId" />
+          <PropertyRef Name="FieldName" />
+        </Key>
+        <Property Name="ProjectId" Type="Edm.Int64" />
+        <Property Name="FieldName" Type="Edm.String" Nullable="false" />
+        <Property Name="FieldValue" Type="Edm.String" />
+        <NavigationProperty Name="Project" Type="CxDataRepository.Project">
+          <ReferentialConstraint Property="ProjectId" ReferencedProperty="Id" />
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="EngineConfiguration">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+      </EntityType>
+      <EntityType Name="ClientType">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+      </EntityType>
+      <EntityType Name="User">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="UserName" Type="Edm.String" />
+        <Property Name="FirstName" Type="Edm.String" />
+        <Property Name="LastName" Type="Edm.String" />
+        <Property Name="Email" Type="Edm.String" />
+        <Property Name="ExpirationDate" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="TeamId" Type="Edm.String" />
+        <NavigationProperty Name="Team" Type="CxDataRepository.Team">
+          <ReferentialConstraint Property="TeamId" ReferencedProperty="Id" />
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="Team">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="Path" Type="Edm.String" />
+        <Property Name="FullName" Type="Edm.String" />
+        <NavigationProperty Name="Users" Type="Collection(CxDataRepository.User)" />
+      </EntityType>
+      <EntityType Name="Preset">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="IsSystemPreset" Type="Edm.Boolean" Nullable="false" />
+      </EntityType>
+      <EntityType Name="Result">
+        <Key>
+          <PropertyRef Name="Id" />
+          <PropertyRef Name="ScanId" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="ResultId" Type="Edm.String" />
+        <Property Name="ScanId" Type="Edm.Int64" />
+        <Property Name="SimilarityId" Type="Edm.Int64" Nullable="false" />
+        <Property Name="RawPriority" Type="Edm.Int64" />
+        <Property Name="PathId" Type="Edm.Int64" Nullable="false" />
+        <Property Name="ConfidenceLevel" Type="Edm.Int32" />
+        <Property Name="Date" Type="Edm.DateTimeOffset" Nullable="false" />
+        <Property Name="Severity" Type="CxDataRepository.Severity" Nullable="false" />
+        <Property Name="StateId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="AssignedToUserId" Type="Edm.Int32" />
+        <Property Name="AssignedTo" Type="Edm.String" />
+        <Property Name="Comment" Type="Edm.String" />
+        <Property Name="QueryId" Type="Edm.Int64" />
+        <Property Name="QueryVersionId" Type="Edm.Int64" Nullable="false" />
+        <NavigationProperty Name="Query" Type="CxDataRepository.Query" ContainsTarget="true">
+          <ReferentialConstraint Property="QueryId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="Scan" Type="CxDataRepository.Scan" ContainsTarget="true">
+          <ReferentialConstraint Property="ScanId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="AssignedToUser" Type="CxDataRepository.User" ContainsTarget="true" />
+        <NavigationProperty Name="State" Type="CxDataRepository.ResultState" ContainsTarget="true" />
+      </EntityType>
+      <EntityType Name="TopScanVulnerability">
+        <Key>
+          <PropertyRef Name="ScanId" />
+          <PropertyRef Name="Rank" />
+        </Key>
+        <Property Name="ScanId" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Rank" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Query" Type="Edm.String" />
+        <Property Name="Count" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Severity" Type="CxDataRepository.Severity" Nullable="false" />
+        <Property Name="StatisticsUpdateDate" Type="Edm.DateTimeOffset" />
+        <Property Name="StatisticsUpToDate" Type="Edm.Int32" Nullable="false" />
+      </EntityType>
+      <EntityType Name="QueryLanguage">
+        <Key>
+          <PropertyRef Name="VersionId" />
+          <PropertyRef Name="LanguageId" />
+        </Key>
+        <Property Name="VersionId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="LanguageId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="LanguageName" Type="Edm.String" />
+        <Property Name="VersionHash" Type="Edm.String" />
+        <Property Name="VersionDate" Type="Edm.DateTimeOffset" Nullable="false" />
+      </EntityType>
+      <EntityType Name="EngineServer">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="Url" Type="Edm.String" />
+        <Property Name="IsEnabled" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="IsAlive" Type="Edm.Boolean" Nullable="false" />
+        <Property Name="MaxConcurrentScans" Type="Edm.Int32" Nullable="false" />
+        <Property Name="ScanMinLOC" Type="Edm.Int32" Nullable="false" />
+        <Property Name="ScanMaxLOC" Type="Edm.Int32" Nullable="false" />
+      </EntityType>
+      <EntityType Name="ScanResultSummaryData">
+        <Key>
+          <PropertyRef Name="ScanId" />
+        </Key>
+        <Property Name="ScanId" Type="Edm.Int64" />
+        <Property Name="PreviousScanId" Type="Edm.Int64" />
+        <Property Name="New" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Recurrent" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Resolved" Type="Edm.Int32" Nullable="false" />
+        <NavigationProperty Name="Scan" Type="CxDataRepository.Scan">
+          <ReferentialConstraint Property="ScanId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="PreviousScan" Type="CxDataRepository.Scan">
+          <ReferentialConstraint Property="ScanId" ReferencedProperty="Id" />
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="Query">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="Version" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Severity" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Comments" Type="Edm.String" />
+        <Property Name="CxDescriptionId" Type="Edm.Int32" />
+        <Property Name="CweId" Type="Edm.Int64" Nullable="false" />
+        <Property Name="QuerySourceId" Type="Edm.Int64" />
+        <Property Name="QueryGroupId" Type="Edm.Int64" />
+        <NavigationProperty Name="QueryCxDescription" Type="CxDataRepository.QueryCxDescription" />
+        <NavigationProperty Name="QueryCweDescription" Type="CxDataRepository.QueryCweDescription" />
+        <NavigationProperty Name="QuerySource" Type="CxDataRepository.QuerySource">
+          <ReferentialConstraint Property="QuerySourceId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="QueryGroup" Type="CxDataRepository.QueryGroup">
+          <ReferentialConstraint Property="QueryGroupId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="QueryCategories" Type="Collection(CxDataRepository.QueryCategory)" />
+      </EntityType>
+      <EntityType Name="ResultState">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+      </EntityType>
+      <EntityType Name="QueryCxDescription">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="LCID" Type="Edm.Int32" Nullable="false" />
+        <Property Name="ResultDescription" Type="Edm.String" />
+        <Property Name="BestFixLocation" Type="Edm.String" />
+        <Property Name="Risk" Type="Edm.String" />
+        <Property Name="Cause" Type="Edm.String" />
+        <Property Name="GeneralRecommendations" Type="Edm.String" />
+      </EntityType>
+      <EntityType Name="QueryCweDescription">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="LCID" Type="Edm.Int32" Nullable="false" />
+        <Property Name="HtmlDescription" Type="Edm.String" />
+      </EntityType>
+      <EntityType Name="QuerySource">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Source" Type="Edm.String" />
+      </EntityType>
+      <EntityType Name="QueryGroup">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="Description" Type="Edm.String" />
+        <Property Name="ProjectId" Type="Edm.Int64" />
+        <Property Name="TeamId" Type="Edm.String" />
+        <Property Name="QueryGroupTypeId" Type="Edm.Int32" />
+        <Property Name="LanguageId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="LanguageName" Type="Edm.String" />
+        <NavigationProperty Name="Project" Type="CxDataRepository.Project">
+          <ReferentialConstraint Property="ProjectId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="Team" Type="CxDataRepository.Team">
+          <ReferentialConstraint Property="TeamId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="QueryGroupType" Type="CxDataRepository.QueryGroupType">
+          <ReferentialConstraint Property="QueryGroupTypeId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="Queries" Type="Collection(CxDataRepository.Query)" />
+      </EntityType>
+      <EntityType Name="QueryGroupType">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <NavigationProperty Name="QueryGroups" Type="Collection(CxDataRepository.QueryGroup)" />
+      </EntityType>
+      <EntityType Name="QueryCategory">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="TypeId" Type="Edm.Int64" Nullable="false" />
+        <NavigationProperty Name="QueryCategoryType" Type="CxDataRepository.QueryCategoryType" />
+        <NavigationProperty Name="Queries" Type="Collection(CxDataRepository.Query)" />
+      </EntityType>
+      <EntityType Name="QueryCategoryType">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int64" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <NavigationProperty Name="QueryCategories" Type="Collection(CxDataRepository.QueryCategory)" />
+      </EntityType>
+      <EnumType Name="Severity">
+        <Member Name="Info" Value="0" />
+        <Member Name="Low" Value="1" />
+        <Member Name="Medium" Value="2" />
+        <Member Name="High" Value="3" />
+      </EnumType>
+    </Schema>
+    <Schema Namespace="Default" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityContainer Name="Container">
+        <EntitySet Name="Projects" EntityType="CxDataRepository.Project" />
+        <EntitySet Name="Scans" EntityType="CxDataRepository.Scan" />
+        <EntitySet Name="Results" EntityType="CxDataRepository.Result" />
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

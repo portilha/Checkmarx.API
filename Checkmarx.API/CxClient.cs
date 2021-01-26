@@ -22,12 +22,26 @@ namespace Checkmarx.API
     /// </summary>
     public class CxClient : IDisposable
     {
+        /// <summary>
+        /// REST API client
+        /// </summary>
         private HttpClient httpClient;
 
+        /// <summary>
+        /// OData client
+        /// </summary>
         private Default.Container _oData;
         private DefaultV9.Container _oDataV9;
         private List<CxDataRepository.Project> _oDataProjs;
 
+        /// <summary>
+        /// SOAP client
+        /// </summary>
+        private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
+
+        /// <summary>
+        /// Check if the wrapper is connected.
+        /// </summary>
         private bool Connected
         {
             get
@@ -41,6 +55,9 @@ namespace Checkmarx.API
             }
         }
 
+        /// <summary>
+        /// URI of the server.
+        /// </summary>
         public Uri WebServerURL { get; }
 
         public string Username { get; }
@@ -125,7 +142,7 @@ namespace Checkmarx.API
             }
         }
 
-        private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
+       
         
         private string _version;
         /// <summary>
@@ -373,6 +390,11 @@ namespace Checkmarx.API
             }
         }
 
+        /// <summary>
+        /// For V8.9 is UID, for 9.X or higher is Int.
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
         public string GetProjectTeamId(int projectId)
         {
             if (!Connected)
@@ -757,6 +779,7 @@ namespace Checkmarx.API
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var result = JsonConvert.DeserializeObject<ScanSettings>(response.Content.ReadAsStringAsync().Result);
+
                     return GetPresets()[result.Preset.Id];
                 }
 
@@ -884,6 +907,12 @@ namespace Checkmarx.API
         
         #region Reports
 
+        /// <summary>
+        /// Returns a stream of the scan report.
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <param name="reportType"></param>
+        /// <returns></returns>
         public Stream GetScanReport(long scanId, ReportType reportType)
         {
             if (!Connected)
@@ -939,6 +968,27 @@ namespace Checkmarx.API
             }
 
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Get the report and saves it inside a file in the FileSystem.
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <param name="reportType"></param>
+        /// <param name="fullOutputFileName"></param>
+        /// <returns></returns>
+        public string GetScanReportFile(long scanId, ReportType reportType, string fullOutputFileName)
+        {
+            if (string.IsNullOrWhiteSpace(fullOutputFileName))
+                throw new NotSupportedException(nameof(fullOutputFileName));
+
+            var memoryStream = GetScanReport(scanId, reportType);
+            using (FileStream fs = File.Create(fullOutputFileName))
+            {
+                memoryStream.CopyTo(fs);
+            }
+
+            return Path.GetFullPath(fullOutputFileName);
         }
 
         private static string GetReportTypeString(ReportType reportType)

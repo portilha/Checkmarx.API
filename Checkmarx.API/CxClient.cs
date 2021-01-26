@@ -15,6 +15,7 @@ using System.Threading;
 using Checkmarx.API.OSA;
 using Checkmarx.API.SAST;
 using System.Xml.Linq;
+using PortalSoap;
 
 namespace Checkmarx.API
 {
@@ -1056,7 +1057,7 @@ namespace Checkmarx.API
         /// </summary>
         /// <param name="scanId"></param>
         /// <returns></returns>
-        public PortalSoap.AuditResultsCollection GetScanResults(long scanId)
+        public AuditScanResult[] GetScanResults(long scanId)
         {
             checkConnection();
 
@@ -1065,7 +1066,7 @@ namespace Checkmarx.API
             if (!result.IsSuccesfull)
                 throw new ApplicationException(result.ErrorMessage);
 
-            return result.ResultCollection;
+            return result.ResultCollection.Results;
         }
 
         #endregion

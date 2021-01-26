@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using Checkmarx.API.OSA;
 using Checkmarx.API.SAST;
+using System.Xml.Linq;
 
 namespace Checkmarx.API
 {
@@ -95,8 +96,8 @@ namespace Checkmarx.API
         private AuthenticationHeaderValue _authenticationHeaderValue = null;
 
         // Cache
-        private Dictionary<int, string> _presets;
-        private Dictionary<string, string> _teams;
+        private Dictionary<int, string> _presetsCache;
+        private Dictionary<string, string> _teamsCache;
 
         private string _sessionId = "";
 
@@ -141,9 +142,7 @@ namespace Checkmarx.API
                 }
             }
         }
-
-       
-        
+ 
         private string _version;
         /// <summary>
         /// Get SAST Version
@@ -851,8 +850,8 @@ namespace Checkmarx.API
             if (!Connected)
                 throw new NotSupportedException();
 
-            if (_presets != null)
-                return _presets;
+            if (_presetsCache != null)
+                return _presetsCache;
 
             using (var presets = new HttpRequestMessage(HttpMethod.Get, $"sast/presets"))
             {
@@ -864,9 +863,9 @@ namespace Checkmarx.API
                 {
                     var presetArray = JsonConvert.DeserializeObject<JArray>(presetResponse.Content.ReadAsStringAsync().Result);
 
-                    _presets = presetArray.ToDictionary(x => (int)x.SelectToken("id"), x => (string)x.SelectToken("name"));
+                    _presetsCache = presetArray.ToDictionary(x => (int)x.SelectToken("id"), x => (string)x.SelectToken("name"));
 
-                    return _presets;
+                    return _presetsCache;
                 }
 
                 throw new NotSupportedException(presetResponse.ToString());
@@ -878,8 +877,8 @@ namespace Checkmarx.API
             if (!Connected)
                 throw new NotSupportedException();
 
-            if (_teams != null)
-                return _teams;
+            if (_teamsCache != null)
+                return _teamsCache;
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, "auth/teams"))
             {
@@ -889,16 +888,16 @@ namespace Checkmarx.API
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    _teams = new Dictionary<string, string>();
+                    _teamsCache = new Dictionary<string, string>();
 
                     foreach (var item in (JArray)JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result))
                     {
-                        _teams.Add(
+                        _teamsCache.Add(
                             item.SelectToken("id").ToString(),
                             (string)item.SelectToken("fullName"));
                     }
 
-                    return _teams;
+                    return _teamsCache;
                 }
 
                 throw new NotSupportedException(request.ToString());
@@ -989,6 +988,16 @@ namespace Checkmarx.API
             }
 
             return Path.GetFullPath(fullOutputFileName);
+        }
+
+        /// <summary>
+        /// Get the XML document for the reports.
+        /// </summary>
+        /// <param name="scanId">Id of the scan</param>
+        /// <returns></returns>
+        public XDocument GetScanReport(long scanId)
+        {
+            return XDocument.Load(GetScanReport(scanId, ReportType.XML));
         }
 
         private static string GetReportTypeString(ReportType reportType)

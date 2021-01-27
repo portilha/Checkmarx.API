@@ -1087,6 +1087,19 @@ namespace Checkmarx.API
             return result.ResultCollection.Results;
         }
 
+        public CxWSSingleResultData[] GetResultsForScan(long scanId)
+        {
+            if (!Connected)
+                throw new NotSupportedException();
+
+            var result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+
+            return result.Results;
+        }
+
         #endregion
 
 

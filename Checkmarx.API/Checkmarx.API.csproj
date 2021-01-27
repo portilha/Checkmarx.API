@@ -27,6 +27,7 @@ This SDK provides an API wrapper for accessing REST, SOAP and OData API for the 
   <ItemGroup>
     <PackageReference Include="Capri" Version="0.0.1" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.0" />
     <PackageReference Include="Microsoft.OData.Client" Version="7.8.1" />
     <PackageReference Include="Microsoft.OData.Core" Version="7.8.1" />
     <PackageReference Include="Microsoft.OData.Edm" Version="7.8.1" />

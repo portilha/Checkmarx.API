@@ -1045,7 +1045,6 @@ namespace Checkmarx.API
             throw new Exception(res.ErrorMessage);
         }
 
-
         private bool IsReportReady(long reportId)
         {
             if (!Connected)
@@ -1070,27 +1069,9 @@ namespace Checkmarx.API
 
         #region Results
 
-        /// <summary>
-        /// Get the scan results.
-        /// </summary>
-        /// <param name="scanId"></param>
-        /// <returns></returns>
-        public AuditScanResult[] GetScanResults(long scanId)
-        {
-            checkConnection();
-
-            var result = _cxPortalWebServiceSoapClient.GetResults(_soapSessionId, scanId);
-
-            if (!result.IsSuccesfull)
-                throw new ApplicationException(result.ErrorMessage);
-
-            return result.ResultCollection.Results;
-        }
-
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             var result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
 
@@ -1098,6 +1079,93 @@ namespace Checkmarx.API
                 throw new ApplicationException(result.ErrorMessage);
 
             return result.Results;
+        }
+
+        /// <summary>
+        /// Comment Separator.
+        /// </summary>
+        public static char CommentSeparator
+        {
+            get
+            {
+                return Convert.ToChar(255);
+            }
+        }
+
+
+        public void GetCommentsHistoryTest(long scanId)
+        {
+            checkConnection();
+
+            var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+
+            // Assert.IsTrue(response.IsSuccesfull);
+
+            foreach (var item in response.Results)
+            {
+                //Console.WriteLine(item.State);
+
+                if (!string.IsNullOrWhiteSpace(item.Comment))
+                {
+                    var commentsResults = _cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, item.PathId,
+                         ResultLabelTypeEnum.Remark);
+
+                    foreach (var comment in commentsResults.Path.Comment.Split(new[] { CommentSeparator },
+                        StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        string commentText = comment.Substring(comment.IndexOf(']') + 3);
+
+                        Console.WriteLine(string.Join(";",
+                            toSeverityToString(item.Severity), toResultStateToString((ResultState)item.State), commentText));
+                    }
+                }
+            }
+        }
+
+        public enum ResultState : int
+        {
+            ToVerify = 0,
+            NonExploitable = 1,
+            Confirmed = 2,
+            Urgent = 3,
+            ProposedNotExploitable = 4
+        }
+
+
+        private static string toResultStateToString(ResultState state)
+        {
+            switch (state)
+            {
+                case ResultState.ToVerify:
+                    return "To Verify";
+                case ResultState.NonExploitable:
+                    return "Non Exploitable";
+                case ResultState.Confirmed:
+                    return "Confirmed";
+                case ResultState.Urgent:
+                    return "Urgent";
+                case ResultState.ProposedNotExploitable:
+                    return "Proposed Not Exploitable";
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private static string toSeverityToString(int severity)
+        {
+            switch (severity)
+            {
+                case 0:
+                    return "Low";
+                case 1:
+                    return "Low";
+                case 2:
+                    return "Medium";
+                case 3:
+                    return "High";
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         #endregion

@@ -43,7 +43,7 @@ namespace Checkmarx.API.Tests
             {
                 clientV89 =
                         new CxClient(new Uri(v8),
-                        Configuration["V89:User"],
+                        Configuration["V89:Username"],
                         new NetworkCredential("", Configuration["V89:Password"]).Password); 
             }
 
@@ -52,7 +52,7 @@ namespace Checkmarx.API.Tests
             {
                 clientV9 =
                     new CxClient(new Uri(v9),
-                    Configuration["V9:User"],
+                    Configuration["V9:Username"],
                     new NetworkCredential("", Configuration["V9:Password"]).Password);
             }
         }
@@ -287,12 +287,12 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetResultsForScan()
         {
-            var projects = clientV9.GetProjects();
-            if (projects.Count != 0)
-            {
-                var sut = clientV9.GetResultsForScan(projects.Keys.First());
-                Assert.IsTrue(sut.Length != 0);
-            }
+            //var projects = clientV9.GetProjects();
+            //if (projects.Count != 0)
+            //{
+                clientV89.GetCommentsHistoryTest(1010075);
+                //Assert.IsTrue(sut.Length != 0);
+            //}
         }
 
 

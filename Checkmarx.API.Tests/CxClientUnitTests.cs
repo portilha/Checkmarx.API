@@ -274,6 +274,28 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void GetScansDisplayData()
+        {
+            var projects = clientV9.GetProjects();
+            if (projects.Count != 0)
+            {
+                var sut = clientV9.GetScansDisplayData(projects.Keys.First());
+                Assert.IsTrue(sut.IsSuccesfull);
+            }
+        }
+
+        [TestMethod]
+        public void GetResultsForScan()
+        {
+            var projects = clientV9.GetProjects();
+            if (projects.Count != 0)
+            {
+                var sut = clientV9.GetResultsForScan(projects.Keys.First());
+                Assert.IsTrue(sut.Length != 0);
+            }
+        }
+
+
         public void GetResultsTest()
         {
             long scanID = 1010075;
@@ -290,5 +312,6 @@ namespace Checkmarx.API.Tests
                 }
             }
         }
+
     }
 }

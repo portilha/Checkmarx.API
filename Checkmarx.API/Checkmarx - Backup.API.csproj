@@ -15,28 +15,12 @@ This SDK provides an API wrapper for accessing REST, SOAP and OData API for the 
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
-    <None Remove="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
-    <EmbeddedResource Include="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Capri" Version="0.0.1" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
     <PackageReference Include="Microsoft.OData.Client" Version="7.8.1" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.8.1" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="7.8.1" />
-    <PackageReference Include="Microsoft.Spatial" Version="7.8.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="4.4.*" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.8.0" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.*" />
-    <PackageReference Include="System.ServiceModel.Security" Version="4.4.*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,8 +35,18 @@ This SDK provides an API wrapper for accessing REST, SOAP and OData API for the 
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
-    <WCFMetadata Include="Connected Services" />
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

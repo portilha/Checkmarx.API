@@ -20,6 +20,7 @@ using CxDataRepository;
 using PortalSoap;
 using Scan = Checkmarx.API.SAST.Scan;
 
+
 namespace Checkmarx.API
 {
     /// <summary>
@@ -53,7 +54,7 @@ namespace Checkmarx.API
             {
                 if (httpClient == null || (_jwtSecurityToken.ValidTo - DateTime.UtcNow).TotalMinutes < 5) // login and re-logins...
                 {
-                    httpClient = Login(WebServerURL.ToString(), Username, Password);
+                    httpClient = Login(SASTServerURL.ToString(), Username, Password);
                 }
 
                 return true;
@@ -63,7 +64,7 @@ namespace Checkmarx.API
         /// <summary>
         /// URI of the server.
         /// </summary>
-        public Uri WebServerURL { get; }
+        public Uri SASTServerURL { get; }
 
         public string Username { get; }
 
@@ -77,15 +78,15 @@ namespace Checkmarx.API
         /// <summary>
         /// Constructor of the Checkmarx Client
         /// </summary>
-        /// <param name="webserverAddress">Server URL, e.g. http://localhost/</param>
+        /// <param name="sastServerAddress">Server URL, e.g. http://localhost/</param>
         /// <param name="username">The username of the user, if it is an LDAP user please put the DOMAIN\Username</param>
         /// <param name="password">The password of the user</param>
         /// <param name="lcid">Localization of the user</param>
-        public CxClient(Uri webserverAddress, string username, string password, int lcid = 1033)
+        public CxClient(Uri sastServerAddress, string username, string password, int lcid = 1033)
         {
             Username = username;
             Password = password;
-            WebServerURL = webserverAddress;
+            SASTServerURL = sastServerAddress;
             LcId = lcid;
         }
 
@@ -99,11 +100,7 @@ namespace Checkmarx.API
 
         private AuthenticationHeaderValue _authenticationHeaderValue = null;
 
-        // Cache
-        private Dictionary<int, string> _presetsCache;
-        private Dictionary<string, string> _teamsCache;
-
-        private string _sessionId = "";
+        private string _soapSessionId = "";
 
         /// <summary>
         /// Authentication Token for the Version REST 8.9, and all service 9.X
@@ -129,7 +126,7 @@ namespace Checkmarx.API
 
                     if (_authenticationHeaderValue != null)
                     {
-                        var webServer = WebServerURL;
+                        var webServer = SASTServerURL;
                         if (webServer.LocalPath != "cxrestapi")
                         {
                             webServer = new Uri(webServer, "/cxrestapi/");
@@ -146,7 +143,7 @@ namespace Checkmarx.API
                 }
             }
         }
- 
+
         private string _version;
         /// <summary>
         /// Get SAST Version
@@ -158,13 +155,17 @@ namespace Checkmarx.API
 
         private bool _isV9 = false;
 
+        #region Access Control 
+
         private HttpClient Login(string baseURL = "http://localhost/cxrestapi/",
             string userName = "", string password = "")
         {
             var webServer = new Uri(baseURL);
 
+            Uri baseServer = new Uri(webServer.AbsoluteUri);
+
             _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
-                webServer.AbsoluteUri, TimeSpan.FromSeconds(60), userName, password);
+                baseServer, TimeSpan.FromSeconds(60), userName, password);
 
             _version = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
 
@@ -207,7 +208,7 @@ namespace Checkmarx.API
 
                     if (_isV9)
                     {
-                        _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(baseURL, TimeSpan.FromSeconds(60), userName, password);
+                        _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(60), userName, password);
 
                         var portalChannelFactory = _cxPortalWebServiceSoapClient.ChannelFactory;
                         portalChannelFactory.UseMessageInspector(async (request, channel, next) =>
@@ -225,7 +226,7 @@ namespace Checkmarx.API
                     }
                     else
                     {
-                        _sessionId = _cxPortalWebServiceSoapClient.Login(new PortalSoap.Credentials
+                        _soapSessionId = _cxPortalWebServiceSoapClient.Login(new PortalSoap.Credentials
                         {
                             User = userName,
                             Pass = password
@@ -252,7 +253,55 @@ namespace Checkmarx.API
             if (!Connected)
                 throw new NotSupportedException();
 
-            return _cxPortalWebServiceSoapClient.GetServerLicenseData(_sessionId);
+            return _cxPortalWebServiceSoapClient.GetServerLicenseData(_soapSessionId);
+        }
+
+        // Cache
+        private Dictionary<string, string> _teamsCache;
+
+        public string GetProjectTeamName(int projectId)
+        {
+            return GetTeams()[GetProjectTeamId(projectId)];
+        }
+
+        public Dictionary<string, string> GetTeams()
+        {
+            if (!Connected)
+                throw new NotSupportedException();
+
+            if (_teamsCache != null)
+                return _teamsCache;
+
+            using (var request = new HttpRequestMessage(HttpMethod.Get, "auth/teams"))
+            {
+                request.Headers.Add("Accept", "application/json;v=1.0");
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    _teamsCache = new Dictionary<string, string>();
+
+                    foreach (var item in (JArray)JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result))
+                    {
+                        _teamsCache.Add(
+                            item.SelectToken("id").ToString(),
+                            (string)item.SelectToken("fullName"));
+                    }
+
+                    return _teamsCache;
+                }
+
+                throw new NotSupportedException(request.ToString());
+            }
+        }
+
+        #endregion
+
+        private void checkConnection()
+        {
+            if (!Connected)
+                throw new NotSupportedException();
         }
 
         /// <summary>
@@ -264,8 +313,7 @@ namespace Checkmarx.API
         /// </exception>
         public Tuple<string, string> GetExcludedSettings(int projectId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}/sourceCode/excludeSettings"))
             {
@@ -369,7 +417,7 @@ namespace Checkmarx.API
 
             return _oDataProjs.Where(x => x.Id == projectID).FirstOrDefault().CreatedDate;
         }
-        
+
         public ProjectDetails GetProjectSettings(int projectId)
         {
             if (!Connected)
@@ -419,11 +467,6 @@ namespace Checkmarx.API
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
-        }
-
-        public string GetProjectTeamName(int projectId)
-        {
-            return GetTeams()[GetProjectTeamId(projectId)];
         }
 
         public Dictionary<string, int> GetSASTCustomFields()
@@ -632,7 +675,7 @@ namespace Checkmarx.API
             if (!Connected)
                 throw new NotSupportedException();
 
-            var projectResponse = _cxPortalWebServiceSoapClient.GetProjectConfiguration(_sessionId, projectId);
+            var projectResponse = _cxPortalWebServiceSoapClient.GetProjectConfiguration(_soapSessionId, projectId);
 
             if (!projectResponse.IsSuccesfull)
                 throw new Exception(projectResponse.ErrorMessage);
@@ -849,6 +892,8 @@ namespace Checkmarx.API
             throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
         }
 
+
+        private Dictionary<int, string> _presetsCache;
         public Dictionary<int, string> GetPresets()
         {
             if (!Connected)
@@ -876,38 +921,6 @@ namespace Checkmarx.API
             }
         }
 
-        public Dictionary<string, string> GetTeams()
-        {
-            if (!Connected)
-                throw new NotSupportedException();
-
-            if (_teamsCache != null)
-                return _teamsCache;
-
-            using (var request = new HttpRequestMessage(HttpMethod.Get, "auth/teams"))
-            {
-                request.Headers.Add("Accept", "application/json;v=1.0");
-
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    _teamsCache = new Dictionary<string, string>();
-
-                    foreach (var item in (JArray)JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result))
-                    {
-                        _teamsCache.Add(
-                            item.SelectToken("id").ToString(),
-                            (string)item.SelectToken("fullName"));
-                    }
-
-                    return _teamsCache;
-                }
-
-                throw new NotSupportedException(request.ToString());
-            }
-        }
-        
         #region Reports
 
         /// <summary>
@@ -1051,16 +1064,38 @@ namespace Checkmarx.API
             }
 
             return false;
-        } 
-        
+        }
+
         #endregion
+
+        #region Results
+
+        /// <summary>
+        /// Get the scan results.
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <returns></returns>
+        public AuditScanResult[] GetScanResults(long scanId)
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetResults(_soapSessionId, scanId);
+
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+
+            return result.ResultCollection.Results;
+        }
+
+        #endregion
+
 
         public void Dispose()
         {
             // There is logoff...
-            
+
         }
     }
 
-  
+
 }

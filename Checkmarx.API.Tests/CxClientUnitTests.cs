@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Net;
 using System.Web;
 using System.Xml.Linq;
 using Checkmarx.API;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -15,28 +17,44 @@ namespace Checkmarx.API.Tests
     [TestClass]
     public class CxClientUnitTests
     {
-        private static CxClient client;
+        public static IConfigurationRoot Configuration { get; private set; }
+
+        private static CxClient clientV89;
         private static CxClient clientV9;
 
-        const string URL_V9 = "https://clientV9";
-        const string PASS_V9 = "";
-        const string URL_V89 = "https://clientV89";
-        const string PASS_89 = "";
+        //const string URL_V9 = "https://clientV9";
+        //const string PASS_V9 = "";
+        //const string URL_V89 = "https://clientV89";
+        //const string PASS_89 = "";
 
         const string USER = "";
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
         {
-            client =
-                new CxClient(new Uri(URL_V89),
-                USER,
-                new NetworkCredential("", PASS_89).Password);
+            var builder = new ConfigurationBuilder()
+                .AddUserSecrets<CxClientUnitTests>();
 
-            clientV9 =
-                new CxClient(new Uri(URL_V9),
-                USER,
-                new NetworkCredential("", PASS_V9).Password);
+            Configuration = builder.Build();
+
+            string v8 = Configuration["V89:URL"];
+
+            if (!string.IsNullOrWhiteSpace(v8))
+            {
+                clientV89 =
+                        new CxClient(new Uri(v8),
+                        Configuration["V89:User"],
+                        new NetworkCredential("", Configuration["V89:Password"]).Password); 
+            }
+
+            string v9 = Configuration["V9:URL"];
+            if (!string.IsNullOrWhiteSpace(v9))
+            {
+                clientV9 =
+                    new CxClient(new Uri(v9),
+                    Configuration["V9:User"],
+                    new NetworkCredential("", Configuration["V9:Password"]).Password);
+            }
         }
 
         [TestMethod]
@@ -48,9 +66,8 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void TestGetOSA_V9()
         {
-            CxClient client = new CxClient(new Uri(URL_V9), USER, PASS_V9);
 
-            var license = client.GetLicense();
+            var license = clientV9.GetLicense();
 
             Assert.IsTrue(license.IsOsaEnabled);
         }
@@ -59,9 +76,8 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void TestGetOSA_V8()
         {
-            CxClient client = new CxClient(new Uri(URL_V89), USER, PASS_89);
 
-            var license = client.GetLicense();
+            var license = clientV89.GetLicense();
 
             Assert.IsTrue(license.IsOsaEnabled);
         }
@@ -69,9 +85,8 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void V9ConnectTest()
         {
-            CxClient client = new CxClient(new Uri(URL_V9), USER, PASS_V9);
 
-            foreach (var item in client.GetProjects())
+            foreach (var item in clientV9.GetProjects())
             {
                 Trace.WriteLine(item.Key);
             }
@@ -131,7 +146,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void getRTFReport()
         {
-            var memoryStream = client.GetScanReport(1010026, ReportType.RTF);
+            var memoryStream = clientV89.GetScanReport(1010026, ReportType.RTF);
             string outputFile = @"report.rtf";
             using (FileStream fs = File.Create(outputFile))
             {
@@ -142,7 +157,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void getPDFReport()
         {
-            var memoryStream = client.GetScanReport(1010026, ReportType.PDF);
+            var memoryStream = clientV89.GetScanReport(1010026, ReportType.PDF);
             using (FileStream fs = File.Create(@"report.pdf"))
             {
                 memoryStream.CopyTo(fs);
@@ -152,25 +167,24 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetProjectsTest()
         {
-
-            foreach (var keyValuePair in client.GetTeams())
+            foreach (var keyValuePair in clientV89.GetTeams())
             {
                 Console.WriteLine(keyValuePair.Value);
             }
 
-            foreach (var item in client.GetProjects())
+            foreach (var item in clientV89.GetProjects())
             {
                 Console.WriteLine($" === {item.Value} === ");
 
-                var excluded = client.GetExcludedSettings(item.Key);
+                var excluded = clientV89.GetExcludedSettings(item.Key);
                 Console.WriteLine("ExcludedFolders:" + excluded.Item1);
                 Console.WriteLine("ExcludedFiles:" + excluded.Item2);
-                Console.WriteLine("Preset:" + client.GetSASTPreset(item.Key));
+                Console.WriteLine("Preset:" + clientV89.GetSASTPreset(item.Key));
 
                 Console.WriteLine("== CxSAST Scans ==");
-                foreach (var sastScan in client.GetSASTScans(item.Key))
+                foreach (var sastScan in clientV89.GetSASTScans(item.Key))
                 {
-                    var result = client.GetSASTResults(sastScan);
+                    var result = clientV89.GetSASTResults(sastScan);
                     //var scanState = sastScan["scanState"];
 
                     //result.LoC = (int)scanState.SelectToken("linesOfCode");
@@ -181,9 +195,9 @@ namespace Checkmarx.API.Tests
                 }
 
                 Console.WriteLine("== OSA Results ==");
-                foreach (var osaScanUI in client.GetOSAScans(item.Key))
+                foreach (var osaScanUI in clientV89.GetOSAScans(item.Key))
                 {
-                    var osaResults = client.GetOSAResults(osaScanUI);
+                    var osaResults = clientV89.GetOSAResults(osaScanUI);
                     Console.WriteLine(osaResults.ToString());
                 }
                 Console.WriteLine(" === == === == ");
@@ -194,11 +208,11 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetPreset()
         {
-            var presets = client.GetPresets();
+            var presets = clientV89.GetPresets();
 
-            foreach (var item in client.GetProjects())
+            foreach (var item in clientV89.GetProjects())
             {
-                Trace.WriteLine($"{item.Key} " + client.GetSASTPreset(item.Key));
+                Trace.WriteLine($"{item.Key} " + clientV89.GetSASTPreset(item.Key));
             }
 
 
@@ -207,9 +221,9 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void SetScanSettings()
         {
-            foreach (var project in client.GetProjects())
+            foreach (var project in clientV89.GetProjects())
             {
-                client.SetProjectSettings(project.Key, 36,
+                clientV89.SetProjectSettings(project.Key, 36,
                     1, 1);
             }
         }
@@ -217,15 +231,15 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetProjectSettings()
         {
-            client.GetProjectSettings(9);
+            clientV89.GetProjectSettings(9);
         }
 
         [TestMethod]
         public void SetCustomFieldsTest()
         {
-            var projectSettings = client.GetProjectSettings(20);
+            var projectSettings = clientV89.GetProjectSettings(20);
 
-            client.SetCustomFields(projectSettings, new[] {
+            clientV89.SetCustomFields(projectSettings, new[] {
                 new CustomField
                 {
                     Id = 3,
@@ -237,7 +251,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void TestCreationDate()
         {
-            client.GetProjectCreationDate(9);
+            clientV89.GetProjectCreationDate(9);
 
         }
         [TestMethod]
@@ -249,11 +263,11 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetProjectDetails()
         {
-            foreach (var item in client.GetAllProjectsDetails())
+            foreach (var item in clientV89.GetAllProjectsDetails())
             {
                 foreach (var customField in item.CustomFields)
                 {
-                    
+
                 }
             }
 
@@ -267,6 +281,24 @@ namespace Checkmarx.API.Tests
             {
                 var sut = clientV9.GetScansDisplayData(projects.Keys.First());
                 Assert.IsTrue(sut.IsSuccesfull);
+            }
+        }
+
+
+        public void GetResultsTest()
+        {
+            long scanID = 1010075;
+
+            foreach (var groupOfResults in clientV89
+                .GetScanResults(scanID)
+                .GroupBy(x => x.QueryGroupName))
+            {
+                Trace.WriteLine(groupOfResults.Key);
+
+                foreach (var item in groupOfResults)
+                {
+                    // Trace.WriteLine(item.)
+                }
             }
         }
 

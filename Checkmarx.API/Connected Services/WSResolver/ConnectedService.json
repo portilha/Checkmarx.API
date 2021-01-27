@@ -85,7 +85,7 @@
       "System.Threading.Tasks, {System.Threading.Tasks, 4.3.0}",
       "System.Threading.Timer, {System.Threading.Timer, 4.3.0}",
       "System.Xml.ReaderWriter, {System.Xml.ReaderWriter, 4.3.0}",
-      "System.Xml.XDocument, {System.Xml.XDocument, 4.3.0}",
+      "System.Xml.XDocument, {System.Xml.XDocument, 4.3.0}"
     ],
     "targetFramework": "netcoreapp3.1",
     "typeReuseMode": "All"

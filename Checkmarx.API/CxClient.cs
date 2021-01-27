@@ -1037,7 +1037,7 @@ namespace Checkmarx.API
         public CxWSResponseScansDisplayData GetScansDisplayData(long projectId)
         {
             if (!Connected) throw new NotSupportedException();
-            var res = _cxPortalWebServiceSoapClient.GetScansDisplayData(_sessionId, projectId);
+            var res = _cxPortalWebServiceSoapClient.GetScansDisplayData(_soapSessionId, projectId);
             if (res.IsSuccesfull)
             {
                 return res;

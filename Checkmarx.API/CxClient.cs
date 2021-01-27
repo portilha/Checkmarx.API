@@ -158,8 +158,10 @@ namespace Checkmarx.API
         {
             var webServer = new Uri(baseURL);
 
+            Uri baseServer = new Uri(webServer.AbsoluteUri);
+
             _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
-                webServer.AbsoluteUri, TimeSpan.FromSeconds(60), userName, password);
+                baseServer, TimeSpan.FromSeconds(60), userName, password);
 
             _version = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
 
@@ -202,7 +204,7 @@ namespace Checkmarx.API
 
                     if (_isV9)
                     {
-                        _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(baseURL, TimeSpan.FromSeconds(60), userName, password);
+                        _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(60), userName, password);
 
                         var portalChannelFactory = _cxPortalWebServiceSoapClient.ChannelFactory;
                         portalChannelFactory.UseMessageInspector(async (request, channel, next) =>

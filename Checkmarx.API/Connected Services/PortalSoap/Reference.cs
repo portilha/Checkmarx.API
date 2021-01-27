@@ -21865,11 +21865,12 @@ namespace PortalSoap
         /// <param name="clientCredentials">The client credentials</param>
         static void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials)
         {
-            
+
         }
 
-        public CxPortalWebServiceSoapClient(string endpointUrl, TimeSpan timeout, string username, string password) :
- base(CxPortalWebServiceSoapClient.GetBindingForEndpoint(timeout), CxPortalWebServiceSoapClient.GetEndpointAddress(endpointUrl))
+        public CxPortalWebServiceSoapClient(Uri endpointUrl, TimeSpan timeout, string username, string password)
+            : base(CxPortalWebServiceSoapClient.GetBindingForEndpoint(endpointUrl, timeout),
+                  CxPortalWebServiceSoapClient.GetEndpointAddress(endpointUrl.AbsoluteUri))
         {
             this.ChannelFactory.Credentials.UserName.UserName = username;
             this.ChannelFactory.Credentials.UserName.Password = password;
@@ -24247,32 +24248,45 @@ namespace PortalSoap
             return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose));
         }
 
-        private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(TimeSpan timeout)
+        private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(Uri url, TimeSpan timeout)
         {
-            var httpsBinding = new BasicHttpsBinding();
-            httpsBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
-            httpsBinding.Security.Mode = BasicHttpsSecurityMode.Transport;
+            HttpBindingBase httpBinding = null;
+            if (url.Scheme == Uri.UriSchemeHttps)
+            {
+                httpBinding = new BasicHttpsBinding();
+                ((BasicHttpsBinding)httpBinding).Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
+                ((BasicHttpsBinding)httpBinding).Security.Mode = BasicHttpsSecurityMode.Transport;
+            }
+            else
+            {
+                System.ServiceModel.BasicHttpBinding result = new System.ServiceModel.BasicHttpBinding();
+                result.MaxBufferSize = int.MaxValue;
+                result.ReaderQuotas = System.Xml.XmlDictionaryReaderQuotas.Max;
+                result.MaxReceivedMessageSize = int.MaxValue;
+                result.AllowCookies = true;
+                return result;
+            }
 
             var integerMaxValue = int.MaxValue;
-            httpsBinding.MaxBufferSize = integerMaxValue;
-            httpsBinding.MaxReceivedMessageSize = integerMaxValue;
-            httpsBinding.ReaderQuotas = System.Xml.XmlDictionaryReaderQuotas.Max;
-            httpsBinding.AllowCookies = true;
+            httpBinding.MaxBufferSize = integerMaxValue;
+            httpBinding.MaxReceivedMessageSize = integerMaxValue;
+            httpBinding.ReaderQuotas = System.Xml.XmlDictionaryReaderQuotas.Max;
+            httpBinding.AllowCookies = true;
 
-            httpsBinding.ReceiveTimeout = timeout;
-            httpsBinding.SendTimeout = timeout;
-            httpsBinding.OpenTimeout = timeout;
-            httpsBinding.CloseTimeout = timeout;
+            httpBinding.ReceiveTimeout = timeout;
+            httpBinding.SendTimeout = timeout;
+            httpBinding.OpenTimeout = timeout;
+            httpBinding.CloseTimeout = timeout;
 
-            return httpsBinding;
+            return httpBinding;
         }
 
         private static System.ServiceModel.EndpointAddress GetEndpointAddress(string endpointUrl)
         {
-            if (!endpointUrl.StartsWith("https://"))
-            {
-                throw new UriFormatException("The endpoint URL must start with https://.");
-            }
+            //if (!endpointUrl.StartsWith("https://"))
+            //{
+            //    throw new UriFormatException("The endpoint URL must start with https://.");
+            //}
 
             endpointUrl += "CxWebInterface/Portal/CxWebService.asmx";
 

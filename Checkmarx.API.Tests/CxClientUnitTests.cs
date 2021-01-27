@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Net;
 using System.Web;
 using System.Xml.Linq;
 using Checkmarx.API;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -15,28 +17,44 @@ namespace Checkmarx.API.Tests
     [TestClass]
     public class CxClientUnitTests
     {
+        public static IConfigurationRoot Configuration { get; private set; }
+
         private static CxClient clientV89;
         private static CxClient clientV9;
 
-        const string URL_V9 = "https://clientV9";
-        const string PASS_V9 = "";
-        const string URL_V89 = "https://clientV89";
-        const string PASS_89 = "";
+        //const string URL_V9 = "https://clientV9";
+        //const string PASS_V9 = "";
+        //const string URL_V89 = "https://clientV89";
+        //const string PASS_89 = "";
 
         const string USER = "";
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
         {
-            clientV89 =
-                new CxClient(new Uri(URL_V89),
-                USER,
-                new NetworkCredential("", PASS_89).Password);
+            var builder = new ConfigurationBuilder()
+                .AddUserSecrets<CxClientUnitTests>();
 
-            clientV9 =
-                new CxClient(new Uri(URL_V9),
-                USER,
-                new NetworkCredential("", PASS_V9).Password);
+            Configuration = builder.Build();
+
+            string v8 = Configuration["V89:URL"];
+
+            if (!string.IsNullOrWhiteSpace(v8))
+            {
+                clientV89 =
+                        new CxClient(new Uri(v8),
+                        Configuration["V89:User"],
+                        new NetworkCredential("", Configuration["V89:Password"]).Password); 
+            }
+
+            string v9 = Configuration["V9:URL"];
+            if (!string.IsNullOrWhiteSpace(v9))
+            {
+                clientV9 =
+                    new CxClient(new Uri(v9),
+                    Configuration["V9:User"],
+                    new NetworkCredential("", Configuration["V9:Password"]).Password);
+            }
         }
 
         [TestMethod]
@@ -48,9 +66,8 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void TestGetOSA_V9()
         {
-            CxClient client = new CxClient(new Uri(URL_V9), USER, PASS_V9);
 
-            var license = client.GetLicense();
+            var license = clientV9.GetLicense();
 
             Assert.IsTrue(license.IsOsaEnabled);
         }
@@ -59,9 +76,8 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void TestGetOSA_V8()
         {
-            CxClient client = new CxClient(new Uri(URL_V89), USER, PASS_89);
 
-            var license = client.GetLicense();
+            var license = clientV89.GetLicense();
 
             Assert.IsTrue(license.IsOsaEnabled);
         }
@@ -69,9 +85,8 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void V9ConnectTest()
         {
-            CxClient client = new CxClient(new Uri(URL_V9), USER, PASS_V9);
 
-            foreach (var item in client.GetProjects())
+            foreach (var item in clientV9.GetProjects())
             {
                 Trace.WriteLine(item.Key);
             }
@@ -152,7 +167,6 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetProjectsTest()
         {
-
             foreach (var keyValuePair in clientV89.GetTeams())
             {
                 Console.WriteLine(keyValuePair.Value);
@@ -253,7 +267,7 @@ namespace Checkmarx.API.Tests
             {
                 foreach (var customField in item.CustomFields)
                 {
-                    
+
                 }
             }
 
@@ -264,7 +278,9 @@ namespace Checkmarx.API.Tests
         {
             long scanID = 1010075;
 
-            foreach (var groupOfResults in clientV89.GetScanResults(scanID).GroupBy(x => x.QueryGroupName))
+            foreach (var groupOfResults in clientV89
+                .GetScanResults(scanID)
+                .GroupBy(x => x.QueryGroupName))
             {
                 Trace.WriteLine(groupOfResults.Key);
 

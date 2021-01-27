@@ -9,12 +9,16 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading;
 using Checkmarx.API.OSA;
 using Checkmarx.API.SAST;
 using System.Xml.Linq;
+using CxDataRepository;
+using PortalSoap;
+using Scan = Checkmarx.API.SAST.Scan;
 
 namespace Checkmarx.API
 {
@@ -1016,6 +1020,18 @@ namespace Checkmarx.API
                     throw new NotSupportedException();
             }
         }
+
+        public CxWSResponseScansDisplayData GetScansDisplayData(long projectId)
+        {
+            if (!Connected) throw new NotSupportedException();
+            var res = _cxPortalWebServiceSoapClient.GetScansDisplayData(_sessionId, projectId);
+            if (res.IsSuccesfull)
+            {
+                return res;
+            }
+            throw new Exception(res.ErrorMessage);
+        }
+
 
         private bool IsReportReady(long reportId)
         {

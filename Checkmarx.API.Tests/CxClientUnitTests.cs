@@ -258,5 +258,17 @@ namespace Checkmarx.API.Tests
             }
 
         }
+
+        [TestMethod]
+        public void GetScansDisplayData()
+        {
+            var projects = clientV9.GetProjects();
+            if (projects.Count != 0)
+            {
+                var sut = clientV9.GetScansDisplayData(projects.Keys.First());
+                Assert.IsTrue(sut.IsSuccesfull);
+            }
+        }
+
     }
 }

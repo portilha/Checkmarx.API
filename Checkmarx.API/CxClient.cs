@@ -376,6 +376,30 @@ namespace Checkmarx.API
 
         }
 
+        public void CreateCustomField(params string[] fieldNames)
+        {
+            if (!Connected)
+                throw new NotSupportedException();
+
+            var existingFields = GetSASTCustomFields();
+            if (existingFields.Count >= 10 || (existingFields.Count + fieldNames.Count()) > 10)
+            {
+                throw new Exception("Only 10 custom fields can be defined.");
+            }
+
+            var fields = new List<PortalSoap.CxWSCustomField>();
+            foreach (var name in fieldNames)
+            {
+                fields.Add(new PortalSoap.CxWSCustomField { Name = name });
+            }
+
+            var result = _cxPortalWebServiceSoapClient.SaveCustomFields(_soapSessionId, fields.ToArray());
+            if (!result.IsSuccesfull)
+            {
+                throw new Exception(result.ErrorMessage);
+            }
+        }
+
         public void SetCustomFields(ProjectDetails projDetails, IEnumerable<CustomField> customFields)
         {
             if (!Connected)

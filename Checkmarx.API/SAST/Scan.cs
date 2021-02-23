@@ -41,7 +41,7 @@ namespace Checkmarx.API.SAST
         public string InitiatorName { get; set; }
 
         [JsonProperty("owningTeamId")]
-        public Guid OwningTeamId { get; set; }
+        public string OwningTeamId { get; set; }
 
         [JsonProperty("isPublic")]
         public bool IsPublic { get; set; }

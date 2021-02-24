@@ -39,7 +39,7 @@ namespace Checkmarx.API.Tests
                 clientV89 =
                         new CxClient(new Uri(v8),
                         Configuration["V89:Username"],
-                        new NetworkCredential("", Configuration["V89:Password"]).Password); 
+                        new NetworkCredential("", Configuration["V89:Password"]).Password);
             }
 
             string v9 = Configuration["V9:URL"];
@@ -283,13 +283,58 @@ namespace Checkmarx.API.Tests
             //var projects = clientV9.GetProjects();
             //if (projects.Count != 0)
             //{
-                clientV89.GetCommentsHistoryTest(1010075);
-                //Assert.IsTrue(sut.Length != 0);
+            clientV89.GetCommentsHistoryTest(1010075);
+            //Assert.IsTrue(sut.Length != 0);
             //}
         }
 
 
-       
+        [TestMethod]
+        public void GetScansFromODATA()
+        {
+            // Force the first login.
+            Trace.WriteLine(clientV89.Version);
+
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+            try
+            {
+                var result = clientV89.GetScansFromOData(5).Where(x => x.IsLocked);
+
+                foreach (var item in result)
+                {
+                    Trace.WriteLine(item.Id);
+                }
+
+                Assert.IsNotNull(result);
+            }
+            finally
+            {
+                watch.Stop();
+                Console.WriteLine("name Time-ms: " + watch.Elapsed.TotalMilliseconds.ToString());
+            }
+
+            watch.Restart();
+
+            try
+            {
+                var result = clientV89.GetSASTScanSummary(5);
+
+                foreach (var item in result)
+                {
+                    Trace.WriteLine(item.Id);
+                }
+
+                Assert.IsNotNull(result);
+            }
+            finally
+            {
+                watch.Stop();
+                Console.WriteLine("name Time-ms: " + watch.Elapsed.TotalMilliseconds.ToString());
+            }
+        }
+
+
 
     }
 }

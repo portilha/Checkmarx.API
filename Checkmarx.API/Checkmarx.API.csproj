@@ -12,6 +12,7 @@ This SDK provides an API wrapper for accessing REST, SOAP and OData API for the 
     <PackageIcon>CxIcon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <UserSecretsId>9629655e-7523-42f3-b285-1cf568d14b45</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,8 +27,8 @@ This SDK provides an API wrapper for accessing REST, SOAP and OData API for the 
 
   <ItemGroup>
     <PackageReference Include="Capri" Version="0.0.1" />
+    <PackageReference Include="ErikEJ.EntityFrameworkCore.DgmlBuilder" Version="3.1.1" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-preview.1.21102.12" />
     <PackageReference Include="Microsoft.OData.Client" Version="7.8.2" />
     <PackageReference Include="Microsoft.OData.Core" Version="7.8.2" />
     <PackageReference Include="Microsoft.OData.Edm" Version="7.8.2" />

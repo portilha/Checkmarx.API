@@ -150,7 +150,11 @@ namespace Checkmarx.API
         /// </summary>
         public string Version
         {
-            get => _version;
+            get
+            {
+                checkConnection();
+                return _version;
+            }
         }
 
         private bool _isV9 = false;
@@ -296,6 +300,13 @@ namespace Checkmarx.API
             }
         }
 
+        public IQueryable<CxDataRepository.Scan> GetScansFromOData(int projectId)
+        {
+            checkConnection();
+
+            return _oData.Scans.Where(x => x.ProjectId == projectId);
+        }
+
         #endregion
 
         private void checkConnection()
@@ -336,8 +347,7 @@ namespace Checkmarx.API
 
         public void SetProjectSettings(int projectId, int presetId, int engineConfigurationId, int scanActionId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"sast/scanSettings"))
             {
@@ -376,10 +386,16 @@ namespace Checkmarx.API
 
         }
 
+        /// <summary>
+        /// Creates Manage Fields in SAST.
+        /// </summary>
+        /// <param name="fieldNames">Name of the Fields</param>
         public void CreateCustomField(params string[] fieldNames)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            if (fieldNames == null)
+                throw new ArgumentNullException(nameof(fieldNames));
+
+            checkConnection();
 
             var existingFields = GetSASTCustomFields();
             if (existingFields.Count >= 10 || (existingFields.Count + fieldNames.Count()) > 10)

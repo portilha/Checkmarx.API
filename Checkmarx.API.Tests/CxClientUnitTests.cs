@@ -22,11 +22,6 @@ namespace Checkmarx.API.Tests
         private static CxClient clientV89;
         private static CxClient clientV9;
 
-        //const string URL_V9 = "https://clientV9";
-        //const string PASS_V9 = "";
-        //const string URL_V89 = "https://clientV89";
-        //const string PASS_89 = "";
-
         const string USER = "";
 
         [ClassInitialize]
@@ -214,8 +209,6 @@ namespace Checkmarx.API.Tests
             {
                 Trace.WriteLine($"{item.Key} " + clientV89.GetSASTPreset(item.Key));
             }
-
-
         }
 
         [TestMethod]
@@ -296,22 +289,7 @@ namespace Checkmarx.API.Tests
         }
 
 
-        public void GetResultsTest()
-        {
-            long scanID = 1010075;
-
-            foreach (var groupOfResults in clientV89
-                .GetScanResults(scanID)
-                .GroupBy(x => x.QueryGroupName))
-            {
-                Trace.WriteLine(groupOfResults.Key);
-
-                foreach (var item in groupOfResults)
-                {
-                    // Trace.WriteLine(item.)
-                }
-            }
-        }
+       
 
     }
 }

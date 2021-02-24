@@ -171,15 +171,15 @@ namespace Checkmarx.API
 
             _isV9 = _version.StartsWith("V 9.");
 
-            if (webServer.LocalPath != "cxrestapi")
-            {
-                webServer = new Uri(webServer, "/cxrestapi/");
-            }
-
             var httpClient = new HttpClient
             {
                 BaseAddress = webServer
             };
+
+            if (httpClient.BaseAddress.LocalPath != "cxrestapi")
+            {
+                httpClient.BaseAddress = new Uri(webServer, "/cxrestapi/");
+            }
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, "auth/identity/connect/token"))
             {

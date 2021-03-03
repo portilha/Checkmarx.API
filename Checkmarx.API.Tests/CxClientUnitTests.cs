@@ -270,7 +270,7 @@ namespace Checkmarx.API.Tests
         public void GetScansDisplayData()
         {
             var projects = clientV9.GetProjects();
-            if (projects.Count != 0)
+            if (projects.Count() != 0)
             {
                 var sut = clientV9.GetScansDisplayData(projects.Keys.First());
                 Assert.IsTrue(sut.IsSuccesfull);
@@ -288,6 +288,11 @@ namespace Checkmarx.API.Tests
             //}
         }
 
+        /*        [TestMethod]
+                public void GetScanResults()
+                {
+                    var scans = clientV9.GetScansFromProject(222);
+                }*/
 
         [TestMethod]
         public void GetScansFromODATA()
@@ -299,7 +304,7 @@ namespace Checkmarx.API.Tests
             watch.Start();
             try
             {
-                var result = clientV89.GetScansFromOData(5).Where(x => x.IsLocked);
+                var result = clientV9.GetScansFromOData(5).Where(x => !x.IsLocked);
 
                 foreach (var item in result)
                 {
@@ -334,7 +339,11 @@ namespace Checkmarx.API.Tests
             }
         }
 
-
-
+        [TestMethod]
+        public void RetrieveSingleScan()
+        {
+            var scan = clientV9.GetScanById(1003042);
+            Assert.IsNotNull(scan);
+        }
     }
 }

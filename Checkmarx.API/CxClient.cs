@@ -19,7 +19,8 @@ using System.Xml.Linq;
 using CxDataRepository;
 using PortalSoap;
 using Scan = Checkmarx.API.SAST.Scan;
-
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Checkmarx.API
 {
@@ -45,10 +46,40 @@ namespace Checkmarx.API
         /// </summary>
         private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
 
+        private Dictionary<long, CxDataRepository.Scan> _scanCache;
+        public string GetScanPreset(long id)
+        {
+            checkConnection();
+
+            if (id <= 0)
+            {
+                throw new ArgumentException(nameof(id));
+            }
+
+            if (_scanCache == null)
+            {
+                var watch = new Stopwatch();
+                watch.Start();
+                _scanCache = _isV9 ?
+                 _oDataV9.Scans.ToDictionary(x => x.Id)
+                 : _oData.Scans.ToDictionary(x => x.Id);
+                watch.Stop();
+                Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.ElapsedMilliseconds / 1000} seconds");
+            }
+
+
+            if (!_scanCache.ContainsKey(id))
+            {
+                throw new KeyNotFoundException($"Scan with Id {id} does not exist.");
+            }
+
+            return _scanCache[id].PresetName;
+        }
+
         /// <summary>
         /// Check if the wrapper is connected.
         /// </summary>
-        private bool Connected
+        public bool Connected
         {
             get
             {
@@ -252,6 +283,11 @@ namespace Checkmarx.API
             }
         }
 
+        public string GetProjectTeamName(string teamId)
+        {
+            return GetTeams()[teamId];
+        }
+
         public PortalSoap.CxWSResponseServerLicenseData GetLicense()
         {
             if (!Connected)
@@ -265,7 +301,7 @@ namespace Checkmarx.API
 
         public string GetProjectTeamName(int projectId)
         {
-            return GetTeams()[GetProjectTeamId(projectId)];
+            return GetProjectTeamName(GetProjectTeamId(projectId));
         }
 
         public Dictionary<string, string> GetTeams()
@@ -282,15 +318,20 @@ namespace Checkmarx.API
 
                 HttpResponseMessage response = httpClient.SendAsync(request).Result;
 
+
+
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     _teamsCache = new Dictionary<string, string>();
 
                     foreach (var item in (JArray)JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result))
                     {
-                        _teamsCache.Add(
-                            item.SelectToken("id").ToString(),
-                            (string)item.SelectToken("fullName"));
+                            if (!_teamsCache.ContainsKey(item.SelectToken("id").ToString()))
+                            {
+                                _teamsCache.Add(
+                                   item.SelectToken("id").ToString(),
+                                   (string)item.SelectToken("fullName"));
+                            }
                     }
 
                     return _teamsCache;
@@ -300,11 +341,10 @@ namespace Checkmarx.API
             }
         }
 
-        public IQueryable<CxDataRepository.Scan> GetScansFromOData(int projectId)
+        public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {
             checkConnection();
-
-            return _oData.Scans.Where(x => x.ProjectId == projectId);
+            return (_isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId) : _oData.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId));
         }
 
         #endregion
@@ -455,7 +495,7 @@ namespace Checkmarx.API
             if (!Connected)
                 throw new NotSupportedException();
 
-            return _oDataProjs.Where(x => x.Id == projectID).FirstOrDefault().CreatedDate;
+            return _oDataProjs.Where(x => x.Id == projectID).First().CreatedDate;
         }
 
         public ProjectDetails GetProjectSettings(int projectId)
@@ -814,6 +854,39 @@ namespace Checkmarx.API
             }
         }
 
+/*        public ICollection<Scan> GetScansFromProject(int projectId, string scanState = null, int? numberOfScans = null)
+        {
+            var scans = GetScansFromOData(projectId);
+            //scans = scanState != null ? scans.Where(s ) 
+            scans = numberOfScans != null ? scans.Take(numberOfScans.Value) : scans;
+            foreach (var scan in scans)
+            {
+                new Scan
+                {
+                    Comment = scan.Comment,
+                    Id = scan.Id,
+                    InitiatorName = scan.InitiatorName,
+                    IsLocked = scan.IsLocked,
+                    IsPublic = scan.IsPublic,
+                    Origin = scan.Origin,
+                    OwningTeamId = scan.OwningTeamId,
+                    IsIncremental = scan.IsIncremental.Value,
+                    ScanRisk = scan.RiskScore,
+                    ScanRiskSeverity = scan.RiskScore,
+                    EngineServer = new SAST.EngineServer
+                    {
+                        Id = scan.EngineServerId.Value,
+                    },
+                    DateAndTime = new DateAndTime { EngineFinishedOn = scan.EngineFinishedOn, EngineStartedOn = scan.EngineStartedOn },
+                    Project = new SAST.EngineServer { Id = scan.ProjectId.Value, Name = scan.ProjectName },
+                };
+
+            }
+            
+            var mappedScans = new List<Scan>();
+            throw new NotImplementedException();
+        }*/
+
         /// <summary>
         /// sast/scans
         /// </summary>
@@ -823,8 +896,7 @@ namespace Checkmarx.API
         /// <returns></returns>
         public ICollection<Scan> GetSASTScanSummary(int projectId, string scanState = null, int? numberOfScans = null)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             string sastFilter = $"projectId={projectId}";
 
@@ -844,6 +916,26 @@ namespace Checkmarx.API
                 {
                     var objRes = response.Content.ReadAsStringAsync().Result;
                     return JsonConvert.DeserializeObject<List<Scan>>(objRes);
+                }
+
+                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
+            }
+        }
+
+        public Scan GetScanById(long scanId)
+        {
+            checkConnection();
+
+            using (var request = new HttpRequestMessage(HttpMethod.Get, $"sast/scans/{scanId}"))
+            {
+                request.Headers.Add("Accept", "application/json;v=1.0");
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var objRes = response.Content.ReadAsStringAsync().Result;
+                    return JsonConvert.DeserializeObject<Scan>(objRes);
                 }
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);

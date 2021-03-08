@@ -61,15 +61,19 @@ namespace Checkmarx.API
                 var watch = new Stopwatch();
                 watch.Start();
                 _scanCache = _isV9 ?
-                 _oDataV9.Scans.ToDictionary(x => x.Id)
-                 : _oData.Scans.ToDictionary(x => x.Id);
+                 _oDataV9.Scans.ToList().ToDictionary(x => x.Id)
+                 : _oData.Scans.ToList().ToDictionary(x => x.Id);
                 watch.Stop();
                 Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.ElapsedMilliseconds / 1000} seconds");
+                Console.SetCursorPosition(0, Console.CursorTop);
             }
 
 
             if (!_scanCache.ContainsKey(id))
             {
+                _scanCache = _isV9 ?
+                   _oDataV9.Scans.ToDictionary(x => x.Id)
+                 : _oData.Scans.ToDictionary(x => x.Id);
                 throw new KeyNotFoundException($"Scan with Id {id} does not exist.");
             }
 
@@ -854,39 +858,6 @@ namespace Checkmarx.API
             }
         }
 
-/*        public ICollection<Scan> GetScansFromProject(int projectId, string scanState = null, int? numberOfScans = null)
-        {
-            var scans = GetScansFromOData(projectId);
-            //scans = scanState != null ? scans.Where(s ) 
-            scans = numberOfScans != null ? scans.Take(numberOfScans.Value) : scans;
-            foreach (var scan in scans)
-            {
-                new Scan
-                {
-                    Comment = scan.Comment,
-                    Id = scan.Id,
-                    InitiatorName = scan.InitiatorName,
-                    IsLocked = scan.IsLocked,
-                    IsPublic = scan.IsPublic,
-                    Origin = scan.Origin,
-                    OwningTeamId = scan.OwningTeamId,
-                    IsIncremental = scan.IsIncremental.Value,
-                    ScanRisk = scan.RiskScore,
-                    ScanRiskSeverity = scan.RiskScore,
-                    EngineServer = new SAST.EngineServer
-                    {
-                        Id = scan.EngineServerId.Value,
-                    },
-                    DateAndTime = new DateAndTime { EngineFinishedOn = scan.EngineFinishedOn, EngineStartedOn = scan.EngineStartedOn },
-                    Project = new SAST.EngineServer { Id = scan.ProjectId.Value, Name = scan.ProjectName },
-                };
-
-            }
-            
-            var mappedScans = new List<Scan>();
-            throw new NotImplementedException();
-        }*/
-
         /// <summary>
         /// sast/scans
         /// </summary>
@@ -920,6 +891,89 @@ namespace Checkmarx.API
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
+        }
+
+        public enum ScanRetrieveKind
+        {
+            First,
+            Last,
+            Locked,
+            All
+        }
+
+        public List<Scan> RetrieveScansWithLanguages(long projectId, bool finished,
+            ScanRetrieveKind scanKind = ScanRetrieveKind.All)
+        {
+            var ret = new List<Scan>();
+            var scansTmp = (_isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId)
+                :_oData.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId));
+
+            IQueryable<CxDataRepository.Scan> scans = scansTmp;
+
+            switch (scanKind)
+            {
+                case ScanRetrieveKind.First:
+                    scans = scansTmp.Take(1);
+                    break;
+                case ScanRetrieveKind.Last:
+                    scans = scansTmp.Skip(Math.Max(0, scansTmp.Count() - 1));
+                    break;
+
+                case ScanRetrieveKind.Locked:
+                    scans = scansTmp.Where(x => x.IsLocked);
+                    break;
+                case ScanRetrieveKind.All:
+                    break;
+            }
+   
+            foreach (var scan in scans)
+            {
+                // 1 - finished
+                // 3 - unfinished
+
+                if (finished && scan.ScanType == 3)
+                {
+                    continue;
+                }
+                var currentScan = new Scan
+                {
+                    Comment = scan.Comment,
+                    Id = scan.Id,
+                    IsLocked = scan.IsLocked,
+                    ScanState = new ScanState
+                    {
+                        LanguageStateCollection = new List<LanguageStateCollection>(),
+                        LinesOfCode = scan.LOC.GetValueOrDefault()
+                    },
+                    Origin = scan.Origin,
+                    ScanRisk = scan.RiskScore,
+                    DateAndTime = new DateAndTime
+                    {
+                        EngineFinishedOn = scan.EngineFinishedOn,
+                        EngineStartedOn = scan.EngineStartedOn,
+                        FinishedOn = scan.ScanRequestedOn,
+                        StartedOn = scan.QueuedOn
+                    },
+                    Results = new SASTResults
+                    {
+                        High = (uint)scan.High,
+                        Medium = (uint)scan.Medium,
+                        Low = (uint)scan.Low,
+                        FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
+                        LoC = (int)scan.LOC.GetValueOrDefault()
+                    }
+                };
+                foreach (var language in scan.ScannedLanguages)
+                {
+                    currentScan.ScanState.LanguageStateCollection.Add(new LanguageStateCollection
+                    {
+                        LanguageName = language.LanguageName
+                    });
+                }
+                ret.Add(currentScan);
+            }
+
+            return ret;
         }
 
         public Scan GetScanById(long scanId)

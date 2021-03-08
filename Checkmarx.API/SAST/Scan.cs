@@ -66,7 +66,8 @@ namespace Checkmarx.API.SAST
 
         [JsonProperty("partialScanReasons")]
         public object PartialScanReasons { get; set; }
-  
+        public SASTResults Results { get; set; }
+
         public static Scan FromJson(string json) => JsonConvert.DeserializeObject<Scan>(json, Converter.Settings);
     }
 

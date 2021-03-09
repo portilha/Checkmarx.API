@@ -63,8 +63,8 @@ namespace Checkmarx.API
                 watch.Start();
 #endif
                 _scanCache = _isV9 ?
-                 _oDataV9.Scans.ToList().ToDictionary(x => x.Id)
-                 : _oData.Scans.ToList().ToDictionary(x => x.Id);
+                 _oDataV9.Scans.ToDictionary(x => x.Id)
+                 : _oData.Scans.ToDictionary(x => x.Id);
 #if DEBUG
                 watch.Stop();
                 Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.ElapsedMilliseconds / 1000} seconds");
@@ -954,9 +954,7 @@ namespace Checkmarx.API
                     DateAndTime = new DateAndTime
                     {
                         EngineFinishedOn = scan.EngineFinishedOn,
-                        EngineStartedOn = scan.EngineStartedOn,
-                        FinishedOn = scan.ScanRequestedOn,
-                        StartedOn = scan.QueuedOn
+                        EngineStartedOn = scan.EngineStartedOn
                     },
                     Results = new SASTResults
                     {

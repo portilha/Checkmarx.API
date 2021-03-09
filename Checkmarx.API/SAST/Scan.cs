@@ -41,7 +41,7 @@ namespace Checkmarx.API.SAST
         public string InitiatorName { get; set; }
 
         [JsonProperty("owningTeamId")]
-        public Guid OwningTeamId { get; set; }
+        public string OwningTeamId { get; set; }
 
         [JsonProperty("isPublic")]
         public bool IsPublic { get; set; }
@@ -66,7 +66,8 @@ namespace Checkmarx.API.SAST
 
         [JsonProperty("partialScanReasons")]
         public object PartialScanReasons { get; set; }
-  
+        public SASTResults Results { get; set; }
+
         public static Scan FromJson(string json) => JsonConvert.DeserializeObject<Scan>(json, Converter.Settings);
     }
 

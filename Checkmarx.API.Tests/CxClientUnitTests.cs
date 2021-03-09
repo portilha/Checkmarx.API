@@ -208,8 +208,6 @@ namespace Checkmarx.API.Tests
             {
                 Trace.WriteLine($"{item.Key} " + clientV89.GetSASTPreset(item.Key));
             }
-
-
         }
 
         [TestMethod]
@@ -271,7 +269,7 @@ namespace Checkmarx.API.Tests
         public void GetScansDisplayData()
         {
             var projects = clientV9.GetProjects();
-            if (projects.Count != 0)
+            if (projects.Count() != 0)
             {
                 var sut = clientV9.GetScansDisplayData(projects.Keys.First());
                 Assert.IsTrue(sut.IsSuccesfull);
@@ -306,31 +304,63 @@ namespace Checkmarx.API.Tests
             //}
         }
 
-
         [TestMethod]
-        public void GetResultsTest()
+        public void GetScansFromODATA()
         {
-            long scanID = 1010075;
+            // Force the first login.
+            Trace.WriteLine(clientV89.Version);
 
-            //    .GetScanResults(scanID)
-            //foreach (var groupOfResults in clientV89
-            //    .GroupBy(x => x.QueryGroupName))
-            //{
-            //    Trace.WriteLine(groupOfResults.Key);
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+            try
+            {
+                var result = clientV9.GetScansFromOData(5).Where(x => !x.IsLocked);
 
-            //    foreach (var item in groupOfResults)
-            //    {
-            //        // Trace.WriteLine(item.)
-            //    }
-            //}
+                foreach (var item in result)
+                {
+                    Trace.WriteLine(item.Id);
+                }
+
+                Assert.IsNotNull(result);
+            }
+            finally
+            {
+                watch.Stop();
+                Console.WriteLine("name Time-ms: " + watch.Elapsed.TotalMilliseconds.ToString());
+            }
+
+            watch.Restart();
+
+            try
+            {
+                var result = clientV89.GetSASTScanSummary(5);
+
+                foreach (var item in result)
+                {
+                    Trace.WriteLine(item.Id);
+                }
+
+                Assert.IsNotNull(result);
+            }
+            finally
+            {
+                watch.Stop();
+                Console.WriteLine("name Time-ms: " + watch.Elapsed.TotalMilliseconds.ToString());
+            }
         }
 
         [TestMethod]
-        public void GetScanLogs()
+        public void RetrieveSingleScan()
         {
-            var result = clientV9.GetScanLogs(1003204);
-
-            Assert.IsTrue(result);
+            var scan = clientV9.GetScanById(1003042);
+            Assert.IsNotNull(scan);
         }
+
+        [TestMethod]
+        public void GEtScanLogs()
+        {
+            clientV9.GetScanLogs(1003211);
+        }
+        
     }
 }

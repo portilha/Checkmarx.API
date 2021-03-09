@@ -22,12 +22,6 @@ namespace Checkmarx.API.Tests
         private static CxClient clientV89;
         private static CxClient clientV9;
 
-        //const string URL_V9 = "https://clientV9";
-        //const string PASS_V9 = "";
-        //const string URL_V89 = "https://clientV89";
-        //const string PASS_89 = "";
-
-        const string USER = "";
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
@@ -290,28 +284,53 @@ namespace Checkmarx.API.Tests
             //var projects = clientV9.GetProjects();
             //if (projects.Count != 0)
             //{
-                clientV89.GetCommentsHistoryTest(1010075);
-                //Assert.IsTrue(sut.Length != 0);
+            // clientV89.GetCommentsHistoryTest(1010075);
+
+            //foreach (var result in clientV9.GetResultsForScan(1002369))
+            //{
+            //    Trace.WriteLine(result.Comment);
+            //}
+
+
+            CxClient clientV93 = 
+                        new CxClient(new Uri(Configuration["V93:URL"]),
+                        Configuration["V93:Username"],
+                        new NetworkCredential("", Configuration["V93:Password"]).Password);
+
+            foreach (var result in clientV93.GetResultsForScan(1001263))
+            {
+                Trace.WriteLine(result.Comment);
+            }
+
+            //Assert.IsTrue(sut.Length != 0);
             //}
         }
 
 
+        [TestMethod]
         public void GetResultsTest()
         {
             long scanID = 1010075;
 
-            foreach (var groupOfResults in clientV89
-                .GetScanResults(scanID)
-                .GroupBy(x => x.QueryGroupName))
-            {
-                Trace.WriteLine(groupOfResults.Key);
+            //    .GetScanResults(scanID)
+            //foreach (var groupOfResults in clientV89
+            //    .GroupBy(x => x.QueryGroupName))
+            //{
+            //    Trace.WriteLine(groupOfResults.Key);
 
-                foreach (var item in groupOfResults)
-                {
-                    // Trace.WriteLine(item.)
-                }
-            }
+            //    foreach (var item in groupOfResults)
+            //    {
+            //        // Trace.WriteLine(item.)
+            //    }
+            //}
         }
 
+        [TestMethod]
+        public void GetScanLogs()
+        {
+            var result = clientV9.GetScanLogs(1003204);
+
+            Assert.IsTrue(result);
+        }
     }
 }

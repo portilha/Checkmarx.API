@@ -924,6 +924,30 @@ namespace Checkmarx.API
         #region Reports
 
         /// <summary>
+        /// Returns the ScanId of a finished scan.
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <returns></returns>
+        public byte[] GetScanLogs(long scanId)
+        {
+            checkConnection();
+
+            if (scanId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(scanId));
+
+            var result = _cxPortalWebServiceSoapClient.GetScanLogs(new CxWSRequestScanLogFinishedScan
+            {
+                SessionID = _soapSessionId,
+                ScanId = scanId
+            });
+
+            if (!result.IsSuccesfull)
+                throw new ActionNotSupportedException(result.ErrorMessage);
+
+            return result.ScanLog;
+        }
+
+        /// <summary>
         /// Returns a stream of the scan report.
         /// </summary>
         /// <param name="scanId"></param>
@@ -1097,6 +1121,8 @@ namespace Checkmarx.API
         {
             checkConnection();
 
+            
+
             var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
 
             // Assert.IsTrue(response.IsSuccesfull);
@@ -1131,6 +1157,7 @@ namespace Checkmarx.API
             ProposedNotExploitable = 4
         }
 
+  
 
         private static string toResultStateToString(ResultState state)
         {

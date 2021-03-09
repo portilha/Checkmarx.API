@@ -47,42 +47,6 @@ namespace Checkmarx.API
         private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
-        public string GetScanPreset(long id)
-        {
-            checkConnection();
-
-            if (id <= 0)
-            {
-                throw new ArgumentException(nameof(id));
-            }
-
-            if (_scanCache == null)
-            {
-#if DEBUG
-                var watch = new Stopwatch();
-                watch.Start();
-#endif
-                _scanCache = _isV9 ?
-                 _oDataV9.Scans.ToDictionary(x => x.Id)
-                 : _oData.Scans.ToDictionary(x => x.Id);
-#if DEBUG
-                watch.Stop();
-                Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.ElapsedMilliseconds / 1000} seconds");
-                Console.SetCursorPosition(0, Console.CursorTop);
-#endif
-            }
-
-
-            if (!_scanCache.ContainsKey(id))
-            {
-                _scanCache = _isV9 ?
-                   _oDataV9.Scans.ToDictionary(x => x.Id)
-                 : _oData.Scans.ToDictionary(x => x.Id);
-                throw new KeyNotFoundException($"Scan with Id {id} does not exist.");
-            }
-
-            return _scanCache[id].PresetName;
-        }
 
         /// <summary>
         /// Check if the wrapper is connected.
@@ -897,7 +861,7 @@ namespace Checkmarx.API
             }
         }
 
-        public enum ScanRetrieveKind
+        private enum ScanRetrieveKind
         {
             First,
             Last,
@@ -905,7 +869,30 @@ namespace Checkmarx.API
             All
         }
 
-        public List<Scan> RetrieveScansWithLanguages(long projectId, bool finished,
+        public List<Scan> GetAllSASTScans(long projectId)
+        {
+            var scans = GetScans(projectId, true, ScanRetrieveKind.All);
+            return scans;
+        }
+        public Scan GetFirstScan(long projectId)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.First);
+            return scan.FirstOrDefault();
+        }
+
+        public Scan GetLastScan(long projectId)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.Last);
+            return scan.FirstOrDefault();
+        }
+
+        public Scan GetLockedScan(long projectId)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.First);
+            return scan.FirstOrDefault();
+        }
+
+        private List<Scan> GetScans(long projectId, bool finished,
             ScanRetrieveKind scanKind = ScanRetrieveKind.All)
         {
             var ret = new List<Scan>();

@@ -58,14 +58,18 @@ namespace Checkmarx.API
 
             if (_scanCache == null)
             {
+#if DEBUG
                 var watch = new Stopwatch();
                 watch.Start();
+#endif
                 _scanCache = _isV9 ?
                  _oDataV9.Scans.ToList().ToDictionary(x => x.Id)
                  : _oData.Scans.ToList().ToDictionary(x => x.Id);
+#if DEBUG
                 watch.Stop();
                 Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.ElapsedMilliseconds / 1000} seconds");
                 Console.SetCursorPosition(0, Console.CursorTop);
+#endif
             }
 
 
@@ -194,7 +198,7 @@ namespace Checkmarx.API
 
         private bool _isV9 = false;
 
-        #region Access Control 
+#region Access Control 
 
         private HttpClient Login(string baseURL = "http://localhost/cxrestapi/",
             string userName = "", string password = "")
@@ -351,7 +355,7 @@ namespace Checkmarx.API
             return (_isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId) : _oData.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId));
         }
 
-        #endregion
+#endregion
 
         private void checkConnection()
         {
@@ -607,7 +611,7 @@ namespace Checkmarx.API
             }
         }
 
-        #region OSA
+#region OSA
 
         public ICollection<Guid> GetOSAScans(int projectId)
         {
@@ -750,9 +754,9 @@ namespace Checkmarx.API
             }
         }
 
-        #endregion
+#endregion
 
-        #region SAST
+#region SAST
 
         public void RunSASTScan(long projectId, string comment = "")
         {
@@ -1019,7 +1023,7 @@ namespace Checkmarx.API
             }
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Gets the projects.
@@ -1107,7 +1111,7 @@ namespace Checkmarx.API
             }
         }
 
-        #region Reports
+#region Reports
 
         /// <summary>
         /// Returns a stream of the scan report.
@@ -1251,9 +1255,9 @@ namespace Checkmarx.API
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Results
+#region Results
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {
@@ -1354,7 +1358,7 @@ namespace Checkmarx.API
             }
         }
 
-        #endregion
+#endregion
 
 
         public void Dispose()

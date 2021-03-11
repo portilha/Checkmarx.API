@@ -22,7 +22,6 @@ namespace Checkmarx.API.Tests
         private static CxClient clientV89;
         private static CxClient clientV9;
 
-        const string USER = "";
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
@@ -39,7 +38,7 @@ namespace Checkmarx.API.Tests
                 clientV89 =
                         new CxClient(new Uri(v8),
                         Configuration["V89:Username"],
-                        new NetworkCredential("", Configuration["V89:Password"]).Password);
+                        new NetworkCredential("", Configuration["V89:Password"]).Password); 
             }
 
             string v9 = Configuration["V9:URL"];
@@ -283,16 +282,27 @@ namespace Checkmarx.API.Tests
             //var projects = clientV9.GetProjects();
             //if (projects.Count != 0)
             //{
-            clientV89.GetCommentsHistoryTest(1010075);
+            // clientV89.GetCommentsHistoryTest(1010075);
+
+            //foreach (var result in clientV9.GetResultsForScan(1002369))
+            //{
+            //    Trace.WriteLine(result.Comment);
+            //}
+
+
+            CxClient clientV93 = 
+                        new CxClient(new Uri(Configuration["V93:URL"]),
+                        Configuration["V93:Username"],
+                        new NetworkCredential("", Configuration["V93:Password"]).Password);
+
+            foreach (var result in clientV93.GetResultsForScan(1001263))
+            {
+                Trace.WriteLine(result.Comment);
+            }
+
             //Assert.IsTrue(sut.Length != 0);
             //}
         }
-
-        /*        [TestMethod]
-                public void GetScanResults()
-                {
-                    var scans = clientV9.GetScansFromProject(222);
-                }*/
 
         [TestMethod]
         public void GetScansFromODATA()
@@ -345,5 +355,12 @@ namespace Checkmarx.API.Tests
             var scan = clientV9.GetScanById(1003042);
             Assert.IsNotNull(scan);
         }
+
+        [TestMethod]
+        public void GEtScanLogs()
+        {
+            clientV9.GetScanLogs(1003211);
+        }
+        
     }
 }

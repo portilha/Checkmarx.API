@@ -41,12 +41,62 @@ namespace Checkmarx.API
         private DefaultV9.Container _oDataV9;
         private List<CxDataRepository.Project> _oDataProjs;
 
+
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> soapScans => _isV9 ? _oDataV9.Scans : _oData.Scans;
+
         /// <summary>
         /// SOAP client
         /// </summary>
         private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
 
+
+
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
+
+        /// <summary>
+        /// Get a preset for a specific scan.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public string GetScanPreset(long id)
+        {
+            checkConnection();
+
+            if (id <= 0)
+            {
+                throw new ArgumentException(nameof(id));
+            }
+
+            if (_scanCache == null)
+            {
+#if DEBUG
+                var watch = new Stopwatch();
+                watch.Start();
+#endif
+
+                _scanCache = soapScans.Where(x => x.IsLocked).ToDictionary(x => x.Id);
+
+#if DEBUG
+                watch.Stop();
+                Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.Elapsed.TotalMinutes} minutes");
+                Console.SetCursorPosition(0, Console.CursorTop);
+#endif
+            }
+
+            if (!_scanCache.ContainsKey(id))
+            {
+                var scan = soapScans.Where(x => x.Id == id).FirstOrDefault();
+                if (scan != null)
+                {
+                    _scanCache.Add(scan.Id, scan);
+                    return scan.PresetName;
+                }
+
+                throw new KeyNotFoundException($"Scan with Id {id} does not exist.");
+            }
+
+            return _scanCache[id].PresetName;
+        }
 
         /// <summary>
         /// Check if the wrapper is connected.
@@ -162,7 +212,7 @@ namespace Checkmarx.API
 
         private bool _isV9 = false;
 
-#region Access Control 
+        #region Access Control 
 
         private HttpClient Login(string baseURL = "http://localhost/cxrestapi/",
             string userName = "", string password = "")
@@ -289,21 +339,18 @@ namespace Checkmarx.API
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
                 HttpResponseMessage response = httpClient.SendAsync(request).Result;
-
-
-
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     _teamsCache = new Dictionary<string, string>();
 
                     foreach (var item in (JArray)JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result))
                     {
-                            if (!_teamsCache.ContainsKey(item.SelectToken("id").ToString()))
-                            {
-                                _teamsCache.Add(
-                                   item.SelectToken("id").ToString(),
-                                   (string)item.SelectToken("fullName"));
-                            }
+                        if (!_teamsCache.ContainsKey(item.SelectToken("id").ToString()))
+                        {
+                            _teamsCache.Add(
+                               item.SelectToken("id").ToString(),
+                               (string)item.SelectToken("fullName"));
+                        }
                     }
 
                     return _teamsCache;
@@ -316,10 +363,10 @@ namespace Checkmarx.API
         public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {
             checkConnection();
-            return (_isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId) : _oData.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId));
+            return soapScans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId);
         }
 
-#endregion
+        #endregion
 
         private void checkConnection()
         {
@@ -575,7 +622,7 @@ namespace Checkmarx.API
             }
         }
 
-#region OSA
+        #region OSA
 
         public ICollection<Guid> GetOSAScans(int projectId)
         {
@@ -718,9 +765,9 @@ namespace Checkmarx.API
             }
         }
 
-#endregion
+        #endregion
 
-#region SAST
+        #region SAST
 
         public void RunSASTScan(long projectId, string comment = "")
         {
@@ -895,28 +942,26 @@ namespace Checkmarx.API
         private List<Scan> GetScans(long projectId, bool finished,
             ScanRetrieveKind scanKind = ScanRetrieveKind.All)
         {
-            var ret = new List<Scan>();
-            var scansTmp = (_isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId)
-                :_oData.Scans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId));
-
-            IQueryable<CxDataRepository.Scan> scans = scansTmp;
+            IQueryable<CxDataRepository.Scan> scans = soapScans.Where(x => x.ProjectId == projectId);
 
             switch (scanKind)
             {
                 case ScanRetrieveKind.First:
-                    scans = scansTmp.Take(1);
+                    scans = scans.Take(1);
                     break;
                 case ScanRetrieveKind.Last:
-                    scans = scansTmp.Skip(Math.Max(0, scansTmp.Count() - 1));
+                    scans = scans.Skip(Math.Max(0, scans.Count() - 1));
                     break;
 
                 case ScanRetrieveKind.Locked:
-                    scans = scansTmp.Where(x => x.IsLocked);
+                    scans = scans.Where(x => x.IsLocked);
                     break;
                 case ScanRetrieveKind.All:
                     break;
             }
-   
+
+
+            var ret = new List<Scan>();
             foreach (var scan in scans)
             {
                 // 1 - finished
@@ -926,43 +971,46 @@ namespace Checkmarx.API
                 {
                     continue;
                 }
-                var currentScan = new Scan
-                {
-                    Comment = scan.Comment,
-                    Id = scan.Id,
-                    IsLocked = scan.IsLocked,
-                    ScanState = new ScanState
-                    {
-                        LanguageStateCollection = new List<LanguageStateCollection>(),
-                        LinesOfCode = scan.LOC.GetValueOrDefault()
-                    },
-                    Origin = scan.Origin,
-                    ScanRisk = scan.RiskScore,
-                    DateAndTime = new DateAndTime
-                    {
-                        EngineFinishedOn = scan.EngineFinishedOn,
-                        EngineStartedOn = scan.EngineStartedOn
-                    },
-                    Results = new SASTResults
-                    {
-                        High = (uint)scan.High,
-                        Medium = (uint)scan.Medium,
-                        Low = (uint)scan.Low,
-                        FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
-                        LoC = (int)scan.LOC.GetValueOrDefault()
-                    }
-                };
-                foreach (var language in scan.ScannedLanguages)
-                {
-                    currentScan.ScanState.LanguageStateCollection.Add(new LanguageStateCollection
-                    {
-                        LanguageName = language.LanguageName
-                    });
-                }
+                var currentScan = ConvertScanFromOData(scan);
+
                 ret.Add(currentScan);
             }
 
             return ret;
+        }
+
+        private static Scan ConvertScanFromOData(CxDataRepository.Scan scan)
+        {
+            return new Scan
+            {
+                Comment = scan.Comment,
+                Id = scan.Id,
+                IsLocked = scan.IsLocked,
+                ScanState = new ScanState
+                {
+                    LanguageStateCollection = scan.ScannedLanguages.Select(language => new LanguageStateCollection
+                    {
+                        LanguageName = language.LanguageName
+                    }).ToList(),
+
+                    LinesOfCode = scan.LOC.GetValueOrDefault()
+                },
+                Origin = scan.Origin,
+                ScanRisk = scan.RiskScore,
+                DateAndTime = new DateAndTime
+                {
+                    EngineFinishedOn = scan.EngineFinishedOn,
+                    EngineStartedOn = scan.EngineStartedOn
+                },
+                Results = new SASTResults
+                {
+                    High = (uint)scan.High,
+                    Medium = (uint)scan.Medium,
+                    Low = (uint)scan.Low,
+                    FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
+                    LoC = (int)scan.LOC.GetValueOrDefault()
+                }
+            };
         }
 
         public Scan GetScanById(long scanId)
@@ -988,8 +1036,7 @@ namespace Checkmarx.API
         // get preset /sast/scanSettings/{projectId}
         public string GetSASTPreset(int projectId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"sast/scanSettings/{projectId}"))
             {
@@ -1008,7 +1055,7 @@ namespace Checkmarx.API
             }
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Gets the projects.
@@ -1018,8 +1065,7 @@ namespace Checkmarx.API
         /// <exception cref="NotImplementedException"></exception>
         public Dictionary<int, string> GetProjects()
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             // List Project Now..
             var projectListResponse = httpClient.GetAsync("projects").Result;
@@ -1096,7 +1142,31 @@ namespace Checkmarx.API
             }
         }
 
-#region Reports
+        #region Reports
+
+        /// <summary>
+        /// Returns the ScanId of a finished scan.
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <returns></returns>
+        public byte[] GetScanLogs(long scanId)
+        {
+            checkConnection();
+
+            if (scanId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(scanId));
+
+            var result = _cxPortalWebServiceSoapClient.GetScanLogs(new CxWSRequestScanLogFinishedScan
+            {
+                SessionID = _soapSessionId,
+                ScanId = scanId
+            });
+
+            if (!result.IsSuccesfull)
+                throw new ActionNotSupportedException(result.ErrorMessage);
+
+            return result.ScanLog;
+        }
 
         /// <summary>
         /// Returns a stream of the scan report.
@@ -1106,8 +1176,7 @@ namespace Checkmarx.API
         /// <returns></returns>
         public Stream GetScanReport(long scanId, ReportType reportType)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             // reportType = "XML"
             // scanId = scanId
@@ -1240,9 +1309,9 @@ namespace Checkmarx.API
             return false;
         }
 
-#endregion
+        #endregion
 
-#region Results
+        #region Results
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {
@@ -1271,6 +1340,8 @@ namespace Checkmarx.API
         public void GetCommentsHistoryTest(long scanId)
         {
             checkConnection();
+
+
 
             var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
 
@@ -1305,6 +1376,7 @@ namespace Checkmarx.API
             Urgent = 3,
             ProposedNotExploitable = 4
         }
+
 
 
         private static string toResultStateToString(ResultState state)
@@ -1343,7 +1415,7 @@ namespace Checkmarx.API
             }
         }
 
-#endregion
+        #endregion
 
 
         public void Dispose()

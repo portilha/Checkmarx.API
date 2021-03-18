@@ -38,7 +38,7 @@ namespace Checkmarx.API.Tests
                 clientV89 =
                         new CxClient(new Uri(v8),
                         Configuration["V89:Username"],
-                        new NetworkCredential("", Configuration["V89:Password"]).Password); 
+                        new NetworkCredential("", Configuration["V89:Password"]).Password);
             }
 
             string v9 = Configuration["V9:URL"];
@@ -290,7 +290,7 @@ namespace Checkmarx.API.Tests
             //}
 
 
-            CxClient clientV93 = 
+            CxClient clientV93 =
                         new CxClient(new Uri(Configuration["V93:URL"]),
                         Configuration["V93:Username"],
                         new NetworkCredential("", Configuration["V93:Password"]).Password);
@@ -359,8 +359,27 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GEtScanLogs()
         {
-            clientV9.GetScanLogs(1003211);
+            clientV89.GetScanLogs(1010075);
         }
-        
+
+        [TestMethod]
+        public void GetCWEDescription()
+        {
+
+            foreach (var queryGroup in clientV89.GetQueries())
+            {
+                foreach (var query in queryGroup.Queries)
+                {
+
+                    if (query.Cwe != 0)
+                        Trace.WriteLine(clientV89.GetCWEDescription(query.Cwe));
+                }
+            }
+
+
+
+
+        }
+
     }
 }

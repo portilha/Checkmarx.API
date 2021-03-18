@@ -359,6 +359,8 @@ namespace Checkmarx.API
             }
         }
 
+      
+
         public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {
             checkConnection();
@@ -1132,11 +1134,26 @@ namespace Checkmarx.API
             if (scanId <= 0)
                 throw new ArgumentOutOfRangeException(nameof(scanId));
 
-            var result = _cxPortalWebServiceSoapClient.GetScanLogs(new CxWSRequestScanLogFinishedScan
+
+            var objectName = new CxWSRequestScanLogFinishedScan
             {
                 SessionID = _soapSessionId,
                 ScanId = scanId
-            });
+            };
+
+            System.Xml.Serialization.XmlSerializer x = new System.Xml.Serialization.XmlSerializer(objectName.GetType());
+
+            StringBuilder sb = new StringBuilder();
+            using (StringWriter xmlWriter = new StringWriter(sb))
+            {
+                x.Serialize(xmlWriter, objectName);
+            }
+
+            Console.WriteLine(sb.ToString());
+
+            var result = _cxPortalWebServiceSoapClient.GetScanLogs(objectName);
+
+
 
             if (!result.IsSuccesfull)
                 throw new ActionNotSupportedException(result.ErrorMessage);
@@ -1302,6 +1319,23 @@ namespace Checkmarx.API
         }
 
         /// <summary>
+        /// Get the all query groups of the CxSAST server.
+        /// </summary>
+        /// <returns></returns>
+        public CxWSQueryGroup[] GetQueries()
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetQueryCollection(_soapSessionId);
+
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+
+            return result.QueryGroups;
+           
+        }
+
+        /// <summary>
         /// Comment Separator.
         /// </summary>
         public static char CommentSeparator
@@ -1316,8 +1350,6 @@ namespace Checkmarx.API
         public void GetCommentsHistoryTest(long scanId)
         {
             checkConnection();
-
-
 
             var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
 
@@ -1353,6 +1385,28 @@ namespace Checkmarx.API
             ProposedNotExploitable = 4
         }
 
+
+        /// <summary>
+        /// Get the HTML Query Description (?)
+        /// </summary>
+        /// <param name="cwe">CWE Id</param>
+        /// <returns>For 0 returns empty, for less than 0 throws an exception, for the other an HTML Query Description</returns>
+        public string GetCWEDescription(long cwe)
+        {
+            if (cwe < 0)
+                throw new ArgumentOutOfRangeException(nameof(cwe));
+
+            if (cwe == 0)
+                return string.Empty;
+
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetQueryDescription(_soapSessionId, (int)cwe);
+            if (!result.IsSuccesfull)
+                throw new Exception(result.ErrorMessage);
+
+            return result.QueryDescription;
+        }
 
 
         private static string toResultStateToString(ResultState state)

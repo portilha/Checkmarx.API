@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Web;
 using System.Xml.Linq;
 using Checkmarx.API;
@@ -26,6 +27,7 @@ namespace Checkmarx.API.Tests
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
         {
+            // TODO REMOVE
             var builder = new ConfigurationBuilder()
                 .AddUserSecrets<CxClientUnitTests>();
 
@@ -38,7 +40,8 @@ namespace Checkmarx.API.Tests
                 clientV89 =
                         new CxClient(new Uri(v8),
                         Configuration["V89:Username"],
-                        new NetworkCredential("", Configuration["V89:Password"]).Password); 
+                        new NetworkCredential("", Configuration["V89:Password"]).Password);
+                var version = clientV89.Version;
             }
 
             string v9 = Configuration["V9:URL"];
@@ -48,6 +51,7 @@ namespace Checkmarx.API.Tests
                     new CxClient(new Uri(v9),
                     Configuration["V9:Username"],
                     new NetworkCredential("", Configuration["V9:Password"]).Password);
+                var _ = clientV9.Version;
             }
         }
 
@@ -290,7 +294,7 @@ namespace Checkmarx.API.Tests
             //}
 
 
-            CxClient clientV93 = 
+            CxClient clientV93 =
                         new CxClient(new Uri(Configuration["V93:URL"]),
                         Configuration["V93:Username"],
                         new NetworkCredential("", Configuration["V93:Password"]).Password);
@@ -359,9 +363,27 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GEtScanLogs()
         {
-            clientV9.GetScanLogs(1003211);
+            clientV89.GetScanLogs(1010075);
         }
 
-       
+        [TestMethod]
+
+        public void GetScanCount()
+        {
+            Console.WriteLine(clientV9.GetScanCount());
+        }
+        public void GetCWEDescription()
+        {
+
+            foreach (var queryGroup in clientV89.GetQueries())
+            {
+                foreach (var query in queryGroup.Queries)
+                {
+
+                    if (query.Cwe != 0)
+                        Trace.WriteLine(clientV89.GetCWEDescription(query.Cwe));
+                }
+            }
+        }
     }
 }

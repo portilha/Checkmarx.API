@@ -52,6 +52,7 @@ namespace Checkmarx.API
 
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
+
         /// <summary>
         /// Get a preset for a specific scan.
         /// </summary>
@@ -358,6 +359,8 @@ namespace Checkmarx.API
                 throw new NotSupportedException(request.ToString());
             }
         }
+
+      
 
         public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {
@@ -898,7 +901,7 @@ namespace Checkmarx.API
             }
         }
 
-        public enum ScanRetrieveKind
+        private enum ScanRetrieveKind
         {
             First,
             Last,
@@ -906,11 +909,39 @@ namespace Checkmarx.API
             All
         }
 
-        public List<Scan> RetrieveScansWithLanguages(long projectId, bool finished,
+        public List<Scan> GetAllSASTScans(long projectId)
+        {
+            var scans = GetScans(projectId, true, ScanRetrieveKind.All);
+            return scans;
+        }
+        public Scan GetFirstScan(long projectId)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.First);
+            return scan.FirstOrDefault();
+        }
+
+        public Scan GetLastScan(long projectId)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.Last);
+            return scan.FirstOrDefault();
+        }
+
+        public Scan GetLockedScan(long projectId)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.First);
+            return scan.FirstOrDefault();
+        }
+
+        public int GetScanCount()
+        {
+            checkConnection();
+            return soapScans.Count();
+        }
+
+        private List<Scan> GetScans(long projectId, bool finished,
             ScanRetrieveKind scanKind = ScanRetrieveKind.All)
         {
             IQueryable<CxDataRepository.Scan> scans = soapScans.Where(x => x.ProjectId == projectId);
-
             switch (scanKind)
             {
                 case ScanRetrieveKind.First:
@@ -926,7 +957,6 @@ namespace Checkmarx.API
                 case ScanRetrieveKind.All:
                     break;
             }
-
 
             var ret = new List<Scan>();
             foreach (var scan in scans)
@@ -1022,7 +1052,7 @@ namespace Checkmarx.API
             }
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Gets the projects.
@@ -1107,7 +1137,7 @@ namespace Checkmarx.API
             }
         }
 
-        #region Reports
+#region Reports
 
         /// <summary>
         /// Returns the ScanId of a finished scan.
@@ -1121,11 +1151,26 @@ namespace Checkmarx.API
             if (scanId <= 0)
                 throw new ArgumentOutOfRangeException(nameof(scanId));
 
-            var result = _cxPortalWebServiceSoapClient.GetScanLogs(new CxWSRequestScanLogFinishedScan
+
+            var objectName = new CxWSRequestScanLogFinishedScan
             {
                 SessionID = _soapSessionId,
                 ScanId = scanId
-            });
+            };
+
+            System.Xml.Serialization.XmlSerializer x = new System.Xml.Serialization.XmlSerializer(objectName.GetType());
+
+            StringBuilder sb = new StringBuilder();
+            using (StringWriter xmlWriter = new StringWriter(sb))
+            {
+                x.Serialize(xmlWriter, objectName);
+            }
+
+            Console.WriteLine(sb.ToString());
+
+            var result = _cxPortalWebServiceSoapClient.GetScanLogs(objectName);
+
+
 
             if (!result.IsSuccesfull)
                 throw new ActionNotSupportedException(result.ErrorMessage);
@@ -1274,9 +1319,9 @@ namespace Checkmarx.API
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Results
+#region Results
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {
@@ -1288,6 +1333,23 @@ namespace Checkmarx.API
                 throw new ApplicationException(result.ErrorMessage);
 
             return result.Results;
+        }
+
+        /// <summary>
+        /// Get the all query groups of the CxSAST server.
+        /// </summary>
+        /// <returns></returns>
+        public CxWSQueryGroup[] GetQueries()
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetQueryCollection(_soapSessionId);
+
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+
+            return result.QueryGroups;
+           
         }
 
         /// <summary>
@@ -1305,8 +1367,6 @@ namespace Checkmarx.API
         public void GetCommentsHistoryTest(long scanId)
         {
             checkConnection();
-
-
 
             var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
 
@@ -1342,6 +1402,28 @@ namespace Checkmarx.API
             ProposedNotExploitable = 4
         }
 
+
+        /// <summary>
+        /// Get the HTML Query Description (?)
+        /// </summary>
+        /// <param name="cwe">CWE Id</param>
+        /// <returns>For 0 returns empty, for less than 0 throws an exception, for the other an HTML Query Description</returns>
+        public string GetCWEDescription(long cwe)
+        {
+            if (cwe < 0)
+                throw new ArgumentOutOfRangeException(nameof(cwe));
+
+            if (cwe == 0)
+                return string.Empty;
+
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetQueryDescription(_soapSessionId, (int)cwe);
+            if (!result.IsSuccesfull)
+                throw new Exception(result.ErrorMessage);
+
+            return result.QueryDescription;
+        }
 
 
         private static string toResultStateToString(ResultState state)
@@ -1380,7 +1462,7 @@ namespace Checkmarx.API
             }
         }
 
-        #endregion
+#endregion
 
 
         public void Dispose()

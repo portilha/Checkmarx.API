@@ -476,8 +476,7 @@ namespace Checkmarx.API
 
         public void SetCustomFields(ProjectDetails projDetails, IEnumerable<CustomField> customFields)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Put, $"projects/{projDetails.Id}"))
             {
@@ -510,16 +509,14 @@ namespace Checkmarx.API
 
         public DateTimeOffset GetProjectCreationDate(long projectID)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             return _oDataProjs.Where(x => x.Id == projectID).First().CreatedDate;
         }
 
         public ProjectDetails GetProjectSettings(int projectId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}"))
             {
@@ -546,8 +543,7 @@ namespace Checkmarx.API
         /// <returns></returns>
         public string GetProjectTeamId(int projectId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}"))
             {
@@ -569,8 +565,7 @@ namespace Checkmarx.API
 
         public Dictionary<string, int> GetSASTCustomFields()
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"customFields"))
             {
@@ -601,8 +596,7 @@ namespace Checkmarx.API
 
         public Dictionary<string, CustomField> GetProjectCustomFields(int projectId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}"))
             {
@@ -770,8 +764,7 @@ namespace Checkmarx.API
 
         public void RunSASTScan(long projectId, string comment = "")
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             var projectResponse = _cxPortalWebServiceSoapClient.GetProjectConfiguration(_soapSessionId, projectId);
 
@@ -812,8 +805,7 @@ namespace Checkmarx.API
 
         public SASTResults GetSASTResults(long sastScanId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"sast/scans/{sastScanId}/resultsStatistics"))
             {
@@ -845,8 +837,7 @@ namespace Checkmarx.API
 
         public JArray GetSASTAllScans(int projectId, string scanState = null, int? numberOfScans = null)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             string sastFilter = $"projectId={projectId}";
 
@@ -1071,8 +1062,7 @@ namespace Checkmarx.API
 
         public List<ProjectDetails> GetAllProjectsDetails()
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             // List Project Now..
             var projectListResponse = httpClient.GetAsync("projects").Result;
@@ -1093,8 +1083,7 @@ namespace Checkmarx.API
         private Dictionary<int, string> _presetsCache;
         public Dictionary<int, string> GetPresets()
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             if (_presetsCache != null)
                 return _presetsCache;

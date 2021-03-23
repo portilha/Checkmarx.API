@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Web;
 using System.Xml.Linq;
 using Checkmarx.API;
@@ -26,6 +27,7 @@ namespace Checkmarx.API.Tests
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
         {
+            // TODO REMOVE
             var builder = new ConfigurationBuilder()
                 .AddUserSecrets<CxClientUnitTests>();
 
@@ -39,6 +41,7 @@ namespace Checkmarx.API.Tests
                         new CxClient(new Uri(v8),
                         Configuration["V89:Username"],
                         new NetworkCredential("", Configuration["V89:Password"]).Password);
+                var version = clientV89.Version;
             }
 
             string v9 = Configuration["V9:URL"];
@@ -48,6 +51,7 @@ namespace Checkmarx.API.Tests
                     new CxClient(new Uri(v9),
                     Configuration["V9:Username"],
                     new NetworkCredential("", Configuration["V9:Password"]).Password);
+                var _ = clientV9.Version;
             }
         }
 
@@ -363,6 +367,11 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+
+        public void GetScanCount()
+        {
+            Console.WriteLine(clientV9.GetScanCount());
+        }
         public void GetCWEDescription()
         {
 
@@ -375,11 +384,6 @@ namespace Checkmarx.API.Tests
                         Trace.WriteLine(clientV89.GetCWEDescription(query.Cwe));
                 }
             }
-
-
-
-
         }
-
     }
 }

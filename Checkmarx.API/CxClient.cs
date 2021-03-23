@@ -52,6 +52,7 @@ namespace Checkmarx.API
 
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
+
         /// <summary>
         /// Get a preset for a specific scan.
         /// </summary>
@@ -909,7 +910,7 @@ namespace Checkmarx.API
             }
         }
 
-        public enum ScanRetrieveKind
+        private enum ScanRetrieveKind
         {
             First,
             Last,
@@ -917,11 +918,39 @@ namespace Checkmarx.API
             All
         }
 
-        public List<Scan> RetrieveScansWithLanguages(long projectId, bool finished,
+        public List<Scan> GetAllSASTScans(long projectId)
+        {
+            var scans = GetScans(projectId, true, ScanRetrieveKind.All);
+            return scans;
+        }
+        public Scan GetFirstScan(long projectId)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.First);
+            return scan.FirstOrDefault();
+        }
+
+        public Scan GetLastScan(long projectId)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.Last);
+            return scan.FirstOrDefault();
+        }
+
+        public Scan GetLockedScan(long projectId)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.First);
+            return scan.FirstOrDefault();
+        }
+
+        public int GetScanCount()
+        {
+            checkConnection();
+            return soapScans.Count();
+        }
+
+        private List<Scan> GetScans(long projectId, bool finished,
             ScanRetrieveKind scanKind = ScanRetrieveKind.All)
         {
             IQueryable<CxDataRepository.Scan> scans = soapScans.Where(x => x.ProjectId == projectId);
-
             switch (scanKind)
             {
                 case ScanRetrieveKind.First:
@@ -937,7 +966,6 @@ namespace Checkmarx.API
                 case ScanRetrieveKind.All:
                     break;
             }
-
 
             var ret = new List<Scan>();
             foreach (var scan in scans)
@@ -1033,7 +1061,7 @@ namespace Checkmarx.API
             }
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Gets the projects.
@@ -1120,7 +1148,7 @@ namespace Checkmarx.API
             }
         }
 
-        #region Reports
+#region Reports
 
         /// <summary>
         /// Returns the ScanId of a finished scan.
@@ -1302,9 +1330,9 @@ namespace Checkmarx.API
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Results
+#region Results
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {
@@ -1445,7 +1473,7 @@ namespace Checkmarx.API
             }
         }
 
-        #endregion
+#endregion
 
 
         public void Dispose()

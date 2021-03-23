@@ -367,11 +367,12 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-
         public void GetScanCount()
         {
             Console.WriteLine(clientV9.GetScanCount());
         }
+        
+        [TestMethod]
         public void GetCWEDescription()
         {
 

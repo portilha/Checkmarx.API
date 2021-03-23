@@ -939,11 +939,16 @@ namespace Checkmarx.API
             return scan.FirstOrDefault();
         }
 
+        public int GetScanCount()
+        {
+            checkConnection();
+            return soapScans.Count();
+        }
+
         private List<Scan> GetScans(long projectId, bool finished,
             ScanRetrieveKind scanKind = ScanRetrieveKind.All)
         {
             IQueryable<CxDataRepository.Scan> scans = soapScans.Where(x => x.ProjectId == projectId);
-
             switch (scanKind)
             {
                 case ScanRetrieveKind.First:
@@ -959,7 +964,6 @@ namespace Checkmarx.API
                 case ScanRetrieveKind.All:
                     break;
             }
-
 
             var ret = new List<Scan>();
             foreach (var scan in scans)
@@ -1055,7 +1059,7 @@ namespace Checkmarx.API
             }
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Gets the projects.
@@ -1142,7 +1146,7 @@ namespace Checkmarx.API
             }
         }
 
-        #region Reports
+#region Reports
 
         /// <summary>
         /// Returns the ScanId of a finished scan.
@@ -1309,9 +1313,9 @@ namespace Checkmarx.API
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Results
+#region Results
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {
@@ -1415,7 +1419,7 @@ namespace Checkmarx.API
             }
         }
 
-        #endregion
+#endregion
 
 
         public void Dispose()

@@ -14,6 +14,8 @@ namespace Checkmarx.API.Tests.SCA
         private static string Username;
         private static string Password;
         private static string Tenant;
+        private static string AC = "https://platform.checkmarx.net";
+        private static string APIURL = "https://api-sca.checkmarx.net";
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
@@ -30,14 +32,14 @@ namespace Checkmarx.API.Tests.SCA
         [TestMethod]
         public void ConnectionTest()
         {
-            var client = new SCAClient(Tenant, Username, Password);
+            var client = new SCAClient(Tenant, AC, APIURL, Username, Password);
             Assert.IsTrue(true);
         }
 
         [TestMethod]
         public void GetProject()
         {
-            var client = new SCAClient(Tenant, Username, Password);
+            var client = new SCAClient(Tenant, AC, APIURL, Username, Password);
             if (client.Connected)
             {
                 var project = client.ClientSCA.Projects3Async(new Guid("cbec47bd-67b6-468b-8ade-f621fc0eaa17")).Result;
@@ -48,7 +50,7 @@ namespace Checkmarx.API.Tests.SCA
         [TestMethod]
         public void GetScan()
         {
-            var client = new SCAClient(Tenant, Username, Password);
+            var client = new SCAClient(Tenant, AC, APIURL, Username, Password);
             if (client.Connected)
             {
                 var scan = client.ClientSCA.ScansAsync(new Guid("fb1ad6e0-c26c-401b-8b24-2295cc5fb9e9")).Result;
@@ -58,11 +60,23 @@ namespace Checkmarx.API.Tests.SCA
         [TestMethod]
         public void MyTestMethod()
         {
-            var client = new SCAClient(Tenant, Username, Password);
+            var client = new SCAClient(Tenant, AC, APIURL, Username, Password);
             if (client.Connected)
             {
                 var vulns = client.ClientSCA.VulnerabilitiesAsync(new Guid("b1f5e52c-17f6-44e6-86b6-273cb122b090")).Result;
                 Assert.IsNotNull(vulns);
+            }
+        }
+
+        [TestMethod]
+        public void GetReportRisk()
+        {
+
+            var client = new SCAClient(Tenant, AC, APIURL, Username, Password);
+            if (client.Connected)
+            {
+                var riskReport = client.ClientSCA.RiskReportsAsync(new Guid("9cba1ce7-f8d9-47be-a898-34e2f0c1562d"), null).Result;
+                Assert.IsNotNull(riskReport);
             }
         }
     }

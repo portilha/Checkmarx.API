@@ -158,7 +158,7 @@ namespace Checkmarx.API
         /// <summary>
         /// Authentication Token for the Version REST 8.9, and all service 9.X
         /// </summary>
-        protected AuthenticationHeaderValue AuthenticationToken
+        public AuthenticationHeaderValue AuthenticationToken
         {
             get
             {

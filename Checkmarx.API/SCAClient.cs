@@ -16,23 +16,27 @@ namespace Checkmarx.API
         private string _username;
         private string _password;
         private string _tenant;
+        private string _acUrl;
         private DateTime _bearerValidTo;
 
         public SCA.Client ClientSCA { get; private set; }
-        private const string _baseURL = "https://api-sca.checkmarx.net";
-        public SCAClient(string tenant, string username, string password)
+        private string _baseURL;
+        public SCAClient(string tenant, string acUrl, string apiUrl, string username, string password)
         {
             if (string.IsNullOrEmpty(tenant)) throw new ArgumentNullException(nameof(tenant));
             if (string.IsNullOrEmpty(username)) throw new ArgumentNullException(nameof(username));
             if (string.IsNullOrEmpty(password)) throw new ArgumentNullException(nameof(password));
+            if (string.IsNullOrEmpty(acUrl)) throw new ArgumentNullException(nameof(acUrl));
+            if (string.IsNullOrEmpty(apiUrl)) throw new ArgumentNullException(nameof(apiUrl));
             _username = username;
             _password = password;
             _tenant = tenant;
+            _acUrl = acUrl;
+            _baseURL = apiUrl;
             _bearerValidTo = DateTime.UtcNow.AddHours(1);
             CreateClient();
     }
-
-    private void CreateClient()
+        private void CreateClient()
         {
             var token = Autenticate(_tenant, _username, _password);
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -56,7 +60,7 @@ namespace Checkmarx.API
 
         private string Autenticate(string tenant, string username, string password)
         {
-            var identityURL = "https://platform.checkmarx.net/identity/connect/token";
+            var identityURL = $"{_acUrl}/identity/connect/token";
             var kv = new Dictionary<string, string>
             {
                 { "grant_type", "password" },

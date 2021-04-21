@@ -386,5 +386,22 @@ namespace Checkmarx.API.Tests
                 }
             }
         }
+
+
+        [TestMethod]
+        public void GetAllProjectLastScan()
+        {
+            var result = clientV9.GetProjectsWithLastScan();
+
+            Trace.WriteLine(result.Count());
+
+            foreach (var item in result.ToArray())
+            {
+                Trace.WriteLine($"{item.Id} {item.Name} - {item.LastScan?.Id} - {item.LastScan?.ScanCompletedOn}");
+            }
+
+            Assert.IsNotNull(result);
+
+        }
     }
 }

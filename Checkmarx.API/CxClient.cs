@@ -41,15 +41,14 @@ namespace Checkmarx.API
         private DefaultV9.Container _oDataV9;
         private List<CxDataRepository.Project> _oDataProjs;
 
-
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> soapScans => _isV9 ? _oDataV9.Scans : _oData.Scans;
+
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _soapProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
         /// <summary>
         /// SOAP client
         /// </summary>
         private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
-
-
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
@@ -360,7 +359,12 @@ namespace Checkmarx.API
             }
         }
 
-      
+        public IEnumerable<Project> GetProjectsWithLastScan()
+        {
+            checkConnection();
+
+            return _soapProjects.Expand(x => x.LastScan);
+        }
 
         public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {

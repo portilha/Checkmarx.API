@@ -16,12 +16,31 @@ namespace Checkmarx.API
         private string _username;
         private string _password;
         private string _tenant;
-        private string _acUrl;
+        private Uri _acUrl;
         private DateTime _bearerValidTo;
 
-        public SCA.Client ClientSCA { get; private set; }
+        private SCA.Client _clientSCA = null;
 
-        private string _baseURL;
+        public SCA.Client ClientSCA
+        {
+            get
+            {
+                if (_clientSCA == null || (_bearerValidTo - DateTime.UtcNow).TotalMinutes < 5)
+                {
+                    var token = Autenticate(_tenant, _username, _password);
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                    _clientSCA = new SCA.Client(_httpClient)  {
+                        BaseUrl = _baseURL.AbsoluteUri
+                    };
+
+                    _bearerValidTo = DateTime.UtcNow.AddHours(1);
+                }
+                return _clientSCA;
+            }
+        }
+
+        private Uri _baseURL;
 
         public SCAClient(
             string tenant,
@@ -39,40 +58,21 @@ namespace Checkmarx.API
             _username = username;
             _password = password;
             _tenant = tenant;
-            _acUrl = acUrl;
-            _baseURL = apiUrl;
-            
-            _bearerValidTo = DateTime.UtcNow.AddHours(1);
-            CreateClient();
-    }
-        private void CreateClient()
-        {
-            var token = Autenticate(_tenant, _username, _password);
-            
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            ClientSCA = new SCA.Client(_httpClient)
-            {
-                BaseUrl = _baseURL
-            };
+            _acUrl = new Uri(acUrl);
+            _baseURL = new Uri(apiUrl);
         }
-
+      
         public bool Connected
         {
             get
             {
-                if (_httpClient == null || (_bearerValidTo - DateTime.UtcNow).TotalMinutes < 5)
-                {
-                    CreateClient();
-                    _bearerValidTo = DateTime.UtcNow.AddHours(1);
-                }
-
-                return true;
+                return ClientSCA != null;
             }
         }
 
         private string Autenticate(string tenant, string username, string password)
         {
-            var identityURL = $"{_acUrl}/identity/connect/token";
+            var identityURL = $"{_acUrl}identity/connect/token";
             var kv = new Dictionary<string, string>
             {
                 { "grant_type", "password" },

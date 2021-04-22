@@ -624,7 +624,12 @@ namespace Checkmarx.API
 
         #region OSA
 
-        public ICollection<Guid> GetOSAScans(int projectId)
+        public IEnumerable<Guid> GetOSAScansIds(int projectId)
+        {
+            return GetOSAScans(projectId).Select(x => x.Id);
+        }
+
+        public ICollection<OSAScanDto> GetOSAScans(int projectId)
         {
             if (!Connected)
                 throw new NotSupportedException();
@@ -639,20 +644,11 @@ namespace Checkmarx.API
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var projectList = (JArray)JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result);
-
-                    foreach (var item in projectList)
-                    {
-                        result.Add(Guid.Parse((string)item.SelectToken("id")));
-                    }
-
-                    return result;
+                    return JsonConvert.DeserializeObject<OSAScanDto[]>(response.Content.ReadAsStringAsync().Result);
                 }
 
-                throw new NotSupportedException(response.ToString());
+                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
-
-
         }
 
 

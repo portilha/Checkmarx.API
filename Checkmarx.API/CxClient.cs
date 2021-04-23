@@ -631,8 +631,7 @@ namespace Checkmarx.API
 
         public ICollection<OSAScanDto> GetOSAScans(int projectId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"osa/scans?projectId={projectId}"))
             {
@@ -675,8 +674,7 @@ namespace Checkmarx.API
          */
         public OSAReportDto GetOSAResults(Guid osaScanId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"osa/reports?scanId={osaScanId}"))
             {
@@ -712,6 +710,8 @@ namespace Checkmarx.API
 
                     return result;
                 }
+
+                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
 
             throw new NotSupportedException();
@@ -862,7 +862,7 @@ namespace Checkmarx.API
                     return scans;
                 }
 
-                throw new NotSupportedException(request.ToString());
+                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
         }
 
@@ -1052,7 +1052,7 @@ namespace Checkmarx.API
             }
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Gets the projects.
@@ -1137,7 +1137,7 @@ namespace Checkmarx.API
             }
         }
 
-#region Reports
+        #region Reports
 
         /// <summary>
         /// Returns the ScanId of a finished scan.
@@ -1319,9 +1319,9 @@ namespace Checkmarx.API
             return false;
         }
 
-#endregion
+        #endregion
 
-#region Results
+        #region Results
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {
@@ -1349,7 +1349,7 @@ namespace Checkmarx.API
                 throw new ApplicationException(result.ErrorMessage);
 
             return result.QueryGroups;
-           
+
         }
 
         /// <summary>
@@ -1462,7 +1462,7 @@ namespace Checkmarx.API
             }
         }
 
-#endregion
+        #endregion
 
 
         public void Dispose()

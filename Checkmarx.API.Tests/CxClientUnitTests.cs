@@ -183,19 +183,14 @@ namespace Checkmarx.API.Tests
                 foreach (var sastScan in clientV89.GetSASTScans(item.Key))
                 {
                     var result = clientV89.GetSASTResults(sastScan);
-                    //var scanState = sastScan["scanState"];
-
-                    //result.LoC = (int)scanState.SelectToken("linesOfCode");
-                    //result.FailedLoC = (int)scanState.SelectToken("failedLinesOfCode");
-                    //result.LanguagesDetected = ((JArray)scanState["languageStateCollection"]).Select(x => x["languageName"].ToString()).ToList();
 
                     Console.WriteLine(JsonConvert.SerializeObject(result));
                 }
 
                 Console.WriteLine("== OSA Results ==");
-                foreach (var osaScanUI in clientV89.GetOSAScans(item.Key))
+                foreach (var osaScan in clientV89.GetOSAScansIds(item.Key))
                 {
-                    var osaResults = clientV89.GetOSAResults(osaScanUI);
+                    var osaResults = clientV89.GetOSAResults(osaScan);
                     Console.WriteLine(osaResults.ToString());
                 }
                 Console.WriteLine(" === == === == ");

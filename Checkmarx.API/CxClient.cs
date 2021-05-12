@@ -38,12 +38,25 @@ namespace Checkmarx.API
         /// OData client
         /// </summary>
         private Default.Container _oData;
+
         private DefaultV9.Container _oDataV9;
-        private List<CxDataRepository.Project> _oDataProjs;
 
-        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> soapScans => _isV9 ? _oDataV9.Scans : _oData.Scans;
+        private List<CxDataRepository.Project> _odp;
+        private List<CxDataRepository.Project> _oDataProjs
+        {
+            get
+            {
+                if (_odp == null)
+                {
+                    _odp = _isV9 ? _oDataV9.Projects.ToList() : _oData.Projects.ToList();
+                }
+                return _odp;
+            }
+        }
 
-        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _soapProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> _oDataScans => _isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages) : _oData.Scans.Expand(x => x.ScannedLanguages);
+
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
         /// <summary>
         /// SOAP client
@@ -73,7 +86,7 @@ namespace Checkmarx.API
                 watch.Start();
 #endif
 
-                _scanCache = soapScans.Where(x => x.IsLocked).ToDictionary(x => x.Id);
+                _scanCache = _oDataScans.Where(x => x.IsLocked).ToDictionary(x => x.Id);
 
 #if DEBUG
                 watch.Stop();
@@ -84,7 +97,7 @@ namespace Checkmarx.API
 
             if (!_scanCache.ContainsKey(id))
             {
-                var scan = soapScans.Where(x => x.Id == id).FirstOrDefault();
+                var scan = _oDataScans.Where(x => x.Id == id).FirstOrDefault();
                 if (scan != null)
                 {
                     _scanCache.Add(scan.Id, scan);
@@ -227,6 +240,8 @@ namespace Checkmarx.API
 
             _isV9 = _version.StartsWith("V 9.");
 
+            Console.WriteLine("Checkmarx " + _version);
+
             var httpClient = new HttpClient
             {
                 BaseAddress = webServer
@@ -278,7 +293,6 @@ namespace Checkmarx.API
 
                         // ODATA V9
                         _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
-                        _oDataProjs = _oDataV9.Projects.ToList();
                     }
                     else
                     {
@@ -290,7 +304,6 @@ namespace Checkmarx.API
 
                         // ODATA V8
                         _oData = CxOData.ConnectToOData(webServer, userName, password);
-                        _oDataProjs = _oData.Projects.ToList();
                     }
 
                     AuthenticationToken = new AuthenticationHeaderValue("Bearer", authToken);
@@ -311,8 +324,7 @@ namespace Checkmarx.API
 
         public PortalSoap.CxWSResponseServerLicenseData GetLicense()
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             return _cxPortalWebServiceSoapClient.GetServerLicenseData(_soapSessionId);
         }
@@ -327,8 +339,7 @@ namespace Checkmarx.API
 
         public Dictionary<string, string> GetTeams()
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             if (_teamsCache != null)
                 return _teamsCache;
@@ -363,13 +374,13 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            return _soapProjects.Expand(x => x.LastScan);
+            return _oDataProjects.Expand(x => x.LastScan);
         }
 
         public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {
             checkConnection();
-            return soapScans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId);
+            return _oDataScans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId);
         }
 
         #endregion
@@ -909,7 +920,7 @@ namespace Checkmarx.API
             All
         }
 
-        public List<Scan> GetAllSASTScans(long projectId)
+        public IEnumerable<Scan> GetAllSASTScans(long projectId)
         {
             var scans = GetScans(projectId, true, ScanRetrieveKind.All);
             return scans;
@@ -928,20 +939,22 @@ namespace Checkmarx.API
 
         public Scan GetLockedScan(long projectId)
         {
-            var scan = GetScans(projectId, true, ScanRetrieveKind.First);
-            return scan.FirstOrDefault();
+            return GetScans(projectId, true, ScanRetrieveKind.First).FirstOrDefault();
         }
 
         public int GetScanCount()
         {
             checkConnection();
-            return soapScans.Count();
+            return _oDataScans.Count();
         }
 
-        private List<Scan> GetScans(long projectId, bool finished,
+        private IEnumerable<Scan> GetScans(long projectId, bool finished,
             ScanRetrieveKind scanKind = ScanRetrieveKind.All)
         {
-            IQueryable<CxDataRepository.Scan> scans = soapScans.Where(x => x.ProjectId == projectId);
+            checkConnection();
+
+            IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
+
             switch (scanKind)
             {
                 case ScanRetrieveKind.First:
@@ -958,22 +971,13 @@ namespace Checkmarx.API
                     break;
             }
 
-            var ret = new List<Scan>();
             foreach (var scan in scans)
             {
-                // 1 - finished
-                // 3 - unfinished
-
                 if (finished && scan.ScanType == 3)
-                {
                     continue;
-                }
-                var currentScan = ConvertScanFromOData(scan);
 
-                ret.Add(currentScan);
+                yield return ConvertScanFromOData(scan);
             }
-
-            return ret;
         }
 
         private static Scan ConvertScanFromOData(CxDataRepository.Scan scan)
@@ -1109,6 +1113,36 @@ namespace Checkmarx.API
             throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
         }
 
+        public T GetRequest<T>(string requestUri)
+        {
+            checkConnection();
+
+            try
+            {
+                var uri = new Uri(SASTServerURL, requestUri);
+                if (!_isV9 && uri.LocalPath.ToLowerInvariant().StartsWith("/cxwebinterface"))
+                {
+                    var byteArray = Encoding.ASCII.GetBytes($"{Username}:{Password}");
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                }
+
+                using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
+                {
+                    HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+                    }
+
+                    throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
+                }
+            }
+            finally
+            {
+                httpClient.DefaultRequestHeaders.Authorization = AuthenticationToken;
+            }
+        }
 
         private Dictionary<int, string> _presetsCache;
         public Dictionary<int, string> GetPresets()

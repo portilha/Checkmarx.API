@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Web;
 using System.Xml.Linq;
@@ -12,6 +13,7 @@ using Checkmarx.API;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Checkmarx.API.Tests
 {
@@ -22,7 +24,7 @@ namespace Checkmarx.API.Tests
 
         private static CxClient clientV89;
         private static CxClient clientV9;
-
+        private static CxClient clientV93;
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
@@ -53,6 +55,16 @@ namespace Checkmarx.API.Tests
                     new NetworkCredential("", Configuration["V9:Password"]).Password);
                 var _ = clientV9.Version;
             }
+
+            string v93 = Configuration["V93:URL"];
+            if (!string.IsNullOrWhiteSpace(v93))
+            {
+                clientV93 =
+                     new CxClient(new Uri(v93),
+                     Configuration["V93:Username"],
+                     new NetworkCredential("", Configuration["V93:Password"]).Password);
+            }
+
         }
 
         [TestMethod]
@@ -172,6 +184,8 @@ namespace Checkmarx.API.Tests
 
             foreach (var item in clientV89.GetProjects())
             {
+                
+
                 Console.WriteLine($" === {item.Value} === ");
 
                 var excluded = clientV89.GetExcludedSettings(item.Key);
@@ -289,10 +303,7 @@ namespace Checkmarx.API.Tests
             //}
 
 
-            CxClient clientV93 =
-                        new CxClient(new Uri(Configuration["V93:URL"]),
-                        Configuration["V93:Username"],
-                        new NetworkCredential("", Configuration["V93:Password"]).Password);
+
 
             foreach (var result in clientV93.GetResultsForScan(1001263))
             {
@@ -366,7 +377,7 @@ namespace Checkmarx.API.Tests
         {
             Console.WriteLine(clientV9.GetScanCount());
         }
-        
+
         [TestMethod]
         public void GetCWEDescription()
         {
@@ -381,7 +392,6 @@ namespace Checkmarx.API.Tests
                 }
             }
         }
-
 
         [TestMethod]
         public void GetAllProjectLastScan()
@@ -398,5 +408,66 @@ namespace Checkmarx.API.Tests
             Assert.IsNotNull(result);
 
         }
+
+        [TestMethod]
+        public void GetLastScanDateTest()
+        {
+            var lastScan = clientV93.GetLastScan(22);
+            Assert.IsNotNull(lastScan.DateAndTime.EngineStartedOn);
+        }
+
+        [TestMethod]
+        public void GetScanLanguagesTest()
+        {
+            foreach (var projectId in clientV9.GetProjects().Keys)
+            {
+                var scan = clientV9.GetAllSASTScans(projectId);
+
+                foreach (var item in scan)
+                {
+                    Trace.WriteLine(string.Join(";", item.ScanState?.LanguageStateCollection));
+                } 
+            }
+
+        }   
+
+        const string DATE_FORMAT = "yyyy-MM-dd";
+
+        [TestMethod]
+        public void GetEHCTest()
+        {
+            DateTime startDateTime = DateTime.Now;
+            DateTime endDateTime = DateTime.Now - TimeSpan.FromDays(9);
+
+            var result = clientV89.GetRequest<JObject>($"/cxwebinterface/odata/v1/Scans?$select=Id,ProjectName,OwningTeamId,TeamName,ProductVersion,EngineServerId,Origin,PresetName,ScanRequestedOn,QueuedOn,EngineStartedOn,EngineFinishedOn,ScanCompletedOn,ScanDuration,FileCount,LOC,FailedLOC,TotalVulnerabilities,High,Medium,Low,Info,IsIncremental,IsLocked,IsPublic&$expand=ScannedLanguages($select=LanguageName)&$filter=ScanRequestedOn gt {startDateTime.ToString(DATE_FORMAT)}Z and ScanRequestedOn lt {endDateTime.ToString(DATE_FORMAT)}z");
+
+            Assert.IsNotNull(result);
+
+            result = clientV9.GetRequest<JObject>($"/cxwebinterface/odata/v1/Scans?$select=Id,ProjectName,OwningTeamId,TeamName,ProductVersion,EngineServerId,Origin,PresetName,ScanRequestedOn,QueuedOn,EngineStartedOn,EngineFinishedOn,ScanCompletedOn,ScanDuration,FileCount,LOC,FailedLOC,TotalVulnerabilities,High,Medium,Low,Info,IsIncremental,IsLocked,IsPublic&$expand=ScannedLanguages($select=LanguageName)&$filter=ScanRequestedOn gt {startDateTime.ToString(DATE_FORMAT)}Z and ScanRequestedOn lt {endDateTime.ToString(DATE_FORMAT)}z");
+
+            var json = JsonConvert.SerializeObject(result);
+
+            // string filePath = "";
+            Trace.Write(json);
+
+            Assert.IsNotNull(result);
+        }
+
+
+        [TestMethod]
+        public void GetLicenseInfoTest()
+        {
+            var info = clientV93.GetLicense();
+
+            Trace.WriteLine($"Checkmarx Version: {clientV93.Version}");
+            Trace.WriteLine($"Projects: {info.CurrentProjectsCount}/{info.ProjectsAllowed}");
+            Trace.WriteLine($"Users: {info.CurrentUsers}/{info.MaxUsers}");
+            Trace.WriteLine($"License: {DateTime.Parse(info.ExpirationDate).ToString()}");
+
+            Assert.IsNotNull(info);
+
+
+        }
+
     }
 }

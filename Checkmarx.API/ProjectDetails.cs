@@ -12,6 +12,9 @@ namespace Checkmarx.API
         [JsonProperty("teamId")]
         public string TeamId { get; set; }
 
+        [JsonProperty("owner")]
+        public string Owner { get; set; }
+
         [JsonProperty("name")]
         public string Name { get; set; }
 

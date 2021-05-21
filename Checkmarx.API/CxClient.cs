@@ -21,6 +21,7 @@ using PortalSoap;
 using Scan = Checkmarx.API.SAST.Scan;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace Checkmarx.API
 {
@@ -62,6 +63,9 @@ namespace Checkmarx.API
         /// SOAP client
         /// </summary>
         private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
+
+
+        private cxPortalWebService93.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClientV9;
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
@@ -279,6 +283,8 @@ namespace Checkmarx.API
 
                     if (_isV9)
                     {
+                        #region V8
+
                         _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(60), userName, password);
 
                         var portalChannelFactory = _cxPortalWebServiceSoapClient.ChannelFactory;
@@ -290,6 +296,24 @@ namespace Checkmarx.API
                             var response = await next(request);
                             return response;
                         });
+
+                        #endregion
+
+                        #region V9
+
+                        _cxPortalWebServiceSoapClientV9 = new cxPortalWebService93.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(60), userName, password);
+
+                        var portalChannelFactoryV9 = _cxPortalWebServiceSoapClientV9.ChannelFactory;
+                        portalChannelFactoryV9.UseMessageInspector(async (request, channel, next) =>
+                        {
+                            HttpRequestMessageProperty reqProps = new HttpRequestMessageProperty();
+                            reqProps.Headers.Add("Authorization", $"Bearer {authToken}");
+                            request.Properties.Add(HttpRequestMessageProperty.Name, reqProps);
+                            var response = await next(request);
+                            return response;
+                        });
+
+                        #endregion
 
                         // ODATA V9
                         _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
@@ -551,6 +575,35 @@ namespace Checkmarx.API
                 }
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
+            }
+        }
+
+        /// <summary>
+        /// Deletes an existing project with all related scans
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="deleteRunningScans"></param>
+        public void DeleteProject(int projectId, bool deleteRunningScans = true)
+        {
+            checkConnection();
+
+            using (var request = new HttpRequestMessage(HttpMethod.Delete, $"projects/{projectId}"))
+            {
+                request.Headers.Add("Accept", "application/json;v=2.0");
+
+                JObject settings = new JObject
+                {
+                    { "deleteRunningScans",  deleteRunningScans },
+                };
+
+                request.Content = new StringContent(JsonConvert.SerializeObject(settings));
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
+                }
             }
         }
 
@@ -987,6 +1040,8 @@ namespace Checkmarx.API
                 Comment = scan.Comment,
                 Id = scan.Id,
                 IsLocked = scan.IsLocked,
+                InitiatorName = scan.InitiatorName,
+                OwningTeamId = scan.OwningTeamId,
                 ScanState = new ScanState
                 {
                     LanguageStateCollection = scan.ScannedLanguages.Select(language => new LanguageStateCollection
@@ -994,7 +1049,8 @@ namespace Checkmarx.API
                         LanguageName = language.LanguageName
                     }).ToList(),
 
-                    LinesOfCode = scan.LOC.GetValueOrDefault()
+                    LinesOfCode = scan.LOC.GetValueOrDefault(),
+                    CxVersion = scan.ProductVersion,
                 },
                 Origin = scan.Origin,
                 ScanRisk = scan.RiskScore,
@@ -1049,10 +1105,36 @@ namespace Checkmarx.API
                 {
                     var result = JsonConvert.DeserializeObject<ScanSettings>(response.Content.ReadAsStringAsync().Result);
 
+                    if (!GetPresets().ContainsKey(result.Preset.Id))
+                        return "Checkmarx Default";
+
                     return GetPresets()[result.Preset.Id];
                 }
 
                 throw new NotSupportedException(response.ToString());
+            }
+        }
+
+        #endregion
+
+        #region Checkmarx Configurations
+
+        public List<ComponentConfiguration> GetConfigurations(SAST.Group group)
+        {
+            checkConnection();
+
+            using (var request = new HttpRequestMessage(HttpMethod.Get, $"configurationsExtended/{ConvertToString(group)}"))
+            {
+                request.Headers.Add("Accept", "application/json;v=1.0");
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return JsonConvert.DeserializeObject<List<ComponentConfiguration>>(response.Content.ReadAsStringAsync().Result);
+                }
+
+                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
         }
 
@@ -1373,11 +1455,11 @@ namespace Checkmarx.API
         /// Get the all query groups of the CxSAST server.
         /// </summary>
         /// <returns></returns>
-        public CxWSQueryGroup[] GetQueries()
+        public cxPortalWebService93.CxWSQueryGroup[] GetQueries()
         {
             checkConnection();
 
-            var result = _cxPortalWebServiceSoapClient.GetQueryCollection(_soapSessionId);
+            var result = _cxPortalWebServiceSoapClientV9.GetQueryCollectionAsync(_soapSessionId).Result;
 
             if (!result.IsSuccesfull)
                 throw new ApplicationException(result.ErrorMessage);
@@ -1460,7 +1542,7 @@ namespace Checkmarx.API
         }
 
 
-        private static string toResultStateToString(ResultState state)
+        public static string toResultStateToString(ResultState state)
         {
             switch (state)
             {
@@ -1479,7 +1561,7 @@ namespace Checkmarx.API
             }
         }
 
-        private static string toSeverityToString(int severity)
+        public static string toSeverityToString(int severity)
         {
             switch (severity)
             {
@@ -1499,11 +1581,66 @@ namespace Checkmarx.API
         #endregion
 
 
+        #region Utils
+
+        private string ConvertToString(object value, CultureInfo cultureInfo = null)
+        {
+            if (value == null)
+            {
+                return "";
+            }
+
+            if (cultureInfo == null)
+                cultureInfo = CultureInfo.InvariantCulture;
+
+            if (value is System.Enum)
+            {
+                var name = System.Enum.GetName(value.GetType(), value);
+                if (name != null)
+                {
+                    var field = System.Reflection.IntrospectionExtensions.GetTypeInfo(value.GetType()).GetDeclaredField(name);
+                    if (field != null)
+                    {
+                        var attribute = System.Reflection.CustomAttributeExtensions.GetCustomAttribute(field, typeof(System.Runtime.Serialization.EnumMemberAttribute))
+                            as System.Runtime.Serialization.EnumMemberAttribute;
+                        if (attribute != null)
+                        {
+                            return attribute.Value != null ? attribute.Value : name;
+                        }
+                    }
+
+                    var converted = System.Convert.ToString(System.Convert.ChangeType(value, System.Enum.GetUnderlyingType(value.GetType()), cultureInfo));
+                    return converted == null ? string.Empty : converted;
+                }
+            }
+            else if (value is bool)
+            {
+                return System.Convert.ToString((bool)value, cultureInfo).ToLowerInvariant();
+            }
+            else if (value is byte[])
+            {
+                return System.Convert.ToBase64String((byte[])value);
+            }
+            else if (value.GetType().IsArray)
+            {
+                var array = System.Linq.Enumerable.OfType<object>((System.Array)value);
+                return string.Join(",", System.Linq.Enumerable.Select(array, o => ConvertToString(o, cultureInfo)));
+            }
+
+            var result = System.Convert.ToString(value, cultureInfo);
+            return result == null ? "" : result;
+        }
+
+        #endregion
+
+
         public void Dispose()
         {
             // There is logoff...
 
         }
+
+
     }
 
 

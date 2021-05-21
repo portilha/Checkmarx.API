@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 using System.Xml.Linq;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static Checkmarx.API.CxClient;
 
 namespace Checkmarx.API.Tests
 {
@@ -184,7 +186,7 @@ namespace Checkmarx.API.Tests
 
             foreach (var item in clientV89.GetProjects())
             {
-                
+
 
                 Console.WriteLine($" === {item.Value} === ");
 
@@ -289,29 +291,113 @@ namespace Checkmarx.API.Tests
             }
         }
 
+
+        [TestMethod]
+        public void GetCustomQueries()
+        {
+            string rootPath = @"D:\queries";
+
+            StringBuilder sb = new StringBuilder();
+
+            string version = Path.Combine(rootPath, clientV93.Version);
+
+            var projects = clientV93.GetProjects();
+            var teams = clientV93.GetTeams();
+
+
+
+            foreach (var queryGroup in clientV93.GetQueries())
+            {
+                if (queryGroup.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx)
+                    continue;
+
+                var packageName = queryGroup.PackageFullName.Replace(':', '\\');
+                if (queryGroup.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Project)
+                {
+                    var match = Regex.Match(queryGroup.PackageTypeName, @"CxProject_(\d+)");
+                    if (match.Success)
+                    {
+                        int id = int.Parse(match.Groups[1].Value);
+
+                        var teamName = string.Empty;
+
+                        var projectName = queryGroup.PackageTypeName;
+                        if (projects.ContainsKey(id))
+                        {
+                            projectName = projects[id];
+                            teamName = clientV93.GetProjectTeamName(id).Replace('/', '\\');
+                            if (teamName.StartsWith('\\'))
+                            {
+                                teamName = teamName.Remove(0, 1);
+                            }
+                        }
+
+                        packageName = Path.Combine(queryGroup.LanguageName, "Teams", teamName, "Projects", projectName, queryGroup.Name);
+                    }
+                }
+                else if (queryGroup.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Team)
+                {
+                    string teamID = queryGroup.OwningTeam.ToString();
+                    string teamPath = queryGroup.PackageTypeName;
+                    if (teams.ContainsKey(teamID))
+                    {
+                        teamPath = teams[teamID].Replace('/', '\\');
+                        if (teamPath.StartsWith('\\'))
+                        {
+                            teamPath = teamPath.Remove(0, 1);
+                        }
+                    }
+                    packageName = Path.Combine(queryGroup.LanguageName, "Teams", teamPath, "Queries", queryGroup.Name);
+                }
+
+                string folder = Path.Combine(version, packageName);
+
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                sb.AppendLine($"+[{queryGroup.LanguageName}] {queryGroup.PackageFullName} :: {queryGroup.PackageTypeName} {queryGroup.Status}");
+
+                foreach (var query in queryGroup.Queries)
+                {
+                    File.WriteAllText(Path.Combine(folder, query.Name + ".cs"), query.Source);
+                }
+            }
+
+            Trace.WriteLine(sb.ToString());
+
+
+        }
+
         [TestMethod]
         public void GetResultsForScan()
         {
-            //var projects = clientV9.GetProjects();
-            //if (projects.Count != 0)
-            //{
-            // clientV89.GetCommentsHistoryTest(1010075);
+            var queries = clientV9.GetQueries().SelectMany(x => x.Queries).ToDictionary(x => x.QueryId);
 
-            //foreach (var result in clientV9.GetResultsForScan(1002369))
-            //{
-            //    Trace.WriteLine(result.Comment);
-            //}
+            StringBuilder sb = new StringBuilder();
 
-
-
-
-            foreach (var result in clientV93.GetResultsForScan(1001263))
+            foreach (var result in clientV9.GetResultsForScan(1004107).GroupBy(x => x.Severity)) // 
             {
-                Trace.WriteLine(result.Comment);
+                Trace.WriteLine("##" + CxClient.toSeverityToString(result.Key));
+
+                foreach (var severity in result.GroupBy(x => x.QueryId))
+                {
+                    Trace.WriteLine("\t#" + queries[severity.Key].Name);
+
+                    foreach (var item in severity)
+                    {
+                        Trace.WriteLine("\t\t * " + item.PathId + " " + CxClient.toResultStateToString((ResultState)item.State));
+                    }
+
+                }
+
             }
 
-            //Assert.IsTrue(sut.Length != 0);
-            //}
+            Trace.WriteLine(sb.ToString());
+        }
+
+        [TestMethod]
+        public void GetQueries()
+        {
         }
 
         [TestMethod]
@@ -324,10 +410,13 @@ namespace Checkmarx.API.Tests
             watch.Start();
             try
             {
-                var result = clientV9.GetScansFromOData(5).Where(x => !x.IsLocked);
+                var result = clientV93.GetScansFromOData(198);
+
 
                 foreach (var item in result)
                 {
+                    Trace.WriteLine(item.ProductVersion);
+
                     Trace.WriteLine(item.Id);
                 }
 
@@ -343,7 +432,7 @@ namespace Checkmarx.API.Tests
 
             try
             {
-                var result = clientV89.GetSASTScanSummary(5);
+                var result = clientV93.GetSASTScanSummary(5);
 
                 foreach (var item in result)
                 {
@@ -426,10 +515,10 @@ namespace Checkmarx.API.Tests
                 foreach (var item in scan)
                 {
                     Trace.WriteLine(string.Join(";", item.ScanState?.LanguageStateCollection));
-                } 
+                }
             }
 
-        }   
+        }
 
         const string DATE_FORMAT = "yyyy-MM-dd";
 
@@ -465,6 +554,44 @@ namespace Checkmarx.API.Tests
             Trace.WriteLine($"License: {DateTime.Parse(info.ExpirationDate).ToString()}");
 
             Assert.IsNotNull(info);
+
+
+        }
+
+
+        [TestMethod]
+        public void TestCxUpgradeProject()
+        {
+            foreach (var item in clientV93.GetProjects())
+            {
+                var settings = clientV93.GetProjectSettings(item.Key);
+                Trace.WriteLine(settings.Name + " " + settings.Owner);
+
+                var lastscan = clientV93.GetLastScan(item.Key);
+
+                if (lastscan != null)
+                    Trace.WriteLine("\t" + lastscan.Origin + " " + lastscan.InitiatorName);
+            }
+        }
+
+
+        [TestMethod]
+        public void ListConfigurationsTests()
+        {
+            foreach (var item in Enum.GetValues(typeof(SAST.Group)))
+            {
+                Trace.WriteLine("\n###" + item.ToString() + "\n");
+
+                foreach (var configuration in clientV9.GetConfigurations((SAST.Group)item))
+                {
+                    Trace.WriteLine("\t"+  configuration.Key + " -> " + configuration.Description + "\n\t" + configuration.Value);
+                }
+            }
+
+            // Check if the Codebashing integration is done -> codebashingIsEnabled
+            // Check if the action to do after the incremental is FULL instead of FAIL -> INCREMENTAL_SCAN_THRESHOLD_ACTION
+            // Check if the STMP configuration is turned on -> SMTPHost
+
 
 
         }

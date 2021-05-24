@@ -186,8 +186,6 @@ namespace Checkmarx.API.Tests
 
             foreach (var item in clientV89.GetProjects())
             {
-
-
                 Console.WriteLine($" === {item.Value} === ");
 
                 var excluded = clientV89.GetExcludedSettings(item.Key);
@@ -385,6 +383,8 @@ namespace Checkmarx.API.Tests
 
                     foreach (var item in severity)
                     {
+                        
+
                         Trace.WriteLine("\t\t * " + item.PathId + " " + CxClient.toResultStateToString((ResultState)item.State));
                     }
 
@@ -396,27 +396,19 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-        public void GetQueries()
-        {
-        }
-
-        [TestMethod]
         public void GetScansFromODATA()
         {
             // Force the first login.
             Trace.WriteLine(clientV89.Version);
 
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            Stopwatch watch = new Stopwatch();
             watch.Start();
             try
             {
                 var result = clientV93.GetScansFromOData(198);
-
-
                 foreach (var item in result)
                 {
                     Trace.WriteLine(item.ProductVersion);
-
                     Trace.WriteLine(item.Id);
                 }
 
@@ -433,7 +425,6 @@ namespace Checkmarx.API.Tests
             try
             {
                 var result = clientV93.GetSASTScanSummary(5);
-
                 foreach (var item in result)
                 {
                     Trace.WriteLine(item.Id);
@@ -456,7 +447,7 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-        public void GEtScanLogs()
+        public void GetScanLogsTest()
         {
             clientV89.GetScanLogs(1010075);
         }

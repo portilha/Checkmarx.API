@@ -70,6 +70,28 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void MyTestMethod()
+        {
+            //  clientV89.GetSourceCode(1, @"d:\fil.zip");
+            
+            // unzip
+
+            // detect exclusions
+
+            // detect multilanguage
+
+        }
+
+
+        [TestMethod]
+        public void ConnectionTest()
+        {
+            CxClient clientTEst = new CxClient(new Uri(""),"", "w");
+            Assert.IsTrue(clientTEst.Connected);
+        }
+
+
+        [TestMethod]
         public void TestGetVersion()
         {
             Assert.AreEqual("V 9.0", clientV9.Version);
@@ -97,7 +119,6 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void V9ConnectTest()
         {
-
             foreach (var item in clientV9.GetProjects())
             {
                 Trace.WriteLine(item.Key);
@@ -259,6 +280,7 @@ namespace Checkmarx.API.Tests
             clientV89.GetProjectCreationDate(9);
 
         }
+        
         [TestMethod]
         public void TestCreationDateV9()
         {
@@ -301,8 +323,6 @@ namespace Checkmarx.API.Tests
 
             var projects = clientV93.GetProjects();
             var teams = clientV93.GetTeams();
-
-
 
             foreach (var queryGroup in clientV93.GetQueries())
             {
@@ -383,7 +403,7 @@ namespace Checkmarx.API.Tests
 
                     foreach (var item in severity)
                     {
-                        
+
 
                         Trace.WriteLine("\t\t * " + item.PathId + " " + CxClient.toResultStateToString((ResultState)item.State));
                     }
@@ -461,12 +481,10 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetCWEDescription()
         {
-
             foreach (var queryGroup in clientV89.GetQueries())
             {
                 foreach (var query in queryGroup.Queries)
                 {
-
                     if (query.Cwe != 0)
                         Trace.WriteLine(clientV89.GetCWEDescription(query.Cwe));
                 }
@@ -486,7 +504,6 @@ namespace Checkmarx.API.Tests
             }
 
             Assert.IsNotNull(result);
-
         }
 
         [TestMethod]
@@ -508,7 +525,6 @@ namespace Checkmarx.API.Tests
                     Trace.WriteLine(string.Join(";", item.ScanState?.LanguageStateCollection));
                 }
             }
-
         }
 
         const string DATE_FORMAT = "yyyy-MM-dd";
@@ -533,7 +549,6 @@ namespace Checkmarx.API.Tests
             Assert.IsNotNull(result);
         }
 
-
         [TestMethod]
         public void GetLicenseInfoTest()
         {
@@ -545,10 +560,7 @@ namespace Checkmarx.API.Tests
             Trace.WriteLine($"License: {DateTime.Parse(info.ExpirationDate).ToString()}");
 
             Assert.IsNotNull(info);
-
-
         }
-
 
         [TestMethod]
         public void TestCxUpgradeProject()
@@ -565,9 +577,8 @@ namespace Checkmarx.API.Tests
             }
         }
 
-
         [TestMethod]
-        public void ListConfigurationsTests()
+        public void ListComponentConfigurationsTests()
         {
             foreach (var item in Enum.GetValues(typeof(SAST.Group)))
             {
@@ -575,16 +586,81 @@ namespace Checkmarx.API.Tests
 
                 foreach (var configuration in clientV9.GetConfigurations((SAST.Group)item))
                 {
-                    Trace.WriteLine("\t"+  configuration.Key + " -> " + configuration.Description + "\n\t" + configuration.Value);
+                    Trace.WriteLine("\t" + configuration.Key + " -> " + configuration.Description + "\n\t" + configuration.Value);
                 }
             }
 
             // Check if the Codebashing integration is done -> codebashingIsEnabled
             // Check if the action to do after the incremental is FULL instead of FAIL -> INCREMENTAL_SCAN_THRESHOLD_ACTION
             // Check if the STMP configuration is turned on -> SMTPHost
+        }
+
+        [TestMethod]
+        public void GetCompareScansTest()
+        {
+            var results = clientV93.GetScansDiff(234,234234);
+
+            foreach (var item in results.GroupBy(x => x.ResultStatus))
+            {
+
+            }
+        }
+
+        [TestMethod]
+        public void GetSourceCodeTest()
+        {
+            clientV89.GetSourceCode(2323);
+
+            //Assert.IsTrue(clientV89.Connected);
+            //Assert.IsTrue(File.Exists(""));
+        }
 
 
+        [TestMethod]
+        public void RunScanOnTheLatestVersion()
+        {
+            var version = clientV93.Version;
 
+            foreach (var project in clientV93.GetProjects())
+            {
+                Trace.WriteLine(project.Value);
+
+                var lastScan = clientV93.GetLastScan(project.Key);
+                if(lastScan != null)
+                {
+                    if(!lastScan.ScanState.CxVersion.EndsWith("HF10"))
+                    {
+                        clientV93.RunSASTScan(project.Key);
+                    }
+                }
+
+                Trace.WriteLine(string.Empty);
+            }
+        }
+
+        [TestMethod]
+        public void GEtScanFails()
+        {
+            foreach (var item in clientV93.GetFailedScans().GroupBy(x => x.ProjectId))
+            {
+                Trace.WriteLine("Project " + item.Key);
+
+                foreach (var reasons in item)
+                {
+                    Trace.WriteLine("\t" + reasons.Details + " on " + new DateTime(reasons.CreatedOn).ToString());
+                }
+            }
+
+        }
+
+
+        [TestMethod]
+        public void GetPresets()
+        {
+            foreach (var item in clientV89.GetPresets())
+            {
+                Trace.WriteLine(item.Value);
+            }
         }
 
     }

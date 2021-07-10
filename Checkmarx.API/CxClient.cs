@@ -30,6 +30,8 @@ namespace Checkmarx.API
     /// </summary>
     public class CxClient : IDisposable
     {
+        #region Clients
+
         /// <summary>
         /// REST API client
         /// </summary>
@@ -64,55 +66,13 @@ namespace Checkmarx.API
         /// </summary>
         private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
 
-
         private cxPortalWebService93.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClientV9;
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
-        /// <summary>
-        /// Get a preset for a specific scan.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public string GetScanPreset(long id)
-        {
-            checkConnection();
+        #endregion
 
-            if (id <= 0)
-            {
-                throw new ArgumentException(nameof(id));
-            }
-
-            if (_scanCache == null)
-            {
-#if DEBUG
-                var watch = new Stopwatch();
-                watch.Start();
-#endif
-
-                _scanCache = _oDataScans.Where(x => x.IsLocked).ToDictionary(x => x.Id);
-
-#if DEBUG
-                watch.Stop();
-                Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.Elapsed.TotalMinutes} minutes");
-                Console.SetCursorPosition(0, Console.CursorTop);
-#endif
-            }
-
-            if (!_scanCache.ContainsKey(id))
-            {
-                var scan = _oDataScans.Where(x => x.Id == id).FirstOrDefault();
-                if (scan != null)
-                {
-                    _scanCache.Add(scan.Id, scan);
-                    return scan.PresetName;
-                }
-
-                throw new KeyNotFoundException($"Scan with Id {id} does not exist.");
-            }
-
-            return _scanCache[id].PresetName;
-        }
+        #region Credentials
 
         /// <summary>
         /// Check if the wrapper is connected.
@@ -143,6 +103,8 @@ namespace Checkmarx.API
         /// Localization Id
         /// </summary>
         public int LcId { get; private set; } = 1033;
+
+        #endregion
 
         /// <summary>
         /// Constructor of the Checkmarx Client
@@ -578,6 +540,17 @@ namespace Checkmarx.API
             }
         }
 
+        public cxPortalWebService93.CxWSSingleResultCompareData[] GetScansDiff(int oldScanId, int newScanId)
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClientV9.GetCompareScanResultsAsync(_soapSessionId, oldScanId, newScanId).Result;
+            if (result.IsSuccesfull)
+                return result.Results;
+
+            throw new Exception(result.ErrorMessage);
+        }
+
         /// <summary>
         /// Deletes an existing project with all related scans
         /// </summary>
@@ -605,6 +578,17 @@ namespace Checkmarx.API
                     throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
                 }
             }
+        }
+
+        public FailedScansDisplayData[] GetFailedScans()
+        {
+            checkConnection();
+
+            var response = _cxPortalWebServiceSoapClient.GetFailedScansDisplayData(_soapSessionId);
+
+            checkSoapResponse(response);
+
+            return response.FailedScansList;
         }
 
         /// <summary>
@@ -870,6 +854,35 @@ namespace Checkmarx.API
             throw new NotSupportedException();
         }
 
+        public byte[] GetSourceCode(long scanId)
+        {
+            checkConnection();
+
+            if (_isV9)
+            {
+                var resultV9 = _cxPortalWebServiceSoapClientV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
+                checkSoapResponse(resultV9);
+                return resultV9.sourceCodeContainer.ZippedFile;
+            }
+
+            var result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
+            checkSoapResponse(result);
+            return result.sourceCodeContainer.ZippedFile;
+        }
+
+        private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)
+        {
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+        }
+
+        private void checkSoapResponse(CxWSBasicRepsonse result)
+        {
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+        }
+
+
         public SASTResults GetSASTResults(long sastScanId)
         {
             checkConnection();
@@ -978,6 +991,7 @@ namespace Checkmarx.API
             var scans = GetScans(projectId, true, ScanRetrieveKind.All);
             return scans;
         }
+
         public Scan GetFirstScan(long projectId)
         {
             var scan = GetScans(projectId, true, ScanRetrieveKind.First);
@@ -1226,6 +1240,8 @@ namespace Checkmarx.API
             }
         }
 
+        #region Presets & Queries
+
         private Dictionary<int, string> _presetsCache;
         public Dictionary<int, string> GetPresets()
         {
@@ -1252,6 +1268,233 @@ namespace Checkmarx.API
                 throw new NotSupportedException(presetResponse.ToString());
             }
         }
+
+        /// <summary>
+        /// Get a preset for a specific scan.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public string GetScanPreset(long id)
+        {
+            checkConnection();
+
+            if (id <= 0)
+            {
+                throw new ArgumentException(nameof(id));
+            }
+
+            if (_scanCache == null)
+            {
+#if DEBUG
+                //var watch = new Stopwatch();
+                //watch.Start();
+#endif
+
+                _scanCache = _oDataScans.Where(x => x.IsLocked).ToDictionary(x => x.Id);
+
+#if DEBUG
+                //watch.Stop();
+                //Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.Elapsed.TotalMinutes} minutes");
+                //Console.SetCursorPosition(0, Console.CursorTop);
+#endif
+            }
+
+            if (!_scanCache.ContainsKey(id))
+            {
+                var scan = _oDataScans.Where(x => x.Id == id).FirstOrDefault();
+                if (scan != null)
+                {
+                    _scanCache.Add(scan.Id, scan);
+                    return scan.PresetName;
+                }
+
+                throw new KeyNotFoundException($"Scan with Id {id} does not exist.");
+            }
+
+            return _scanCache[id].PresetName;
+        }
+
+        public Dictionary<string, List<long>> GetPresetCWEByLanguage(long presetId)
+        {
+            var listOfCWEByLanguage = new Dictionary<string, List<long>>();
+
+            var queryCollection = _cxPortalWebServiceSoapClient.GetQueryCollectionAsync(_soapSessionId).Result;
+
+            checkSoapResponse(queryCollection);
+
+            var queryCWE = new Dictionary<long, Tuple<string, CxWSQuery>>();
+
+            foreach (var item in queryCollection.QueryGroups)
+            {
+                foreach (var query in item.Queries)
+                {
+                    queryCWE.Add(query.QueryId, new Tuple<string, CxWSQuery>(item.LanguageName, query));
+                }
+            }
+
+            // Language -> CWE
+            foreach (var queryId in _cxPortalWebServiceSoapClient.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset.queryIds)
+            {
+                var result = queryCWE[queryId];
+                if (result.Item2.Cwe != 0)
+                {
+                    if (!listOfCWEByLanguage.ContainsKey(result.Item1))
+                    {
+                        listOfCWEByLanguage.Add(result.Item1, new List<long> { result.Item2.Cwe });
+                    }
+                    else
+                    {
+                        listOfCWEByLanguage[result.Item1].Add(result.Item2.Cwe);
+                    }
+                }
+            }
+
+            return listOfCWEByLanguage;
+        }
+
+        public string GetPresetCWE(string presetName)
+        {
+            var presets = _cxPortalWebServiceSoapClient.GetPresetListAsync(_soapSessionId).Result;
+
+            checkSoapResponse(presets);
+
+            presetName = presetName.ToLowerInvariant();
+            var preset = presets.PresetList.SingleOrDefault(x => x.PresetName.ToLowerInvariant() == presetName);
+
+            var stringBuilder = new StringBuilder();
+
+            if (preset != null)
+            {
+                var languageAndCweIds = GetPresetCWEByLanguage(preset.ID);
+                foreach (var item in languageAndCweIds)
+                {
+                    stringBuilder.AppendLine($"{item.Key} - {string.Join(",", item.Value.Distinct().OrderBy(x => x))}");
+
+                    //foreach (var cweId in item.Value.Distinct().OrderBy(x => x))
+                    //{
+                    //    var result = auditClient1.GetQueryDescriptionAsync(sessionId, (int)cweId).Result;
+                    //}
+                }
+            }
+            else throw new NotSupportedException($"The preset {presetName} was not found");
+
+            return stringBuilder.ToString();
+        }
+
+        public Dictionary<long, List<Tuple<long, string>>> GetQueryForCWE(ICollection<long> cwes)
+        {
+            // CWE Query Name
+            var listOfQueriesForCWE = new Dictionary<long, List<Tuple<long, string>>>();
+
+            var queryCollection = _cxPortalWebServiceSoapClient.GetQueryCollectionAsync(_soapSessionId).Result;
+            if (!queryCollection.IsSuccesfull)
+                throw new NotImplementedException(queryCollection.ErrorMessage);
+
+            var queryCWE = new Dictionary<long, Tuple<string, CxWSQuery>>();
+
+            foreach (var item in queryCollection.QueryGroups)
+            {
+                foreach (var query in item.Queries)
+                {
+                    if (cwes.Contains(query.Cwe))
+                    {
+                        string fullQueryName = item.PackageFullName + "::" + query.Name;
+
+                        if (!listOfQueriesForCWE.ContainsKey(query.Cwe))
+                            listOfQueriesForCWE.Add(query.Cwe, new List<Tuple<long, string>>() { new Tuple<long, string>(query.QueryId, fullQueryName) });
+                        else
+                            listOfQueriesForCWE[query.Cwe].Add(new Tuple<long, string>(query.QueryId, fullQueryName));
+                    }
+                }
+            }
+
+            return listOfQueriesForCWE;
+        }
+
+        public void AddCWESupportToExistentPreset(string presetFullFileName,
+            Dictionary<long, List<Tuple<long, string>>> results, string outputFullFileName)
+        {
+            XDocument doc = XDocument.Load(presetFullFileName);
+
+            List<long> queryIdInPreset = new List<long>();
+
+            foreach (var xElement in doc.Descendants(XName.Get("OtherQueryId", doc.Root.GetDefaultNamespace().ToString())))
+            {
+                queryIdInPreset.Add(long.Parse(xElement.Value));
+            }
+
+            var queriesNode = doc.Descendants(XName.Get("OtherQueryIds")).First();
+
+            foreach (var cweQuery in results)
+            {
+                foreach (var queryId in cweQuery.Value)
+                {
+                    if (!queryIdInPreset.Contains(queryId.Item1))
+                    {
+                        queriesNode.Add(new XElement("OtherQueryId", queryId.Item1));
+                        queryIdInPreset.Add(queryId.Item1);
+                    }
+                }
+            }
+
+            doc.Save(outputFullFileName);
+        }
+
+        public IEnumerable<dynamic> GetProjectLevelQueries(long projectId)
+        {
+            if (_isV9)
+            {
+                var p = _cxPortalWebServiceSoapClientV9.GetQueryCollectionAsync(_soapSessionId).Result.QueryGroups;
+
+                if (p != null)
+                {
+                    return p
+                    .Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Project && x.ProjectId == projectId)
+                    .ToArray();
+                }
+            }
+
+            var presult = _cxPortalWebServiceSoapClient
+                .GetQueryCollectionAsync(_soapSessionId)
+                .Result
+                .QueryGroups;
+
+            if (presult != null)
+            {
+                return presult
+                .Where(x => x.PackageType == CxWSPackageTypeEnum.Project && x.ProjectId == projectId)
+                .ToArray();
+            }
+
+            return null;
+        }
+
+        public IEnumerable<dynamic> GetCustomizedQueriesTeam(string teamid)
+        {
+
+            if (_isV9)
+            {
+                var responseV9 = _cxPortalWebServiceSoapClientV9
+                            .GetQueryCollectionAsync(_soapSessionId).Result;
+
+                checkSoapResponse(responseV9);
+
+                return responseV9.QueryGroups
+                    .Where(group => group.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Team)
+                    .Where(group => group.OwningTeam.ToString() == teamid).ToArray();
+            }
+
+            CxQueryCollectionResponse response = _cxPortalWebServiceSoapClient
+                .GetQueryCollectionAsync(_soapSessionId).Result;
+
+            checkSoapResponse(response);
+
+            return response.QueryGroups
+                .Where(group => group.PackageType == CxWSPackageTypeEnum.Team)
+                .Where(group => group.OwningTeam.ToString() == teamid).ToArray();
+        }
+
+        #endregion
 
         #region Reports
 
@@ -1535,8 +1778,8 @@ namespace Checkmarx.API
             checkConnection();
 
             var result = _cxPortalWebServiceSoapClient.GetQueryDescription(_soapSessionId, (int)cwe);
-            if (!result.IsSuccesfull)
-                throw new Exception(result.ErrorMessage);
+
+            checkSoapResponse(result);
 
             return result.QueryDescription;
         }
@@ -1580,9 +1823,7 @@ namespace Checkmarx.API
 
         #endregion
 
-
         #region Utils
-
         private string ConvertToString(object value, CultureInfo cultureInfo = null)
         {
             if (value == null)
@@ -1633,15 +1874,10 @@ namespace Checkmarx.API
 
         #endregion
 
-
         public void Dispose()
         {
             // There is logoff...
 
         }
-
-
     }
-
-
 }

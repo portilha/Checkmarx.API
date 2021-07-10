@@ -52,16 +52,16 @@ namespace Checkmarx.API.SCA
         /// <param name="name">Project name</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<Project[]> ProjectsAsync(string name)
+        public System.Threading.Tasks.Task<Project[]> GetProjectsAsync(string name = null)
         {
-            return ProjectsAsync(name, System.Threading.CancellationToken.None);
+            return GetProjectsAsync(name, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <param name="name">Project name</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<Project[]> ProjectsAsync(string name, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<Project[]> GetProjectsAsync(string name, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/risk-management/projects?");
@@ -1256,21 +1256,21 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<ProjectSettings> Projects6Async(System.Guid projectId)
+        public System.Threading.Tasks.Task<ProjectSettings> GetProjectsSettingsAsync(System.Guid projectId)
         {
-            return Projects6Async(projectId, System.Threading.CancellationToken.None);
+            return GetProjectsSettingsAsync(projectId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<ProjectSettings> Projects6Async(System.Guid projectId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<ProjectSettings> GetProjectsSettingsAsync(System.Guid projectId, System.Threading.CancellationToken cancellationToken)
         {
             if (projectId == null)
                 throw new System.ArgumentNullException("projectId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/risk-management/settings/projects/{projectId}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/settings/projects/{projectId}");
             urlBuilder_.Replace("{projectId}", System.Uri.EscapeDataString(ConvertToString(projectId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -1334,15 +1334,15 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task Projects7Async(System.Guid projectId, ProjectSettings body)
+        public System.Threading.Tasks.Task UpdateProjectsSettingsAsync(System.Guid projectId, ProjectSettings body)
         {
-            return Projects7Async(projectId, body, System.Threading.CancellationToken.None);
+            return UpdateProjectsSettingsAsync(projectId, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task Projects7Async(System.Guid projectId, ProjectSettings body, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task UpdateProjectsSettingsAsync(System.Guid projectId, ProjectSettings body, System.Threading.CancellationToken cancellationToken)
         {
             if (projectId == null)
                 throw new System.ArgumentNullException("projectId");
@@ -1351,7 +1351,7 @@ namespace Checkmarx.API.SCA
                 throw new System.ArgumentNullException("body");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/risk-management/settings/projects/{projectId}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/settings/projects/{projectId}");
             urlBuilder_.Replace("{projectId}", System.Uri.EscapeDataString(ConvertToString(projectId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = _httpClient;
@@ -1386,7 +1386,7 @@ namespace Checkmarx.API.SCA
                         ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
-                        if (status_ == 200)
+                        if (status_ == 200 || status_ == 204)
                         {
                             return;
                         }
@@ -1968,6 +1968,9 @@ namespace Checkmarx.API.SCA
         [Newtonsoft.Json.JsonProperty("EnableExploitablePath", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool EnableExploitablePath { get; set; }
 
+
+        [Newtonsoft.Json.JsonProperty("pythonVersion", NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string PythonVersion { get; set; } = string.Empty;
 
     }
 

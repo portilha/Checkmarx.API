@@ -54,7 +54,6 @@ This SDK provides an API wrapper for accessing REST, SOAP and OData API for the 
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="output.cs" />
   </ItemGroup>
 
   <ItemGroup>

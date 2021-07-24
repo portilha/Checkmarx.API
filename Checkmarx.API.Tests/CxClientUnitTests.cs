@@ -259,6 +259,8 @@ namespace Checkmarx.API.Tests
             foreach (var item in clientV89.GetPresets())
             {
                 Trace.WriteLine($"{item.Key} {item.Value}");
+
+                clientV89.GetPresetCWE(item.Value);
             } 
         }
 

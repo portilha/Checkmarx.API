@@ -1293,14 +1293,9 @@ namespace Checkmarx.API
         public Dictionary<string, List<long>> GetPresetCWEByLanguage(long presetId)
         {
             var listOfCWEByLanguage = new Dictionary<string, List<long>>();
-
-            var queryCollection = _cxPortalWebServiceSoapClient.GetQueryCollectionAsync(_soapSessionId).Result;
-
-            checkSoapResponse(queryCollection);
-
             var queryCWE = new Dictionary<long, Tuple<string, CxWSQuery>>();
 
-            foreach (var item in queryCollection.QueryGroups)
+            foreach (var item in QueryGroups)
             {
                 foreach (var query in item.Queries)
                 {
@@ -1355,16 +1350,11 @@ namespace Checkmarx.API
         {
             // CWE Query Name
             var listOfQueriesForCWE = new Dictionary<long, List<Tuple<long, string>>>();
+             var queryCWE = new Dictionary<long, Tuple<string, CxWSQuery>>();
 
-            var queryCollection = _cxPortalWebServiceSoapClient.GetQueryCollectionAsync(_soapSessionId).Result;
-            if (!queryCollection.IsSuccesfull)
-                throw new NotImplementedException(queryCollection.ErrorMessage);
-
-            var queryCWE = new Dictionary<long, Tuple<string, CxWSQuery>>();
-
-            foreach (var item in queryCollection.QueryGroups)
+            foreach (var item in QueryGroups)
             {
-                foreach (var query in item.Queries)
+               foreach (var query in item.Queries)
                 {
                     if (cwes.Contains(query.Cwe))
                     {
@@ -1419,6 +1409,8 @@ namespace Checkmarx.API
             {
                 if (_queryGroupsCache == null)
                 {
+                    checkConnection();
+
                     if (_isV9)
                     {
                         var responseV9 = _cxPortalWebServiceSoapClientV9

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -70,23 +71,44 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-        public void MyTestMethod()
+        public void SuggestExclusionsTest()
         {
-            //  clientV89.GetSourceCode(1, @"d:\fil.zip");
-            
+            string extractPath = "";
+
+            string zipPath = Path.GetTempFileName();
+
+            File.WriteAllBytes(zipPath, clientV89.GetSourceCode(1));
+
             // unzip
+            ZipFile.ExtractToDirectory(zipPath, extractPath);
+
+            Regex[] filesRegex = new Regex[] { };
+            Regex[] foldersRegex = new Regex[] { };
 
             // detect exclusions
+            foreach (var directoy in Directory.EnumerateDirectories(""))
+            {
+
+            }
+
+            foreach (var file in Directory.EnumerateFiles(""))
+            {
+                if (filesRegex.Any(x => x.Match(file).Success))
+                {
+
+                }
+            }
 
             // detect multilanguage
-
         }
+
+
 
 
         [TestMethod]
         public void ConnectionTest()
         {
-            CxClient clientTEst = new CxClient(new Uri(""),"", "w");
+            CxClient clientTEst = new CxClient(new Uri(""), "", "w");
             Assert.IsTrue(clientTEst.Connected);
         }
 
@@ -100,7 +122,6 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void TestGetOSA_V9()
         {
-
             var license = clientV9.GetLicense();
 
             Assert.IsTrue(license.IsOsaEnabled);
@@ -110,7 +131,6 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void TestGetOSA_V8()
         {
-
             var license = clientV89.GetLicense();
 
             Assert.IsTrue(license.IsOsaEnabled);
@@ -234,14 +254,12 @@ namespace Checkmarx.API.Tests
 
 
         [TestMethod]
-        public void GetPreset()
+        public void GetPresetTest()
         {
-            var presets = clientV89.GetPresets();
-
-            foreach (var item in clientV89.GetProjects())
+            foreach (var item in clientV89.GetPresets())
             {
-                Trace.WriteLine($"{item.Key} " + clientV89.GetSASTPreset(item.Key));
-            }
+                Trace.WriteLine($"{item.Key} {item.Value}");
+            } 
         }
 
         [TestMethod]
@@ -280,7 +298,7 @@ namespace Checkmarx.API.Tests
             clientV89.GetProjectCreationDate(9);
 
         }
-        
+
         [TestMethod]
         public void TestCreationDateV9()
         {
@@ -598,7 +616,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetCompareScansTest()
         {
-            var results = clientV93.GetScansDiff(234,234234);
+            var results = clientV93.GetScansDiff(234, 234234);
 
             foreach (var item in results.GroupBy(x => x.ResultStatus))
             {
@@ -626,9 +644,9 @@ namespace Checkmarx.API.Tests
                 Trace.WriteLine(project.Value);
 
                 var lastScan = clientV93.GetLastScan(project.Key);
-                if(lastScan != null)
+                if (lastScan != null)
                 {
-                    if(!lastScan.ScanState.CxVersion.EndsWith("HF10"))
+                    if (!lastScan.ScanState.CxVersion.EndsWith("HF10"))
                     {
                         clientV93.RunSASTScan(project.Key);
                     }

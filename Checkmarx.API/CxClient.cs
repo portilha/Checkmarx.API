@@ -862,14 +862,17 @@ namespace Checkmarx.API
         {
             checkConnection();
 
+            dynamic result = null;
+
             if (_isV9)
             {
-                var resultV9 = _cxPortalWebServiceSoapClientV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
-                checkSoapResponse(resultV9);
-                return resultV9.sourceCodeContainer.ZippedFile;
+                result = _cxPortalWebServiceSoapClientV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
+            }
+            else
+            {
+                result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
             }
 
-            var result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
             checkSoapResponse(result);
             return result.sourceCodeContainer.ZippedFile;
         }

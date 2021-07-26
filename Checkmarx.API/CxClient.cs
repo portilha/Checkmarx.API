@@ -517,15 +517,20 @@ namespace Checkmarx.API
 
         public void SetCustomFields(ProjectDetails projDetails, IEnumerable<CustomField> customFields)
         {
+            SetCustomFields(projDetails.Id, projDetails.Name, projDetails.TeamId.ToString(), customFields);
+        }
+
+        public void SetCustomFields(long projId, string projName, string teamId, IEnumerable<CustomField> customFields)
+        {
             checkConnection();
 
-            using (var request = new HttpRequestMessage(HttpMethod.Put, $"projects/{projDetails.Id}"))
+            using (var request = new HttpRequestMessage(HttpMethod.Put, $"projects/{projId}"))
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
                 JObject settings = new JObject
                 {
-                    { "name",  projDetails.Name },
-                    { "owningTeam", projDetails.TeamId.ToString() },
+                    { "name",  projName },
+                    { "owningTeam", teamId },
                     { "customFields", new JArray(
                         customFields.Select(x => new JObject
                         {
@@ -568,9 +573,7 @@ namespace Checkmarx.API
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     ProjectDetails projDetails = JsonConvert.DeserializeObject<ProjectDetails>(response.Content.ReadAsStringAsync().Result);
-
                     return projDetails;
-
                 }
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
@@ -617,15 +620,26 @@ namespace Checkmarx.API
             }
         }
 
-        public FailedScansDisplayData[] GetFailedScans()
+        private FailedScansDisplayData[] _failedScans = null;
+
+        public FailedScansDisplayData[] FailedScans
         {
-            checkConnection();
+            get
+            {
+                if (_failedScans == null)
+                {
+                    checkConnection();
+                    var response = _cxPortalWebServiceSoapClient.GetFailedScansDisplayData(_soapSessionId);
+                    checkSoapResponse(response);
+                    _failedScans = response.FailedScansList;
+                }
+                return _failedScans;
+            }
+        }
 
-            var response = _cxPortalWebServiceSoapClient.GetFailedScansDisplayData(_soapSessionId);
-
-            checkSoapResponse(response);
-
-            return response.FailedScansList;
+        public IEnumerable<FailedScansDisplayData> GetFailedScans(long projectId)
+        {
+            return FailedScans.Where(x => x.ProjectId == projectId);
         }
 
         /// <summary>
@@ -1166,32 +1180,7 @@ namespace Checkmarx.API
         /// <exception cref="NotImplementedException"></exception>
         public Dictionary<int, string> GetProjects()
         {
-            checkConnection();
-
-            // List Project Now..
-            var projectListResponse = httpClient.GetAsync("projects").Result;
-
-            var result = new Dictionary<int, string>();
-
-            if (projectListResponse.StatusCode == HttpStatusCode.OK)
-            {
-                string plResult = projectListResponse.Content.ReadAsStringAsync().Result;
-
-                var projectList = (JArray)JsonConvert.DeserializeObject(plResult);
-
-                foreach (var item in projectList)
-                {
-                    result.Add((int)item.SelectToken("id"),
-                        (string)item.SelectToken("name"));
-                }
-
-                return result;
-            }
-
-            if (projectListResponse.StatusCode == HttpStatusCode.Unauthorized)
-                throw new UnauthorizedAccessException();
-
-            throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
+            return GetAllProjectsDetails().ToDictionary(x => (int)x.Id, x => x.Name);
         }
 
         public List<ProjectDetails> GetAllProjectsDetails()
@@ -1245,15 +1234,15 @@ namespace Checkmarx.API
         /// <summary>
         /// Get a preset for a specific scan.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="scanId"></param>
         /// <returns></returns>
-        public string GetScanPreset(long id)
+        public string GetScanPreset(long scanId)
         {
             checkConnection();
 
-            if (id <= 0)
+            if (scanId <= 0)
             {
-                throw new ArgumentException(nameof(id));
+                throw new ArgumentException(nameof(scanId));
             }
 
             if (_scanCache == null)
@@ -1272,32 +1261,28 @@ namespace Checkmarx.API
 #endif
             }
 
-            if (!_scanCache.ContainsKey(id))
+            if (!_scanCache.ContainsKey(scanId))
             {
-                var scan = _oDataScans.Where(x => x.Id == id).FirstOrDefault();
+                var scan = _oDataScans.Where(x => x.Id == scanId).FirstOrDefault();
                 if (scan != null)
                 {
                     _scanCache.Add(scan.Id, scan);
                     return scan.PresetName;
                 }
 
-                throw new KeyNotFoundException($"Scan with Id {id} does not exist.");
+                throw new KeyNotFoundException($"Scan with Id {scanId} does not exist.");
             }
 
-            return _scanCache[id].PresetName;
+            return _scanCache[scanId].PresetName;
         }
 
         public Dictionary<string, List<long>> GetPresetCWEByLanguage(long presetId)
         {
             var listOfCWEByLanguage = new Dictionary<string, List<long>>();
 
-            var queryCollection = _cxPortalWebServiceSoapClient.GetQueryCollectionAsync(_soapSessionId).Result;
-
-            checkSoapResponse(queryCollection);
-
             var queryCWE = new Dictionary<long, Tuple<string, CxWSQuery>>();
 
-            foreach (var item in queryCollection.QueryGroups)
+            foreach (var item in QueryGroups)
             {
                 foreach (var query in item.Queries)
                 {
@@ -1353,13 +1338,7 @@ namespace Checkmarx.API
             // CWE Query Name
             var listOfQueriesForCWE = new Dictionary<long, List<Tuple<long, string>>>();
 
-            var queryCollection = _cxPortalWebServiceSoapClient.GetQueryCollectionAsync(_soapSessionId).Result;
-            if (!queryCollection.IsSuccesfull)
-                throw new NotImplementedException(queryCollection.ErrorMessage);
-
-            var queryCWE = new Dictionary<long, Tuple<string, CxWSQuery>>();
-
-            foreach (var item in queryCollection.QueryGroups)
+            foreach (var item in QueryGroups)
             {
                 foreach (var query in item.Queries)
                 {
@@ -1416,25 +1395,23 @@ namespace Checkmarx.API
             {
                 if (_queryGroupsCache == null)
                 {
+                    checkConnection();
+
+                    dynamic response = null;
+
                     if (_isV9)
                     {
-                        var responseV9 = _cxPortalWebServiceSoapClientV9
+                        response = _cxPortalWebServiceSoapClientV9
                               .GetQueryCollectionAsync(_soapSessionId).Result;
-
-                        checkSoapResponse(responseV9);
-
-                        _queryGroupsCache = responseV9.QueryGroups;
-
                     }
                     else
                     {
-                        CxQueryCollectionResponse response = _cxPortalWebServiceSoapClient
-                  .GetQueryCollectionAsync(_soapSessionId).Result;
+                        response = _cxPortalWebServiceSoapClient
+                              .GetQueryCollectionAsync(_soapSessionId).Result;
 
-                        checkSoapResponse(response);
-
-                        _queryGroupsCache = response.QueryGroups;
                     }
+                    checkSoapResponse(response);
+                    _queryGroupsCache = response.QueryGroups;
                 }
                 return _queryGroupsCache;
             }

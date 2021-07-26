@@ -324,7 +324,7 @@ namespace Checkmarx.API.Tests
             var projects = clientV93.GetProjects();
             var teams = clientV93.GetTeams();
 
-            foreach (var queryGroup in clientV93.GetQueries())
+            foreach (var queryGroup in clientV93.QueryGroups)
             {
                 if (queryGroup.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx)
                     continue;
@@ -641,16 +641,15 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GEtScanFails()
         {
-            foreach (var item in clientV93.GetFailedScans().GroupBy(x => x.ProjectId))
+            foreach (var item in clientV93.FailedScans.GroupBy(x => x.ProjectId))
             {
                 Trace.WriteLine("Project " + item.Key);
 
-                foreach (var reasons in item)
+                foreach (var reasons in item.Reverse())
                 {
-                    Trace.WriteLine("\t" + reasons.Details + " on " + new DateTime(reasons.CreatedOn).ToString());
+                    Trace.WriteLine("\t" + reasons.Details + " on " + new DateTime(reasons.CreatedOn).ToString() + " started by " + reasons.Initiator);
                 }
             }
-
         }
 
 

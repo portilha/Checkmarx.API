@@ -876,14 +876,17 @@ namespace Checkmarx.API
         {
             checkConnection();
 
+            dynamic result = null;
+
             if (_isV9)
             {
-                var resultV9 = _cxPortalWebServiceSoapClientV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
-                checkSoapResponse(resultV9);
-                return resultV9.sourceCodeContainer.ZippedFile;
+                result = _cxPortalWebServiceSoapClientV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
+            }
+            else
+            {
+                result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
             }
 
-            var result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
             checkSoapResponse(result);
             return result.sourceCodeContainer.ZippedFile;
         }
@@ -1207,10 +1210,10 @@ namespace Checkmarx.API
         private Dictionary<int, string> _presetsCache;
         public Dictionary<int, string> GetPresets()
         {
-            checkConnection();
-
             if (_presetsCache != null)
                 return _presetsCache;
+
+            checkConnection();
 
             using (var presets = new HttpRequestMessage(HttpMethod.Get, $"sast/presets"))
             {
@@ -1279,7 +1282,6 @@ namespace Checkmarx.API
         public Dictionary<string, List<long>> GetPresetCWEByLanguage(long presetId)
         {
             var listOfCWEByLanguage = new Dictionary<string, List<long>>();
-
             var queryCWE = new Dictionary<long, Tuple<string, CxWSQuery>>();
 
             foreach (var item in QueryGroups)
@@ -1312,6 +1314,8 @@ namespace Checkmarx.API
 
         public string GetPresetCWE(string presetName)
         {
+            checkConnection();
+
             var presets = _cxPortalWebServiceSoapClient.GetPresetListAsync(_soapSessionId).Result;
 
             checkSoapResponse(presets);
@@ -1340,7 +1344,7 @@ namespace Checkmarx.API
 
             foreach (var item in QueryGroups)
             {
-                foreach (var query in item.Queries)
+               foreach (var query in item.Queries)
                 {
                     if (cwes.Contains(query.Cwe))
                     {
@@ -1396,9 +1400,7 @@ namespace Checkmarx.API
                 if (_queryGroupsCache == null)
                 {
                     checkConnection();
-
                     dynamic response = null;
-
                     if (_isV9)
                     {
                         response = _cxPortalWebServiceSoapClientV9

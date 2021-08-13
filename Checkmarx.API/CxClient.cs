@@ -68,6 +68,40 @@ namespace Checkmarx.API
 
         private cxPortalWebService93.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClientV9;
 
+
+        #region CxAudit
+
+        private  CxAuditWebServiceV9.CxAuditWebServiceSoapClient _cxAuditWebServiceSoapClientV9 = null;
+
+
+        private CxAuditWebServiceV9.CxAuditWebServiceSoapClient CxAuditV9
+        {
+            get
+            {
+                checkConnection();
+
+                if(_cxAuditWebServiceSoapClientV9 == null)
+                {
+                    _cxAuditWebServiceSoapClientV9 = new CxAuditWebServiceV9.CxAuditWebServiceSoapClient(SASTServerURL, TimeSpan.FromSeconds(360), Username, Password);
+
+                    var portalChannelFactory = _cxAuditWebServiceSoapClientV9.ChannelFactory;
+                    portalChannelFactory.UseMessageInspector(async (request, channel, next) =>
+                    {
+                        HttpRequestMessageProperty reqProps = new HttpRequestMessageProperty();
+                        reqProps.Headers.Add("Authorization", $"Bearer {AuthenticationToken.Parameter}");
+                        request.Properties.Add(HttpRequestMessageProperty.Name, reqProps);
+                        var response = await next(request);
+                        return response;
+                    });
+                }
+
+                return _cxAuditWebServiceSoapClientV9;
+            }
+        }
+
+
+        #endregion
+
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
         /// <summary>
@@ -279,6 +313,8 @@ namespace Checkmarx.API
                     JObject accessToken = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
 
                     string authToken = ((JProperty)accessToken.First).Value.ToString();
+
+                    _cxAuditWebServiceSoapClientV9 = null;
 
                     if (_isV9)
                     {
@@ -880,7 +916,7 @@ namespace Checkmarx.API
 
             if (_isV9)
             {
-                result = _cxPortalWebServiceSoapClientV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
+                result = CxAuditV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
             }
             else
             {
@@ -892,6 +928,12 @@ namespace Checkmarx.API
         }
 
         private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)
+        {
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+        }
+
+        private void checkSoapResponse(CxAuditWebServiceV9.CxWSBasicRepsonse result)
         {
             if (!result.IsSuccesfull)
                 throw new ApplicationException(result.ErrorMessage);

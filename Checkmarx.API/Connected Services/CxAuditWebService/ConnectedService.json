@@ -6,14 +6,15 @@
   },
   "ExtendedData": {
     "inputs": [
-      "https://serverv93.checkmarx.net/Cxwebinterface/CxWebService_Audit.asmx?wsdl"
+      "https://serverv93.checkmarx.net/Cxwebinterface/Audit/CxAuditWebService.asmx?wsdl"
     ],
     "collectionTypes": [
-      "System.Collections.Generic.Dictionary`2",
-      "System.Collections.Generic.List`1"
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
     ],
+    "internalTypeAccess": true,
     "namespaceMappings": [
-      "*, cxPortalWebService93"
+      "*, CxAuditWebService"
     ],
     "references": [
       "Capri, {Capri, 0.0.1}",
@@ -43,7 +44,7 @@
       "Microsoft.OData.Core, {Microsoft.OData.Core, 7.8.2}",
       "Microsoft.OData.Edm, {Microsoft.OData.Edm, 7.8.2}",
       "Microsoft.Spatial, {Microsoft.Spatial, 7.8.2}",
-      "Newtonsoft.Json, {Newtonsoft.Json, 13.0.1-beta1}",
+      "Newtonsoft.Json, {Newtonsoft.Json, 13.0.1}",
       "System.Collections.Immutable, {System.Collections.Immutable, 1.7.0}",
       "System.ComponentModel.Annotations, {System.ComponentModel.Annotations, 4.7.0}",
       "System.Diagnostics.DiagnosticSource, {System.Diagnostics.DiagnosticSource, 4.7.0}",

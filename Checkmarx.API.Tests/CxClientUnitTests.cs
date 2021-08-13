@@ -12,6 +12,7 @@ using System.Threading;
 using System.Web;
 using System.Xml.Linq;
 using Checkmarx.API;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -70,28 +71,50 @@ namespace Checkmarx.API.Tests
 
         }
 
+
+        [TestMethod]
+        public void GetSourceCodeAndRunScanTest()
+        {
+            //var projectId = clientV93.GetProjects().First().Key;
+            //// var scanID = clientV9.GetAllSASTScans(projectId).First().Id;
+
+            //clientV9.RunSASTScan(projectId);
+
+            string fileNAme = @"mysource.zip";
+             File.WriteAllBytes(fileNAme, clientV9.GetSourceCode(1006182));
+
+            Assert.IsTrue(File.Exists(fileNAme));
+
+
+        }
+
         [TestMethod]
         public void SuggestExclusionsTest()
         {
-            string extractPath = "";
+            string extractPath = Path.GetTempFileName();
 
             string zipPath = Path.GetTempFileName();
 
-            File.WriteAllBytes(zipPath, clientV89.GetSourceCode(1));
+            File.WriteAllBytes(zipPath, clientV9.GetSourceCode(1006182));
 
             // unzip
             ZipFile.ExtractToDirectory(zipPath, extractPath);
 
-            Regex[] filesRegex = new Regex[] { };
-            Regex[] foldersRegex = new Regex[] { };
+            var exclusions = Exclusions.FromJson("exclusion.json");
+
+            Regex[] filesRegex = exclusions.Files.Select(x => new Regex(x, RegexOptions.Compiled)).ToArray();
+            Regex[] foldersRegex = exclusions.Folders.Select(x => new Regex(x, RegexOptions.Compiled)).ToArray();
 
             // detect exclusions
-            foreach (var directoy in Directory.EnumerateDirectories(""))
+            foreach (var directoy in Directory.EnumerateDirectories(extractPath, "*.*"))
             {
+                if (foldersRegex.Any(x => x.Match(directoy).Success))
+                {
 
+                }
             }
 
-            foreach (var file in Directory.EnumerateFiles(""))
+            foreach (var file in Directory.EnumerateFiles(extractPath, "*.*"))
             {
                 if (filesRegex.Any(x => x.Match(file).Success))
                 {
@@ -101,8 +124,6 @@ namespace Checkmarx.API.Tests
 
             // detect multilanguage
         }
-
-
 
 
         [TestMethod]
@@ -680,6 +701,33 @@ namespace Checkmarx.API.Tests
             {
                 Trace.WriteLine(item.Value);
             }
+        }
+
+        [TestMethod]
+        public void MyTestMethod()
+        {
+            //foreach (var item in clientV89.GetProjects())
+            //{
+            //    Trace.WriteLine(item.Value);
+            //}
+
+
+
+            foreach (var item in clientV89.GetPresets())
+            {
+                if (item.Value.Contains("ASA"))
+                {
+                    //  Trace.WriteLine(clientV89.GetPresetCWE(item.Value));
+                }
+            }
+
+            //foreach (dynamic item in clientV89.QueryGroups)
+            //{
+            //    foreach (var query in item.Queries)
+            //    {
+            //        Trace.WriteLine((string)query.Source);
+            //    }
+            //}
         }
 
     }

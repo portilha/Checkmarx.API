@@ -71,7 +71,7 @@ namespace Checkmarx.API
 
         #region CxAudit
 
-        private  CxAuditWebServiceV9.CxAuditWebServiceSoapClient _cxAuditWebServiceSoapClientV9 = null;
+        private CxAuditWebServiceV9.CxAuditWebServiceSoapClient _cxAuditWebServiceSoapClientV9 = null;
 
 
         private CxAuditWebServiceV9.CxAuditWebServiceSoapClient CxAuditV9
@@ -80,7 +80,7 @@ namespace Checkmarx.API
             {
                 checkConnection();
 
-                if(_cxAuditWebServiceSoapClientV9 == null)
+                if (_cxAuditWebServiceSoapClientV9 == null)
                 {
                     _cxAuditWebServiceSoapClientV9 = new CxAuditWebServiceV9.CxAuditWebServiceSoapClient(SASTServerURL, TimeSpan.FromSeconds(360), Username, Password);
 
@@ -263,6 +263,21 @@ namespace Checkmarx.API
 
         #region Access Control 
 
+        private AccessControlClient _ac = null;
+        public AccessControlClient AC
+        {
+            get
+            {
+                if (_ac == null)
+                {
+                    checkConnection();
+
+                    _ac = new AccessControlClient(httpClient);
+                }
+                return _ac;
+            }
+        }
+
         private HttpClient Login(string baseURL = "http://localhost/cxrestapi/",
             string userName = "", string password = "")
         {
@@ -298,7 +313,7 @@ namespace Checkmarx.API
                     new KeyValuePair<string, string>("password", password),
                     new KeyValuePair<string, string>("grant_type", "password"),
                     new KeyValuePair<string, string>("scope",
-                    _isV9 ? "offline_access sast_api" : "sast_rest_api"),
+                    _isV9 ? "offline_access sast_api access_control_api" : "sast_rest_api"),
                     new KeyValuePair<string, string>("client_id",
                     _isV9 ? "resource_owner_sast_client" : "resource_owner_client"),
                     new KeyValuePair<string, string>("client_secret", "014DF517-39D1-4453-B7B3-9930C563627C")
@@ -1386,7 +1401,7 @@ namespace Checkmarx.API
 
             foreach (var item in QueryGroups)
             {
-               foreach (var query in item.Queries)
+                foreach (var query in item.Queries)
                 {
                     if (cwes.Contains(query.Cwe))
                     {

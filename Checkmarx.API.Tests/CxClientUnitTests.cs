@@ -434,19 +434,17 @@ namespace Checkmarx.API.Tests
 
             StringBuilder sb = new StringBuilder();
 
-            foreach (var result in clientV9.GetResultsForScan(1004107).GroupBy(x => x.Severity)) // 
+            foreach (var result in clientV9.GetResultsForScan(1006616).GroupBy(x => x.Severity)) // 
             {
-                Trace.WriteLine("##" + CxClient.toSeverityToString(result.Key));
+                sb.AppendLine(CxClient.toSeverityToString(result.Key));
 
                 foreach (var severity in result.GroupBy(x => x.QueryId))
                 {
-                    Trace.WriteLine("\t#" + queries[severity.Key].Name);
+                    sb.AppendLine(queries[severity.Key].Name);
 
                     foreach (var item in severity)
                     {
-
-
-                        Trace.WriteLine("\t\t * " + item.PathId + " " + CxClient.toResultStateToString((ResultState)item.State));
+                        sb.AppendLine($"{ item.PathId } {CxClient.toResultStateToString((ResultState)item.State)}");
                     }
 
                 }

@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Text;
 
@@ -16,6 +17,7 @@ namespace Checkmarx.API.Tests
         private static CxClient clientV89;
         private static CxClient clientV9;
         private static CxClient clientV93;
+        
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
@@ -65,9 +67,90 @@ namespace Checkmarx.API.Tests
 
             foreach (var user in accessControlClient.GetAllUsersDetailsAsync().Result)
             {
-                Trace.WriteLine(user.Email);
-            }   
+                if (user.Email.EndsWith("@checkmarx.com"))
+                    Trace.WriteLine(user.Email + " " + user.LastLoginDate);
+            }
         }
 
+
+        [TestMethod]
+        public void CreateUserTest()
+        {
+            AccessControlClient accessControlClient = clientV9.AC;
+
+            ICollection<int> cxTamRoles = new int[] { 
+                accessControlClient.RolesAllAsync().Result.First(x => x.Name == "SAST Admin").Id 
+            };
+
+            ICollection<int> cxTeamIds = new int[] { 
+                accessControlClient.TeamsAllAsync().Result.First(x => x.FullName == "/CxServer").Id 
+            };
+
+            int localeID = accessControlClient.SystemLocalesAsync().Result.First(x => x.Code == "en-US").Id;
+
+            CreateUserModel user = new CreateUserModel
+            {
+                FirstName = "firstname",
+                LastName = "lastname",
+                UserName = "email@checkmarx.com",
+                Email = "email@checkmarx.com",
+                Password = "randomPassword",
+                ExpirationDate = DateTimeOffset.UtcNow + TimeSpan.FromDays(1000),
+                Active = true,
+
+                Country = "United States",
+                JobTitle = string.Empty,
+
+                AuthenticationProviderId = 1, // Application User
+                LocaleId = localeID,
+                RoleIds = cxTamRoles,
+                TeamIds = cxTeamIds,
+
+            };
+
+            accessControlClient.CreatesNewUser(user).Wait();
+        }
+
+        [TestMethod]
+        public void ListTeamsTest()
+        {
+            AccessControlClient accessControlClient = clientV9.AC;
+            foreach (var item in accessControlClient.TeamsAllAsync().Result)
+            {
+                Trace.WriteLine($"{item.Id} = {item.FullName}");
+            }
+        }
+
+        [TestMethod]
+        public void ListLocalsTest()
+        {
+            AccessControlClient accessControlClient = clientV9.AC;
+            foreach (var item in accessControlClient.SystemLocalesAsync().Result)
+            {
+                Trace.WriteLine($"{item.Id} = {item.Code} = {item.DisplayName}");
+            }
+        }
+
+        [TestMethod]
+        public void ListAuthTest()
+        {
+            AccessControlClient accessControlClient = clientV9.AC;
+            foreach (var item in accessControlClient.AuthenticationProvidersAsync().Result)
+            {
+                Trace.WriteLine($"{item.Id} = {item.Name} = {item.ProviderType}");
+            }
+        }
+
+
+
+        [TestMethod]
+        public void ListRolesTest()
+        {
+            AccessControlClient accessControlClient = clientV9.AC;
+            foreach (var item in accessControlClient.RolesAllAsync().Result)
+            {
+                Trace.WriteLine($"{item.Id} = {item.Name}");
+            }
+        }
     }
 }

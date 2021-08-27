@@ -10468,9 +10468,9 @@ namespace Checkmarx.API
         /// <summary>The provider Id of this authentication provider.</summary>
         [Newtonsoft.Json.JsonProperty("providerId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? ProviderId { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("providerType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public AuthenticationProviderType ProviderType { get; set; }
+        public string ProviderType { get; set; } = "Application";
     
         /// <summary>Specifies whether this authentication provider doesn't use the credentials from the standard login page.</summary>
         [Newtonsoft.Json.JsonProperty("isExternal", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

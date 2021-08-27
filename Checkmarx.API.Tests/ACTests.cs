@@ -61,7 +61,7 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-        public void MyTestMethod()
+        public void ListCheckmarxUsers()
         {
             AccessControlClient accessControlClient = clientV9.AC;
 
@@ -134,7 +134,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void ListAuthTest()
         {
-            AccessControlClient accessControlClient = clientV9.AC;
+            AccessControlClient accessControlClient = clientV93.AC;
             foreach (var item in accessControlClient.AuthenticationProvidersAsync().Result)
             {
                 Trace.WriteLine($"{item.Id} = {item.Name} = {item.ProviderType}");

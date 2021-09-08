@@ -9,7 +9,7 @@ namespace Checkmarx.API
     {
         public static Uri GetLink(this CxWSSingleResultData result)
         {
-            return new Uri(result.PathId.ToString(), false);
+            return new Uri(result.PathId.ToString());
         }
 
     }

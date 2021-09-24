@@ -32,7 +32,6 @@ It also provides access to the Access Control API.</Description>
 
   <ItemGroup>
     <PackageReference Include="Capri" Version="0.0.1" />
-    <PackageReference Include="ErikEJ.EntityFrameworkCore.DgmlBuilder" Version="3.1.1" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
     <PackageReference Include="Microsoft.OData.Client" Version="7.8.2" />
     <PackageReference Include="Microsoft.OData.Core" Version="7.8.2" />

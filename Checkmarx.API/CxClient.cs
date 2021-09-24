@@ -278,6 +278,18 @@ namespace Checkmarx.API
             }
         }
 
+        public static string GetVersionWithoutConnecting(string baseURL)
+        {
+            var webServer = new Uri(baseURL);
+
+            Uri baseServer = new Uri(webServer.AbsoluteUri);
+
+            var cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
+              baseServer, TimeSpan.FromSeconds(60), "aa", "bb");
+
+            return cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+        }
+
         private HttpClient Login(string baseURL = "http://localhost/cxrestapi/",
             string userName = "", string password = "")
         {
@@ -1418,8 +1430,10 @@ namespace Checkmarx.API
             return listOfQueriesForCWE;
         }
 
-        public void AddCWESupportToExistentPreset(string presetFullFileName,
-            Dictionary<long, List<Tuple<long, string>>> results, string outputFullFileName)
+        public void AddCWESupportToExistentPreset(
+            string presetFullFileName,
+            Dictionary<long, List<Tuple<long, string>>> results, 
+            string outputFullFileName)
         {
             XDocument doc = XDocument.Load(presetFullFileName);
 

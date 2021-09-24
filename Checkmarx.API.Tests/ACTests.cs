@@ -17,7 +17,7 @@ namespace Checkmarx.API.Tests
         private static CxClient clientV89;
         private static CxClient clientV9;
         private static CxClient clientV93;
-        
+
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
@@ -65,11 +65,35 @@ namespace Checkmarx.API.Tests
         {
             AccessControlClient accessControlClient = clientV9.AC;
 
+            var roles = accessControlClient.RolesAllAsync().Result.ToDictionary(x => x.Id);
+            var teams = accessControlClient.TeamsAllAsync().Result.ToDictionary(x => x.Id);
+
             foreach (var user in accessControlClient.GetAllUsersDetailsAsync().Result)
             {
                 if (user.Email.EndsWith("@checkmarx.com"))
-                    Trace.WriteLine(user.Email + " " + user.LastLoginDate);
+                {
+                    Trace.WriteLine(user.Email + string.Join(";", user.TeamIds.Select(x => teams[x].FullName)) +" " + user.LastLoginDate);
+
+                    foreach (var role in user.RoleIds.Select(x => roles[x].Name))
+                    {
+                        Trace.WriteLine("+ " + role);
+                    }
+                }
             }
+        }
+
+        [TestMethod]
+        public void ResetPasswordTest()
+        {
+            AccessControlClient accessControlClient = clientV93.AC;
+
+            var userID = accessControlClient.GetAllUsersDetailsAsync().Result.First(x => x.UserName == "pedro.portilha@checkmarx.com").Id;
+
+            var result = accessControlClient.ResetPassword2Async(userID).Result;
+
+            Trace.WriteLine(result.GeneratedPassword);
+
+            Assert.IsNotNull(result.GeneratedPassword);
         }
 
 
@@ -78,12 +102,12 @@ namespace Checkmarx.API.Tests
         {
             AccessControlClient accessControlClient = clientV9.AC;
 
-            ICollection<int> cxTamRoles = new int[] { 
-                accessControlClient.RolesAllAsync().Result.First(x => x.Name == "SAST Admin").Id 
+            ICollection<int> cxTamRoles = new int[] {
+                accessControlClient.RolesAllAsync().Result.First(x => x.Name == "SAST Admin").Id
             };
 
-            ICollection<int> cxTeamIds = new int[] { 
-                accessControlClient.TeamsAllAsync().Result.First(x => x.FullName == "/CxServer").Id 
+            ICollection<int> cxTeamIds = new int[] {
+                accessControlClient.TeamsAllAsync().Result.First(x => x.FullName == "/CxServer").Id
             };
 
             int localeID = accessControlClient.SystemLocalesAsync().Result.First(x => x.Code == "en-US").Id;
@@ -98,10 +122,11 @@ namespace Checkmarx.API.Tests
                 ExpirationDate = DateTimeOffset.UtcNow + TimeSpan.FromDays(1000),
                 Active = true,
 
-                Country = "United States",
-                JobTitle = string.Empty,
+                Country = "Portugal",
+                JobTitle = "The World Greatest",
 
-                AuthenticationProviderId = 1, // Application User
+                AuthenticationProviderId = accessControlClient.AuthenticationProvidersAsync().Result.First(X => X.Name == "Application").Id, // Application User
+
                 LocaleId = localeID,
                 RoleIds = cxTamRoles,
                 TeamIds = cxTeamIds,

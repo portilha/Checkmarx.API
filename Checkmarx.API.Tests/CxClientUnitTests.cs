@@ -796,7 +796,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetVersionWithoutConnectingTest()
         {
-            Trace.WriteLine(GetVersionWithoutConnecting(@"https://schroders.checkmarx.net/"));
+            Trace.WriteLine(GetVersionWithoutConnecting(@"https://localhost/"));
         }
 
     }

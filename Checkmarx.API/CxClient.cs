@@ -278,6 +278,11 @@ namespace Checkmarx.API
             }
         }
 
+        /// <summary>
+        /// Returns the version of the Checkmarx.
+        /// </summary>
+        /// <param name="baseURL"></param>
+        /// <returns></returns>
         public static string GetVersionWithoutConnecting(string baseURL)
         {
             var webServer = new Uri(baseURL);
@@ -285,7 +290,7 @@ namespace Checkmarx.API
             Uri baseServer = new Uri(webServer.AbsoluteUri);
 
             var cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
-              baseServer, TimeSpan.FromSeconds(60), "aa", "bb");
+              baseServer, TimeSpan.FromSeconds(60), "dummy", "dummy");
 
             return cxPortalWebServiceSoapClient.GetVersionNumber().Version;
         }
@@ -405,6 +410,10 @@ namespace Checkmarx.API
 
         public string GetProjectTeamName(string teamId)
         {
+            // some instances are returning deleted projects with the teamid -1.
+            if (teamId == "-1")
+                return null;
+
             return GetTeams()[teamId];
         }
 

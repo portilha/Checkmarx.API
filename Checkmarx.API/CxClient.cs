@@ -410,9 +410,8 @@ namespace Checkmarx.API
 
         public string GetProjectTeamName(string teamId)
         {
-            // some instances are returning deleted projects with the teamid -1.
-            if (teamId == "-1")
-                return null;
+            if (string.IsNullOrWhiteSpace(teamId))
+                throw new ArgumentNullException(nameof(teamId));
 
             return GetTeams()[teamId];
         }
@@ -1105,7 +1104,7 @@ namespace Checkmarx.API
 
         public Scan GetLockedScan(long projectId)
         {
-            return GetScans(projectId, true, ScanRetrieveKind.First).FirstOrDefault();
+            return GetScans(projectId, true, ScanRetrieveKind.Locked).FirstOrDefault();
         }
 
         public int GetScanCount()

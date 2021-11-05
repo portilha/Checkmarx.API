@@ -16,6 +16,7 @@ It also provides access to the Access Control API.</Description>
     <UserSecretsId>9629655e-7523-42f3-b285-1cf568d14b45</UserSecretsId>
     <RepositoryUrl>https://github.com/portilha/Checkmarx.API</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +26,7 @@ It also provides access to the Access Control API.</Description>
   <ItemGroup>
     <None Remove="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
     <None Remove="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
+    <None Include="..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <ItemGroup>

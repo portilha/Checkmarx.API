@@ -14,6 +14,8 @@ It also provides access to the Access Control API.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <UserSecretsId>9629655e-7523-42f3-b285-1cf568d14b45</UserSecretsId>
+    <RepositoryUrl>https://github.com/portilha/Checkmarx.API</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>

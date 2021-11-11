@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>1.5.0</Version>
+    <Version>2.0.0</Version>
     <Authors>Pedro Portilha</Authors>
     <Company>Checkmarx</Company>
     <Description>Checkmarx API (Unofficial)
@@ -14,6 +14,9 @@ It also provides access to the Access Control API.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <UserSecretsId>9629655e-7523-42f3-b285-1cf568d14b45</UserSecretsId>
+    <RepositoryUrl>https://github.com/portilha/Checkmarx.API</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +26,7 @@ It also provides access to the Access Control API.</Description>
   <ItemGroup>
     <None Remove="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
     <None Remove="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,12 +37,12 @@ It also provides access to the Access Control API.</Description>
   <ItemGroup>
     <PackageReference Include="Capri" Version="0.0.1" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
-    <PackageReference Include="Microsoft.OData.Client" Version="7.8.2" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.8.2" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="7.8.2" />
-    <PackageReference Include="Microsoft.Spatial" Version="7.8.2" />
+    <PackageReference Include="Microsoft.OData.Client" Version="7.9.4" />
+    <PackageReference Include="Microsoft.OData.Core" Version="7.9.4" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="7.9.4" />
+    <PackageReference Include="Microsoft.Spatial" Version="7.9.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.14.1" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="4.8.1" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.8.1" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.8.1" />

@@ -1414,6 +1414,72 @@ namespace Checkmarx.API
             return stringBuilder.ToString();
         }
 
+
+        /// <summary>
+        /// Get Query Information about the CWE of the Checkmarx Queries and other information.
+        /// </summary>
+        /// <returns></returns>
+        public StringBuilder GetQueryInformation()
+        {
+            StringBuilder result = new StringBuilder();
+            result.AppendLine("sep=,");
+
+            List<string> headers = new List<string>
+            {
+                "QueryId",
+                "Language",
+                "PackageType",
+                "QueryGroup",
+                "QueryName",
+                "IsExecutable",
+                "CWE",
+                "Severity",
+                "Categories"
+            };
+
+            Dictionary<string, HashSet<string>> standards = new Dictionary<string, HashSet<string>>();
+
+            result.AppendLine(string.Join(",", headers));
+
+            List<string> values;
+            foreach (var queryGroup in this.GetQueries())
+            {
+                foreach (var query in queryGroup.Queries)
+                {
+                    List<string> categories = new List<string>();
+                    foreach (var item in query.Categories)
+                    {
+                        if (!standards.ContainsKey(item.CategoryType.Name))
+                            standards.Add(item.CategoryType.Name, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+
+                        var subTopic = standards[item.CategoryType.Name];
+
+                        if (!subTopic.Contains(item.CategoryName))
+                            subTopic.Add(item.CategoryName);
+
+                        categories.Add(item.CategoryType.Name);
+                    }
+
+                    values = new List<string>
+                    {
+                        query.QueryId.ToString(),
+                        queryGroup.LanguageName,
+                        queryGroup.PackageTypeName,
+                        queryGroup.PackageFullName,
+                        query.Name,
+                        query.IsExecutable.ToString(),
+                        query.Cwe.ToString(),
+                        query.Severity.ToString(),
+                        string.Join(";", categories)
+                    };
+
+                    result.AppendLine(string.Join(",", values.Select(x => $"\"{x}\"")));
+                }
+            }
+
+            return result;           
+        }
+
         public Dictionary<long, List<Tuple<long, string>>> GetQueryForCWE(ICollection<long> cwes)
         {
             // CWE Query Name
@@ -1440,7 +1506,7 @@ namespace Checkmarx.API
 
         public void AddCWESupportToExistentPreset(
             string presetFullFileName,
-            Dictionary<long, List<Tuple<long, string>>> results, 
+            Dictionary<long, List<Tuple<long, string>>> results,
             string outputFullFileName)
         {
             XDocument doc = XDocument.Load(presetFullFileName);

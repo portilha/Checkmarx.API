@@ -288,65 +288,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetQueriesInformationTest()
         {
-            StringBuilder result = new StringBuilder();
-            result.AppendLine("sep=,");
-
-            List<string> headers = new List<string>
-            {
-                "QueryId",
-                "Language",
-                "PackageType",
-                "QueryGroup",
-                "QueryName",
-                "IsExecutable",
-                "CWE",
-                "Severity",
-                "Categories"
-            };
-
-            Dictionary<string, HashSet<string>> standards = new Dictionary<string, HashSet<string>>();
-
-            result.AppendLine(string.Join(",", headers));
-
-            List<string> values;
-            foreach (var queryGroup in clientV9.GetQueries())
-            {
-                foreach (var query in queryGroup.Queries)
-                {
-                    List<string> categories = new List<string>();
-                    foreach (var item in query.Categories)
-                    {
-                        if (!standards.ContainsKey(item.CategoryType.Name))
-                            standards.Add(item.CategoryType.Name, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
-
-                        var subTopic = standards[item.CategoryType.Name];
-
-                        if (!subTopic.Contains(item.CategoryName))
-                            subTopic.Add(item.CategoryName);
-
-                        categories.Add(item.CategoryType.Name);
-                    }
-
-                    values = new List<string>
-                    {
-                        query.QueryId.ToString(),
-                        queryGroup.LanguageName,
-                        queryGroup.PackageTypeName,
-                        queryGroup.PackageFullName,
-                        query.Name,
-                        query.IsExecutable.ToString(),
-                        query.Cwe.ToString(),
-                        query.Severity.ToString(),
-                        string.Join(";", categories)
-                    };
-
-                    result.AppendLine(string.Join(",", values.Select(x => $"\"{x}\"")));
-                }
-            }
-
-            Trace.WriteLine(string.Join("\r\n", standards.Keys));
-
-            File.WriteAllText(@"d:\stats\queriesCWE.csv", result.ToString());
+            Trace.WriteLine(clientV9.GetQueryInformation().ToString());
         }
 
 

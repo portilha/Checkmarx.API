@@ -61,6 +61,15 @@ namespace Checkmarx.API
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? _oDataV9.Results : _oData.Results;
+
+        public IQueryable<Result> GetODataResults(long scanId)
+        {
+            checkConnection();
+
+            return _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
+        }
+
         /// <summary>
         /// SOAP client
         /// </summary>
@@ -711,6 +720,53 @@ namespace Checkmarx.API
         public IEnumerable<FailedScansDisplayData> GetFailedScans(long projectId)
         {
             return FailedScans.Where(x => x.ProjectId == projectId);
+        }
+
+
+        public DateTime GetLastDataRetention()
+        {
+            checkConnection();
+
+            dynamic result = null;
+
+            if (_isV9)
+            {
+                result = _cxPortalWebServiceSoapClientV9.GetLatestFinishedDataRetentionRequestAsync(_soapSessionId).Result;
+            }
+            else
+            {
+                result = _cxPortalWebServiceSoapClient.GetLatestFinishedDataRetentionRequest(_soapSessionId);
+            }
+
+            checkSoapResponse(result);
+            return result.DataRetentionRequest.RequestDate;
+
+        }
+
+
+        public cxPortalWebService93.CxWSResponceResultPath GetPathCommentsHistory(long scanId, long pathId)
+        {
+            checkConnection();
+
+            dynamic result = null;
+
+            if (_isV9)
+            {
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.State).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.Assign).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.IgnorePath).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.Remark).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.Severity).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.IssueTracking).Result;
+            }
+            else
+            {
+                throw new NotImplementedException();
+                // result = _cxPortalWebServiceSoapClient.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId);
+            }
+
+            checkSoapResponse(result);
+            return result;
         }
 
         /// <summary>
@@ -1477,7 +1533,7 @@ namespace Checkmarx.API
                 }
             }
 
-            return result;           
+            return result;
         }
 
         public Dictionary<long, List<Tuple<long, string>>> GetQueryForCWE(ICollection<long> cwes)
@@ -1779,6 +1835,13 @@ namespace Checkmarx.API
         #endregion
 
         #region Results
+
+
+        public CxAuditWebServiceV9.AuditScanResult[] GetResult(long scanId)
+        {
+
+            return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
+        }
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {

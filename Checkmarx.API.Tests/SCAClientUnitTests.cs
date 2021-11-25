@@ -41,7 +41,7 @@ namespace Checkmarx.API.Tests.SCA
         }
 
         private Guid TestProject = new Guid("001266f4-7917-4d0d-bacd-3f85933d56b0");
-        private Guid ScanId = new Guid("d056c85b-759c-4eea-8188-001baa505a70");
+        private Guid TestScan = new Guid("d056c85b-759c-4eea-8188-001baa505a70");
 
         [TestMethod]
         public void ListAllProjects()
@@ -64,21 +64,21 @@ namespace Checkmarx.API.Tests.SCA
         [TestMethod]
         public void GetProject()
         {
-            var project = _client.ClientSCA.Projects3Async(new Guid("cbec47bd-67b6-468b-8ade-f621fc0eaa17")).Result;
+            var project = _client.ClientSCA.GetProjectAsync(TestProject).Result;
             Assert.IsNotNull(project);
         }
 
         [TestMethod]
         public void GetScan()
         {
-            var scan = _client.ClientSCA.ScansAsync(new Guid("fb1ad6e0-c26c-401b-8b24-2295cc5fb9e9")).Result;
+            var scan = _client.ClientSCA.GetScanAsync(TestScan).Result;
             Assert.IsNotNull(scan);
         }
 
         [TestMethod]
         public void GetVulnerabilitiesFromScanTest()
         {
-            var vulns = _client.ClientSCA.VulnerabilitiesAsync(ScanId).Result;
+            var vulns = _client.ClientSCA.VulnerabilitiesAsync(TestScan).Result;
 
             foreach (var vulnerabiltity in vulns)
             {
@@ -92,7 +92,7 @@ namespace Checkmarx.API.Tests.SCA
         [TestMethod]
         public void GetReportRisk()
         {
-            var riskReport = _client.ClientSCA.RiskReportsAsync(new Guid("9cba1ce7-f8d9-47be-a898-34e2f0c1562d"), null).Result;
+            var riskReport = _client.ClientSCA.RiskReportsAsync(TestProject, null).Result;
             Assert.IsNotNull(riskReport);
 
         }

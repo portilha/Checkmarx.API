@@ -551,22 +551,23 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task Scans2Async(System.Guid scanId)
+        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Scan>> ScansAllAsync(System.Guid projectId)
         {
-            return Scans2Async(scanId, System.Threading.CancellationToken.None);
+            return ScansAllAsync(projectId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task Scans2Async(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Scan>> ScansAllAsync(System.Guid projectId, System.Threading.CancellationToken cancellationToken)
         {
-            if (scanId == null)
-                throw new System.ArgumentNullException("scanId");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/risk-management/scans/{scanId}");
-            urlBuilder_.Replace("{scanId}", System.Uri.EscapeDataString(ConvertToString(scanId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/risk-management/scans?");
+            if (projectId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("projectId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(projectId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            urlBuilder_.Length--;
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -575,6 +576,7 @@ namespace Checkmarx.API.SCA
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -599,13 +601,12 @@ namespace Checkmarx.API.SCA
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return;
-                        }
-                        else
-                        if (status_ == 404)
-                        {
-                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new ApiException("Not found", status_, responseText_, headers_, null);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Scan>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
                         }
                         else
                         {
@@ -629,7 +630,7 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<Response> StatusAsync(System.Guid scanId)
+        public System.Threading.Tasks.Task<StatusResponse> StatusAsync(System.Guid scanId)
         {
             return StatusAsync(scanId, System.Threading.CancellationToken.None);
         }
@@ -637,7 +638,7 @@ namespace Checkmarx.API.SCA
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<Response> StatusAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<StatusResponse> StatusAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
         {
             if (scanId == null)
                 throw new System.ArgumentNullException("scanId");
@@ -678,7 +679,7 @@ namespace Checkmarx.API.SCA
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<StatusResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -874,7 +875,7 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Anonymous>> PackagesAsync(System.Guid scanId)
+        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Package>> PackagesAsync(System.Guid scanId)
         {
             return PackagesAsync(scanId, System.Threading.CancellationToken.None);
         }
@@ -882,7 +883,7 @@ namespace Checkmarx.API.SCA
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Anonymous>> PackagesAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Package>> PackagesAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
         {
             if (scanId == null)
                 throw new System.ArgumentNullException("scanId");
@@ -923,7 +924,7 @@ namespace Checkmarx.API.SCA
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Anonymous>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Package>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -952,7 +953,7 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Anonymous2>> VulnerabilitiesAsync(System.Guid scanId)
+        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Vulnerability>> VulnerabilitiesAsync(System.Guid scanId)
         {
             return VulnerabilitiesAsync(scanId, System.Threading.CancellationToken.None);
         }
@@ -960,7 +961,7 @@ namespace Checkmarx.API.SCA
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Anonymous2>> VulnerabilitiesAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Vulnerability>> VulnerabilitiesAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
         {
             if (scanId == null)
                 throw new System.ArgumentNullException("scanId");
@@ -1001,7 +1002,7 @@ namespace Checkmarx.API.SCA
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Anonymous2>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Vulnerability>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1030,7 +1031,7 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Anonymous3>> LicensesAsync(System.Guid scanId)
+        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LicensePackage>> LicensesAsync(System.Guid scanId)
         {
             return LicensesAsync(scanId, System.Threading.CancellationToken.None);
         }
@@ -1038,7 +1039,7 @@ namespace Checkmarx.API.SCA
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Anonymous3>> LicensesAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LicensePackage>> LicensesAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
         {
             if (scanId == null)
                 throw new System.ArgumentNullException("scanId");
@@ -1079,7 +1080,7 @@ namespace Checkmarx.API.SCA
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Anonymous3>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<LicensePackage>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1487,16 +1488,16 @@ namespace Checkmarx.API.SCA
         /// <param name="uploadLink">Upload Link generated by generate-upload-link API</param>
         /// <returns>success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task AnonymousAsync(string uploadLink, System.IO.Stream body)
+        public System.Threading.Tasks.Task UploadLinkAsync(string uploadLink, System.IO.Stream body)
         {
-            return AnonymousAsync(uploadLink, body, System.Threading.CancellationToken.None);
+            return UploadLinkAsync(uploadLink, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <param name="uploadLink">Upload Link generated by generate-upload-link API</param>
         /// <returns>success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task AnonymousAsync(string uploadLink, System.IO.Stream body, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task UploadLinkAsync(string uploadLink, System.IO.Stream body, System.Threading.CancellationToken cancellationToken)
         {
             if (uploadLink == null)
                 throw new System.ArgumentNullException("uploadLink");
@@ -1566,7 +1567,7 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<Response2> UploadedZipAsync(Body2 body)
+        public System.Threading.Tasks.Task<UploadCodeResponse> UploadedZipAsync(Body2 body)
         {
             return UploadedZipAsync(body, System.Threading.CancellationToken.None);
         }
@@ -1574,7 +1575,7 @@ namespace Checkmarx.API.SCA
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<Response2> UploadedZipAsync(Body2 body, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<UploadCodeResponse> UploadedZipAsync(Body2 body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -1617,7 +1618,7 @@ namespace Checkmarx.API.SCA
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Response2>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<UploadCodeResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1921,19 +1922,19 @@ namespace Checkmarx.API.SCA
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Packages : System.Collections.ObjectModel.Collection<Anonymous>
+    public partial class Packages : System.Collections.ObjectModel.Collection<Package>
     {
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Vulnerabilities : System.Collections.ObjectModel.Collection<Anonymous2>
+    public partial class Vulnerabilities : System.Collections.ObjectModel.Collection<Vulnerability>
     {
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Licenses : System.Collections.ObjectModel.Collection<Anonymous3>
+    public partial class Licenses : System.Collections.ObjectModel.Collection<LicensePackage>
     {
 
     }
@@ -2017,7 +2018,7 @@ namespace Checkmarx.API.SCA
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Response
+    public partial class StatusResponse
     {
         /// <summary>Done, Failed, etc...</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2040,7 +2041,7 @@ namespace Checkmarx.API.SCA
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Anonymous
+    public partial class Package
     {
         /// <summary>Unique package identifier</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2107,7 +2108,7 @@ namespace Checkmarx.API.SCA
 
         /// <summary>paths introducing the dependency into the code</summary>
         [Newtonsoft.Json.JsonProperty("dependencyPaths", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<System.Collections.Generic.ICollection<Anonymous4>> DependencyPaths { get; set; }
+        public System.Collections.Generic.ICollection<System.Collections.Generic.ICollection<DependencyPackage>> DependencyPaths { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties = new System.Collections.Generic.Dictionary<string, object>();
 
@@ -2122,7 +2123,7 @@ namespace Checkmarx.API.SCA
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Anonymous2
+    public partial class Vulnerability
     {
         /// <summary>Unique vulnerability identifier</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2178,7 +2179,7 @@ namespace Checkmarx.API.SCA
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Anonymous3
+    public partial class LicensePackage
     {
         /// <summary>Unique package license identifier</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2232,7 +2233,7 @@ namespace Checkmarx.API.SCA
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Response2
+    public partial class UploadCodeResponse
     {
         /// <summary>The scan ID of the newly initiated scan</summary>
         [Newtonsoft.Json.JsonProperty("scanId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2311,7 +2312,7 @@ namespace Checkmarx.API.SCA
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Anonymous4
+    public partial class DependencyPackage 
     {
         /// <summary>package ID</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

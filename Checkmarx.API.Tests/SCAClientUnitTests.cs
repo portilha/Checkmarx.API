@@ -40,6 +40,27 @@ namespace Checkmarx.API.Tests.SCA
             Assert.IsTrue(_client.Connected);
         }
 
+        private Guid TestProject = new Guid("001266f4-7917-4d0d-bacd-3f85933d56b0");
+        private Guid ScanId = new Guid("d056c85b-759c-4eea-8188-001baa505a70");
+
+        [TestMethod]
+        public void ListAllProjects()
+        {
+            foreach (var project in _client.ClientSCA.GetProjectsAsync().Result)
+            {
+                Trace.WriteLine(project.Id + "  " + project.Name);
+            }
+        }
+
+        [TestMethod]
+        public void GEtAllScanFromProject()
+        {
+            foreach (var scan in _client.ClientSCA.ScansAllAsync(TestProject).Result)
+            {
+                Trace.WriteLine(scan.ScanId);
+            }
+        }
+
         [TestMethod]
         public void GetProject()
         {
@@ -55,9 +76,15 @@ namespace Checkmarx.API.Tests.SCA
         }
 
         [TestMethod]
-        public void MyTestMethod()
+        public void GetVulnerabilitiesFromScanTest()
         {
-            var vulns = _client.ClientSCA.VulnerabilitiesAsync(new Guid("b1f5e52c-17f6-44e6-86b6-273cb122b090")).Result;
+            var vulns = _client.ClientSCA.VulnerabilitiesAsync(ScanId).Result;
+
+            foreach (var vulnerabiltity in vulns)
+            {
+                Trace.WriteLine(vulnerabiltity.CveName);
+            }
+
             Assert.IsNotNull(vulns);
 
         }
@@ -77,7 +104,7 @@ namespace Checkmarx.API.Tests.SCA
             {
                 var settings = _client.ClientSCA.GetProjectsSettingsAsync(project.Id).Result;
                 Trace.WriteLine(project.Name + " -> " + settings.EnableExploitablePath);
-            }           
+            }
         }
 
         [TestMethod]

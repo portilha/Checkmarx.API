@@ -874,7 +874,7 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Anonymous>> PackagesAsync(System.Guid scanId)
+        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Package>> PackagesAsync(System.Guid scanId)
         {
             return PackagesAsync(scanId, System.Threading.CancellationToken.None);
         }
@@ -882,7 +882,7 @@ namespace Checkmarx.API.SCA
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Anonymous>> PackagesAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Package>> PackagesAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
         {
             if (scanId == null)
                 throw new System.ArgumentNullException("scanId");
@@ -923,7 +923,7 @@ namespace Checkmarx.API.SCA
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Anonymous>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Package>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1921,7 +1921,7 @@ namespace Checkmarx.API.SCA
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Packages : System.Collections.ObjectModel.Collection<Anonymous>
+    public partial class Packages : System.Collections.ObjectModel.Collection<Package>
     {
 
     }
@@ -2040,7 +2040,7 @@ namespace Checkmarx.API.SCA
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class Anonymous
+    public partial class Package
     {
         /// <summary>Unique package identifier</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

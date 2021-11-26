@@ -30,7 +30,8 @@ namespace Checkmarx.API
                     var token = Autenticate(_tenant, _username, _password);
                     _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                    _clientSCA = new SCA.Client(_httpClient)  {
+                    _clientSCA = new SCA.Client(_httpClient)
+                    {
                         BaseUrl = _baseURL.AbsoluteUri
                     };
 
@@ -61,7 +62,7 @@ namespace Checkmarx.API
             _acUrl = new Uri(acUrl);
             _baseURL = new Uri(apiUrl);
         }
-      
+
         public bool Connected
         {
             get
@@ -93,7 +94,13 @@ namespace Checkmarx.API
             throw new Exception(response.Content.ReadAsStringAsync().Result);
         }
 
-
-
+        public void EnableExploitablePathForAllProjects()
+        {
+            foreach (var project in ClientSCA.GetProjectsAsync().Result)
+            {
+                ClientSCA.UpdateProjectsSettingsAsync(project.Id,
+                            new API.SCA.ProjectSettings { EnableExploitablePath = true }).Wait();
+            }
+        }
     }
 }

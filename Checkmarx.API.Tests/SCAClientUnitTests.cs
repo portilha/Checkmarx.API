@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Checkmarx.API.Tests.SCA
@@ -17,6 +18,10 @@ namespace Checkmarx.API.Tests.SCA
         private static string Password;
         private static string Tenant;
         private static SCAClient _client;
+
+        private Guid TestProject = Guid.Empty;
+        private Guid TestScan = Guid.Empty;
+
         //private static string AC = "https://platform.checkmarx.net";
         //private static string APIURL = "https://api-sca.checkmarx.net";
 
@@ -31,17 +36,31 @@ namespace Checkmarx.API.Tests.SCA
             Password = Configuration["SCA:Password"];
             Tenant = Configuration["SCA:Tenant"];
 
+            Assert.IsNotNull(Username, "Please define the Username in the Secrets file");
+            Assert.IsNotNull(Password, "Please define the Password in the Secrets file");
+            Assert.IsNotNull(Tenant, "Please define the Tenant in the Secrets file");
+
             _client = new SCAClient(Tenant, Username, Password);
         }
+
+        [TestInitialize]
+        public void InitiateTestGuid()
+        {
+            string testGuid = Configuration["SCA:TestProject"];
+            if (!string.IsNullOrWhiteSpace(testGuid))
+                TestProject = new Guid(testGuid);
+
+            string testScan = Configuration["SCA:TestScan"];
+            if (!string.IsNullOrWhiteSpace(testScan))
+                TestScan = new Guid(testScan);
+        }
+
 
         [TestMethod]
         public void ConnectionTest()
         {
             Assert.IsTrue(_client.Connected);
         }
-
-        private Guid TestProject = new Guid("001266f4-7917-4d0d-bacd-3f85933d56b0");
-        private Guid TestScan = new Guid("d056c85b-759c-4eea-8188-001baa505a70");
 
         [TestMethod]
         public void ListAllProjects()
@@ -55,15 +74,23 @@ namespace Checkmarx.API.Tests.SCA
         [TestMethod]
         public void GEtAllScanFromProject()
         {
-            foreach (var scan in _client.ClientSCA.ScansAllAsync(TestProject).Result)
+            Assert.IsTrue(TestProject != Guid.Empty, "Please define a TestProjectGuid in the secrets file");
+
+            foreach (var scan in _client.ClientSCA.GetScansForProjectAsync(TestProject).Result.Where(x => x.Status.Name == "Done"))
             {
-                Trace.WriteLine(scan.ScanId);
+                Trace.WriteLine(scan.ScanId + " " + scan.Status.Name);
+
+                foreach (var package in _client.ClientSCA.PackagesAsync(scan.ScanId).Result)
+                {
+                }
             }
         }
 
         [TestMethod]
         public void GetProject()
         {
+            Assert.IsTrue(TestProject != Guid.Empty, "Please define a TestProjectGuid in the secrets file");
+
             var project = _client.ClientSCA.GetProjectAsync(TestProject).Result;
             Assert.IsNotNull(project);
         }
@@ -74,6 +101,56 @@ namespace Checkmarx.API.Tests.SCA
             var scan = _client.ClientSCA.GetScanAsync(TestScan).Result;
             Assert.IsNotNull(scan);
         }
+
+        [TestMethod]
+        public void GetPackagesTest()
+        {
+            foreach (var item in _client.ClientSCA.PackagesAsync(TestScan).Result)
+            {
+                Trace.WriteLine(item.Id);
+            }
+        }
+
+
+        [TestMethod]
+        public void GetAllDevPackagesTest()
+        {
+            foreach (var project in _client.ClientSCA.GetProjectsAsync().Result)
+            {
+                Trace.WriteLine("+" + project.Name);
+
+                var scan = _client.ClientSCA.GetScansForProjectAsync(project.Id).Result.FirstOrDefault();
+
+                if (scan == null || scan.Status.Name != "Done")
+                    continue;
+
+                try
+                {
+                    foreach (var package in _client.ClientSCA.PackagesAsync(scan.ScanId).Result)
+                    {
+                        if (package.IsDevelopment)
+                        {
+                            Trace.WriteLine("\t-" + package.Id);
+                        }
+
+                        foreach (var dep in package.DependencyPaths)
+                        {
+                            foreach (var depdep in dep)
+                            {
+                                if (depdep.IsDevelopment)
+                                    Trace.WriteLine(depdep.Id);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("ERROR " + ex.Message);
+
+                }
+            }
+        }
+
 
         [TestMethod]
         public void GetVulnerabilitiesFromScanTest()
@@ -110,14 +187,16 @@ namespace Checkmarx.API.Tests.SCA
         [TestMethod]
         public void EnableExploitablePathForAllTest()
         {
-            foreach (var project in _client.ClientSCA.GetProjectsAsync(string.Empty).Result)
+            foreach (var project in _client.ClientSCA.GetProjectsAsync().Result)
             {
                 try
                 {
-                    _client.ClientSCA.UpdateProjectsSettingsAsync(project.Id,
-                                new API.SCA.ProjectSettings { EnableExploitablePath = true }).Wait();
+                    // Uncomment to execute the action
+                    //_client.ClientSCA.UpdateProjectsSettingsAsync(project.Id,
+                    //            new API.SCA.ProjectSettings { EnableExploitablePath = true }).Wait();
 
                     var settings = _client.ClientSCA.GetProjectsSettingsAsync(project.Id).Result;
+
                     Assert.IsTrue(settings.EnableExploitablePath);
                 }
                 catch (Exception ex)

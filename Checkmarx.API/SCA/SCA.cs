@@ -470,18 +470,18 @@ namespace Checkmarx.API.SCA
             }
         }
 
-       
+
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Scan>> ScansAllAsync(System.Guid projectId)
+        public System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Scan>> GetScansForProjectAsync(System.Guid projectId)
         {
-            return ScansAllAsync(projectId, System.Threading.CancellationToken.None);
+            return GetScansForProjectAsync(projectId, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Scan>> ScansAllAsync(System.Guid projectId, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Scan>> GetScansForProjectAsync(System.Guid projectId, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/risk-management/scans?");
@@ -890,6 +890,13 @@ namespace Checkmarx.API.SCA
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Package>> PackagesAsync(System.Guid scanId, System.Threading.CancellationToken cancellationToken)
         {
+
+#if DEBUG
+            Scan scan = GetScanAsync(scanId).Result;
+            if (scan == null || scan.Status.Name != "Done")
+                throw new System.Exception("Scan is not finished, so it doesnt have packages");
+#endif
+
             if (scanId == null)
                 throw new System.ArgumentNullException("scanId");
 
@@ -2076,10 +2083,10 @@ namespace Checkmarx.API.SCA
         [Newtonsoft.Json.JsonProperty("numberOfVersionsSinceLastUpdate", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int NumberOfVersionsSinceLastUpdate { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("newestVersionReleaseDate", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("newestVersionReleaseDate", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset NewestVersionReleaseDate { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("newestVersion", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("newestVersion", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string NewestVersion { get; set; }
 
         [Newtonsoft.Json.JsonProperty("outdated", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2102,14 +2109,20 @@ namespace Checkmarx.API.SCA
         public System.Collections.Generic.ICollection<string> Locations { get; set; }
 
         [Newtonsoft.Json.JsonProperty("packageRepository", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public PackageRepository PackageRepository { get; set; }
+        // [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        public string PackageRepository { get; set; }
 
         [Newtonsoft.Json.JsonProperty("isDirectDependency", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool IsDirectDependency { get; set; }
 
         [Newtonsoft.Json.JsonProperty("isDevelopment", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool IsDevelopment { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("isPluginDependency", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool IsPluginDependency { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("isTestDependency", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool IsTestDependency { get; set; }
 
         /// <summary>paths introducing the dependency into the code</summary>
         [Newtonsoft.Json.JsonProperty("dependencyPaths", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -2314,10 +2327,19 @@ namespace Checkmarx.API.SCA
         [System.Runtime.Serialization.EnumMember(Value = @"Npm")]
         Npm = 4,
 
+        [System.Runtime.Serialization.EnumMember(Value = @"Gradle")]
+        Gradle = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Bower")]
+        Bower = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"CocoaPods")]
+        CocoaPods = 7
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.3.11.0 (Newtonsoft.Json v11.0.0.0)")]
-    public partial class DependencyPackage 
+    public partial class DependencyPackage
     {
         /// <summary>package ID</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]

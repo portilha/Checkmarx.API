@@ -472,6 +472,13 @@ namespace Checkmarx.API
             return _oDataProjects.Expand(x => x.LastScan);
         }
 
+          public Scan GetLastScanFinishOrFailed(long projectId)
+        {
+            var scan = GetScans(projectId, false, ScanRetrieveKind.Last);
+            return scan.FirstOrDefault();
+        }
+
+
         public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {
             checkConnection();

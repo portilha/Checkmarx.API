@@ -61,6 +61,15 @@ namespace Checkmarx.API
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? _oDataV9.Results : _oData.Results;
+
+        public IQueryable<Result> GetODataResults(long scanId)
+        {
+            checkConnection();
+
+            return _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
+        }
+
         /// <summary>
         /// SOAP client
         /// </summary>
@@ -410,9 +419,8 @@ namespace Checkmarx.API
 
         public string GetProjectTeamName(string teamId)
         {
-            // some instances are returning deleted projects with the teamid -1.
-            if (teamId == "-1")
-                return null;
+            if (string.IsNullOrWhiteSpace(teamId))
+                throw new ArgumentNullException(nameof(teamId));
 
             return GetTeams()[teamId];
         }
@@ -629,7 +637,8 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            return _oDataProjs.Where(x => x.Id == projectID).First().CreatedDate;
+                return _oDataProjs.Where(x => x.Id == projectID).First().CreatedDate;
+     
         }
 
         public ProjectDetails GetProjectSettings(int projectId)
@@ -712,6 +721,53 @@ namespace Checkmarx.API
         public IEnumerable<FailedScansDisplayData> GetFailedScans(long projectId)
         {
             return FailedScans.Where(x => x.ProjectId == projectId);
+        }
+
+
+        public DateTime GetLastDataRetention()
+        {
+            checkConnection();
+
+            dynamic result = null;
+
+            if (_isV9)
+            {
+                result = _cxPortalWebServiceSoapClientV9.GetLatestFinishedDataRetentionRequestAsync(_soapSessionId).Result;
+            }
+            else
+            {
+                result = _cxPortalWebServiceSoapClient.GetLatestFinishedDataRetentionRequest(_soapSessionId);
+            }
+
+            checkSoapResponse(result);
+            return result.DataRetentionRequest.RequestDate;
+
+        }
+
+
+        public cxPortalWebService93.CxWSResponceResultPath GetPathCommentsHistory(long scanId, long pathId)
+        {
+            checkConnection();
+
+            dynamic result = null;
+
+            if (_isV9)
+            {
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.State).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.Assign).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.IgnorePath).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.Remark).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.Severity).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.IssueTracking).Result;
+            }
+            else
+            {
+                throw new NotImplementedException();
+                // result = _cxPortalWebServiceSoapClient.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId);
+            }
+
+            checkSoapResponse(result);
+            return result;
         }
 
         /// <summary>
@@ -1085,6 +1141,12 @@ namespace Checkmarx.API
             All
         }
 
+        public Scan GetLastScanFinishOrFailed(long projectId)
+        {
+            var scan = GetScans(projectId, false, ScanRetrieveKind.Last);
+            return scan.FirstOrDefault();
+        }
+
         public IEnumerable<Scan> GetAllSASTScans(long projectId)
         {
             var scans = GetScans(projectId, true, ScanRetrieveKind.All);
@@ -1105,7 +1167,7 @@ namespace Checkmarx.API
 
         public Scan GetLockedScan(long projectId)
         {
-            return GetScans(projectId, true, ScanRetrieveKind.First).FirstOrDefault();
+            return GetScans(projectId, true, ScanRetrieveKind.Locked).FirstOrDefault();
         }
 
         public int GetScanCount()
@@ -1415,6 +1477,72 @@ namespace Checkmarx.API
             return stringBuilder.ToString();
         }
 
+
+        /// <summary>
+        /// Get Query Information about the CWE of the Checkmarx Queries and other information.
+        /// </summary>
+        /// <returns></returns>
+        public StringBuilder GetQueryInformation()
+        {
+            StringBuilder result = new StringBuilder();
+            result.AppendLine("sep=,");
+
+            List<string> headers = new List<string>
+            {
+                "QueryId",
+                "Language",
+                "PackageType",
+                "QueryGroup",
+                "QueryName",
+                "IsExecutable",
+                "CWE",
+                "Severity",
+                "Categories"
+            };
+
+            Dictionary<string, HashSet<string>> standards = new Dictionary<string, HashSet<string>>();
+
+            result.AppendLine(string.Join(",", headers));
+
+            List<string> values;
+            foreach (var queryGroup in this.GetQueries())
+            {
+                foreach (var query in queryGroup.Queries)
+                {
+                    List<string> categories = new List<string>();
+                    foreach (var item in query.Categories)
+                    {
+                        if (!standards.ContainsKey(item.CategoryType.Name))
+                            standards.Add(item.CategoryType.Name, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+
+                        var subTopic = standards[item.CategoryType.Name];
+
+                        if (!subTopic.Contains(item.CategoryName))
+                            subTopic.Add(item.CategoryName);
+
+                        categories.Add(item.CategoryType.Name);
+                    }
+
+                    values = new List<string>
+                    {
+                        query.QueryId.ToString(),
+                        queryGroup.LanguageName,
+                        queryGroup.PackageTypeName,
+                        queryGroup.PackageFullName,
+                        query.Name,
+                        query.IsExecutable.ToString(),
+                        query.Cwe.ToString(),
+                        query.Severity.ToString(),
+                        string.Join(";", categories)
+                    };
+
+                    result.AppendLine(string.Join(",", values.Select(x => $"\"{x}\"")));
+                }
+            }
+
+            return result;
+        }
+
         public Dictionary<long, List<Tuple<long, string>>> GetQueryForCWE(ICollection<long> cwes)
         {
             // CWE Query Name
@@ -1441,7 +1569,7 @@ namespace Checkmarx.API
 
         public void AddCWESupportToExistentPreset(
             string presetFullFileName,
-            Dictionary<long, List<Tuple<long, string>>> results, 
+            Dictionary<long, List<Tuple<long, string>>> results,
             string outputFullFileName)
         {
             XDocument doc = XDocument.Load(presetFullFileName);
@@ -1714,6 +1842,13 @@ namespace Checkmarx.API
         #endregion
 
         #region Results
+
+
+        public CxAuditWebServiceV9.AuditScanResult[] GetResult(long scanId)
+        {
+
+            return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
+        }
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {

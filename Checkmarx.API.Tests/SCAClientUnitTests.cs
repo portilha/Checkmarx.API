@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -255,22 +256,47 @@ namespace Checkmarx.API.Tests.SCA
         }
 
         [TestMethod]
-        public void CreateProjectAndScanTest()
+        public void CreateProjectTest()
         {
-            
             var project = _client.ClientSCA.CreateProjectAsync(new CreateProject
             {
-                AssignedTeams = new string[] { "/CxServer/Lol" },
-                Name = "projectName"
+                AssignedTeams = new string[] { "/CxServer/SCA-PM/Champions/UK" },
+                Name = "MyFirstTest3"
             }).Result;
 
-            _client.ClientSCA.GenerateUploadLinkAsync(new Body()
+            Assert.IsNotNull(_client.ClientSCA.GetProjectAsync(project.Id).Result);
+        }
+
+        [TestMethod]
+        public void GetProjectTest()
+        {
+            var result = _client.ClientSCA.GetProjectAsync("MyFirstTest3").Result;
+
+            Assert.IsNotNull(result);
+
+            // Run Scan.
+
+            var resultLink = _client.ClientSCA.GenerateUploadLinkAsync(new Body
             {
-                ProjectId = project.Id,
-                
-                
-            });
-            
+                ProjectId = result.Id
+            }).Result;
+
+            Assert.IsNotNull(resultLink);
+
+            using (FileStream fs = File.OpenRead(@"C:\Users\pedropo\Downloads\WebGoat-develop.zip"))
+            {
+                _client.ClientSCA.UploadLinkAsync(resultLink.UploadUrl, fs).Wait();
+            }
+
+            var scanId = _client.ClientSCA.UploadedZipAsync(new Body2
+            {
+                ProjectId = result.Id,
+                UploadedFileUrl = resultLink.UploadUrl
+            }).Result;
+
+            Assert.IsNotNull(scanId);
+
+
         }
     }
 }

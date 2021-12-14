@@ -62,6 +62,37 @@ namespace Checkmarx.API.Tests.SCA
             Assert.IsTrue(_client.Connected);
         }
 
+        [TestMethod]
+        public void SCA_AC_Test()
+        {
+            AccessControlClient accessControlClient = _client.AC;
+            foreach (var item in accessControlClient.TeamsAllAsync().Result.ToDictionary(x => x.FullName, StringComparer.OrdinalIgnoreCase))
+            {
+                Trace.WriteLine($"{item.Value.Id} = {item.Value.Name} - {item.Value.ParentId}");
+            }
+        }
+
+        [TestMethod]
+        public void SCA_List_Users_Test()
+        {
+            AccessControlClient accessControlClient = _client.AC;
+
+            var roles = accessControlClient.RolesAllAsync().Result.ToDictionary(x => x.Id);
+            var teams = accessControlClient.TeamsAllAsync().Result.ToDictionary(x => x.Id);
+
+            foreach (var user in accessControlClient.GetAllUsersDetailsAsync().Result)
+            {
+                if (user.Email.EndsWith("@checkmarx.com"))
+                {
+                    Trace.WriteLine(user.Email + string.Join(";", user.TeamIds.Select(x => teams[x].FullName)) + " " + user.LastLoginDate);
+
+                    foreach (var role in user.RoleIds.Select(x => roles[x].Name))
+                    {
+                        Trace.WriteLine("+ " + role);
+                    }
+                }
+            }
+        }
 
         public void ListAllProjects()
         {
@@ -96,7 +127,7 @@ namespace Checkmarx.API.Tests.SCA
             Assert.IsNotNull(project);
         }
 
-     
+
         [TestMethod]
         public void GetScan()
         {
@@ -196,8 +227,6 @@ namespace Checkmarx.API.Tests.SCA
         {
             foreach (var project in _client.ClientSCA.GetProjectsAsync(string.Empty).Result)
             {
-
-
                 var settings = _client.ClientSCA.GetProjectsSettingsAsync(project.Id).Result;
                 Trace.WriteLine(project.Name + " -> " + settings.EnableExploitablePath);
             }
@@ -223,6 +252,25 @@ namespace Checkmarx.API.Tests.SCA
                     Trace.WriteLine(project.Name + " " + ex.Message);
                 }
             }
+        }
+
+        [TestMethod]
+        public void CreateProjectAndScanTest()
+        {
+            
+            var project = _client.ClientSCA.CreateProjectAsync(new CreateProject
+            {
+                AssignedTeams = new string[] { "/CxServer/Lol" },
+                Name = "projectName"
+            }).Result;
+
+            _client.ClientSCA.GenerateUploadLinkAsync(new Body()
+            {
+                ProjectId = project.Id,
+                
+                
+            });
+            
         }
     }
 }

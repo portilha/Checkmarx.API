@@ -12,12 +12,35 @@ namespace Checkmarx.API
 {
     public class SCAClient
     {
+        private Uri _acUrl;
+        private Uri _baseURL;
+
         private readonly HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _acHttpClient = new HttpClient();
+
         private string _username;
         private string _password;
         private string _tenant;
-        private Uri _acUrl;
+
         private DateTime _bearerValidTo;
+
+
+        private AccessControlClient _ac = null;
+        public AccessControlClient AC
+        {
+            get
+            {
+                if (_ac == null && ClientSCA != null)
+                {
+                    _ac = new AccessControlClient(_acHttpClient)
+                    {
+                        BaseUrl = _acUrl.AbsoluteUri
+                    };
+                }
+                return _ac;
+            }
+        }
+
 
         private SCA.Client _clientSCA = null;
 
@@ -29,6 +52,7 @@ namespace Checkmarx.API
                 {
                     var token = Autenticate(_tenant, _username, _password);
                     _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    _acHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                     _clientSCA = new SCA.Client(_httpClient)
                     {
@@ -41,7 +65,7 @@ namespace Checkmarx.API
             }
         }
 
-        private Uri _baseURL;
+
 
         public SCAClient(
             string tenant,
@@ -78,7 +102,7 @@ namespace Checkmarx.API
             {
                 { "grant_type", "password" },
                 { "client_id", "sca_resource_owner" },
-                { "scope", "sca_api" },
+                { "scope", "sca_api access_control_api" },
                 { "username", username },
                 { "password", password },
                 { "acr_values", "Tenant:" + tenant }

@@ -138,15 +138,22 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task Projects2Async(CreateProject body)
+        public System.Threading.Tasks.Task<Project> CreateProjectAsync(CreateProject body)
         {
-            return Projects2Async(body, System.Threading.CancellationToken.None);
+            return CreateProjectAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task Projects2Async(CreateProject body, System.Threading.CancellationToken cancellationToken)
+        /// <example>
+        ///  "Name": "sample project",
+        ///  "AssignedTeams": [
+        ///    "/CxServer/SomeTeam/AnotherTeam"
+        ///  ],
+        ///  "additionalProp1": {}
+        /// </example>
+        public async System.Threading.Tasks.Task<Project> CreateProjectAsync(CreateProject body, System.Threading.CancellationToken cancellationToken)
         {
             if (body == null)
                 throw new System.ArgumentNullException("body");
@@ -188,17 +195,19 @@ namespace Checkmarx.API.SCA
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return;
+                            return null;
                         }
                         else
                         if (status_ == 201)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Project>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Project>(response_, headers_, cancellationToken)
+                                .ConfigureAwait(false);
+
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new ApiException<Project>("Created", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            return objectResponse_.Object;
                         }
                         else
                         if (status_ == 400)
@@ -321,16 +330,16 @@ namespace Checkmarx.API.SCA
         /// <param name="id">The project ID</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task Projects4Async(System.Guid id, UpdateProject body)
+        public System.Threading.Tasks.Task UpdateProjectAsync(System.Guid id, UpdateProject body)
         {
-            return Projects4Async(id, body, System.Threading.CancellationToken.None);
+            return UpdateProjectAsync(id, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <param name="id">The project ID</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task Projects4Async(System.Guid id, UpdateProject body, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task UpdateProjectAsync(System.Guid id, UpdateProject body, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -400,15 +409,15 @@ namespace Checkmarx.API.SCA
 
         /// <returns>Project is deleted</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task Projects5Async(System.Guid id)
+        public System.Threading.Tasks.Task DeleteProjectAsync(System.Guid id)
         {
-            return Projects5Async(id, System.Threading.CancellationToken.None);
+            return DeleteProjectAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Project is deleted</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task Projects5Async(System.Guid id, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task DeleteProjectAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");

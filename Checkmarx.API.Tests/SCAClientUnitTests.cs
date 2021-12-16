@@ -69,8 +69,29 @@ namespace Checkmarx.API.Tests.SCA
             AccessControlClient accessControlClient = _client.AC;
             foreach (var item in accessControlClient.TeamsAllAsync().Result.ToDictionary(x => x.FullName, StringComparer.OrdinalIgnoreCase))
             {
-                Trace.WriteLine($"{item.Value.Id} = {item.Value.Name} - {item.Value.ParentId}");
+                Trace.WriteLine($"{item.Key} - {item.Value.Id} = {item.Value.Name} - {item.Value.ParentId}");
             }
+        }
+
+
+        [TestMethod]
+        public void CreateTeamTest()
+        {
+            string newTeam = @"/CxServer/SCA-PM/Champions/ASA/Test/MyAttempt/2Level/3Level/4Level/5KEve/LOL/ASDF";
+
+            var accessControlClient = _client.AC;
+
+            int teamId = accessControlClient.GetOrCreateTeam(newTeam);
+
+            Assert.IsTrue(teamId > 0);
+        }
+
+
+        [TestMethod]
+        public void DEleteTEamTEst()
+        {
+            // _client.AC.DeleteTeamAsync(110437);
+
         }
 
         [TestMethod]
@@ -268,33 +289,23 @@ namespace Checkmarx.API.Tests.SCA
         }
 
         [TestMethod]
-        public void GetProjectTest()
+        public void GetProjectAndScanTest()
         {
-            var result = _client.ClientSCA.GetProjectAsync("MyFirstTest3").Result;
+            var result = _client.ClientSCA.CreateProjectAsync(new CreateProject
+            {
+                AssignedTeams = new string[] { "/CxServer/SCA-PM/Champions/UK" },
+                Name = "MyFirstTest4"
+            }).Result;
+
+            // Assert.IsNotNull(_client.ClientSCA.GetProjectAsync(project.Id).Result);
+
+            // var result = _client.ClientSCA.GetProjectAsync("MyFirstTest4").Result;
 
             Assert.IsNotNull(result);
 
             // Run Scan.
 
-            var resultLink = _client.ClientSCA.GenerateUploadLinkAsync(new Body
-            {
-                ProjectId = result.Id
-            }).Result;
-
-            Assert.IsNotNull(resultLink);
-
-            using (FileStream fs = File.OpenRead(@"C:\Users\pedropo\Downloads\WebGoat-develop.zip"))
-            {
-                _client.ClientSCA.UploadLinkAsync(resultLink.UploadUrl, fs).Wait();
-            }
-
-            var scanId = _client.ClientSCA.UploadedZipAsync(new Body2
-            {
-                ProjectId = result.Id,
-                UploadedFileUrl = resultLink.UploadUrl
-            }).Result;
-
-            Assert.IsNotNull(scanId);
+            _client.ScanWithSourceCode(result.Id, @"C:\Users\pedropo\Downloads\WebGoat-develop.zip");
 
 
         }

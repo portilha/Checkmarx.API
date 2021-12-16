@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Checkmarx.API.SCA;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -52,6 +54,10 @@ namespace Checkmarx.API
                 {
                     var token = Autenticate(_tenant, _username, _password);
                     _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                    _httpClient.DefaultRequestHeaders.Add("Team", string.Empty);
+                    
+
                     _acHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                     _clientSCA = new SCA.Client(_httpClient)
@@ -125,6 +131,25 @@ namespace Checkmarx.API
                 ClientSCA.UpdateProjectsSettingsAsync(project.Id,
                             new API.SCA.ProjectSettings { EnableExploitablePath = true }).Wait();
             }
+        }
+
+        public void ScanWithSourceCode(Guid projectID, string sourceCodePath)
+        {
+            var resultLink = ClientSCA.GenerateUploadLinkAsync(new Body
+            {
+                ProjectId = projectID
+            }).Result;
+
+            using (FileStream fs = File.OpenRead(sourceCodePath))
+            {
+                ClientSCA.UploadLinkAsync(resultLink.UploadUrl, fs).Wait();
+            }
+
+            var scanId = ClientSCA.UploadedZipAsync(new Body2
+            {
+                ProjectId = projectID,
+                UploadedFileUrl = resultLink.UploadUrl
+            }).Result;
         }
     }
 }

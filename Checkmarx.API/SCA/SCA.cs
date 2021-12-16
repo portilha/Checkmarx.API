@@ -1630,7 +1630,8 @@ namespace Checkmarx.API.SCA
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     var content_ = new System.Net.Http.StreamContent(body);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/x-zip-compressed");
+                    // content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(string.Empty);
+                        // System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/x-zip-compressed");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
 

@@ -14,15 +14,17 @@
 
 namespace Checkmarx.API
 {
+    using System;
+    using System.Linq;
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.11.1.0 (NJsonSchema v10.4.3.0 (Newtonsoft.Json v12.0.0.0))")]
-    public partial class AccessControlClient 
+    public partial class AccessControlClient
     {
         private string _baseUrl = "/cxrestapi/auth";
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
-    
+
         public AccessControlClient(System.Net.Http.HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -35,21 +37,66 @@ namespace Checkmarx.API
             UpdateJsonSerializerSettings(settings);
             return settings;
         }
-    
+
         public string BaseUrl
         {
             get { return _baseUrl; }
             set { _baseUrl = value; }
         }
-    
+
         protected Newtonsoft.Json.JsonSerializerSettings JsonSerializerSettings { get { return _settings.Value; } }
-    
+
         partial void UpdateJsonSerializerSettings(Newtonsoft.Json.JsonSerializerSettings settings);
-    
-    
+
+
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, string url);
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
+
+        /// <summary>
+        /// Gets the team Id or creates the team and returns the Id.
+        /// </summary>
+        /// <param name="newTeam">Full path of the team</param>
+        /// <returns>Id of the existent team or a new one</returns>
+        public int GetOrCreateTeam(string newTeam)
+        {
+            if (string.IsNullOrWhiteSpace(newTeam))
+                throw new ArgumentOutOfRangeException(nameof(newTeam));
+
+            var teams = TeamsAllAsync().Result.ToDictionary(x => x.FullName, StringComparer.OrdinalIgnoreCase);
+
+            var subTeams = newTeam.Split("/", StringSplitOptions.RemoveEmptyEntries);
+
+            for (int i = subTeams.Count(); i >= 0; i--)
+            {
+                string teamToFind = "/" + String.Join("/", subTeams.Take(i));
+
+                if (teams.ContainsKey(teamToFind))
+                {
+                    int teamID = teams[teamToFind].Id;
+
+                    // Create all subteams
+                    for (int y = i; y < subTeams.Count() ; y++)
+                    {
+                        string teamName = subTeams[y];
+
+                        CreateTeamAsync(new CreateTeamViewModel
+                        {
+                            Name = teamName,
+                            ParentId = teamID
+                        }).Wait();
+
+                        teamToFind += "/" + teamName;
+
+                        teamID = TeamsAllAsync().Result.ToDictionary(x => x.FullName, StringComparer.OrdinalIgnoreCase)[teamToFind].Id;
+                    }
+                    return teamID;
+                }
+            }
+
+            return 0;
+        }
+
         /// <summary>Gets a list of users to which you can assign vulnerabilities</summary>
         /// <returns>Gets a list of users to which you can assign vulnerabilities</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -57,7 +104,7 @@ namespace Checkmarx.API
         {
             return AssignableUsersAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets a list of users to which you can assign vulnerabilities</summary>
         /// <returns>Gets a list of users to which you can assign vulnerabilities</returns>
@@ -66,7 +113,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/AssignableUsers");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -75,14 +122,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -93,9 +140,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -109,13 +156,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -137,7 +184,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all authentication providers</summary>
         /// <returns>Gets details of all authentication providers</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -145,7 +192,7 @@ namespace Checkmarx.API
         {
             return AuthenticationProvidersAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all authentication providers</summary>
         /// <returns>Gets details of all authentication providers</returns>
@@ -154,7 +201,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/AuthenticationProviders");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -163,14 +210,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -181,9 +228,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -213,14 +260,14 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task ConfigurationsAsync()
         {
             return ConfigurationsAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -228,7 +275,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Configurations");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -236,14 +283,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -254,9 +301,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -281,7 +328,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Submit the first admin user.</summary>
         /// <returns>Returns a location of the created user</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -289,7 +336,7 @@ namespace Checkmarx.API
         {
             return FirstAdminAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Submit the first admin user.</summary>
         /// <returns>Returns a location of the created user</returns>
@@ -298,7 +345,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/FirstAdmin");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -309,14 +356,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -327,9 +374,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -354,7 +401,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Returns users list.</summary>
         /// <returns>Returns the users list</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -362,7 +409,7 @@ namespace Checkmarx.API
         {
             return FirstAdminExistenceAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Returns users list.</summary>
         /// <returns>Returns the users list</returns>
@@ -371,7 +418,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/FirstAdminExistence");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -380,14 +427,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -398,9 +445,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -430,7 +477,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all LDAP role mapping</summary>
         /// <param name="ldapServerId">LDAP Server Id</param>
         /// <returns>Gets details of all LDAP role mapping</returns>
@@ -439,7 +486,7 @@ namespace Checkmarx.API
         {
             return LDAPRoleMappingsAllAsync(ldapServerId, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all LDAP role mapping</summary>
         /// <param name="ldapServerId">LDAP Server Id</param>
@@ -454,7 +501,7 @@ namespace Checkmarx.API
                 urlBuilder_.Append(System.Uri.EscapeDataString("ldapServerId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(ldapServerId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -463,14 +510,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -481,9 +528,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -497,13 +544,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -525,7 +572,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates LDAP group and role mapping details</summary>
         /// <param name="id">LDAP Server Id</param>
         /// <param name="body">LDAP group and role mapping details</param>
@@ -535,7 +582,7 @@ namespace Checkmarx.API
         {
             return RoleMappingsAsync(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates LDAP group and role mapping details</summary>
         /// <param name="id">LDAP Server Id</param>
@@ -546,11 +593,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers/{id}/RoleMappings");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -561,14 +608,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -579,9 +626,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -610,13 +657,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -638,7 +685,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes LDAP role mapping</summary>
         /// <param name="id">LDAP role mapping Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -647,7 +694,7 @@ namespace Checkmarx.API
         {
             return LDAPRoleMappingsAsync(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes LDAP role mapping</summary>
         /// <param name="id">LDAP role mapping Id</param>
@@ -657,11 +704,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPRoleMappings/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -669,14 +716,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -687,9 +734,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -718,13 +765,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -746,7 +793,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Tests LDAP Server connection</summary>
         /// <param name="body">LDAP Server details</param>
         /// <returns>Tests LDAP Server connection</returns>
@@ -755,7 +802,7 @@ namespace Checkmarx.API
         {
             return TestConnectionAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Tests LDAP Server connection</summary>
         /// <param name="body">LDAP Server details</param>
@@ -765,7 +812,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers/TestConnection");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -777,14 +824,14 @@ namespace Checkmarx.API
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -795,9 +842,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -821,13 +868,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -849,7 +896,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets user entries according to specific search criteria</summary>
         /// <param name="id">LDAP Server Id</param>
         /// <param name="userNameContainsPattern">User name contains pattern</param>
@@ -859,7 +906,7 @@ namespace Checkmarx.API
         {
             return UserEntriesAllAsync(id, userNameContainsPattern, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets user entries according to specific search criteria</summary>
         /// <param name="id">LDAP Server Id</param>
@@ -870,7 +917,7 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers/{id}/UserEntries?");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
@@ -879,7 +926,7 @@ namespace Checkmarx.API
                 urlBuilder_.Append(System.Uri.EscapeDataString("userNameContainsPattern") + "=").Append(System.Uri.EscapeDataString(ConvertToString(userNameContainsPattern, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -888,14 +935,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -906,9 +953,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -942,13 +989,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -970,7 +1017,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets group entries according to specific search criteria</summary>
         /// <param name="id">LDAP Server Id</param>
         /// <param name="nameContainsPattern">Group name contains pattern</param>
@@ -980,7 +1027,7 @@ namespace Checkmarx.API
         {
             return GroupEntriesAsync(id, nameContainsPattern, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets group entries according to specific search criteria</summary>
         /// <param name="id">LDAP Server Id</param>
@@ -991,7 +1038,7 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers/{id}/GroupEntries?");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
@@ -1000,7 +1047,7 @@ namespace Checkmarx.API
                 urlBuilder_.Append(System.Uri.EscapeDataString("nameContainsPattern") + "=").Append(System.Uri.EscapeDataString(ConvertToString(nameContainsPattern, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1009,14 +1056,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1027,9 +1074,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -1063,13 +1110,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -1091,7 +1138,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all LDAP Servers</summary>
         /// <returns>Gets details of all LDAP Servers</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -1099,7 +1146,7 @@ namespace Checkmarx.API
         {
             return LDAPServersAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all LDAP Servers</summary>
         /// <returns>Gets details of all LDAP Servers</returns>
@@ -1108,7 +1155,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1117,14 +1164,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1135,9 +1182,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -1151,13 +1198,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -1179,7 +1226,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Creates a new LDAP Server</summary>
         /// <param name="body">LDAP Server details</param>
         /// <returns>Returns a location of the created LDAP Server</returns>
@@ -1188,7 +1235,7 @@ namespace Checkmarx.API
         {
             return LDAPServersAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Creates a new LDAP Server</summary>
         /// <param name="body">LDAP Server details</param>
@@ -1198,7 +1245,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1209,14 +1256,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1227,9 +1274,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -1248,13 +1295,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -1276,7 +1323,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of an LDAP Server</summary>
         /// <param name="id">LDAP Server Id</param>
         /// <returns>Gets details of an LDAP Server</returns>
@@ -1285,7 +1332,7 @@ namespace Checkmarx.API
         {
             return LDAPServers2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of an LDAP Server</summary>
         /// <param name="id">LDAP Server Id</param>
@@ -1295,11 +1342,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1308,14 +1355,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1326,9 +1373,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -1362,13 +1409,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -1390,7 +1437,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates LDAP Server details</summary>
         /// <param name="id">LDAP Server Id</param>
         /// <param name="body">LDAP Server details</param>
@@ -1400,7 +1447,7 @@ namespace Checkmarx.API
         {
             return LDAPServers3Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates LDAP Server details</summary>
         /// <param name="id">LDAP Server Id</param>
@@ -1411,11 +1458,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1426,14 +1473,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1444,9 +1491,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -1475,13 +1522,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -1503,7 +1550,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes an LDAP Server</summary>
         /// <param name="id">LDAP Server Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -1512,7 +1559,7 @@ namespace Checkmarx.API
         {
             return LDAPServers4Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes an LDAP Server</summary>
         /// <param name="id">LDAP Server Id</param>
@@ -1522,11 +1569,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1534,14 +1581,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1552,9 +1599,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -1583,13 +1630,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -1611,7 +1658,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all LDAP team mapping</summary>
         /// <param name="ldapServerId">LDAP Server Id</param>
         /// <param name="teamId">Team Id</param>
@@ -1621,7 +1668,7 @@ namespace Checkmarx.API
         {
             return LDAPTeamMappingsAllAsync(ldapServerId, teamId, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all LDAP team mapping</summary>
         /// <param name="ldapServerId">LDAP Server Id</param>
@@ -1641,7 +1688,7 @@ namespace Checkmarx.API
                 urlBuilder_.Append(System.Uri.EscapeDataString("teamId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(teamId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1650,14 +1697,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1668,9 +1715,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -1694,13 +1741,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -1722,7 +1769,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates LDAP group and team mapping details</summary>
         /// <param name="id">LDAP Server Id</param>
         /// <param name="body">LDAP group and team mapping details</param>
@@ -1732,7 +1779,7 @@ namespace Checkmarx.API
         {
             return TeamMappingsAsync(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates LDAP group and team mapping details</summary>
         /// <param name="id">LDAP Server Id</param>
@@ -1743,11 +1790,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers/{id}/TeamMappings");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1758,14 +1805,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1776,9 +1823,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -1807,13 +1854,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -1835,7 +1882,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Add or updates specific LDAP group and team mappings details</summary>
         /// <param name="id">LDAP Server Id</param>
         /// <param name="body">LDAP group and team mapping details</param>
@@ -1845,7 +1892,7 @@ namespace Checkmarx.API
         {
             return TeamMappings2Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Add or updates specific LDAP group and team mappings details</summary>
         /// <param name="id">LDAP Server Id</param>
@@ -1856,11 +1903,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPServers/{id}/TeamMappings");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1871,14 +1918,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PATCH");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1889,9 +1936,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -1920,13 +1967,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -1948,7 +1995,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes LDAP team mapping</summary>
         /// <param name="id">LDAP team mapping Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -1957,7 +2004,7 @@ namespace Checkmarx.API
         {
             return LDAPTeamMappingsAsync(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes LDAP team mapping</summary>
         /// <param name="id">LDAP team mapping Id</param>
@@ -1967,11 +2014,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/LDAPTeamMappings/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -1979,14 +2026,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -1997,9 +2044,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -2028,13 +2075,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2056,7 +2103,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Returns the logged-in user details.</summary>
         /// <returns>Returns the users list</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -2064,7 +2111,7 @@ namespace Checkmarx.API
         {
             return MyProfileAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Returns the logged-in user details.</summary>
         /// <returns>Returns the users list</returns>
@@ -2073,7 +2120,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/MyProfile");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2082,14 +2129,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2100,9 +2147,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -2116,13 +2163,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2144,7 +2191,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates user.</summary>
         /// <param name="body">The user representation</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -2153,7 +2200,7 @@ namespace Checkmarx.API
         {
             return MyProfileAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates user.</summary>
         /// <param name="body">The user representation</param>
@@ -2163,7 +2210,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/MyProfile");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2174,14 +2221,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2192,9 +2239,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -2223,13 +2270,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2251,7 +2298,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Returns oidc api resources list.</summary>
         /// <returns>Returns the oidc api resources list</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -2259,7 +2306,7 @@ namespace Checkmarx.API
         {
             return OIDCApiResourcesAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Returns oidc api resources list.</summary>
         /// <returns>Returns the oidc api resources list</returns>
@@ -2268,7 +2315,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCApiResources");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2277,14 +2324,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2295,9 +2342,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -2311,13 +2358,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2339,7 +2386,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Create new oidc api resource.</summary>
         /// <param name="body">The Oidc api resource representation</param>
         /// <returns>Returns a location of the created oidc api resource</returns>
@@ -2348,7 +2395,7 @@ namespace Checkmarx.API
         {
             return OIDCApiResourcesAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Create new oidc api resource.</summary>
         /// <param name="body">The Oidc api resource representation</param>
@@ -2358,7 +2405,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCApiResources");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2369,14 +2416,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2387,9 +2434,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -2408,13 +2455,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2436,7 +2483,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Returns an oidc api resource by id.</summary>
         /// <param name="id">The requested api resource id</param>
         /// <returns>Returns a given oidc api resource</returns>
@@ -2445,7 +2492,7 @@ namespace Checkmarx.API
         {
             return OIDCApiResources2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Returns an oidc api resource by id.</summary>
         /// <param name="id">The requested api resource id</param>
@@ -2455,11 +2502,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCApiResources/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2468,14 +2515,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2486,9 +2533,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -2512,13 +2559,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2540,7 +2587,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates oidc api resource.</summary>
         /// <param name="id">api resource id</param>
         /// <param name="body">The api resource representation</param>
@@ -2550,7 +2597,7 @@ namespace Checkmarx.API
         {
             return OIDCApiResources3Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates oidc api resource.</summary>
         /// <param name="id">api resource id</param>
@@ -2561,11 +2608,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCApiResources/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2576,14 +2623,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2594,9 +2641,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -2625,13 +2672,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2653,7 +2700,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes an existing oidc api resource.</summary>
         /// <param name="id">The api resource id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -2662,7 +2709,7 @@ namespace Checkmarx.API
         {
             return OIDCApiResources4Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes an existing oidc api resource.</summary>
         /// <param name="id">The api resource id</param>
@@ -2672,11 +2719,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCApiResources/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2684,14 +2731,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2702,9 +2749,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -2733,13 +2780,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2761,7 +2808,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all OIDC clients</summary>
         /// <returns>Gets details of all OIDC clients</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -2769,7 +2816,7 @@ namespace Checkmarx.API
         {
             return OIDCClientsAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all OIDC clients</summary>
         /// <returns>Gets details of all OIDC clients</returns>
@@ -2778,7 +2825,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCClients");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2787,14 +2834,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2805,9 +2852,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -2821,13 +2868,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2849,7 +2896,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Creates a new OIDC client</summary>
         /// <param name="body">OIDC client details</param>
         /// <returns>Returns a location of the created OIDC client</returns>
@@ -2858,7 +2905,7 @@ namespace Checkmarx.API
         {
             return OIDCClientsAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Creates a new OIDC client</summary>
         /// <param name="body">OIDC client details</param>
@@ -2868,7 +2915,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCClients");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2879,14 +2926,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2897,9 +2944,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -2918,13 +2965,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -2946,7 +2993,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of an OIDC client</summary>
         /// <param name="id">OIDC client Id</param>
         /// <returns>Gets details of an OIDC client</returns>
@@ -2955,7 +3002,7 @@ namespace Checkmarx.API
         {
             return OIDCClients2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of an OIDC client</summary>
         /// <param name="id">OIDC client Id</param>
@@ -2965,11 +3012,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCClients/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -2978,14 +3025,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -2996,9 +3043,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -3032,13 +3079,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -3060,7 +3107,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates OIDC client details</summary>
         /// <param name="id">OIDC client Id</param>
         /// <param name="body">OIDC client details</param>
@@ -3070,7 +3117,7 @@ namespace Checkmarx.API
         {
             return OIDCClients3Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates OIDC client details</summary>
         /// <param name="id">OIDC client Id</param>
@@ -3081,11 +3128,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCClients/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3096,14 +3143,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3114,9 +3161,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -3145,13 +3192,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -3173,7 +3220,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes an OIDC client</summary>
         /// <param name="id">OIDC client Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -3182,7 +3229,7 @@ namespace Checkmarx.API
         {
             return OIDCClients4Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes an OIDC client</summary>
         /// <param name="id">OIDC client Id</param>
@@ -3192,11 +3239,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/OIDCClients/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3204,14 +3251,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3222,9 +3269,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -3253,13 +3300,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -3281,7 +3328,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Send password reset request.</summary>
         /// <param name="body">The username</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -3290,7 +3337,7 @@ namespace Checkmarx.API
         {
             return ForgotPasswordAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Send password reset request.</summary>
         /// <param name="body">The username</param>
@@ -3300,7 +3347,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/ForgotPassword");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3311,14 +3358,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3329,9 +3376,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -3366,7 +3413,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Reset user password.</summary>
         /// <param name="body">The reset password model</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -3375,7 +3422,7 @@ namespace Checkmarx.API
         {
             return ResetPasswordAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Reset user password.</summary>
         /// <param name="body">The reset password model</param>
@@ -3385,7 +3432,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/ResetPassword");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3396,14 +3443,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3414,9 +3461,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -3451,7 +3498,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Reset user password.</summary>
         /// <param name="id">UserId</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -3459,7 +3506,7 @@ namespace Checkmarx.API
         {
             return ResetPassword2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Reset user password.</summary>
         /// <param name="id">UserId</param>
@@ -3468,11 +3515,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/{id}/ResetPassword");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3482,14 +3529,14 @@ namespace Checkmarx.API
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3500,9 +3547,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -3516,13 +3563,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -3544,7 +3591,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Change user password.</summary>
         /// <param name="body">The model of changing password</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -3553,7 +3600,7 @@ namespace Checkmarx.API
         {
             return ChangePasswordAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Change user password.</summary>
         /// <param name="body">The model of changing password</param>
@@ -3563,7 +3610,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/ChangePassword");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3574,14 +3621,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3592,9 +3639,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -3619,7 +3666,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Change logged in user password.</summary>
         /// <param name="body">The model of changing password for logged in user</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -3628,7 +3675,7 @@ namespace Checkmarx.API
         {
             return ChangeMyPasswordAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Change logged in user password.</summary>
         /// <param name="body">The model of changing password for logged in user</param>
@@ -3638,7 +3685,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/ChangeMyPassword");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3649,14 +3696,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3667,9 +3714,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -3678,13 +3725,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -3706,7 +3753,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all permissions</summary>
         /// <returns>Gets details of all permissions</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -3714,7 +3761,7 @@ namespace Checkmarx.API
         {
             return PermissionsAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all permissions</summary>
         /// <returns>Gets details of all permissions</returns>
@@ -3723,7 +3770,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Permissions");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3732,14 +3779,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3750,9 +3797,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -3766,13 +3813,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -3794,7 +3841,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Create new permission.</summary>
         /// <param name="body">The permission representation</param>
         /// <returns>Returns a location of the created permission</returns>
@@ -3803,7 +3850,7 @@ namespace Checkmarx.API
         {
             return PermissionsAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Create new permission.</summary>
         /// <param name="body">The permission representation</param>
@@ -3813,7 +3860,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Permissions");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3824,14 +3871,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3842,9 +3889,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -3863,13 +3910,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -3891,7 +3938,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of a permission</summary>
         /// <param name="id">Permission id</param>
         /// <returns>Gets details of a permission</returns>
@@ -3900,7 +3947,7 @@ namespace Checkmarx.API
         {
             return Permissions2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of a permission</summary>
         /// <param name="id">Permission id</param>
@@ -3910,11 +3957,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Permissions/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -3923,14 +3970,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -3941,9 +3988,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -3977,13 +4024,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -4005,7 +4052,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates permission.</summary>
         /// <param name="id">Permission id</param>
         /// <param name="body">The permission representation</param>
@@ -4015,7 +4062,7 @@ namespace Checkmarx.API
         {
             return Permissions3Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates permission.</summary>
         /// <param name="id">Permission id</param>
@@ -4026,11 +4073,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Permissions/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -4041,14 +4088,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -4059,9 +4106,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -4090,13 +4137,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -4118,7 +4165,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes an existing permission.</summary>
         /// <param name="id">The permission's id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -4127,7 +4174,7 @@ namespace Checkmarx.API
         {
             return Permissions4Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes an existing permission.</summary>
         /// <param name="id">The permission's id</param>
@@ -4137,11 +4184,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Permissions/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -4149,14 +4196,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -4167,9 +4214,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -4198,13 +4245,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -4226,7 +4273,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all roles</summary>
         /// <returns>Gets details of all roles</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -4234,7 +4281,7 @@ namespace Checkmarx.API
         {
             return RolesAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all roles</summary>
         /// <returns>Gets details of all roles</returns>
@@ -4243,7 +4290,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Roles");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -4252,14 +4299,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -4270,9 +4317,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -4286,13 +4333,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -4314,7 +4361,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Creates a new role</summary>
         /// <param name="body">Role details</param>
         /// <returns>Returns a location of the created role</returns>
@@ -4323,7 +4370,7 @@ namespace Checkmarx.API
         {
             return RolesAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Creates a new role</summary>
         /// <param name="body">Role details</param>
@@ -4333,7 +4380,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Roles");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -4344,14 +4391,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -4362,9 +4409,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -4383,13 +4430,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -4411,7 +4458,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of a role</summary>
         /// <param name="id">Role Id</param>
         /// <returns>Gets details of a role</returns>
@@ -4420,7 +4467,7 @@ namespace Checkmarx.API
         {
             return Roles2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of a role</summary>
         /// <param name="id">Role Id</param>
@@ -4430,11 +4477,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Roles/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -4443,14 +4490,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -4461,9 +4508,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -4497,13 +4544,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -4525,7 +4572,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates role details</summary>
         /// <param name="id">Role Id</param>
         /// <param name="body">Role details</param>
@@ -4535,7 +4582,7 @@ namespace Checkmarx.API
         {
             return Roles3Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates role details</summary>
         /// <param name="id">Role Id</param>
@@ -4546,11 +4593,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Roles/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -4561,14 +4608,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -4579,9 +4626,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -4610,13 +4657,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -4638,7 +4685,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes a role</summary>
         /// <param name="id">Role Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -4647,7 +4694,7 @@ namespace Checkmarx.API
         {
             return Roles4Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes a role</summary>
         /// <param name="id">Role Id</param>
@@ -4657,11 +4704,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Roles/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -4669,14 +4716,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -4687,9 +4734,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -4718,13 +4765,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -4746,7 +4793,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all SAML identity providers</summary>
         /// <returns>Gets details of all SAML identity providers</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -4754,7 +4801,7 @@ namespace Checkmarx.API
         {
             return SamlIdentityProvidersAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all SAML identity providers</summary>
         /// <returns>Gets details of all SAML identity providers</returns>
@@ -4763,7 +4810,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlIdentityProviders");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -4772,14 +4819,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -4790,9 +4837,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -4806,13 +4853,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -4834,7 +4881,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Creates a new SAML identity provider</summary>
         /// <returns>Returns a location of the newly created SAML identity provider</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -4842,7 +4889,7 @@ namespace Checkmarx.API
         {
             return SamlIdentityProvidersAsync(certificateFile, active, name, issuer, loginUrl, logoutUrl, errorUrl, signAuthnRequest, authnRequestBinding, isManualManagement, defaultTeamId, defaultRoleId, mapSamlIdpAttributes, teamMappingAttribute, roleMappingAttribute, allowAssertionReplay, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Creates a new SAML identity provider</summary>
         /// <returns>Returns a location of the newly created SAML identity provider</returns>
@@ -4851,7 +4898,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlIdentityProviders");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -4949,14 +4996,14 @@ namespace Checkmarx.API
                     }
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -4967,9 +5014,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -4988,13 +5035,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -5016,7 +5063,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Get details of a SAML identity provider</summary>
         /// <param name="id">SAML identity provider Id</param>
         /// <returns>Get details of a SAML identity provider</returns>
@@ -5025,7 +5072,7 @@ namespace Checkmarx.API
         {
             return SamlIdentityProviders2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Get details of a SAML identity provider</summary>
         /// <param name="id">SAML identity provider Id</param>
@@ -5035,11 +5082,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlIdentityProviders/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -5048,14 +5095,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -5066,9 +5113,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -5102,13 +5149,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -5130,7 +5177,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates SAML identity provider details</summary>
         /// <param name="id">SAML identity provider Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -5139,7 +5186,7 @@ namespace Checkmarx.API
         {
             return SamlIdentityProviders3Async(id, certificateFile, active, name, issuer, loginUrl, logoutUrl, errorUrl, signAuthnRequest, authnRequestBinding, isManualManagement, defaultTeamId, defaultRoleId, mapSamlIdpAttributes, teamMappingAttribute, roleMappingAttribute, allowAssertionReplay, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates SAML identity provider details</summary>
         /// <param name="id">SAML identity provider Id</param>
@@ -5149,11 +5196,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlIdentityProviders/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -5249,14 +5296,14 @@ namespace Checkmarx.API
                     }
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -5267,9 +5314,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -5298,13 +5345,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -5326,7 +5373,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes a SAML identity provider</summary>
         /// <param name="id">SAML identity provider Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -5335,7 +5382,7 @@ namespace Checkmarx.API
         {
             return SamlIdentityProviders4Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes a SAML identity provider</summary>
         /// <param name="id">SAML identity provider Id</param>
@@ -5345,11 +5392,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlIdentityProviders/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -5357,14 +5404,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -5375,9 +5422,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -5406,13 +5453,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -5434,7 +5481,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of SAML role mappings</summary>
         /// <param name="samlProviderId">SAML Provider Id</param>
         /// <returns>Gets details of all SAML role mapping</returns>
@@ -5443,7 +5490,7 @@ namespace Checkmarx.API
         {
             return SamlRoleMappingsAsync(samlProviderId, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of SAML role mappings</summary>
         /// <param name="samlProviderId">SAML Provider Id</param>
@@ -5458,7 +5505,7 @@ namespace Checkmarx.API
                 urlBuilder_.Append(System.Uri.EscapeDataString("samlProviderId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(samlProviderId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -5467,14 +5514,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -5485,9 +5532,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -5511,13 +5558,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -5539,7 +5586,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Sets SAML group and role mapping details</summary>
         /// <param name="samlProviderId">SAML Provider Id</param>
         /// <param name="body">SAML role mapping details</param>
@@ -5549,7 +5596,7 @@ namespace Checkmarx.API
         {
             return RoleMappings2Async(samlProviderId, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Sets SAML group and role mapping details</summary>
         /// <param name="samlProviderId">SAML Provider Id</param>
@@ -5560,11 +5607,11 @@ namespace Checkmarx.API
         {
             if (samlProviderId == null)
                 throw new System.ArgumentNullException("samlProviderId");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlIdentityProviders/{samlProviderId}/RoleMappings");
             urlBuilder_.Replace("{samlProviderId}", System.Uri.EscapeDataString(ConvertToString(samlProviderId, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -5575,14 +5622,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -5593,9 +5640,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -5624,13 +5671,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -5652,7 +5699,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets metadata (xml) for SAML service provider</summary>
         /// <returns>Returns a xml metadata of the SAML service provider</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -5660,7 +5707,7 @@ namespace Checkmarx.API
         {
             return MetadataAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets metadata (xml) for SAML service provider</summary>
         /// <returns>Returns a xml metadata of the SAML service provider</returns>
@@ -5669,7 +5716,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlServiceProvider/metadata");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -5677,14 +5724,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -5695,9 +5742,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -5706,13 +5753,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -5734,7 +5781,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of a SAML service provider</summary>
         /// <returns>Gets details of a SAML service provider</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -5742,7 +5789,7 @@ namespace Checkmarx.API
         {
             return SamlServiceProviderAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of a SAML service provider</summary>
         /// <returns>Gets details of a SAML service provider</returns>
@@ -5751,7 +5798,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlServiceProvider");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -5760,14 +5807,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -5778,9 +5825,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -5804,13 +5851,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -5832,7 +5879,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates a SAML service provider</summary>
         /// <returns>The request successfully processed and is not returning any content</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -5840,7 +5887,7 @@ namespace Checkmarx.API
         {
             return SamlServiceProvider2Async(certificateFile, certificatePassword, issuer, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates a SAML service provider</summary>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -5849,7 +5896,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlServiceProvider");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -5879,14 +5926,14 @@ namespace Checkmarx.API
                     }
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -5897,9 +5944,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -5918,13 +5965,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -5946,7 +5993,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of SAML team mappings</summary>
         /// <param name="samlProviderId">SAML Provider Id</param>
         /// <returns>Gets details of all SAML team mapping</returns>
@@ -5955,7 +6002,7 @@ namespace Checkmarx.API
         {
             return SamlTeamMappingsAsync(samlProviderId, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of SAML team mappings</summary>
         /// <param name="samlProviderId">SAML Provider Id</param>
@@ -5970,7 +6017,7 @@ namespace Checkmarx.API
                 urlBuilder_.Append(System.Uri.EscapeDataString("samlProviderId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(samlProviderId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -5979,14 +6026,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -5997,9 +6044,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -6023,13 +6070,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -6051,7 +6098,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Sets SAML group and team mapping details</summary>
         /// <param name="id">SAML Provider Id</param>
         /// <param name="body">SAML team mapping details</param>
@@ -6061,7 +6108,7 @@ namespace Checkmarx.API
         {
             return TeamMappings3Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Sets SAML group and team mapping details</summary>
         /// <param name="id">SAML Provider Id</param>
@@ -6072,11 +6119,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SamlIdentityProviders/{id}/TeamMappings");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6087,14 +6134,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6105,9 +6152,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -6136,13 +6183,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -6164,7 +6211,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Returns service providers list.</summary>
         /// <returns>Returns the service providers list</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -6172,7 +6219,7 @@ namespace Checkmarx.API
         {
             return ServiceProvidersAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Returns service providers list.</summary>
         /// <returns>Returns the service providers list</returns>
@@ -6181,7 +6228,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/ServiceProviders");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6190,14 +6237,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6208,9 +6255,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -6224,13 +6271,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -6252,7 +6299,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Create new service provider.</summary>
         /// <param name="body">The service provider representation</param>
         /// <returns>Returns a location of the created service provider</returns>
@@ -6261,7 +6308,7 @@ namespace Checkmarx.API
         {
             return ServiceProvidersAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Create new service provider.</summary>
         /// <param name="body">The service provider representation</param>
@@ -6271,7 +6318,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/ServiceProviders");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6282,14 +6329,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6300,9 +6347,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -6321,13 +6368,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -6349,7 +6396,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Returns a service provider by id.</summary>
         /// <param name="id">The requested service provider id</param>
         /// <returns>Returns a given service provider</returns>
@@ -6358,7 +6405,7 @@ namespace Checkmarx.API
         {
             return ServiceProviders2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Returns a service provider by id.</summary>
         /// <param name="id">The requested service provider id</param>
@@ -6368,11 +6415,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/ServiceProviders/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6381,14 +6428,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6399,9 +6446,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -6435,13 +6482,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -6463,7 +6510,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates service provider.</summary>
         /// <param name="id">Service provider id</param>
         /// <param name="body">The service provider representation</param>
@@ -6473,7 +6520,7 @@ namespace Checkmarx.API
         {
             return ServiceProviders3Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates service provider.</summary>
         /// <param name="id">Service provider id</param>
@@ -6484,11 +6531,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/ServiceProviders/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6499,14 +6546,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6517,9 +6564,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -6548,13 +6595,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -6576,7 +6623,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes an existing service provider.</summary>
         /// <param name="id">The service provider's id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -6585,7 +6632,7 @@ namespace Checkmarx.API
         {
             return ServiceProviders4Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes an existing service provider.</summary>
         /// <param name="id">The service provider's id</param>
@@ -6595,11 +6642,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/ServiceProviders/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6607,14 +6654,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6625,9 +6672,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -6656,13 +6703,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -6684,7 +6731,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Get the session timeout</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -6692,7 +6739,7 @@ namespace Checkmarx.API
         {
             return SessionTimeoutAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Get the session timeout</summary>
         /// <returns>Success</returns>
@@ -6701,7 +6748,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SessionTimeout");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6710,14 +6757,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6728,9 +6775,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -6760,7 +6807,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all SMTP settings</summary>
         /// <returns>Gets details of all SMTP settings</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -6768,7 +6815,7 @@ namespace Checkmarx.API
         {
             return SMTPSettingsAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all SMTP settings</summary>
         /// <returns>Gets details of all SMTP settings</returns>
@@ -6777,7 +6824,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SMTPSettings");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6786,14 +6833,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6804,9 +6851,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -6820,13 +6867,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -6848,7 +6895,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Creates new SMTP settings</summary>
         /// <param name="body">SMTP setting details</param>
         /// <returns>Returns a location of the newly created SMTP settings</returns>
@@ -6857,7 +6904,7 @@ namespace Checkmarx.API
         {
             return SMTPSettingsAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Creates new SMTP settings</summary>
         /// <param name="body">SMTP setting details</param>
@@ -6867,7 +6914,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SMTPSettings");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6878,14 +6925,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6896,9 +6943,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -6917,13 +6964,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -6945,7 +6992,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Get details of SMTP settings</summary>
         /// <param name="id">SMTP settings Id</param>
         /// <returns>Get details of SMTP settings</returns>
@@ -6954,7 +7001,7 @@ namespace Checkmarx.API
         {
             return SMTPSettings2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Get details of SMTP settings</summary>
         /// <param name="id">SMTP settings Id</param>
@@ -6964,11 +7011,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SMTPSettings/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -6977,14 +7024,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -6995,9 +7042,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -7031,13 +7078,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -7059,7 +7106,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates SMTP settings</summary>
         /// <param name="id">SMTP settings Id</param>
         /// <param name="body">SMTP setting details</param>
@@ -7069,7 +7116,7 @@ namespace Checkmarx.API
         {
             return SMTPSettings3Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates SMTP settings</summary>
         /// <param name="id">SMTP settings Id</param>
@@ -7080,11 +7127,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SMTPSettings/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -7095,14 +7142,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -7113,9 +7160,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -7144,13 +7191,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -7172,7 +7219,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes SMTP settings</summary>
         /// <param name="id">SMTP settings Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -7181,7 +7228,7 @@ namespace Checkmarx.API
         {
             return SMTPSettings4Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes SMTP settings</summary>
         /// <param name="id">SMTP settings Id</param>
@@ -7191,11 +7238,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SMTPSettings/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -7203,14 +7250,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -7221,9 +7268,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -7252,13 +7299,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -7280,7 +7327,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Tests SMTP connection</summary>
         /// <param name="body">SMTP setting details</param>
         /// <returns>Tests SMTP connection</returns>
@@ -7289,7 +7336,7 @@ namespace Checkmarx.API
         {
             return TestconnectionAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Tests SMTP connection</summary>
         /// <param name="body">SMTP setting details</param>
@@ -7299,7 +7346,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SMTPSettings/testconnection");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -7310,14 +7357,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -7328,9 +7375,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -7349,13 +7396,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -7377,7 +7424,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all system locales</summary>
         /// <returns>Gets details of all system locales</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -7385,7 +7432,7 @@ namespace Checkmarx.API
         {
             return SystemLocalesAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all system locales</summary>
         /// <returns>Gets details of all system locales</returns>
@@ -7394,7 +7441,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/SystemLocales");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -7403,14 +7450,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -7421,9 +7468,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -7437,13 +7484,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -7465,7 +7512,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all team members</summary>
         /// <param name="id">Team Id</param>
         /// <returns>Gets details of all team members</returns>
@@ -7474,7 +7521,7 @@ namespace Checkmarx.API
         {
             return UsersAllAsync(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all team members</summary>
         /// <param name="id">Team Id</param>
@@ -7484,11 +7531,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Teams/{id}/Users");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -7497,14 +7544,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -7515,9 +7562,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -7551,13 +7598,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -7579,7 +7626,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates team member details</summary>
         /// <param name="teamId">Team Id</param>
         /// <param name="body">Team member details</param>
@@ -7589,7 +7636,7 @@ namespace Checkmarx.API
         {
             return UsersAsync(teamId, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates team member details</summary>
         /// <param name="teamId">Team Id</param>
@@ -7600,11 +7647,11 @@ namespace Checkmarx.API
         {
             if (teamId == null)
                 throw new System.ArgumentNullException("teamId");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Teams/{teamId}/Users");
             urlBuilder_.Replace("{teamId}", System.Uri.EscapeDataString(ConvertToString(teamId, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -7615,14 +7662,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -7633,9 +7680,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -7664,13 +7711,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -7692,7 +7739,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Add user to team.</summary>
         /// <param name="teamId">Team Id</param>
         /// <param name="userId">User Id</param>
@@ -7702,7 +7749,7 @@ namespace Checkmarx.API
         {
             return Users2Async(teamId, userId, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Add user to team.</summary>
         /// <param name="teamId">Team Id</param>
@@ -7713,15 +7760,15 @@ namespace Checkmarx.API
         {
             if (teamId == null)
                 throw new System.ArgumentNullException("teamId");
-    
+
             if (userId == null)
                 throw new System.ArgumentNullException("userId");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Teams/{teamId}/Users/{userId}");
             urlBuilder_.Replace("{teamId}", System.Uri.EscapeDataString(ConvertToString(teamId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -7730,14 +7777,14 @@ namespace Checkmarx.API
                 {
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -7748,9 +7795,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -7779,13 +7826,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -7807,7 +7854,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes a member from a team</summary>
         /// <param name="teamId">Team Id</param>
         /// <param name="userId">User Id</param>
@@ -7817,7 +7864,7 @@ namespace Checkmarx.API
         {
             return UsersAsync(teamId, userId, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes a member from a team</summary>
         /// <param name="teamId">Team Id</param>
@@ -7828,15 +7875,15 @@ namespace Checkmarx.API
         {
             if (teamId == null)
                 throw new System.ArgumentNullException("teamId");
-    
+
             if (userId == null)
                 throw new System.ArgumentNullException("userId");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Teams/{teamId}/users/{userId}");
             urlBuilder_.Replace("{teamId}", System.Uri.EscapeDataString(ConvertToString(teamId, System.Globalization.CultureInfo.InvariantCulture)));
             urlBuilder_.Replace("{userId}", System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -7844,14 +7891,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -7862,9 +7909,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -7878,19 +7925,19 @@ namespace Checkmarx.API
                         else
                         if (status_ == 400)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The request failed to proceed and is returning validation errors", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -7912,7 +7959,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all teams</summary>
         /// <returns>Gets details of all teams</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -7920,7 +7967,7 @@ namespace Checkmarx.API
         {
             return TeamsAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all teams</summary>
         /// <returns>Gets details of all teams</returns>
@@ -7929,7 +7976,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Teams");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -7938,14 +7985,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -7956,9 +8003,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -7972,13 +8019,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8000,26 +8047,26 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Creates a new team</summary>
         /// <param name="body">Team details</param>
         /// <returns>Returns a location of the created team</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task TeamsAsync(CreateTeamViewModel body)
+        public System.Threading.Tasks.Task CreateTeamAsync(CreateTeamViewModel body)
         {
-            return TeamsAsync(body, System.Threading.CancellationToken.None);
+            return CreateTeamAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Creates a new team</summary>
         /// <param name="body">Team details</param>
         /// <returns>Returns a location of the created team</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task TeamsAsync(CreateTeamViewModel body, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task CreateTeamAsync(CreateTeamViewModel body, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Teams");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8030,14 +8077,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8048,13 +8095,13 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
-                            return;
+                            var objectResponse_ = await ReadObjectResponseAsync<string>(response_, headers_, cancellationToken).ConfigureAwait(false);
                         }
                         else
                         if (status_ == 400)
@@ -8069,13 +8116,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8097,30 +8144,30 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Get details of a team</summary>
         /// <param name="id">Team Id</param>
         /// <returns>Get details of a team</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<TeamViewModel> Teams2Async(int id)
+        public System.Threading.Tasks.Task<TeamViewModel> GetTeamAsync(int id)
         {
-            return Teams2Async(id, System.Threading.CancellationToken.None);
+            return GetTeamAsync(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Get details of a team</summary>
         /// <param name="id">Team Id</param>
         /// <returns>Get details of a team</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<TeamViewModel> Teams2Async(int id, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<TeamViewModel> GetTeamAsync(int id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Teams/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8129,14 +8176,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8147,9 +8194,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -8183,13 +8230,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8211,32 +8258,32 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates team details</summary>
         /// <param name="id">Team Id</param>
         /// <param name="body">Team details</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task Teams3Async(int id, UpdateTeamViewModel body)
+        public System.Threading.Tasks.Task UpdateTeamAsync(int id, UpdateTeamViewModel body)
         {
-            return Teams3Async(id, body, System.Threading.CancellationToken.None);
+            return UpdateTeamAsync(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates team details</summary>
         /// <param name="id">Team Id</param>
         /// <param name="body">Team details</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task Teams3Async(int id, UpdateTeamViewModel body, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task UpdateTeamAsync(int id, UpdateTeamViewModel body, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Teams/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8247,14 +8294,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8265,9 +8312,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -8296,13 +8343,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8324,30 +8371,30 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes a team</summary>
         /// <param name="id">Team Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task Teams4Async(int id)
+        public System.Threading.Tasks.Task DeleteTeamAsync(int id)
         {
-            return Teams4Async(id, System.Threading.CancellationToken.None);
+            return DeleteTeamAsync(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes a team</summary>
         /// <param name="id">Team Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task Teams4Async(int id, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task DeleteTeamAsync(int id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Teams/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8355,14 +8402,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8373,9 +8420,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -8404,13 +8451,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8432,7 +8479,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Generates a new token signing certificate</summary>
         /// <returns>Returns url to jwks</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -8440,7 +8487,7 @@ namespace Checkmarx.API
         {
             return TokenSigningCertificateGenerationAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Generates a new token signing certificate</summary>
         /// <returns>Returns url to jwks</returns>
@@ -8449,7 +8496,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/TokenSigningCertificateGeneration");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8458,14 +8505,14 @@ namespace Checkmarx.API
                 {
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8476,9 +8523,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -8487,13 +8534,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8515,7 +8562,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Uploads a new token signing certificate</summary>
         /// <param name="certificatePassword">Certificate password</param>
         /// <returns>Returns url to jwks</returns>
@@ -8524,7 +8571,7 @@ namespace Checkmarx.API
         {
             return TokenSigningCertificatesAsync(certificatePassword, certificateFile, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Uploads a new token signing certificate</summary>
         /// <param name="certificatePassword">Certificate password</param>
@@ -8534,12 +8581,12 @@ namespace Checkmarx.API
         {
             if (certificatePassword == null)
                 throw new System.ArgumentNullException("certificatePassword");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/TokenSigningCertificates?");
             urlBuilder_.Append(System.Uri.EscapeDataString("CertificatePassword") + "=").Append(System.Uri.EscapeDataString(ConvertToString(certificatePassword, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8561,14 +8608,14 @@ namespace Checkmarx.API
                     }
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8579,9 +8626,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -8590,19 +8637,19 @@ namespace Checkmarx.API
                         else
                         if (status_ == 400)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The request failed to proceed and is returning validation errors", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8624,7 +8671,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all users</summary>
         /// <returns>Gets details of all users</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -8632,7 +8679,7 @@ namespace Checkmarx.API
         {
             return GetAllUsersDetailsAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all users</summary>
         /// <returns>Gets details of all users</returns>
@@ -8641,7 +8688,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8650,14 +8697,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8668,9 +8715,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -8684,13 +8731,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8712,7 +8759,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Creates a new user</summary>
         /// <param name="body">User details</param>
         /// <returns>Returns a location of the newly created user</returns>
@@ -8721,7 +8768,7 @@ namespace Checkmarx.API
         {
             return CreatesNewUser(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Creates a new user</summary>
         /// <param name="body">User details</param>
@@ -8731,7 +8778,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8742,14 +8789,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8760,9 +8807,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -8781,13 +8828,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8809,7 +8856,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Get details of a user</summary>
         /// <param name="id">User Id</param>
         /// <returns>Get details of a user</returns>
@@ -8818,7 +8865,7 @@ namespace Checkmarx.API
         {
             return GetUserDetails(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Get details of a user</summary>
         /// <param name="id">User Id</param>
@@ -8828,11 +8875,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8841,14 +8888,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8859,9 +8906,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -8895,13 +8942,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -8923,7 +8970,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates user details</summary>
         /// <param name="id">User Id</param>
         /// <param name="body">User details</param>
@@ -8933,7 +8980,7 @@ namespace Checkmarx.API
         {
             return UpdateUserDetails(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates user details</summary>
         /// <param name="id">User Id</param>
@@ -8944,11 +8991,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -8959,14 +9006,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -8977,9 +9024,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -9008,13 +9055,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9036,7 +9083,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes a user</summary>
         /// <param name="id">User Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -9045,7 +9092,7 @@ namespace Checkmarx.API
         {
             return DeleteUser(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes a user</summary>
         /// <param name="id">User Id</param>
@@ -9055,11 +9102,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -9067,14 +9114,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -9085,9 +9132,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -9116,13 +9163,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9144,7 +9191,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Migrate existing user</summary>
         /// <param name="body">User migration details</param>
         /// <returns>Returns a location of the newly created user</returns>
@@ -9153,7 +9200,7 @@ namespace Checkmarx.API
         {
             return MigrationAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Migrate existing user</summary>
         /// <param name="body">User migration details</param>
@@ -9163,7 +9210,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/migration");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -9174,14 +9221,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -9192,9 +9239,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -9213,13 +9260,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9241,7 +9288,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes a list of users</summary>
         /// <param name="body">User Id's to be deleted</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -9250,7 +9297,7 @@ namespace Checkmarx.API
         {
             return BulkDeleteAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes a list of users</summary>
         /// <param name="body">User Id's to be deleted</param>
@@ -9260,7 +9307,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/bulkDelete");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -9271,14 +9318,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -9289,9 +9336,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -9320,13 +9367,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9348,7 +9395,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Update user's status</summary>
         /// <param name="body">Users ids to be updated and status</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -9357,7 +9404,7 @@ namespace Checkmarx.API
         {
             return BulkUpdateStatusAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Update user's status</summary>
         /// <param name="body">Users ids to be updated and status</param>
@@ -9367,7 +9414,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/bulkUpdateStatus");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -9378,14 +9425,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -9396,9 +9443,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -9427,13 +9474,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9455,7 +9502,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Migrate existing user from domain to ldap</summary>
         /// <param name="domainId">The domain id</param>
         /// <param name="ldapServerId">The ldap server id</param>
@@ -9465,7 +9512,7 @@ namespace Checkmarx.API
         {
             return DomainToLdapMigrationAsync(domainId, ldapServerId, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Migrate existing user from domain to ldap</summary>
         /// <param name="domainId">The domain id</param>
@@ -9485,7 +9532,7 @@ namespace Checkmarx.API
                 urlBuilder_.Append(System.Uri.EscapeDataString("ldapServerId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(ldapServerId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -9494,14 +9541,14 @@ namespace Checkmarx.API
                 {
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -9512,9 +9559,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -9543,13 +9590,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9571,7 +9618,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Add and remove Users Roles</summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -9579,7 +9626,7 @@ namespace Checkmarx.API
         {
             return BulkAddRemoveUsersRolesAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Add and remove Users Roles</summary>
         /// <returns>Success</returns>
@@ -9588,7 +9635,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Users/bulkAddRemoveUsersRoles");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -9599,14 +9646,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -9617,9 +9664,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -9648,13 +9695,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9676,7 +9723,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of all windows domains</summary>
         /// <returns>Gets details of all windows domains</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -9684,7 +9731,7 @@ namespace Checkmarx.API
         {
             return WindowsDomainsAllAsync(System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of all windows domains</summary>
         /// <returns>Gets details of all windows domains</returns>
@@ -9693,7 +9740,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WindowsDomains");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -9702,14 +9749,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -9720,9 +9767,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -9736,13 +9783,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9764,7 +9811,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Creates new windows domain</summary>
         /// <param name="body">Windows domain details</param>
         /// <returns>Returns a location of the newly created windows domain</returns>
@@ -9773,7 +9820,7 @@ namespace Checkmarx.API
         {
             return WindowsDomainsAsync(body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Creates new windows domain</summary>
         /// <param name="body">Windows domain details</param>
@@ -9783,7 +9830,7 @@ namespace Checkmarx.API
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WindowsDomains");
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -9794,14 +9841,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -9812,9 +9859,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 201)
                         {
@@ -9833,13 +9880,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9861,7 +9908,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets details of a windows domain</summary>
         /// <param name="id">Windows domain Id</param>
         /// <returns>Gets details of a windows domain</returns>
@@ -9870,7 +9917,7 @@ namespace Checkmarx.API
         {
             return WindowsDomains2Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets details of a windows domain</summary>
         /// <param name="id">Windows domain Id</param>
@@ -9880,11 +9927,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WindowsDomains/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -9893,14 +9940,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -9911,9 +9958,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -9937,13 +9984,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -9965,7 +10012,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Updates windows domain details</summary>
         /// <param name="id">Windows domain Id</param>
         /// <param name="body">Windows domain details</param>
@@ -9975,7 +10022,7 @@ namespace Checkmarx.API
         {
             return WindowsDomains3Async(id, body, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Updates windows domain details</summary>
         /// <param name="id">Windows domain Id</param>
@@ -9986,11 +10033,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WindowsDomains/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -10001,14 +10048,14 @@ namespace Checkmarx.API
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json-patch+json");
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -10019,9 +10066,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -10050,13 +10097,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -10078,7 +10125,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Deletes a windows domain</summary>
         /// <param name="id">Windows domain Id</param>
         /// <returns>The request successfully processed and is not returning any content</returns>
@@ -10087,7 +10134,7 @@ namespace Checkmarx.API
         {
             return WindowsDomains4Async(id, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Deletes a windows domain</summary>
         /// <param name="id">Windows domain Id</param>
@@ -10097,11 +10144,11 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WindowsDomains/{id}");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -10109,14 +10156,14 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -10127,9 +10174,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 204)
                         {
@@ -10158,13 +10205,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -10186,7 +10233,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         /// <summary>Gets user entries according to specific search criteria</summary>
         /// <param name="id">Windows domain Id</param>
         /// <param name="containsPattern">User name or full name contains pattern</param>
@@ -10196,7 +10243,7 @@ namespace Checkmarx.API
         {
             return UserEntriesAsync(id, containsPattern, System.Threading.CancellationToken.None);
         }
-    
+
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <summary>Gets user entries according to specific search criteria</summary>
         /// <param name="id">Windows domain Id</param>
@@ -10207,7 +10254,7 @@ namespace Checkmarx.API
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
-    
+
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/WindowsDomains/{id}/UserEntries?");
             urlBuilder_.Replace("{id}", System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
@@ -10216,7 +10263,7 @@ namespace Checkmarx.API
                 urlBuilder_.Append(System.Uri.EscapeDataString("containsPattern") + "=").Append(System.Uri.EscapeDataString(ConvertToString(containsPattern, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
-    
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -10225,14 +10272,14 @@ namespace Checkmarx.API
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-    
+
                     PrepareRequest(client_, request_, urlBuilder_);
-    
+
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-    
+
                     PrepareRequest(client_, request_, url_);
-    
+
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
@@ -10243,9 +10290,9 @@ namespace Checkmarx.API
                             foreach (var item_ in response_.Content.Headers)
                                 headers_[item_.Key] = item_.Value;
                         }
-    
+
                         ProcessResponse(client_, response_);
-    
+
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
@@ -10279,13 +10326,13 @@ namespace Checkmarx.API
                         else
                         if (status_ == 401)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is not authenticated", status_, responseText_, headers_, null);
                         }
                         else
                         if (status_ == 403)
                         {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The user is authenticated and does not have permission to perform the action", status_, responseText_, headers_, null);
                         }
                         else
@@ -10307,7 +10354,7 @@ namespace Checkmarx.API
                     client_.Dispose();
             }
         }
-    
+
         protected struct ObjectResponseResult<T>
         {
             public ObjectResponseResult(T responseObject, string responseText)
@@ -10315,21 +10362,21 @@ namespace Checkmarx.API
                 this.Object = responseObject;
                 this.Text = responseText;
             }
-    
+
             public T Object { get; }
-    
+
             public string Text { get; }
         }
-    
+
         public bool ReadResponseAsString { get; set; }
-        
+
         protected virtual async System.Threading.Tasks.Task<ObjectResponseResult<T>> ReadObjectResponseAsync<T>(System.Net.Http.HttpResponseMessage response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Threading.CancellationToken cancellationToken)
         {
             if (response == null || response.Content == null)
             {
                 return new ObjectResponseResult<T>(default(T), string.Empty);
             }
-        
+
             if (ReadResponseAsString)
             {
                 var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -10364,14 +10411,14 @@ namespace Checkmarx.API
                 }
             }
         }
-    
+
         private string ConvertToString(object value, System.Globalization.CultureInfo cultureInfo)
         {
             if (value == null)
             {
                 return "";
             }
-        
+
             if (value is System.Enum)
             {
                 var name = System.Enum.GetName(value.GetType(), value);
@@ -10380,2610 +10427,2610 @@ namespace Checkmarx.API
                     var field = System.Reflection.IntrospectionExtensions.GetTypeInfo(value.GetType()).GetDeclaredField(name);
                     if (field != null)
                     {
-                        var attribute = System.Reflection.CustomAttributeExtensions.GetCustomAttribute(field, typeof(System.Runtime.Serialization.EnumMemberAttribute)) 
+                        var attribute = System.Reflection.CustomAttributeExtensions.GetCustomAttribute(field, typeof(System.Runtime.Serialization.EnumMemberAttribute))
                             as System.Runtime.Serialization.EnumMemberAttribute;
                         if (attribute != null)
                         {
                             return attribute.Value != null ? attribute.Value : name;
                         }
                     }
-        
+
                     var converted = System.Convert.ToString(System.Convert.ChangeType(value, System.Enum.GetUnderlyingType(value.GetType()), cultureInfo));
                     return converted == null ? string.Empty : converted;
                 }
             }
-            else if (value is bool) 
+            else if (value is bool)
             {
                 return System.Convert.ToString((bool)value, cultureInfo).ToLowerInvariant();
             }
             else if (value is byte[])
             {
-                return System.Convert.ToBase64String((byte[]) value);
+                return System.Convert.ToBase64String((byte[])value);
             }
             else if (value.GetType().IsArray)
             {
-                var array = System.Linq.Enumerable.OfType<object>((System.Array) value);
+                var array = System.Linq.Enumerable.OfType<object>((System.Array)value);
                 return string.Join(",", System.Linq.Enumerable.Select(array, o => ConvertToString(o, cultureInfo)));
             }
-        
+
             var result = System.Convert.ToString(value, cultureInfo);
             return result == null ? "" : result;
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class AssignableUserViewModel 
+    public partial class AssignableUserViewModel
     {
         /// <summary>User id</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>User username</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Username { get; set; }
-    
+
         /// <summary>User first name</summary>
         [Newtonsoft.Json.JsonProperty("firstName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string FirstName { get; set; }
-    
+
         /// <summary>User last name</summary>
         [Newtonsoft.Json.JsonProperty("lastName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string LastName { get; set; }
-    
+
         /// <summary>User email address</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Email { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
     public enum AuthenticationProviderType
     {
         _1 = 1,
-    
+
         _2 = 2,
-    
+
         _3 = 3,
-    
+
         _4 = 4,
-    
+
         _5 = 5,
-    
+
         _6 = 6,
-    
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class AuthenticationProviderViewModel 
+    public partial class AuthenticationProviderViewModel
     {
         /// <summary>The Id of this authentication provider.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>The name of this authentication provider.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
-    
+
         /// <summary>The provider Id of this authentication provider.</summary>
         [Newtonsoft.Json.JsonProperty("providerId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? ProviderId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("providerType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ProviderType { get; set; } = "Application";
-    
+
         /// <summary>Specifies whether this authentication provider doesn't use the credentials from the standard login page.</summary>
         [Newtonsoft.Json.JsonProperty("isExternal", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool IsExternal { get; set; }
-    
+
         /// <summary>Specifies whether this authentication provider is exposed in the login page.</summary>
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Active { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateFirstUserModel 
+    public partial class CreateFirstUserModel
     {
         /// <summary>User name</summary>
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string UserName { get; set; }
-    
+
         /// <summary>User password</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Password { get; set; }
-    
+
         /// <summary>User first name</summary>
         [Newtonsoft.Json.JsonProperty("firstName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstName { get; set; }
-    
+
         /// <summary>User last name</summary>
         [Newtonsoft.Json.JsonProperty("lastName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastName { get; set; }
-    
+
         /// <summary>User email address</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Email { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class FirstAdminExistenceModel 
+    public partial class FirstAdminExistenceModel
     {
         [Newtonsoft.Json.JsonProperty("firstAdminExists", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool FirstAdminExists { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class LdapRoleMappingViewModel 
+    public partial class LdapRoleMappingViewModel
     {
         /// <summary>The Id of the LdapRoleMapping.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>The Id of the LDAP server.</summary>
         [Newtonsoft.Json.JsonProperty("ldapServerId", Required = Newtonsoft.Json.Required.Always)]
         public int LdapServerId { get; set; }
-    
+
         /// <summary>The Role Id.</summary>
         [Newtonsoft.Json.JsonProperty("roleId", Required = Newtonsoft.Json.Required.Always)]
         public int RoleId { get; set; }
-    
+
         /// <summary>The LDAP group distinguished name.</summary>
         [Newtonsoft.Json.JsonProperty("ldapGroupDn", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string LdapGroupDn { get; set; }
-    
+
         /// <summary>The LDAP group display name.</summary>
         [Newtonsoft.Json.JsonProperty("ldapGroupDisplayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string LdapGroupDisplayName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class EditLdapRoleMappingViewModel 
+    public partial class EditLdapRoleMappingViewModel
     {
         /// <summary>The Role Id.</summary>
         [Newtonsoft.Json.JsonProperty("roleId", Required = Newtonsoft.Json.Required.Always)]
         public int RoleId { get; set; }
-    
+
         /// <summary>The LDAP group distinguished name.</summary>
         [Newtonsoft.Json.JsonProperty("ldapGroupDn", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string LdapGroupDn { get; set; }
-    
+
         /// <summary>The LDAP group display name.</summary>
         [Newtonsoft.Json.JsonProperty("ldapGroupDisplayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string LdapGroupDisplayName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class ErrorViewModel 
+    public partial class ErrorViewModel
     {
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Message { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class TestLdapConnectionViewModel 
+    public partial class TestLdapConnectionViewModel
     {
         /// <summary>Ldap Server Host Name.</summary>
         [Newtonsoft.Json.JsonProperty("host", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Host { get; set; }
-    
+
         /// <summary>Ldap Server Port.</summary>
         [Newtonsoft.Json.JsonProperty("port", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Range(1, 65535)]
         public int Port { get; set; }
-    
+
         /// <summary>Username of the binding user.</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Username { get; set; }
-    
+
         /// <summary>Password of the binding user.</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Password { get; set; }
-    
+
         /// <summary>Indicates whether to use SSl whem connecting to this Ldap Server.</summary>
         [Newtonsoft.Json.JsonProperty("useSsl", Required = Newtonsoft.Json.Required.Always)]
         public bool UseSsl { get; set; }
-    
+
         /// <summary>Determines whether to verify SSL certificate.</summary>
         [Newtonsoft.Json.JsonProperty("verifySslCertificate", Required = Newtonsoft.Json.Required.Always)]
         public bool VerifySslCertificate { get; set; }
-    
+
         /// <summary>Ldap Server base Dn.</summary>
         [Newtonsoft.Json.JsonProperty("baseDn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string BaseDn { get; set; }
-    
+
         /// <summary>Additional user DN. Limit users search to specified DN.</summary>
         [Newtonsoft.Json.JsonProperty("additionalUserDn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string AdditionalUserDn { get; set; }
-    
+
         /// <summary>User object filter.</summary>
         [Newtonsoft.Json.JsonProperty("userObjectFilter", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserObjectFilter { get; set; }
-    
+
         /// <summary>User object class.</summary>
         [Newtonsoft.Json.JsonProperty("userObjectClass", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserObjectClass { get; set; }
-    
+
         /// <summary>UserName attribute.</summary>
         [Newtonsoft.Json.JsonProperty("usernameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UsernameAttribute { get; set; }
-    
+
         /// <summary>First name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("firstNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstNameAttribute { get; set; }
-    
+
         /// <summary>Last name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("lastNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastNameAttribute { get; set; }
-    
+
         /// <summary>Email attribute.</summary>
         [Newtonsoft.Json.JsonProperty("emailAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string EmailAttribute { get; set; }
-    
+
         /// <summary>Determines whether synchronization enabled for this LDAP Server.</summary>
         [Newtonsoft.Json.JsonProperty("synchronizationEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool SynchronizationEnabled { get; set; }
-    
+
         /// <summary>Enable advanced team and role mapping.</summary>
         [Newtonsoft.Json.JsonProperty("advancedTeamAndRoleMappingEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AdvancedTeamAndRoleMappingEnabled { get; set; }
-    
+
         /// <summary>Additional group Dn. Limit groups search to specified DN.</summary>
         [Newtonsoft.Json.JsonProperty("additionalGroupDn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string AdditionalGroupDn { get; set; }
-    
+
         /// <summary>Group object class.</summary>
         [Newtonsoft.Json.JsonProperty("groupObjectClass", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupObjectClass { get; set; }
-    
+
         /// <summary>Group object filter.</summary>
         [Newtonsoft.Json.JsonProperty("groupObjectFilter", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupObjectFilter { get; set; }
-    
+
         /// <summary>Group name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("groupNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupNameAttribute { get; set; }
-    
+
         /// <summary>Group members attribute.</summary>
         [Newtonsoft.Json.JsonProperty("groupMembersAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupMembersAttribute { get; set; }
-    
+
         /// <summary>User membership attribute.</summary>
         [Newtonsoft.Json.JsonProperty("userMembershipAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserMembershipAttribute { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class TestConnectionResultViewModel 
+    public partial class TestConnectionResultViewModel
     {
         [Newtonsoft.Json.JsonProperty("isSuccessful", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool IsSuccessful { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("message", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Message { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UserEntryModel 
+    public partial class UserEntryModel
     {
         /// <summary>User name</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Username { get; set; }
-    
+
         /// <summary>User firstname</summary>
         [Newtonsoft.Json.JsonProperty("firstname", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Firstname { get; set; }
-    
+
         /// <summary>User lastname</summary>
         [Newtonsoft.Json.JsonProperty("lastname", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Lastname { get; set; }
-    
+
         /// <summary>User email</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Email { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class GroupEntryViewModel 
+    public partial class GroupEntryViewModel
     {
         /// <summary>Group name</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Name { get; set; }
-    
+
         /// <summary>Group  DN</summary>
         [Newtonsoft.Json.JsonProperty("dn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Dn { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
     public enum LdapDirectoryType
     {
         _0 = 0,
-    
+
         _1 = 1,
-    
+
         _2 = 2,
-    
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class LdapServerViewModel 
+    public partial class LdapServerViewModel
     {
         /// <summary>The Id of this Ldap Server.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
-    
+
         /// <summary>Determines whether this LDAP Server setting is active.</summary>
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.Always)]
         public bool Active { get; set; }
-    
+
         /// <summary>Ldap Server display name in checkmarx.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^[^/\\]*$")]
         public string Name { get; set; }
-    
+
         /// <summary>Ldap Server Host Name.</summary>
         [Newtonsoft.Json.JsonProperty("host", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Host { get; set; }
-    
+
         /// <summary>Ldap Server Port.</summary>
         [Newtonsoft.Json.JsonProperty("port", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Range(1, 65535)]
         public int Port { get; set; }
-    
+
         /// <summary>Username of the binding user.</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Username { get; set; }
-    
+
         /// <summary>Indicates whether to use SSl whem connecting to this Ldap Server.</summary>
         [Newtonsoft.Json.JsonProperty("useSsl", Required = Newtonsoft.Json.Required.Always)]
         public bool UseSsl { get; set; }
-    
+
         /// <summary>Determines whether to verify SSL certificate.</summary>
         [Newtonsoft.Json.JsonProperty("verifySslCertificate", Required = Newtonsoft.Json.Required.Always)]
         public bool VerifySslCertificate { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("ldapDirectoryType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public LdapDirectoryType LdapDirectoryType { get; set; }
-    
+
         /// <summary>Determines whether SSO enabled for this LDAP Server.</summary>
         [Newtonsoft.Json.JsonProperty("ssoEnabled", Required = Newtonsoft.Json.Required.Always)]
         public bool SsoEnabled { get; set; }
-    
+
         /// <summary>The Active Directory domain related to this LDAP server (for windows SSO purposes).</summary>
         [Newtonsoft.Json.JsonProperty("mappedDomainId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? MappedDomainId { get; set; }
-    
+
         /// <summary>Ldap Server base Dn.</summary>
         [Newtonsoft.Json.JsonProperty("baseDn", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string BaseDn { get; set; }
-    
+
         /// <summary>Additional user DN. Limit users search to specified DN.</summary>
         [Newtonsoft.Json.JsonProperty("additionalUserDn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string AdditionalUserDn { get; set; }
-    
+
         /// <summary>User object filter.</summary>
         [Newtonsoft.Json.JsonProperty("userObjectFilter", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string UserObjectFilter { get; set; }
-    
+
         /// <summary>User object class.</summary>
         [Newtonsoft.Json.JsonProperty("userObjectClass", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserObjectClass { get; set; }
-    
+
         /// <summary>UserName attribute.</summary>
         [Newtonsoft.Json.JsonProperty("usernameAttribute", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UsernameAttribute { get; set; }
-    
+
         /// <summary>First name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("firstNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstNameAttribute { get; set; }
-    
+
         /// <summary>Last name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("lastNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastNameAttribute { get; set; }
-    
+
         /// <summary>Email attribute.</summary>
         [Newtonsoft.Json.JsonProperty("emailAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string EmailAttribute { get; set; }
-    
+
         /// <summary>Determines whether synchronization enabled for this LDAP Server.</summary>
         [Newtonsoft.Json.JsonProperty("synchronizationEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool SynchronizationEnabled { get; set; }
-    
+
         /// <summary>Default team id.</summary>
         [Newtonsoft.Json.JsonProperty("defaultTeamId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? DefaultTeamId { get; set; }
-    
+
         /// <summary>Default role id.</summary>
         [Newtonsoft.Json.JsonProperty("defaultRoleId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? DefaultRoleId { get; set; }
-    
+
         /// <summary>Determines whether to update user's role and team upon login.</summary>
         [Newtonsoft.Json.JsonProperty("updateTeamAndRoleUponLoginEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool UpdateTeamAndRoleUponLoginEnabled { get; set; }
-    
+
         /// <summary>Enable periodical synchronization.</summary>
         [Newtonsoft.Json.JsonProperty("periodicalSynchronizationEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool PeriodicalSynchronizationEnabled { get; set; }
-    
+
         /// <summary>Enable advanced team and role mapping.</summary>
         [Newtonsoft.Json.JsonProperty("advancedTeamAndRoleMappingEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AdvancedTeamAndRoleMappingEnabled { get; set; }
-    
+
         /// <summary>Enable default team.</summary>
         [Newtonsoft.Json.JsonProperty("defaultTeamEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool DefaultTeamEnabled { get; set; }
-    
+
         /// <summary>Enable default role.</summary>
         [Newtonsoft.Json.JsonProperty("defaultRoleEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool DefaultRoleEnabled { get; set; }
-    
+
         /// <summary>Additional group Dn. Limit groups search to specified DN.</summary>
         [Newtonsoft.Json.JsonProperty("additionalGroupDn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string AdditionalGroupDn { get; set; }
-    
+
         /// <summary>Group object class.</summary>
         [Newtonsoft.Json.JsonProperty("groupObjectClass", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupObjectClass { get; set; }
-    
+
         /// <summary>Group object filter.</summary>
         [Newtonsoft.Json.JsonProperty("groupObjectFilter", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string GroupObjectFilter { get; set; }
-    
+
         /// <summary>Group name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("groupNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupNameAttribute { get; set; }
-    
+
         /// <summary>Group members attribute.</summary>
         [Newtonsoft.Json.JsonProperty("groupMembersAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupMembersAttribute { get; set; }
-    
+
         /// <summary>User membership attribute.</summary>
         [Newtonsoft.Json.JsonProperty("userMembershipAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserMembershipAttribute { get; set; }
-    
+
         /// <summary>Determines whether the group membership value is in username format instead of DN format.</summary>
         [Newtonsoft.Json.JsonProperty("groupMembersAttributeSource", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupMembersAttributeSource { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateLdapServerViewModel 
+    public partial class CreateLdapServerViewModel
     {
         /// <summary>Password of the binding user.</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Password { get; set; }
-    
+
         /// <summary>Determines whether this LDAP Server setting is active.</summary>
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.Always)]
         public bool Active { get; set; }
-    
+
         /// <summary>Ldap Server display name in checkmarx.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^[^/\\]*$")]
         public string Name { get; set; }
-    
+
         /// <summary>Ldap Server Host Name.</summary>
         [Newtonsoft.Json.JsonProperty("host", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Host { get; set; }
-    
+
         /// <summary>Ldap Server Port.</summary>
         [Newtonsoft.Json.JsonProperty("port", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Range(1, 65535)]
         public int Port { get; set; }
-    
+
         /// <summary>Username of the binding user.</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Username { get; set; }
-    
+
         /// <summary>Indicates whether to use SSl whem connecting to this Ldap Server.</summary>
         [Newtonsoft.Json.JsonProperty("useSsl", Required = Newtonsoft.Json.Required.Always)]
         public bool UseSsl { get; set; }
-    
+
         /// <summary>Determines whether to verify SSL certificate.</summary>
         [Newtonsoft.Json.JsonProperty("verifySslCertificate", Required = Newtonsoft.Json.Required.Always)]
         public bool VerifySslCertificate { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("ldapDirectoryType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public LdapDirectoryType LdapDirectoryType { get; set; }
-    
+
         /// <summary>Determines whether SSO enabled for this LDAP Server.</summary>
         [Newtonsoft.Json.JsonProperty("ssoEnabled", Required = Newtonsoft.Json.Required.Always)]
         public bool SsoEnabled { get; set; }
-    
+
         /// <summary>The Active Directory domain related to this LDAP server (for windows SSO purposes).</summary>
         [Newtonsoft.Json.JsonProperty("mappedDomainId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? MappedDomainId { get; set; }
-    
+
         /// <summary>Ldap Server base Dn.</summary>
         [Newtonsoft.Json.JsonProperty("baseDn", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string BaseDn { get; set; }
-    
+
         /// <summary>Additional user DN. Limit users search to specified DN.</summary>
         [Newtonsoft.Json.JsonProperty("additionalUserDn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string AdditionalUserDn { get; set; }
-    
+
         /// <summary>User object filter.</summary>
         [Newtonsoft.Json.JsonProperty("userObjectFilter", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string UserObjectFilter { get; set; }
-    
+
         /// <summary>User object class.</summary>
         [Newtonsoft.Json.JsonProperty("userObjectClass", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserObjectClass { get; set; }
-    
+
         /// <summary>UserName attribute.</summary>
         [Newtonsoft.Json.JsonProperty("usernameAttribute", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UsernameAttribute { get; set; }
-    
+
         /// <summary>First name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("firstNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstNameAttribute { get; set; }
-    
+
         /// <summary>Last name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("lastNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastNameAttribute { get; set; }
-    
+
         /// <summary>Email attribute.</summary>
         [Newtonsoft.Json.JsonProperty("emailAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string EmailAttribute { get; set; }
-    
+
         /// <summary>Determines whether synchronization enabled for this LDAP Server.</summary>
         [Newtonsoft.Json.JsonProperty("synchronizationEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool SynchronizationEnabled { get; set; }
-    
+
         /// <summary>Default team id.</summary>
         [Newtonsoft.Json.JsonProperty("defaultTeamId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? DefaultTeamId { get; set; }
-    
+
         /// <summary>Default role id.</summary>
         [Newtonsoft.Json.JsonProperty("defaultRoleId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? DefaultRoleId { get; set; }
-    
+
         /// <summary>Determines whether to update user's role and team upon login.</summary>
         [Newtonsoft.Json.JsonProperty("updateTeamAndRoleUponLoginEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool UpdateTeamAndRoleUponLoginEnabled { get; set; }
-    
+
         /// <summary>Enable periodical synchronization.</summary>
         [Newtonsoft.Json.JsonProperty("periodicalSynchronizationEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool PeriodicalSynchronizationEnabled { get; set; }
-    
+
         /// <summary>Enable advanced team and role mapping.</summary>
         [Newtonsoft.Json.JsonProperty("advancedTeamAndRoleMappingEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AdvancedTeamAndRoleMappingEnabled { get; set; }
-    
+
         /// <summary>Enable default team.</summary>
         [Newtonsoft.Json.JsonProperty("defaultTeamEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool DefaultTeamEnabled { get; set; }
-    
+
         /// <summary>Enable default role.</summary>
         [Newtonsoft.Json.JsonProperty("defaultRoleEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool DefaultRoleEnabled { get; set; }
-    
+
         /// <summary>Additional group Dn. Limit groups search to specified DN.</summary>
         [Newtonsoft.Json.JsonProperty("additionalGroupDn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string AdditionalGroupDn { get; set; }
-    
+
         /// <summary>Group object class.</summary>
         [Newtonsoft.Json.JsonProperty("groupObjectClass", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupObjectClass { get; set; }
-    
+
         /// <summary>Group object filter.</summary>
         [Newtonsoft.Json.JsonProperty("groupObjectFilter", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string GroupObjectFilter { get; set; }
-    
+
         /// <summary>Group name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("groupNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupNameAttribute { get; set; }
-    
+
         /// <summary>Group members attribute.</summary>
         [Newtonsoft.Json.JsonProperty("groupMembersAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupMembersAttribute { get; set; }
-    
+
         /// <summary>User membership attribute.</summary>
         [Newtonsoft.Json.JsonProperty("userMembershipAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserMembershipAttribute { get; set; }
-    
+
         /// <summary>Determines whether the group membership value is in username format instead of DN format.</summary>
         [Newtonsoft.Json.JsonProperty("groupMembersAttributeSource", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupMembersAttributeSource { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateLdapServerViewModel 
+    public partial class UpdateLdapServerViewModel
     {
         /// <summary>Password of the binding user.</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Password { get; set; }
-    
+
         /// <summary>Determines whether this LDAP Server setting is active.</summary>
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.Always)]
         public bool Active { get; set; }
-    
+
         /// <summary>Ldap Server display name in checkmarx.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^[^/\\]*$")]
         public string Name { get; set; }
-    
+
         /// <summary>Ldap Server Host Name.</summary>
         [Newtonsoft.Json.JsonProperty("host", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Host { get; set; }
-    
+
         /// <summary>Ldap Server Port.</summary>
         [Newtonsoft.Json.JsonProperty("port", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Range(1, 65535)]
         public int Port { get; set; }
-    
+
         /// <summary>Username of the binding user.</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Username { get; set; }
-    
+
         /// <summary>Indicates whether to use SSl whem connecting to this Ldap Server.</summary>
         [Newtonsoft.Json.JsonProperty("useSsl", Required = Newtonsoft.Json.Required.Always)]
         public bool UseSsl { get; set; }
-    
+
         /// <summary>Determines whether to verify SSL certificate.</summary>
         [Newtonsoft.Json.JsonProperty("verifySslCertificate", Required = Newtonsoft.Json.Required.Always)]
         public bool VerifySslCertificate { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("ldapDirectoryType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public LdapDirectoryType LdapDirectoryType { get; set; }
-    
+
         /// <summary>Determines whether SSO enabled for this LDAP Server.</summary>
         [Newtonsoft.Json.JsonProperty("ssoEnabled", Required = Newtonsoft.Json.Required.Always)]
         public bool SsoEnabled { get; set; }
-    
+
         /// <summary>The Active Directory domain related to this LDAP server (for windows SSO purposes).</summary>
         [Newtonsoft.Json.JsonProperty("mappedDomainId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? MappedDomainId { get; set; }
-    
+
         /// <summary>Ldap Server base Dn.</summary>
         [Newtonsoft.Json.JsonProperty("baseDn", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string BaseDn { get; set; }
-    
+
         /// <summary>Additional user DN. Limit users search to specified DN.</summary>
         [Newtonsoft.Json.JsonProperty("additionalUserDn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string AdditionalUserDn { get; set; }
-    
+
         /// <summary>User object filter.</summary>
         [Newtonsoft.Json.JsonProperty("userObjectFilter", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string UserObjectFilter { get; set; }
-    
+
         /// <summary>User object class.</summary>
         [Newtonsoft.Json.JsonProperty("userObjectClass", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserObjectClass { get; set; }
-    
+
         /// <summary>UserName attribute.</summary>
         [Newtonsoft.Json.JsonProperty("usernameAttribute", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UsernameAttribute { get; set; }
-    
+
         /// <summary>First name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("firstNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstNameAttribute { get; set; }
-    
+
         /// <summary>Last name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("lastNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastNameAttribute { get; set; }
-    
+
         /// <summary>Email attribute.</summary>
         [Newtonsoft.Json.JsonProperty("emailAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string EmailAttribute { get; set; }
-    
+
         /// <summary>Determines whether synchronization enabled for this LDAP Server.</summary>
         [Newtonsoft.Json.JsonProperty("synchronizationEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool SynchronizationEnabled { get; set; }
-    
+
         /// <summary>Default team id.</summary>
         [Newtonsoft.Json.JsonProperty("defaultTeamId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? DefaultTeamId { get; set; }
-    
+
         /// <summary>Default role id.</summary>
         [Newtonsoft.Json.JsonProperty("defaultRoleId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? DefaultRoleId { get; set; }
-    
+
         /// <summary>Determines whether to update user's role and team upon login.</summary>
         [Newtonsoft.Json.JsonProperty("updateTeamAndRoleUponLoginEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool UpdateTeamAndRoleUponLoginEnabled { get; set; }
-    
+
         /// <summary>Enable periodical synchronization.</summary>
         [Newtonsoft.Json.JsonProperty("periodicalSynchronizationEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool PeriodicalSynchronizationEnabled { get; set; }
-    
+
         /// <summary>Enable advanced team and role mapping.</summary>
         [Newtonsoft.Json.JsonProperty("advancedTeamAndRoleMappingEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AdvancedTeamAndRoleMappingEnabled { get; set; }
-    
+
         /// <summary>Enable default team.</summary>
         [Newtonsoft.Json.JsonProperty("defaultTeamEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool DefaultTeamEnabled { get; set; }
-    
+
         /// <summary>Enable default role.</summary>
         [Newtonsoft.Json.JsonProperty("defaultRoleEnabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool DefaultRoleEnabled { get; set; }
-    
+
         /// <summary>Additional group Dn. Limit groups search to specified DN.</summary>
         [Newtonsoft.Json.JsonProperty("additionalGroupDn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string AdditionalGroupDn { get; set; }
-    
+
         /// <summary>Group object class.</summary>
         [Newtonsoft.Json.JsonProperty("groupObjectClass", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupObjectClass { get; set; }
-    
+
         /// <summary>Group object filter.</summary>
         [Newtonsoft.Json.JsonProperty("groupObjectFilter", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string GroupObjectFilter { get; set; }
-    
+
         /// <summary>Group name attribute.</summary>
         [Newtonsoft.Json.JsonProperty("groupNameAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupNameAttribute { get; set; }
-    
+
         /// <summary>Group members attribute.</summary>
         [Newtonsoft.Json.JsonProperty("groupMembersAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupMembersAttribute { get; set; }
-    
+
         /// <summary>User membership attribute.</summary>
         [Newtonsoft.Json.JsonProperty("userMembershipAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserMembershipAttribute { get; set; }
-    
+
         /// <summary>Determines whether the group membership value is in username format instead of DN format.</summary>
         [Newtonsoft.Json.JsonProperty("groupMembersAttributeSource", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string GroupMembersAttributeSource { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class LdapTeamMappingViewModel 
+    public partial class LdapTeamMappingViewModel
     {
         /// <summary>The Id of the mapping.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
-    
+
         /// <summary>The Id of the LDAP server.</summary>
         [Newtonsoft.Json.JsonProperty("ldapServerId", Required = Newtonsoft.Json.Required.Always)]
         public int LdapServerId { get; set; }
-    
+
         /// <summary>The Id of the team.</summary>
         [Newtonsoft.Json.JsonProperty("teamId", Required = Newtonsoft.Json.Required.Always)]
         public int TeamId { get; set; }
-    
+
         /// <summary>The LDAP group distinguished name.</summary>
         [Newtonsoft.Json.JsonProperty("ldapGroupDn", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string LdapGroupDn { get; set; }
-    
+
         /// <summary>The LDAP group display name.</summary>
         [Newtonsoft.Json.JsonProperty("ldapGroupDisplayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string LdapGroupDisplayName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class EditLdapTeamMappingViewModel 
+    public partial class EditLdapTeamMappingViewModel
     {
         /// <summary>The Id of the team.</summary>
         [Newtonsoft.Json.JsonProperty("teamId", Required = Newtonsoft.Json.Required.Always)]
         public int TeamId { get; set; }
-    
+
         /// <summary>The LDAP group distinguished name.</summary>
         [Newtonsoft.Json.JsonProperty("ldapGroupDn", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string LdapGroupDn { get; set; }
-    
+
         /// <summary>The LDAP group display name.</summary>
         [Newtonsoft.Json.JsonProperty("ldapGroupDisplayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string LdapGroupDisplayName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UserProfileModel 
+    public partial class UserProfileModel
     {
         /// <summary>User id</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>User name</summary>
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string UserName { get; set; }
-    
+
         /// <summary>User first name</summary>
         [Newtonsoft.Json.JsonProperty("firstName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string FirstName { get; set; }
-    
+
         /// <summary>User last name</summary>
         [Newtonsoft.Json.JsonProperty("lastName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string LastName { get; set; }
-    
+
         /// <summary>User email address</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Email { get; set; }
-    
+
         /// <summary>User phone number</summary>
         [Newtonsoft.Json.JsonProperty("phoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string PhoneNumber { get; set; }
-    
+
         /// <summary>User cellular phone number</summary>
         [Newtonsoft.Json.JsonProperty("cellPhoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CellPhoneNumber { get; set; }
-    
+
         /// <summary>User job title</summary>
         [Newtonsoft.Json.JsonProperty("jobTitle", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string JobTitle { get; set; }
-    
+
         /// <summary>User other info</summary>
         [Newtonsoft.Json.JsonProperty("other", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Other { get; set; }
-    
+
         /// <summary>User country</summary>
         [Newtonsoft.Json.JsonProperty("country", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Country { get; set; }
-    
+
         /// <summary>User locale</summary>
         [Newtonsoft.Json.JsonProperty("localeId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int LocaleId { get; set; }
-    
+
         /// <summary>User teams</summary>
         [Newtonsoft.Json.JsonProperty("teams", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Teams { get; set; }
-    
+
         /// <summary>User teams</summary>
         [Newtonsoft.Json.JsonProperty("authenticationProviderId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AuthenticationProviderId { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateUserProfileModel 
+    public partial class UpdateUserProfileModel
     {
         /// <summary>User first name</summary>
         [Newtonsoft.Json.JsonProperty("firstName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstName { get; set; }
-    
+
         /// <summary>User last name</summary>
         [Newtonsoft.Json.JsonProperty("lastName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastName { get; set; }
-    
+
         /// <summary>User email address</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Email { get; set; }
-    
+
         /// <summary>User phone number</summary>
         [Newtonsoft.Json.JsonProperty("phoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string PhoneNumber { get; set; }
-    
+
         /// <summary>User cellular phone number</summary>
         [Newtonsoft.Json.JsonProperty("cellPhoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string CellPhoneNumber { get; set; }
-    
+
         /// <summary>User job title</summary>
         [Newtonsoft.Json.JsonProperty("jobTitle", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string JobTitle { get; set; }
-    
+
         /// <summary>User other info</summary>
         [Newtonsoft.Json.JsonProperty("other", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Other { get; set; }
-    
+
         /// <summary>User country</summary>
         [Newtonsoft.Json.JsonProperty("country", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Country { get; set; }
-    
+
         /// <summary>User Locale</summary>
         [Newtonsoft.Json.JsonProperty("localeId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int LocaleId { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class ApiResourceViewModel 
+    public partial class ApiResourceViewModel
     {
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>The unique name of the API.
         /// This value is used for authentication with introspection and will be added to the audience of the outgoing access token.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         /// <summary>List of associated user claim types that should be included in the access token</summary>
         [Newtonsoft.Json.JsonProperty("userClaims", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> UserClaims { get; set; } = new System.Collections.ObjectModel.Collection<string>();
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateApiResourceViewModel 
+    public partial class CreateApiResourceViewModel
     {
         /// <summary>The unique name of the API.
         /// This value is used for authentication with introspection and will be added to the audience of the outgoing access token.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         /// <summary>List of associated user claim types that should be included in the access token</summary>
         [Newtonsoft.Json.JsonProperty("userClaims", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> UserClaims { get; set; } = new System.Collections.ObjectModel.Collection<string>();
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateApiResourceViewModel 
+    public partial class UpdateApiResourceViewModel
     {
         /// <summary>The unique name of the API.
         /// This value is used for authentication with introspection and will be added to the audience of the outgoing access token.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         /// <summary>List of associated user claim types that should be included in the access token</summary>
         [Newtonsoft.Json.JsonProperty("userClaims", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> UserClaims { get; set; } = new System.Collections.ObjectModel.Collection<string>();
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class ClientClaimViewModel 
+    public partial class ClientClaimViewModel
     {
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Type { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("value", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Value { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class OidcClientViewModel 
+    public partial class OidcClientViewModel
     {
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.</summary>
         [Newtonsoft.Json.JsonProperty("updateAccessTokenClaimsOnRefresh", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool UpdateAccessTokenClaimsOnRefresh { get; set; }
-    
+
         /// <summary>Specifies whether the access token is a reference token or a self contained JWT token (defaults to Jwt).</summary>
         [Newtonsoft.Json.JsonProperty("accessTokenType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AccessTokenType { get; set; }
-    
+
         /// <summary>Specifies whether JWT access tokens should have an embedded unique ID (via the jti claim).</summary>
         [Newtonsoft.Json.JsonProperty("includeJwtId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool IncludeJwtId { get; set; }
-    
+
         /// <summary>When requesting both an id token and access token, 
         /// should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.
         /// Default is false.</summary>
         [Newtonsoft.Json.JsonProperty("alwaysIncludeUserClaimsInIdToken", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AlwaysIncludeUserClaimsInIdToken { get; set; }
-    
+
         /// <summary>Unique ID of the client</summary>
         [Newtonsoft.Json.JsonProperty("clientId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string ClientId { get; set; }
-    
+
         /// <summary>Client display name</summary>
         [Newtonsoft.Json.JsonProperty("clientName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string ClientName { get; set; }
-    
+
         /// <summary>Specifies whether this client can request refresh tokens.</summary>
         [Newtonsoft.Json.JsonProperty("allowOfflineAccess", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AllowOfflineAccess { get; set; }
-    
+
         /// <summary>List of client secrets - credentials to access the token endpoint.</summary>
         [Newtonsoft.Json.JsonProperty("clientSecrets", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> ClientSecrets { get; set; }
-    
+
         /// <summary>Specifies the grant types the client is allowed to use.
         /// Grant types are a way to specify how a client wants to interact with IdentityServer
         /// Allowed values: "client_credentials","implicit","authorization_code","hybrid", "password"</summary>
         [Newtonsoft.Json.JsonProperty("allowedGrantTypes", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> AllowedGrantTypes { get; set; } = new System.Collections.ObjectModel.Collection<string>();
-    
+
         /// <summary>By default a client has no access to any resources - specify the allowed resources by adding the corresponding scopes names.</summary>
         [Newtonsoft.Json.JsonProperty("allowedScopes", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> AllowedScopes { get; set; } = new System.Collections.ObjectModel.Collection<string>();
-    
+
         /// <summary>Specifies if client is enabled. Defaults to true.</summary>
         [Newtonsoft.Json.JsonProperty("enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Enabled { get; set; }
-    
+
         /// <summary>Specifies whether this client needs a secret to request tokens from the token endpoint. defaults to true.</summary>
         [Newtonsoft.Json.JsonProperty("requireClientSecret", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool RequireClientSecret { get; set; }
-    
+
         /// <summary>Specifies the allowed URIs to return tokens or authorization codes to.
         /// Required field for "implicit" and "authorization_code" grant types</summary>
         [Newtonsoft.Json.JsonProperty("redirectUris", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> RedirectUris { get; set; }
-    
+
         /// <summary>Specifies allowed URIs to redirect to after logout.</summary>
         [Newtonsoft.Json.JsonProperty("postLogoutRedirectUris", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> PostLogoutRedirectUris { get; set; }
-    
+
         /// <summary>Specifies logout URI at client for HTTP based front-channel logout.</summary>
         [Newtonsoft.Json.JsonProperty("frontChannelLogoutUri", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Uri FrontChannelLogoutUri { get; set; }
-    
+
         /// <summary>Specifies if the user’s session id should be sent to the FrontChannelLogoutUri. Defaults to true</summary>
         [Newtonsoft.Json.JsonProperty("frontChannelLogoutSessionRequired", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool FrontChannelLogoutSessionRequired { get; set; }
-    
+
         /// <summary>Specifies logout URI at client for HTTP based back-channel logout.</summary>
         [Newtonsoft.Json.JsonProperty("backChannelLogoutUri", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Uri BackChannelLogoutUri { get; set; }
-    
+
         /// <summary>Specifies if the user’s session id should be sent in the request to the BackChannelLogoutUri. Defaults to true</summary>
         [Newtonsoft.Json.JsonProperty("backChannelLogoutSessionRequired", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool BackChannelLogoutSessionRequired { get; set; }
-    
+
         /// <summary>Lifetime to identity token in seconds (defaults to 300 seconds / 5 minutes).</summary>
         [Newtonsoft.Json.JsonProperty("identityTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int IdentityTokenLifetime { get; set; }
-    
+
         /// <summary>Lifetime of access token in seconds (defaults to 3600 seconds / 1 hour).</summary>
         [Newtonsoft.Json.JsonProperty("accessTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AccessTokenLifetime { get; set; }
-    
+
         /// <summary>Lifetime of authorization code in seconds (defaults to 300 seconds / 5 minutes).</summary>
         [Newtonsoft.Json.JsonProperty("authorizationCodeLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AuthorizationCodeLifetime { get; set; }
-    
+
         /// <summary>Maximum lifetime of a refresh token in seconds. Defaults to 2592000 seconds / 30 days.</summary>
         [Newtonsoft.Json.JsonProperty("absoluteRefreshTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AbsoluteRefreshTokenLifetime { get; set; }
-    
+
         /// <summary>Sliding lifetime of a refresh token in seconds. Defaults to 1296000 seconds / 15 days.</summary>
         [Newtonsoft.Json.JsonProperty("slidingRefreshTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int SlidingRefreshTokenLifetime { get; set; }
-    
+
         /// <summary>ReUse = 0, the refresh token handle will stay the same when refreshing tokens
         /// OneTime = 1 the refresh token handle will be updated when refreshing tokens</summary>
         [Newtonsoft.Json.JsonProperty("refreshTokenUsage", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int RefreshTokenUsage { get; set; }
-    
+
         /// <summary>Absolute = 0, the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime)
         /// Sliding = 1, when refreshing the token, the lifetime of the refresh token will be renewed(by the amount specified in SlidingRefreshTokenLifetime).
         ///              The lifetime will not exceed AbsoluteRefreshTokenLifetime.</summary>
         [Newtonsoft.Json.JsonProperty("refreshTokenExpiration", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int RefreshTokenExpiration { get; set; }
-    
+
         /// <summary>If specified, will be used by the default CORS policy service implementations (In-Memory and EF) to build a CORS policy for JavaScript clients.
         /// Required field for "implicit" grant type</summary>
         [Newtonsoft.Json.JsonProperty("allowedCorsOrigins", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> AllowedCorsOrigins { get; set; }
-    
+
         /// <summary>Specifies whether this client is allowed to receive access tokens via the browser. This is useful to harden
         /// flows that allow multiple response types (e.g. by disallowing a hybrid flow client that is supposed to use code
         /// id_token to add the token response type and thus leaking the token to the browser.</summary>
         [Newtonsoft.Json.JsonProperty("allowAccessTokensViaBrowser", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AllowAccessTokensViaBrowser { get; set; }
-    
+
         /// <summary>Allows settings claims for the client(will be included in the access token).</summary>
         [Newtonsoft.Json.JsonProperty("claims", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<ClientClaimViewModel> Claims { get; set; }
-    
+
         /// <summary>The prefix of client claim types.</summary>
         [Newtonsoft.Json.JsonProperty("clientClaimsPrefix", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ClientClaimsPrefix { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("requirePkce", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool RequirePkce { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateOidcClientViewModel 
+    public partial class CreateOidcClientViewModel
     {
         /// <summary>Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.</summary>
         [Newtonsoft.Json.JsonProperty("updateAccessTokenClaimsOnRefresh", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool UpdateAccessTokenClaimsOnRefresh { get; set; }
-    
+
         /// <summary>Specifies whether the access token is a reference token or a self contained JWT token (defaults to Jwt).
         /// Allowed values: Jwt = 0, Reference =1</summary>
         [Newtonsoft.Json.JsonProperty("accessTokenType", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AccessTokenType { get; set; }
-    
+
         /// <summary>Specifies whether JWT access tokens should have an embedded unique ID (via the jti claim).</summary>
         [Newtonsoft.Json.JsonProperty("includeJwtId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool IncludeJwtId { get; set; }
-    
+
         /// <summary>When requesting both an id token and access token, 
         /// should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.
         /// Default is false.</summary>
         [Newtonsoft.Json.JsonProperty("alwaysIncludeUserClaimsInIdToken", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AlwaysIncludeUserClaimsInIdToken { get; set; }
-    
+
         /// <summary>Unique ID of the client</summary>
         [Newtonsoft.Json.JsonProperty("clientId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string ClientId { get; set; }
-    
+
         /// <summary>Client display name</summary>
         [Newtonsoft.Json.JsonProperty("clientName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string ClientName { get; set; }
-    
+
         /// <summary>Specifies whether this client can request refresh tokens.</summary>
         [Newtonsoft.Json.JsonProperty("allowOfflineAccess", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AllowOfflineAccess { get; set; }
-    
+
         /// <summary>List of client secrets - credentials to access the token endpoint.</summary>
         [Newtonsoft.Json.JsonProperty("clientSecrets", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> ClientSecrets { get; set; }
-    
+
         /// <summary>Specifies the grant types the client is allowed to use.
         /// Grant types are a way to specify how a client wants to interact with IdentityServer
         /// Allowed values: "client_credentials","implicit","authorization_code","hybrid", "password"</summary>
         [Newtonsoft.Json.JsonProperty("allowedGrantTypes", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> AllowedGrantTypes { get; set; } = new System.Collections.ObjectModel.Collection<string>();
-    
+
         /// <summary>By default a client has no access to any resources - specify the allowed resources by adding the corresponding scopes names.</summary>
         [Newtonsoft.Json.JsonProperty("allowedScopes", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> AllowedScopes { get; set; } = new System.Collections.ObjectModel.Collection<string>();
-    
+
         /// <summary>Specifies if client is enabled. Defaults to true.</summary>
         [Newtonsoft.Json.JsonProperty("enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Enabled { get; set; }
-    
+
         /// <summary>Specifies whether this client needs a secret to request tokens from the token endpoint. defaults to true.</summary>
         [Newtonsoft.Json.JsonProperty("requireClientSecret", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool RequireClientSecret { get; set; }
-    
+
         /// <summary>Specifies the allowed URIs to return tokens or authorization codes to.
         /// Required field for "implicit" and "authorization_code" grant types</summary>
         [Newtonsoft.Json.JsonProperty("redirectUris", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> RedirectUris { get; set; }
-    
+
         /// <summary>Specifies allowed URIs to redirect to after logout.</summary>
         [Newtonsoft.Json.JsonProperty("postLogoutRedirectUris", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> PostLogoutRedirectUris { get; set; }
-    
+
         /// <summary>Specifies logout URI at client for HTTP based front-channel logout.</summary>
         [Newtonsoft.Json.JsonProperty("frontChannelLogoutUri", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Uri FrontChannelLogoutUri { get; set; }
-    
+
         /// <summary>Specifies if the user’s session id should be sent to the FrontChannelLogoutUri. Defaults to true</summary>
         [Newtonsoft.Json.JsonProperty("frontChannelLogoutSessionRequired", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool FrontChannelLogoutSessionRequired { get; set; }
-    
+
         /// <summary>Specifies logout URI at client for HTTP based back-channel logout.</summary>
         [Newtonsoft.Json.JsonProperty("backChannelLogoutUri", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Uri BackChannelLogoutUri { get; set; }
-    
+
         /// <summary>Specifies if the user’s session id should be sent in the request to the BackChannelLogoutUri. Defaults to true</summary>
         [Newtonsoft.Json.JsonProperty("backChannelLogoutSessionRequired", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool BackChannelLogoutSessionRequired { get; set; }
-    
+
         /// <summary>Lifetime to identity token in seconds (defaults to 300 seconds / 5 minutes).</summary>
         [Newtonsoft.Json.JsonProperty("identityTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int IdentityTokenLifetime { get; set; }
-    
+
         /// <summary>Lifetime of access token in seconds (defaults to 3600 seconds / 1 hour).</summary>
         [Newtonsoft.Json.JsonProperty("accessTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AccessTokenLifetime { get; set; }
-    
+
         /// <summary>Lifetime of authorization code in seconds (defaults to 300 seconds / 5 minutes).</summary>
         [Newtonsoft.Json.JsonProperty("authorizationCodeLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AuthorizationCodeLifetime { get; set; }
-    
+
         /// <summary>Maximum lifetime of a refresh token in seconds. Defaults to 2592000 seconds / 30 days.</summary>
         [Newtonsoft.Json.JsonProperty("absoluteRefreshTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AbsoluteRefreshTokenLifetime { get; set; }
-    
+
         /// <summary>Sliding lifetime of a refresh token in seconds. Defaults to 1296000 seconds / 15 days.</summary>
         [Newtonsoft.Json.JsonProperty("slidingRefreshTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int SlidingRefreshTokenLifetime { get; set; }
-    
+
         /// <summary>ReUse = 0, the refresh token handle will stay the same when refreshing tokens
         /// OneTime = 1 the refresh token handle will be updated when refreshing tokens</summary>
         [Newtonsoft.Json.JsonProperty("refreshTokenUsage", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int RefreshTokenUsage { get; set; }
-    
+
         /// <summary>Absolute = 0, the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime)
         /// Sliding = 1, when refreshing the token, the lifetime of the refresh token will be renewed(by the amount specified in SlidingRefreshTokenLifetime).
         ///              The lifetime will not exceed AbsoluteRefreshTokenLifetime.</summary>
         [Newtonsoft.Json.JsonProperty("refreshTokenExpiration", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int RefreshTokenExpiration { get; set; }
-    
+
         /// <summary>If specified, will be used by the default CORS policy service implementations (In-Memory and EF) to build a CORS policy for JavaScript clients.
         /// Required field for "implicit" grant type</summary>
         [Newtonsoft.Json.JsonProperty("allowedCorsOrigins", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> AllowedCorsOrigins { get; set; }
-    
+
         /// <summary>Specifies whether this client is allowed to receive access tokens via the browser. This is useful to harden
         /// flows that allow multiple response types (e.g. by disallowing a hybrid flow client that is supposed to use code
         /// id_token to add the token response type and thus leaking the token to the browser.</summary>
         [Newtonsoft.Json.JsonProperty("allowAccessTokensViaBrowser", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AllowAccessTokensViaBrowser { get; set; }
-    
+
         /// <summary>Allows settings claims for the client(will be included in the access token).</summary>
         [Newtonsoft.Json.JsonProperty("claims", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<ClientClaimViewModel> Claims { get; set; }
-    
+
         /// <summary>The prefix of client claim types.</summary>
         [Newtonsoft.Json.JsonProperty("clientClaimsPrefix", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ClientClaimsPrefix { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("requirePkce", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool RequirePkce { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateOidcClientViewModel 
+    public partial class UpdateOidcClientViewModel
     {
         /// <summary>Unique ID of the client</summary>
         [Newtonsoft.Json.JsonProperty("clientId", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string ClientId { get; set; }
-    
+
         /// <summary>Client display name</summary>
         [Newtonsoft.Json.JsonProperty("clientName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string ClientName { get; set; }
-    
+
         /// <summary>Specifies whether this client can request refresh tokens.</summary>
         [Newtonsoft.Json.JsonProperty("allowOfflineAccess", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AllowOfflineAccess { get; set; }
-    
+
         /// <summary>List of client secrets - credentials to access the token endpoint.</summary>
         [Newtonsoft.Json.JsonProperty("clientSecrets", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> ClientSecrets { get; set; }
-    
+
         /// <summary>Specifies the grant types the client is allowed to use.
         /// Grant types are a way to specify how a client wants to interact with IdentityServer
         /// Allowed values: "client_credentials","implicit","authorization_code","hybrid", "password"</summary>
         [Newtonsoft.Json.JsonProperty("allowedGrantTypes", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> AllowedGrantTypes { get; set; } = new System.Collections.ObjectModel.Collection<string>();
-    
+
         /// <summary>By default a client has no access to any resources - specify the allowed resources by adding the corresponding scopes names.</summary>
         [Newtonsoft.Json.JsonProperty("allowedScopes", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> AllowedScopes { get; set; } = new System.Collections.ObjectModel.Collection<string>();
-    
+
         /// <summary>Specifies if client is enabled. Defaults to true.</summary>
         [Newtonsoft.Json.JsonProperty("enabled", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Enabled { get; set; }
-    
+
         /// <summary>Specifies whether this client needs a secret to request tokens from the token endpoint. defaults to true.</summary>
         [Newtonsoft.Json.JsonProperty("requireClientSecret", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool RequireClientSecret { get; set; }
-    
+
         /// <summary>Specifies the allowed URIs to return tokens or authorization codes to.
         /// Required field for "implicit" and "authorization_code" grant types</summary>
         [Newtonsoft.Json.JsonProperty("redirectUris", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> RedirectUris { get; set; }
-    
+
         /// <summary>Specifies allowed URIs to redirect to after logout.</summary>
         [Newtonsoft.Json.JsonProperty("postLogoutRedirectUris", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> PostLogoutRedirectUris { get; set; }
-    
+
         /// <summary>Specifies logout URI at client for HTTP based front-channel logout.</summary>
         [Newtonsoft.Json.JsonProperty("frontChannelLogoutUri", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Uri FrontChannelLogoutUri { get; set; }
-    
+
         /// <summary>Specifies if the user’s session id should be sent to the FrontChannelLogoutUri. Defaults to true</summary>
         [Newtonsoft.Json.JsonProperty("frontChannelLogoutSessionRequired", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool FrontChannelLogoutSessionRequired { get; set; }
-    
+
         /// <summary>Specifies logout URI at client for HTTP based back-channel logout.</summary>
         [Newtonsoft.Json.JsonProperty("backChannelLogoutUri", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Uri BackChannelLogoutUri { get; set; }
-    
+
         /// <summary>Specifies if the user’s session id should be sent in the request to the BackChannelLogoutUri. Defaults to true</summary>
         [Newtonsoft.Json.JsonProperty("backChannelLogoutSessionRequired", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool BackChannelLogoutSessionRequired { get; set; }
-    
+
         /// <summary>Lifetime to identity token in seconds (defaults to 300 seconds / 5 minutes).</summary>
         [Newtonsoft.Json.JsonProperty("identityTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int IdentityTokenLifetime { get; set; }
-    
+
         /// <summary>Lifetime of access token in seconds (defaults to 3600 seconds / 1 hour).</summary>
         [Newtonsoft.Json.JsonProperty("accessTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AccessTokenLifetime { get; set; }
-    
+
         /// <summary>Lifetime of authorization code in seconds (defaults to 300 seconds / 5 minutes).</summary>
         [Newtonsoft.Json.JsonProperty("authorizationCodeLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AuthorizationCodeLifetime { get; set; }
-    
+
         /// <summary>Maximum lifetime of a refresh token in seconds. Defaults to 2592000 seconds / 30 days.</summary>
         [Newtonsoft.Json.JsonProperty("absoluteRefreshTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int AbsoluteRefreshTokenLifetime { get; set; }
-    
+
         /// <summary>Sliding lifetime of a refresh token in seconds. Defaults to 1296000 seconds / 15 days.</summary>
         [Newtonsoft.Json.JsonProperty("slidingRefreshTokenLifetime", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int SlidingRefreshTokenLifetime { get; set; }
-    
+
         /// <summary>ReUse = 0, the refresh token handle will stay the same when refreshing tokens
         /// OneTime = 1 the refresh token handle will be updated when refreshing tokens</summary>
         [Newtonsoft.Json.JsonProperty("refreshTokenUsage", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int RefreshTokenUsage { get; set; }
-    
+
         /// <summary>Absolute = 0, the refresh token will expire on a fixed point in time (specified by the AbsoluteRefreshTokenLifetime)
         /// Sliding = 1, when refreshing the token, the lifetime of the refresh token will be renewed(by the amount specified in SlidingRefreshTokenLifetime).
         ///              The lifetime will not exceed AbsoluteRefreshTokenLifetime.</summary>
         [Newtonsoft.Json.JsonProperty("refreshTokenExpiration", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int RefreshTokenExpiration { get; set; }
-    
+
         /// <summary>If specified, will be used by the default CORS policy service implementations (In-Memory and EF) to build a CORS policy for JavaScript clients.
         /// Required field for "implicit" grant type</summary>
         [Newtonsoft.Json.JsonProperty("allowedCorsOrigins", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> AllowedCorsOrigins { get; set; }
-    
+
         /// <summary>Specifies whether this client is allowed to receive access tokens via the browser. This is useful to harden
         /// flows that allow multiple response types (e.g. by disallowing a hybrid flow client that is supposed to use code
         /// id_token to add the token response type and thus leaking the token to the browser.</summary>
         [Newtonsoft.Json.JsonProperty("allowAccessTokensViaBrowser", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AllowAccessTokensViaBrowser { get; set; }
-    
+
         /// <summary>Allows settings claims for the client(will be included in the access token).</summary>
         [Newtonsoft.Json.JsonProperty("claims", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<ClientClaimViewModel> Claims { get; set; }
-    
+
         /// <summary>The prefix of client claim types.</summary>
         [Newtonsoft.Json.JsonProperty("clientClaimsPrefix", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ClientClaimsPrefix { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("requirePkce", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool RequirePkce { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class ForgotPasswordViewModel 
+    public partial class ForgotPasswordViewModel
     {
         /// <summary>User first name</summary>
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string UserName { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("tenant", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Tenant { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class ResetPasswordViewModel 
+    public partial class ResetPasswordViewModel
     {
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string UserName { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Password { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("token", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Token { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("tenant", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Tenant { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class ResetPasswordByManagerViewModel 
+    public partial class ResetPasswordByManagerViewModel
     {
         [Newtonsoft.Json.JsonProperty("generatedPassword", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string GeneratedPassword { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class ChangePasswordViewModel 
+    public partial class ChangePasswordViewModel
     {
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string UserName { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("tenant", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Tenant { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("oldPassword", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string OldPassword { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("newPassword", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string NewPassword { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class ChangeMyPasswordViewModel 
+    public partial class ChangeMyPasswordViewModel
     {
         [Newtonsoft.Json.JsonProperty("oldPassword", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string OldPassword { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("newPassword", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string NewPassword { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class PermissionViewModel 
+    public partial class PermissionViewModel
     {
         /// <summary>Permission id.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
-    
+
         /// <summary>Service provider name.</summary>
         [Newtonsoft.Json.JsonProperty("serviceProviderId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int ServiceProviderId { get; set; }
-    
+
         /// <summary>Permission name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         /// <summary>A label that is used only for presentation purposes.</summary>
         [Newtonsoft.Json.JsonProperty("category", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(255)]
         public string Category { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreatePermissionViewModel 
+    public partial class CreatePermissionViewModel
     {
         /// <summary>Service provider name.</summary>
         [Newtonsoft.Json.JsonProperty("serviceProviderId", Required = Newtonsoft.Json.Required.Always)]
         public int ServiceProviderId { get; set; }
-    
+
         /// <summary>Permission name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         /// <summary>A label that is used only for presentation purposes.</summary>
         [Newtonsoft.Json.JsonProperty("category", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(255)]
         public string Category { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdatePermissionViewModel 
+    public partial class UpdatePermissionViewModel
     {
         /// <summary>Permission name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         /// <summary>A label that is used only for presentation purposes.</summary>
         [Newtonsoft.Json.JsonProperty("category", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(255)]
         public string Category { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class RoleViewModel 
+    public partial class RoleViewModel
     {
         /// <summary>Role id.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
-    
+
         /// <summary>Specifies whether the role is a predefined role provided by the system.</summary>
         [Newtonsoft.Json.JsonProperty("isSystemRole", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool IsSystemRole { get; set; }
-    
+
         /// <summary>Role name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         /// <summary>Role description.</summary>
         [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(255)]
         public string Description { get; set; }
-    
+
         /// <summary>Role related permissions (ids).</summary>
         [Newtonsoft.Json.JsonProperty("permissionIds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> PermissionIds { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateRoleViewModel 
+    public partial class CreateRoleViewModel
     {
         [Newtonsoft.Json.JsonProperty("serviceProviderId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? ServiceProviderId { get; set; }
-    
+
         /// <summary>Role name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         /// <summary>Role description.</summary>
         [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(255)]
         public string Description { get; set; }
-    
+
         /// <summary>Role related permissions (ids).</summary>
         [Newtonsoft.Json.JsonProperty("permissionIds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> PermissionIds { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateRoleViewModel 
+    public partial class UpdateRoleViewModel
     {
         /// <summary>Role name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         /// <summary>Role description.</summary>
         [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(255)]
         public string Description { get; set; }
-    
+
         /// <summary>Role related permissions (ids).</summary>
         [Newtonsoft.Json.JsonProperty("permissionIds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> PermissionIds { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class SamlIdentityProviderViewModel 
+    public partial class SamlIdentityProviderViewModel
     {
         /// <summary>SAML identity provider Id</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>Certificate file used to verify the SAML assertion</summary>
         [Newtonsoft.Json.JsonProperty("certificateFileName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CertificateFileName { get; set; }
-    
+
         /// <summary>Certificate subject used to verify the SAML assertion</summary>
         [Newtonsoft.Json.JsonProperty("certificateSubject", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CertificateSubject { get; set; }
-    
+
         /// <summary>Whether the SAML identity provider is active (true/false)</summary>
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Active { get; set; }
-    
+
         /// <summary>SAML identity provider display name</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^[^/\\]*$")]
         public string Name { get; set; }
-    
+
         /// <summary>Issuer of the SAML assertion</summary>
         [Newtonsoft.Json.JsonProperty("issuer", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Issuer { get; set; }
-    
+
         /// <summary>SAML identity provider single sign-on URL</summary>
         [Newtonsoft.Json.JsonProperty("loginUrl", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string LoginUrl { get; set; }
-    
+
         /// <summary>Redirects URL when logging-out</summary>
         [Newtonsoft.Json.JsonProperty("logoutUrl", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string LogoutUrl { get; set; }
-    
+
         /// <summary>Redirects URL on error</summary>
         [Newtonsoft.Json.JsonProperty("errorUrl", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ErrorUrl { get; set; }
-    
+
         /// <summary>Whether the service provider should sign authentication requests to this identity provider</summary>
         [Newtonsoft.Json.JsonProperty("signAuthnRequest", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool SignAuthnRequest { get; set; }
-    
+
         /// <summary>Authentication request binding (HTTP-Redirect or HTTP-Post)</summary>
         [Newtonsoft.Json.JsonProperty("authnRequestBinding", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string AuthnRequestBinding { get; set; }
-    
+
         /// <summary>Whether role and group management is controlled manually, or controlled via SAML assertion (not manual)</summary>
         [Newtonsoft.Json.JsonProperty("isManualManagement", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool IsManualManagement { get; set; }
-    
+
         /// <summary>Default team Id (manual management)</summary>
         [Newtonsoft.Json.JsonProperty("defaultTeamId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? DefaultTeamId { get; set; }
-    
+
         /// <summary>Default role Id (manual management)</summary>
         [Newtonsoft.Json.JsonProperty("defaultRoleId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? DefaultRoleId { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("mapSamlIdpAttributes", Required = Newtonsoft.Json.Required.Always)]
         public bool MapSamlIdpAttributes { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("teamMappingAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string TeamMappingAttribute { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("roleMappingAttribute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string RoleMappingAttribute { get; set; }
-    
+
         /// <summary>Whether the SAML Response can be used more than once</summary>
         [Newtonsoft.Json.JsonProperty("allowAssertionReplay", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool AllowAssertionReplay { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class SamlRoleMappingViewModel 
+    public partial class SamlRoleMappingViewModel
     {
         /// <summary>The Id of the mapping.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>The Id of the SAML IDP.</summary>
         [Newtonsoft.Json.JsonProperty("samlIdentityProviderId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int SamlIdentityProviderId { get; set; }
-    
+
         /// <summary>Mapped role Id</summary>
         [Newtonsoft.Json.JsonProperty("roleId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int RoleId { get; set; }
-    
+
         /// <summary>Mapped Role name</summary>
         [Newtonsoft.Json.JsonProperty("roleName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string RoleName { get; set; }
-    
+
         /// <summary>SAML Response attribute name.</summary>
         [Newtonsoft.Json.JsonProperty("samlAttributeValue", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string SamlAttributeValue { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class EditSamlRoleMappingViewModel 
+    public partial class EditSamlRoleMappingViewModel
     {
         /// <summary>Mapped Role name</summary>
         [Newtonsoft.Json.JsonProperty("roleName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string RoleName { get; set; }
-    
+
         /// <summary>SAML Response attribute name.</summary>
         [Newtonsoft.Json.JsonProperty("samlAttributeValue", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string SamlAttributeValue { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class SamlServiceProviderViewModel 
+    public partial class SamlServiceProviderViewModel
     {
         /// <summary>The assertion consumer service URL is the endpoint at which the SAML response is received</summary>
         [Newtonsoft.Json.JsonProperty("assertionConsumerServiceUrl", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string AssertionConsumerServiceUrl { get; set; }
-    
+
         /// <summary>Service provider certificate file used to sign authentication request</summary>
         [Newtonsoft.Json.JsonProperty("certificateFileName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CertificateFileName { get; set; }
-    
+
         /// <summary>Service provider certificate subject used to sign authentication request</summary>
         [Newtonsoft.Json.JsonProperty("certificateSubject", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CertificateSubject { get; set; }
-    
+
         /// <summary>SAML authentication request issuer</summary>
         [Newtonsoft.Json.JsonProperty("issuer", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Issuer { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class SamlTeamMappingViewModel 
+    public partial class SamlTeamMappingViewModel
     {
         /// <summary>The Id of the mapping.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>The Id of the SAML IDP.</summary>
         [Newtonsoft.Json.JsonProperty("samlIdentityProviderId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int SamlIdentityProviderId { get; set; }
-    
+
         /// <summary>Mapped team Id</summary>
         [Newtonsoft.Json.JsonProperty("teamId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int TeamId { get; set; }
-    
+
         /// <summary>Mapped Team full path</summary>
         [Newtonsoft.Json.JsonProperty("teamFullPath", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string TeamFullPath { get; set; }
-    
+
         /// <summary>SAML Response attribute name.</summary>
         [Newtonsoft.Json.JsonProperty("samlAttributeValue", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string SamlAttributeValue { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class EditSamlTeamMappingViewModel 
+    public partial class EditSamlTeamMappingViewModel
     {
         /// <summary>Mapped Team full path</summary>
         [Newtonsoft.Json.JsonProperty("teamFullPath", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string TeamFullPath { get; set; }
-    
+
         /// <summary>SAML Response attribute name.</summary>
         [Newtonsoft.Json.JsonProperty("samlAttributeValue", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string SamlAttributeValue { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class ServiceProviderViewModel 
+    public partial class ServiceProviderViewModel
     {
         /// <summary>Service provider id.</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
-    
+
         /// <summary>Service provider name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateServiceProviderViewModel 
+    public partial class CreateServiceProviderViewModel
     {
         /// <summary>Service provider name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateServiceProviderViewModel 
+    public partial class UpdateServiceProviderViewModel
     {
         /// <summary>Service provider name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class SessionTimeoutViewModel 
+    public partial class SessionTimeoutViewModel
     {
         [Newtonsoft.Json.JsonProperty("sessionTimeout", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double SessionTimeout { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class SMTPSettingsViewModel 
+    public partial class SMTPSettingsViewModel
     {
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
-    
+
         /// <summary>Defines the SMTP server host.</summary>
         [Newtonsoft.Json.JsonProperty("host", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Host { get; set; }
-    
+
         /// <summary>Defines the port for sending mails.</summary>
         [Newtonsoft.Json.JsonProperty("port", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Range(1, 65535)]
         public int Port { get; set; }
-    
+
         /// <summary>Defines if SMTP encryption is SSL,TLS or None.</summary>
         [Newtonsoft.Json.JsonProperty("encryptionType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string EncryptionType { get; set; }
-    
+
         /// <summary>Defines the From field when sending email.</summary>
         [Newtonsoft.Json.JsonProperty("fromAddress", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string FromAddress { get; set; }
-    
+
         /// <summary>Defines if SMTP communication should be done via Ssl.</summary>
         [Newtonsoft.Json.JsonProperty("useDefaultCredentials", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool UseDefaultCredentials { get; set; }
-    
+
         /// <summary>Defines the sender user name.</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Username { get; set; }
-    
+
         /// <summary>Defines the sender display name.</summary>
         [Newtonsoft.Json.JsonProperty("displayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string DisplayName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateSMTPSettingsViewModel 
+    public partial class CreateSMTPSettingsViewModel
     {
         /// <summary>Defines the sender password.</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Password { get; set; }
-    
+
         /// <summary>Defines the SMTP server host.</summary>
         [Newtonsoft.Json.JsonProperty("host", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Host { get; set; }
-    
+
         /// <summary>Defines the port for sending mails.</summary>
         [Newtonsoft.Json.JsonProperty("port", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Range(1, 65535)]
         public int Port { get; set; }
-    
+
         /// <summary>Defines if SMTP encryption is SSL,TLS or None.</summary>
         [Newtonsoft.Json.JsonProperty("encryptionType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string EncryptionType { get; set; }
-    
+
         /// <summary>Defines the From field when sending email.</summary>
         [Newtonsoft.Json.JsonProperty("fromAddress", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string FromAddress { get; set; }
-    
+
         /// <summary>Defines if SMTP communication should be done via Ssl.</summary>
         [Newtonsoft.Json.JsonProperty("useDefaultCredentials", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool UseDefaultCredentials { get; set; }
-    
+
         /// <summary>Defines the sender user name.</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Username { get; set; }
-    
+
         /// <summary>Defines the sender display name.</summary>
         [Newtonsoft.Json.JsonProperty("displayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string DisplayName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateSMTPSettingsViewModel 
+    public partial class UpdateSMTPSettingsViewModel
     {
         /// <summary>Defines the sender password.</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Password { get; set; }
-    
+
         /// <summary>Defines the SMTP server host.</summary>
         [Newtonsoft.Json.JsonProperty("host", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Host { get; set; }
-    
+
         /// <summary>Defines the port for sending mails.</summary>
         [Newtonsoft.Json.JsonProperty("port", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Range(1, 65535)]
         public int Port { get; set; }
-    
+
         /// <summary>Defines if SMTP encryption is SSL,TLS or None.</summary>
         [Newtonsoft.Json.JsonProperty("encryptionType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string EncryptionType { get; set; }
-    
+
         /// <summary>Defines the From field when sending email.</summary>
         [Newtonsoft.Json.JsonProperty("fromAddress", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string FromAddress { get; set; }
-    
+
         /// <summary>Defines if SMTP communication should be done via Ssl.</summary>
         [Newtonsoft.Json.JsonProperty("useDefaultCredentials", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool UseDefaultCredentials { get; set; }
-    
+
         /// <summary>Defines the sender user name.</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Username { get; set; }
-    
+
         /// <summary>Defines the sender display name.</summary>
         [Newtonsoft.Json.JsonProperty("displayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string DisplayName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class TestConnectionViewModel 
+    public partial class TestConnectionViewModel
     {
         [Newtonsoft.Json.JsonProperty("recieverEmail", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string RecieverEmail { get; set; }
-    
+
         /// <summary>Defines the sender password.</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Password { get; set; }
-    
+
         /// <summary>Defines the SMTP server host.</summary>
         [Newtonsoft.Json.JsonProperty("host", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Host { get; set; }
-    
+
         /// <summary>Defines the port for sending mails.</summary>
         [Newtonsoft.Json.JsonProperty("port", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Range(1, 65535)]
         public int Port { get; set; }
-    
+
         /// <summary>Defines if SMTP encryption is SSL,TLS or None.</summary>
         [Newtonsoft.Json.JsonProperty("encryptionType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string EncryptionType { get; set; }
-    
+
         /// <summary>Defines the From field when sending email.</summary>
         [Newtonsoft.Json.JsonProperty("fromAddress", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string FromAddress { get; set; }
-    
+
         /// <summary>Defines if SMTP communication should be done via Ssl.</summary>
         [Newtonsoft.Json.JsonProperty("useDefaultCredentials", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool UseDefaultCredentials { get; set; }
-    
+
         /// <summary>Defines the sender user name.</summary>
         [Newtonsoft.Json.JsonProperty("username", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Username { get; set; }
-    
+
         /// <summary>Defines the sender display name.</summary>
         [Newtonsoft.Json.JsonProperty("displayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string DisplayName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class SystemLocaleViewModel 
+    public partial class SystemLocaleViewModel
     {
         /// <summary>Unique identifier</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Id { get; set; }
-    
+
         /// <summary>The Windows locale code identifier (LCID).</summary>
         [Newtonsoft.Json.JsonProperty("lcid", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Lcid { get; set; }
-    
+
         /// <summary>The locale code in the format languagecode2-country/regioncode2. 
         /// languagecode2 is a lowercase two-letter code derived from ISO 639-1. 
         /// country/regioncode2 is derived from ISO 3166 and usually consists of two uppercase letters, or a BCP-47 language tag.</summary>
         [Newtonsoft.Json.JsonProperty("code", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Code { get; set; }
-    
+
         /// <summary>The locale display name.</summary>
         [Newtonsoft.Json.JsonProperty("displayName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string DisplayName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UserViewModel 
+    public partial class UserViewModel
     {
         /// <summary>User id</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
-    
+
         /// <summary>User name</summary>
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string UserName { get; set; }
-    
+
         /// <summary>User last successful login date</summary>
         [Newtonsoft.Json.JsonProperty("lastLoginDate", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? LastLoginDate { get; set; }
-    
+
         /// <summary>User related roles (ids).</summary>
         [Newtonsoft.Json.JsonProperty("roleIds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> RoleIds { get; set; }
-    
+
         /// <summary>User related teams (ids).</summary>
         [Newtonsoft.Json.JsonProperty("teamIds", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<int> TeamIds { get; set; } = new System.Collections.ObjectModel.Collection<int>();
-    
+
         /// <summary>User authentication provider</summary>
         [Newtonsoft.Json.JsonProperty("authenticationProviderId", Required = Newtonsoft.Json.Required.Always)]
         public int AuthenticationProviderId { get; set; }
-    
+
         /// <summary>User Creation Date</summary>
         [Newtonsoft.Json.JsonProperty("creationDate", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset CreationDate { get; set; }
-    
+
         /// <summary>User first name</summary>
         [Newtonsoft.Json.JsonProperty("firstName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstName { get; set; }
-    
+
         /// <summary>User last name</summary>
         [Newtonsoft.Json.JsonProperty("lastName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastName { get; set; }
-    
+
         /// <summary>User email address</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Email { get; set; }
-    
+
         /// <summary>User phone number</summary>
         [Newtonsoft.Json.JsonProperty("phoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string PhoneNumber { get; set; }
-    
+
         /// <summary>User cellular phone number</summary>
         [Newtonsoft.Json.JsonProperty("cellPhoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string CellPhoneNumber { get; set; }
-    
+
         /// <summary>User job title</summary>
         [Newtonsoft.Json.JsonProperty("jobTitle", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string JobTitle { get; set; }
-    
+
         /// <summary>User other info</summary>
         [Newtonsoft.Json.JsonProperty("other", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Other { get; set; }
-    
+
         /// <summary>User country</summary>
         [Newtonsoft.Json.JsonProperty("country", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Country { get; set; }
-    
+
         /// <summary>User active</summary>
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Active { get; set; }
-    
+
         /// <summary>User expiration date</summary>
         [Newtonsoft.Json.JsonProperty("expirationDate", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? ExpirationDate { get; set; }
-    
+
         /// <summary>User allowed IPs</summary>
         [Newtonsoft.Json.JsonProperty("allowedIpList", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> AllowedIpList { get; set; }
-    
+
         /// <summary>User Locale</summary>
         [Newtonsoft.Json.JsonProperty("localeId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int LocaleId { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateTeamMembersModel 
+    public partial class UpdateTeamMembersModel
     {
-    
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class TeamViewModel 
+    public partial class TeamViewModel
     {
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("fullName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string FullName { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("parentId", Required = Newtonsoft.Json.Required.Always)]
         public int ParentId { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("creationDate", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? CreationDate { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateTeamViewModel 
+    public partial class CreateTeamViewModel
     {
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(128)]
         public string Name { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("parentId", Required = Newtonsoft.Json.Required.Always)]
         public int ParentId { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateTeamViewModel 
+    public partial class UpdateTeamViewModel
     {
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(128)]
         public string Name { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("parentId", Required = Newtonsoft.Json.Required.Always)]
         public int ParentId { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateUserModel 
+    public partial class CreateUserModel
     {
         /// <summary>User name</summary>
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string UserName { get; set; }
-    
+
         /// <summary>User password</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Password { get; set; }
-    
+
         /// <summary>User related roles (ids).</summary>
         [Newtonsoft.Json.JsonProperty("roleIds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> RoleIds { get; set; }
-    
+
         /// <summary>User related teams (ids).</summary>
         [Newtonsoft.Json.JsonProperty("teamIds", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<int> TeamIds { get; set; } = new System.Collections.ObjectModel.Collection<int>();
-    
+
         /// <summary>User authentication provider</summary>
         [Newtonsoft.Json.JsonProperty("authenticationProviderId", Required = Newtonsoft.Json.Required.Always)]
         public int AuthenticationProviderId { get; set; }
-    
+
         /// <summary>User first name</summary>
         [Newtonsoft.Json.JsonProperty("firstName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstName { get; set; }
-    
+
         /// <summary>User last name</summary>
         [Newtonsoft.Json.JsonProperty("lastName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastName { get; set; }
-    
+
         /// <summary>User email address</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Email { get; set; }
-    
+
         /// <summary>User phone number</summary>
         [Newtonsoft.Json.JsonProperty("phoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string PhoneNumber { get; set; }
-    
+
         /// <summary>User cellular phone number</summary>
         [Newtonsoft.Json.JsonProperty("cellPhoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string CellPhoneNumber { get; set; }
-    
+
         /// <summary>User job title</summary>
         [Newtonsoft.Json.JsonProperty("jobTitle", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string JobTitle { get; set; }
-    
+
         /// <summary>User other info</summary>
         [Newtonsoft.Json.JsonProperty("other", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Other { get; set; }
-    
+
         /// <summary>User country</summary>
         [Newtonsoft.Json.JsonProperty("country", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Country { get; set; }
-    
+
         /// <summary>User active</summary>
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Active { get; set; }
-    
+
         /// <summary>User expiration date</summary>
         [Newtonsoft.Json.JsonProperty("expirationDate", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? ExpirationDate { get; set; }
-    
+
         /// <summary>User allowed IPs</summary>
         [Newtonsoft.Json.JsonProperty("allowedIpList", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> AllowedIpList { get; set; }
-    
+
         /// <summary>User Locale</summary>
         [Newtonsoft.Json.JsonProperty("localeId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int LocaleId { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateUserModel 
+    public partial class UpdateUserModel
     {
         /// <summary>User related roles (ids).</summary>
         [Newtonsoft.Json.JsonProperty("roleIds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> RoleIds { get; set; }
-    
+
         /// <summary>User related teams (ids).</summary>
         [Newtonsoft.Json.JsonProperty("teamIds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> TeamIds { get; set; }
-    
+
         /// <summary>User first name</summary>
         [Newtonsoft.Json.JsonProperty("firstName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstName { get; set; }
-    
+
         /// <summary>User last name</summary>
         [Newtonsoft.Json.JsonProperty("lastName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastName { get; set; }
-    
+
         /// <summary>User email address</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Email { get; set; }
-    
+
         /// <summary>User phone number</summary>
         [Newtonsoft.Json.JsonProperty("phoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string PhoneNumber { get; set; }
-    
+
         /// <summary>User cellular phone number</summary>
         [Newtonsoft.Json.JsonProperty("cellPhoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string CellPhoneNumber { get; set; }
-    
+
         /// <summary>User job title</summary>
         [Newtonsoft.Json.JsonProperty("jobTitle", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string JobTitle { get; set; }
-    
+
         /// <summary>User other info</summary>
         [Newtonsoft.Json.JsonProperty("other", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Other { get; set; }
-    
+
         /// <summary>User country</summary>
         [Newtonsoft.Json.JsonProperty("country", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Country { get; set; }
-    
+
         /// <summary>User active</summary>
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Active { get; set; }
-    
+
         /// <summary>User expiration date</summary>
         [Newtonsoft.Json.JsonProperty("expirationDate", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? ExpirationDate { get; set; }
-    
+
         /// <summary>User allowed IPs</summary>
         [Newtonsoft.Json.JsonProperty("allowedIpList", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> AllowedIpList { get; set; }
-    
+
         /// <summary>User Locale</summary>
         [Newtonsoft.Json.JsonProperty("localeId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int LocaleId { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class MigrationUserModel 
+    public partial class MigrationUserModel
     {
         /// <summary>Creation Date</summary>
         [Newtonsoft.Json.JsonProperty("creationDate", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public System.DateTimeOffset CreationDate { get; set; }
-    
+
         /// <summary>User name</summary>
         [Newtonsoft.Json.JsonProperty("userName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string UserName { get; set; }
-    
+
         /// <summary>User password</summary>
         [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Password { get; set; }
-    
+
         /// <summary>User related roles (ids).</summary>
         [Newtonsoft.Json.JsonProperty("roleIds", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> RoleIds { get; set; }
-    
+
         /// <summary>User related teams (ids).</summary>
         [Newtonsoft.Json.JsonProperty("teamIds", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<int> TeamIds { get; set; } = new System.Collections.ObjectModel.Collection<int>();
-    
+
         /// <summary>User authentication provider</summary>
         [Newtonsoft.Json.JsonProperty("authenticationProviderId", Required = Newtonsoft.Json.Required.Always)]
         public int AuthenticationProviderId { get; set; }
-    
+
         /// <summary>User first name</summary>
         [Newtonsoft.Json.JsonProperty("firstName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FirstName { get; set; }
-    
+
         /// <summary>User last name</summary>
         [Newtonsoft.Json.JsonProperty("lastName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string LastName { get; set; }
-    
+
         /// <summary>User email address</summary>
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Email { get; set; }
-    
+
         /// <summary>User phone number</summary>
         [Newtonsoft.Json.JsonProperty("phoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string PhoneNumber { get; set; }
-    
+
         /// <summary>User cellular phone number</summary>
         [Newtonsoft.Json.JsonProperty("cellPhoneNumber", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string CellPhoneNumber { get; set; }
-    
+
         /// <summary>User job title</summary>
         [Newtonsoft.Json.JsonProperty("jobTitle", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string JobTitle { get; set; }
-    
+
         /// <summary>User other info</summary>
         [Newtonsoft.Json.JsonProperty("other", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Other { get; set; }
-    
+
         /// <summary>User country</summary>
         [Newtonsoft.Json.JsonProperty("country", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string Country { get; set; }
-    
+
         /// <summary>User active</summary>
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool Active { get; set; }
-    
+
         /// <summary>User expiration date</summary>
         [Newtonsoft.Json.JsonProperty("expirationDate", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? ExpirationDate { get; set; }
-    
+
         /// <summary>User allowed IPs</summary>
         [Newtonsoft.Json.JsonProperty("allowedIpList", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<string> AllowedIpList { get; set; }
-    
+
         /// <summary>User Locale</summary>
         [Newtonsoft.Json.JsonProperty("localeId", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int LocaleId { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateUsersStatusModel 
+    public partial class UpdateUsersStatusModel
     {
         [Newtonsoft.Json.JsonProperty("active", Required = Newtonsoft.Json.Required.Always)]
         public bool Active { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("usersIds", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<int> UsersIds { get; set; } = new System.Collections.ObjectModel.Collection<int>();
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class AddRemoveUsersRolesModel 
+    public partial class AddRemoveUsersRolesModel
     {
         [Newtonsoft.Json.JsonProperty("usersIds", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<int> UsersIds { get; set; } = new System.Collections.ObjectModel.Collection<int>();
-    
+
         [Newtonsoft.Json.JsonProperty("rolesIdsToAdd", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> RolesIdsToAdd { get; set; }
-    
+
         [Newtonsoft.Json.JsonProperty("rolesIdsToRemove", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<int> RolesIdsToRemove { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class WindowsDomainViewModel 
+    public partial class WindowsDomainViewModel
     {
         /// <summary>Windows domain Id</summary>
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Always)]
         public int Id { get; set; }
-    
+
         /// <summary>The domain name that is used to authenticate a user (The domain part in domain\username). Usually this is NetBIOS name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^[^/\\]*$")]
         public string Name { get; set; }
-    
+
         /// <summary>Windows domain fully qualified name. Used to verify that an LDAP user exist in the relevant domain.</summary>
         [Newtonsoft.Json.JsonProperty("fullyQualifiedName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FullyQualifiedName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class CreateWindowsDomainViewModel 
+    public partial class CreateWindowsDomainViewModel
     {
         /// <summary>The domain name that is used to authenticate a user (The domain part in domain\username). Usually this is NetBIOS name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
@@ -12991,18 +13038,18 @@ namespace Checkmarx.API
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^[^/\\]*$")]
         public string Name { get; set; }
-    
+
         /// <summary>Windows domain fully qualified name. Used to verify that an LDAP user exist in the relevant domain.</summary>
         [Newtonsoft.Json.JsonProperty("fullyQualifiedName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FullyQualifiedName { get; set; }
-    
-    
+
+
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.4.3.0 (Newtonsoft.Json v12.0.0.0)")]
-    public partial class UpdateWindowsDomainViewModel 
+    public partial class UpdateWindowsDomainViewModel
     {
         /// <summary>The domain name that is used to authenticate a user (The domain part in domain\username). Usually this is NetBIOS name.</summary>
         [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
@@ -13010,26 +13057,26 @@ namespace Checkmarx.API
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^[^/\\]*$")]
         public string Name { get; set; }
-    
+
         /// <summary>Windows domain fully qualified name. Used to verify that an LDAP user exist in the relevant domain.</summary>
         [Newtonsoft.Json.JsonProperty("fullyQualifiedName", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(256)]
         public string FullyQualifiedName { get; set; }
-    
-    
+
+
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.11.1.0 (NJsonSchema v10.4.3.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class FileParameter
     {
         public FileParameter(System.IO.Stream data)
-            : this (data, null, null)
+            : this(data, null, null)
         {
         }
 
         public FileParameter(System.IO.Stream data, string fileName)
-            : this (data, fileName, null)
+            : this(data, fileName, null)
         {
         }
 
@@ -13086,6 +13133,6 @@ namespace Checkmarx.API
 
 #pragma warning restore 1591
 #pragma warning restore 1573
-#pragma warning restore  472
-#pragma warning restore  114
-#pragma warning restore  108
+#pragma warning restore 472
+#pragma warning restore 114
+#pragma warning restore 108

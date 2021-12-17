@@ -42,7 +42,6 @@ namespace Checkmarx.API.Tests
                 new NetworkCredential("", Configuration["V9:Password"]).Password);
         }
 
-
         [TestMethod]
         public void SyncTeams()
         {

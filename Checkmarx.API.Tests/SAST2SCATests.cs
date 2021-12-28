@@ -30,17 +30,41 @@ namespace Checkmarx.API.Tests
             string Password = Configuration["SCA:Password"];
             string Tenant = Configuration["SCA:Tenant"];
 
+            string AC_Server = Configuration["SCA:AC_Server"];
+            string API_URL = Configuration["SCA:API_URL"];
+
+
             Assert.IsNotNull(Username, "Please define the Username in the Secrets file");
             Assert.IsNotNull(Password, "Please define the Password in the Secrets file");
             Assert.IsNotNull(Tenant, "Please define the Tenant in the Secrets file");
 
-            _scaClient = new SCAClient(Tenant, Username, Password);
+            _scaClient = new SCAClient(Tenant, Username, Password, AC_Server, API_URL);
 
             _sastClient =
                 new CxClient(new Uri(Configuration["V9:URL"]),
                 Configuration["V9:Username"],
                 new NetworkCredential("", Configuration["V9:Password"]).Password);
         }
+
+
+        [TestMethod]
+        public void ListSCAorSASTTeam()
+        {
+            Trace.WriteLine("\r\n--- SCA ---");
+
+            foreach (var team in _scaClient.AC.TeamsAllAsync().Result)
+            {
+                Trace.WriteLine(team.FullName);
+            }
+
+            Trace.WriteLine("\r\n--- SAST ---");
+
+            foreach (var team in _sastClient.AC.TeamsAllAsync().Result)
+            {
+                Trace.WriteLine(team.FullName);
+            }
+        }
+
 
         [TestMethod]
         public void SyncTeams()
@@ -56,9 +80,11 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void SASTProjectIntoSCATest()
         {
+            var listOfSCAProjects = _scaClient.ClientSCA.GetProjectsAsync().Result.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+
             foreach (var item in _sastClient.GetAllProjectsDetails())
             {
-                string zipPath = Path.GetTempFileName();
+                string zipPath = Path.ChangeExtension(Path.GetTempFileName(), ".zip");
 
                 try
                 {
@@ -73,13 +99,15 @@ namespace Checkmarx.API.Tests
                     string scaProjectName = item.Name;
 
                     // If the project already exists.
-                    
+
                     #region Project Name Collision Handling
-                    
-                    var scaProject = _scaClient.ClientSCA.GetProjectAsync(scaProjectName).Result;
+
+                    API.SCA.Project scaProject = null;
+
                     bool skipCreation = false;
-                    if (scaProject != null)
+                    if (listOfSCAProjects.ContainsKey(scaProjectName))
                     {
+                        scaProject = listOfSCAProjects[scaProjectName];
 
                         if (!scaProject.AssignedTeams.Contains(teamFullPath))// Colision
                             scaProjectName = teamFullPath.Split("/", StringSplitOptions.RemoveEmptyEntries).Last() + "_" + scaProjectName;
@@ -96,6 +124,8 @@ namespace Checkmarx.API.Tests
                             Name = scaProjectName,
                             AssignedTeams = new string[] { teamFullPath }
                         }).Result;
+
+                        listOfSCAProjects.Add(scaProjectName, scaProject);
                     }
 
                     _scaClient.ScanWithSourceCode(scaProject.Id, zipPath);

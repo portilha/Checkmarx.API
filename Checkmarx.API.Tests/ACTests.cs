@@ -60,6 +60,37 @@ namespace Checkmarx.API.Tests
 
         }
 
+
+        [TestMethod]
+        public void UpdateExpirationDateTest()
+        {
+            AccessControlClient accessControlClient = clientV9.AC;
+
+            foreach (var user in accessControlClient.GetAllUsersDetailsAsync().Result.Where(x => x.Active))
+            {
+                Trace.WriteLine(user.UserName + " " + user.ExpirationDate);
+
+                //accessControlClient.UpdateUserDetails(user.Id,
+                //    new UpdateUserModel
+                //    {
+                //        FirstName = user.FirstName,
+                //        LastName = user.LastName,
+                //        AllowedIpList = user.AllowedIpList,
+                //        CellPhoneNumber = user.CellPhoneNumber,
+                //        Country = user.Country,
+                //        Email = user.Email,
+                //        JobTitle = user.JobTitle,
+                //        LocaleId = user.LocaleId,
+                //        Other = user.Other,
+                //        RoleIds = user.RoleIds,
+                //        TeamIds = user.TeamIds,
+                //        PhoneNumber = user.PhoneNumber,
+                //        Active = user.Active,
+                //        ExpirationDate = new DateTimeOffset(new DateTime(2025, 1, 10))
+                //    }).Wait();
+            }
+        }
+
         [TestMethod]
         public void ListCheckmarxUsers()
         {

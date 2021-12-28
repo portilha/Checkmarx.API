@@ -139,6 +139,7 @@ namespace Checkmarx.API.SCA
 
         /// <param name="name">Project name</param>
         /// <returns>Success</returns>
+        /// <exception cref="ApiException">If not found</exception>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public System.Threading.Tasks.Task<Project> GetProjectAsync(string name)
         {

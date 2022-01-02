@@ -480,7 +480,7 @@ namespace Checkmarx.API
             return _oDataProjects.Expand(x => x.LastScan);
         }
 
-          public Scan GetLastScanFinishOrFailed(long projectId)
+        public Scan GetLastScanFinishOrFailed(long projectId)
         {
             var scan = GetScans(projectId, false, ScanRetrieveKind.Last);
             return scan.FirstOrDefault();
@@ -965,7 +965,14 @@ namespace Checkmarx.API
 
         #region SAST
 
-        public void RunSASTScan(long projectId, string comment = "")
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="comment"></param>
+        /// <param name="forceScan"></param>
+        /// <param name="zipContent">Zipped source code to scan</param>
+        public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] zipContent = null)
         {
             checkConnection();
 
@@ -975,7 +982,31 @@ namespace Checkmarx.API
                 throw new Exception(projectResponse.ErrorMessage);
 
             if (projectResponse.ProjectConfig.SourceCodeSettings.SourceOrigin == PortalSoap.SourceLocationType.Local)
-                throw new NotSupportedException("The location is setup for Local, we don't support it");
+            {
+                if (zipContent == null || zipContent.Length == 0))
+                    throw new NotSupportedException("The location is setup for Local, you need to pass a valid zip content");
+
+                using (var content = new MultipartFormDataContent())
+                {
+                    var fileContent = new ByteArrayContent(zipContent);
+                    fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = "filename.zip",
+                        Name = "zippedSource"
+                    };
+
+                    content.Add(fileContent);
+
+                    string requestUri = $"projects/{projectId}/sourceCode/attachments";
+
+                    HttpResponseMessage attachCodeResponse = httpClient.PostAsync(requestUri, content).Result;
+
+                    if (attachCodeResponse.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new NotSupportedException(attachCodeResponse.Content.ReadAsStringAsync().Result);
+                    }
+                }
+            }
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, "sast/scans"))
             {
@@ -986,7 +1017,7 @@ namespace Checkmarx.API
                 {
                     ProjectId = projectId,
                     Comment = comment ?? string.Empty,
-                    ForceScan = true,
+                    ForceScan = forceScan,
                     IsIncremental = false,
                     IsPublic = true
                 });
@@ -1005,6 +1036,8 @@ namespace Checkmarx.API
 
             throw new NotSupportedException();
         }
+
+
 
         public byte[] GetSourceCode(long scanId)
         {

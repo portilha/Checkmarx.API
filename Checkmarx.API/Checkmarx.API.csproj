@@ -64,6 +64,7 @@ It also provides access to the Access Control API.</Description>
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="AST\" />
     <Folder Include="Properties\" />
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>

@@ -40,14 +40,22 @@ Check the version of Checkmarx Product without authentication
 ```csharp
 Console.WriteLine(CxClient.GetVersionWithoutConnecting("https://sastserver"));
 ```
+Get the Access Control from SAST
 
+```csharp
+AccessControlClient accessControlClient = sastClient.AC;
+```
+Get the Access Control from SCA
 
+```csharp
+AccessControlClient accessControlClient = scaClient.AC;
+```
 
 ## SAST (Security Application Security Testing)
 
 Check the Checkmarx.API.Tests.CxClientUnitTests.cs for a lot of code snippets on how to use the API.
 
-## List projects
+### List projects
 
 ```csharp
 foreach (var item in sastClient.GetProjects())
@@ -56,10 +64,9 @@ foreach (var item in sastClient.GetProjects())
 }    
 ```
 
-## Create Project
+### Create Project
 
 ```csharp
-
 sastClient.SASTClient.ProjectsManagement_PostByprojectAsync(new SaveProjectDto {
                 IsPublic = true, 
                 Name = "ProjectName",
@@ -68,7 +75,7 @@ sastClient.SASTClient.ProjectsManagement_PostByprojectAsync(new SaveProjectDto {
 
 ```
 
-## Branch Project
+### Branch Project
 
 sastClient.SASTClient.BranchProjects_BranchByidprojectAsync(123, new BranchProjectDto
             {
@@ -85,8 +92,37 @@ sastClient.SASTClient.BranchProjects_BranchByidprojectAsync(123, new BranchProje
 client.RunSASTScan(projectId, null, true, sourceCodeZipFile);
 ```
 
+### Presets
 
-## Presets
+
+### Reports
 
 
-## Reports
+## SCA (Software Compostion Analysis)
+
+Check the Checkmarx.API.Tests.SCAClientUnitTests.cs for a lot of code snippets on how to use the API.
+
+### List projects
+
+```csharp
+foreach (var project in scaClient.ClientSCA.GetProjectsAsync().Result)
+{
+    Console.WriteLine(project.Id + "  " + project.Name);
+}
+```
+
+### Create Project
+
+```csharp
+ var scaProject = scaClient.ClientSCA.CreateProjectAsync(new API.SCA.CreateProject
+ {
+     Name = scaProjectName,
+     AssignedTeams = new string[] { teamFullPath }
+ }).Result;
+```
+
+### Trigger Scan with Zip Source Code
+
+```csharp
+scaClient.ScanWithSourceCode(scaProject.Id, zipPath);
+```

@@ -1236,8 +1236,7 @@ namespace Checkmarx.API
 
         public IEnumerable<Scan> GetAllSASTScans(long projectId)
         {
-            var scans = GetScans(projectId, true, ScanRetrieveKind.All);
-            return scans;
+            return GetScans(projectId, true, ScanRetrieveKind.All);
         }
 
         public Scan GetFirstScan(long projectId)
@@ -1363,6 +1362,8 @@ namespace Checkmarx.API
         public string GetSASTPreset(int projectId)
         {
             checkConnection();
+
+            SASTClient.ScanWithSettings_StartScanByscanSettingsExtRequestDto_projectIdscanSettingsExtRequestDto_overrideProjectSettingscanSettingsExtRequestDto_isIncrementalscanSettingsExtRequestDto_isPublicscanSettingsExtRequestDto_forceScanscanSettingsExtRequestDto_commentscanSettingsExtRequestDto_presetIdscanSettingsExtRequestDto_engineConfigurationIdAsync()
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"sast/scanSettings/{projectId}"))
             {

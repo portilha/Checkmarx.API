@@ -435,11 +435,20 @@ namespace Checkmarx.API
         // Cache
         private Dictionary<string, string> _teamsCache;
 
+        /// <summary>
+        /// Full Team Name
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
         public string GetProjectTeamName(int projectId)
         {
             return GetProjectTeamName(GetProjectTeamId(projectId));
         }
 
+        /// <summary>
+        /// Id -> Full Team Name
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, string> GetTeams()
         {
             checkConnection();
@@ -491,12 +500,6 @@ namespace Checkmarx.API
             checkConnection();
 
             return _oDataProjects.Expand(x => x.LastScan);
-        }
-
-        public Scan GetLastScanFinishOrFailed(long projectId)
-        {
-            var scan = GetScans(projectId, false, ScanRetrieveKind.Last);
-            return scan.FirstOrDefault();
         }
 
 
@@ -1200,7 +1203,7 @@ namespace Checkmarx.API
             }
         }
 
-        private enum ScanRetrieveKind
+        public enum ScanRetrieveKind
         {
             First,
             Last,
@@ -1226,10 +1229,17 @@ namespace Checkmarx.API
             return scan.FirstOrDefault();
         }
 
+        public Scan GetLastScanFinishOrFailed(long projectId)
+        {
+            var scan = GetScans(projectId, false, ScanRetrieveKind.Last);
+            return scan.FirstOrDefault();
+        }
+
         public Scan GetLockedScan(long projectId)
         {
             return GetScans(projectId, true, ScanRetrieveKind.Locked).FirstOrDefault();
         }
+
 
         public int GetScanCount()
         {
@@ -1237,7 +1247,7 @@ namespace Checkmarx.API
             return _oDataScans.Count();
         }
 
-        private IEnumerable<Scan> GetScans(long projectId, bool finished,
+        public IEnumerable<Scan> GetScans(long projectId, bool finished,
             ScanRetrieveKind scanKind = ScanRetrieveKind.All)
         {
             checkConnection();

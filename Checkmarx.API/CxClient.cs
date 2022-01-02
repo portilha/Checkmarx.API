@@ -1363,8 +1363,6 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            SASTClient.ScanWithSettings_StartScanByscanSettingsExtRequestDto_projectIdscanSettingsExtRequestDto_overrideProjectSettingscanSettingsExtRequestDto_isIncrementalscanSettingsExtRequestDto_isPublicscanSettingsExtRequestDto_forceScanscanSettingsExtRequestDto_commentscanSettingsExtRequestDto_presetIdscanSettingsExtRequestDto_engineConfigurationIdAsync()
-
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"sast/scanSettings/{projectId}"))
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");

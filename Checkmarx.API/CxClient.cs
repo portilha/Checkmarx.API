@@ -447,6 +447,19 @@ namespace Checkmarx.API
             if (_teamsCache != null)
                 return _teamsCache;
 
+            if (_isV9)
+            {
+                _teamsCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var item in AC.TeamsAllAsync().Result)
+                {
+                    if (!_teamsCache.ContainsKey(item.Id.ToString()))
+                        _teamsCache.Add(item.Id.ToString(), item.FullName);
+                }
+
+                return _teamsCache;
+            }
+
             using (var request = new HttpRequestMessage(HttpMethod.Get, "auth/teams"))
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
@@ -454,7 +467,7 @@ namespace Checkmarx.API
                 HttpResponseMessage response = httpClient.SendAsync(request).Result;
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    _teamsCache = new Dictionary<string, string>();
+                    _teamsCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
                     foreach (var item in (JArray)JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result))
                     {

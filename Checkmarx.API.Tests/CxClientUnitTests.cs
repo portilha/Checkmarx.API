@@ -167,6 +167,27 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void CreateProjectTEst()
+        {
+            clientV9.SASTClient.ProjectsManagement_PostByprojectAsync(new SaveProjectDto
+            {
+                IsPublic = true, 
+                Name = "ProjectName",
+                OwningTeam = "34"
+            });
+        }
+
+        [TestMethod]
+        public void CreateBranchTest()
+        {
+            clientV9.SASTClient.BranchProjects_BranchByidprojectAsync(123, new BranchProjectDto
+            {
+                Name = "New Branch Name"
+            }).Wait();
+
+        }
+
+        [TestMethod]
         public void GetXMLReport()
         {
             // var memoryStream = client.GetScanReport(1010026, ReportType.XML);

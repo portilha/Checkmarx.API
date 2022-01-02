@@ -108,8 +108,26 @@ namespace Checkmarx.API
             }
         }
 
-
         #endregion
+
+        private SASTRestClient _sastClient;
+
+        /// <summary>
+        /// Interface to all SAST/OSA REST methods.
+        /// </summary>
+        /// <remarks>Supports only V1</remarks>
+        public SASTRestClient SASTClient
+        {
+            get
+            {
+                checkConnection();
+
+                if (_sastClient == null)
+                    _sastClient = new SASTRestClient(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClient;
+            }
+        }
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
@@ -270,6 +288,8 @@ namespace Checkmarx.API
 
         private bool _isV9 = false;
 
+
+
         #region Access Control 
 
         private AccessControlClient _ac = null;
@@ -324,6 +344,7 @@ namespace Checkmarx.API
             {
                 BaseAddress = webServer
             };
+
 
             if (httpClient.BaseAddress.LocalPath != "cxrestapi")
             {
@@ -527,6 +548,8 @@ namespace Checkmarx.API
         public Tuple<string, string> GetExcludedSettings(int projectId)
         {
             checkConnection();
+
+            // SASTClient.ExcludeSettings_GetByidAsync(projectId).Result
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}/sourceCode/excludeSettings"))
             {

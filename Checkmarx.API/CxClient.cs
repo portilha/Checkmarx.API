@@ -996,7 +996,7 @@ namespace Checkmarx.API
         }
 
         /// <summary>
-        /// Runs a SAST Scan
+        /// Runs a SAST Scan or re-runs it with the last source code.
         /// </summary>
         /// <param name="projectId">Project ID in SAST</param>
         /// <param name="comment"></param>
@@ -1012,6 +1012,9 @@ namespace Checkmarx.API
             {
                 if (sourceCodeZipContent == null || !sourceCodeZipContent.Any())
                 {
+                    if (!forceScan)
+                        throw new NotSupportedException("If the scan is not being forced, then you should pass the source code in the parameters.");
+
                     var scan = GetLastScan(projectId);
                     if (scan == null)
                         throw new NotSupportedException("There is no last scan in the project to download the source code from, please pass it on the parameters");

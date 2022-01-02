@@ -965,30 +965,63 @@ namespace Checkmarx.API
 
         #region SAST
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="comment"></param>
-        /// <param name="forceScan"></param>
-        /// <param name="zipContent">Zipped source code to scan</param>
-        public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] zipContent = null)
+        public byte[] GetSourceCode(long scanId)
         {
             checkConnection();
 
-            var projectResponse = _cxPortalWebServiceSoapClient.GetProjectConfiguration(_soapSessionId, projectId);
+            dynamic result = null;
 
-            if (!projectResponse.IsSuccesfull)
-                throw new Exception(projectResponse.ErrorMessage);
-
-            if (projectResponse.ProjectConfig.SourceCodeSettings.SourceOrigin == PortalSoap.SourceLocationType.Local)
+            if (_isV9)
             {
-                if (zipContent == null || zipContent.Length == 0))
-                    throw new NotSupportedException("The location is setup for Local, you need to pass a valid zip content");
+                result = CxAuditV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
+            }
+            else
+            {
+                result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
+            }
+
+            checkSoapResponse(result);
+            return result.sourceCodeContainer.ZippedFile;
+        }
+
+        public ProjectConfiguration GetProjectConfiguration(long projectId)
+        {
+            checkConnection();
+
+            var response = _cxPortalWebServiceSoapClient.GetProjectConfiguration(_soapSessionId, projectId);
+
+            checkSoapResponse(response);
+
+            return response.ProjectConfig;
+        }
+
+        /// <summary>
+        /// Runs a SAST Scan
+        /// </summary>
+        /// <param name="projectId">Project ID in SAST</param>
+        /// <param name="comment"></param>
+        /// <param name="forceScan"></param>
+        /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
+        public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null)
+        {
+            checkConnection();
+
+            var projectConfig = GetProjectConfiguration(projectId);
+
+            if (projectConfig.SourceCodeSettings.SourceOrigin == PortalSoap.SourceLocationType.Local)
+            {
+                if (sourceCodeZipContent == null || !sourceCodeZipContent.Any())
+                {
+                    var scan = GetLastScan(projectId);
+                    if (scan == null)
+                        throw new NotSupportedException("There is no last scan in the project to download the source code from, please pass it on the parameters");
+
+                    sourceCodeZipContent = GetSourceCode(scan.Id);
+                }
 
                 using (var content = new MultipartFormDataContent())
                 {
-                    var fileContent = new ByteArrayContent(zipContent);
+                    var fileContent = new ByteArrayContent(sourceCodeZipContent);
                     fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
                     {
                         FileName = "filename.zip",
@@ -1035,27 +1068,6 @@ namespace Checkmarx.API
             }
 
             throw new NotSupportedException();
-        }
-
-
-
-        public byte[] GetSourceCode(long scanId)
-        {
-            checkConnection();
-
-            dynamic result = null;
-
-            if (_isV9)
-            {
-                result = CxAuditV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
-            }
-            else
-            {
-                result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
-            }
-
-            checkSoapResponse(result);
-            return result.sourceCodeContainer.ZippedFile;
         }
 
         private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)

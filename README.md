@@ -16,6 +16,8 @@ Before running the unit tests please make sure to configure the needed credentia
 
 # How to use the SDK
 
+
+
 ## Connection to SAST or SCA
 
 A CxClient provider access to SAST and an SCAClient provides access to SCA:
@@ -77,16 +79,14 @@ sastClient.SASTClient.ProjectsManagement_PostByprojectAsync(new SaveProjectDto {
 
 ### Branch Project
 
+```csharp
 sastClient.SASTClient.BranchProjects_BranchByidprojectAsync(123, new BranchProjectDto
             {
                 Name = "New Branch Name"
             }).Wait();
-
-```csharp
-
 ```
 
-## Run Scan
+### Run Scan
 
 ```csharp
 client.RunSASTScan(projectId, null, true, sourceCodeZipFile);
@@ -125,4 +125,69 @@ foreach (var project in scaClient.ClientSCA.GetProjectsAsync().Result)
 
 ```csharp
 scaClient.ScanWithSourceCode(scaProject.Id, zipPath);
+```
+
+## Access Control API
+
+### Get/List All Users
+```csharp
+foreach (var user in accessControlClient.GetAllUsersDetailsAsync().Result)
+{
+     Console.WriteLine(user.Email + string.Join(";", user.TeamIds.Select(x => teamsx].FullName)) +" "  user.LastLoginDate);
+
+     foreach (var role in user.RoleIds.Select(x => roles[x].Name))
+     {
+         Console.WriteLine("+ " + role);
+     }
+}
+```
+### Create a new user
+
+```csharp
+ICollection<int> cxTamRoles = new int[] {
+    accessControlClient.RolesAllAsync().Result.First(x => x.Name == "SAST Admin").Id
+};
+
+ICollection<int> cxTeamIds = new int[] {
+    accessControlClient.TeamsAllAsync().Result.First(x => x.FullName == "/CxServer").Id
+};
+
+int localeID = accessControlClient.SystemLocalesAsync().Result.First(x => x.Code == "enUS").Id;
+
+CreateUserModel user = new CreateUserModel
+{
+    FirstName = "firstname",
+    LastName = "lastname",
+    UserName = "email@checkmarx.com",
+    Email = "email@checkmarx.com",
+    Password = "******",
+    ExpirationDate = DateTimeOffset.UtcNow + TimeSpan.FromDays(1000),
+    Active = true,
+
+    Country = "Portugal",
+    JobTitle = "The World Greatest",
+
+    AuthenticationProviderId = accessControlClient.AuthenticationProvidersAsyn().Result.First(X =>X.Name == "Application").Id, // Application User
+
+    LocaleId = localeID,
+    RoleIds = cxTamRoles,
+    TeamIds = cxTeamIds,
+
+};
+
+accessControlClient.CreatesNewUser(user).Wait();
+```
+
+### Get/List Teams
+
+```csharp
+foreach (var item in accessControlClient.TeamsAllAsync().Result)
+{
+    Console.WriteLine($"{item.Id} = {item.FullName}");
+}
+```
+
+### Get or Create Team
+```csharp
+scaClient.AC.GetOrCreateTeam(teamFullPath);
 ```

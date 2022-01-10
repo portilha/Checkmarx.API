@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>2.1.0</Version>
+    <Version>2.3.0</Version>
     <Authors>Pedro Portilha</Authors>
     <Company>Checkmarx</Company>
     <Description>Checkmarx API (Unofficial)
@@ -64,6 +64,7 @@ It also provides access to the Access Control API.</Description>
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="AST\" />
     <Folder Include="Properties\" />
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>

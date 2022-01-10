@@ -67,7 +67,7 @@ namespace Checkmarx.API.Tests
 
 
         [TestMethod]
-        public void SyncTeams()
+        public void ExportTeams()
         {
             var sastTeams = _sastClient.AC.TeamsAllAsync().Result;
 

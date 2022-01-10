@@ -71,8 +71,6 @@ namespace Checkmarx.API
             }
         }
 
-
-
         public SCAClient(
             string tenant,
             string username,

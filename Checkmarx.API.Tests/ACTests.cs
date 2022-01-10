@@ -70,24 +70,24 @@ namespace Checkmarx.API.Tests
             {
                 Trace.WriteLine(user.UserName + " " + user.ExpirationDate);
 
-                //accessControlClient.UpdateUserDetails(user.Id,
-                //    new UpdateUserModel
-                //    {
-                //        FirstName = user.FirstName,
-                //        LastName = user.LastName,
-                //        AllowedIpList = user.AllowedIpList,
-                //        CellPhoneNumber = user.CellPhoneNumber,
-                //        Country = user.Country,
-                //        Email = user.Email,
-                //        JobTitle = user.JobTitle,
-                //        LocaleId = user.LocaleId,
-                //        Other = user.Other,
-                //        RoleIds = user.RoleIds,
-                //        TeamIds = user.TeamIds,
-                //        PhoneNumber = user.PhoneNumber,
-                //        Active = user.Active,
-                //        ExpirationDate = new DateTimeOffset(new DateTime(2025, 1, 10))
-                //    }).Wait();
+                accessControlClient.UpdateUserDetails(user.Id,
+                    new UpdateUserModel
+                    {
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        AllowedIpList = user.AllowedIpList,
+                        CellPhoneNumber = user.CellPhoneNumber,
+                        Country = user.Country,
+                        Email = user.Email,
+                        JobTitle = user.JobTitle,
+                        LocaleId = user.LocaleId,
+                        Other = user.Other,
+                        RoleIds = user.RoleIds,
+                        TeamIds = user.TeamIds,
+                        PhoneNumber = user.PhoneNumber,
+                        Active = user.Active,
+                        ExpirationDate = new DateTimeOffset(new DateTime(2025, 1, 10))
+                    }).Wait();
             }
         }
 
@@ -103,7 +103,7 @@ namespace Checkmarx.API.Tests
             {
                 if (user.Email.EndsWith("@checkmarx.com"))
                 {
-                    Trace.WriteLine(user.Email + string.Join(";", user.TeamIds.Select(x => teams[x].FullName)) +" " + user.LastLoginDate);
+                    Trace.WriteLine(user.Id  + " " + user.Email + string.Join(";", user.TeamIds.Select(x => teams[x].FullName)) +" " + user.LastLoginDate);
 
                     foreach (var role in user.RoleIds.Select(x => roles[x].Name))
                     {
@@ -197,6 +197,32 @@ namespace Checkmarx.API.Tests
             }
         }
 
+
+        [TestMethod]
+        public void GetUserByEmailTest()
+        {
+            AccessControlClient accessControlClient = clientV9.AC;
+
+            UserViewModel user = accessControlClient.GetUserDetails(49).Result;
+
+            Trace.WriteLine(user.FirstName);
+            Trace.WriteLine(user.LastName);
+
+            Trace.WriteLine(user.Email);
+
+            Assert.IsNotNull(user);
+        }
+
+        [TestMethod]
+        public void GetUserByNameTest()
+        {
+            AccessControlClient accessControlClient = clientV9.AC;
+            foreach (var item in accessControlClient.GetAllUsersDetailsAsync().Result)
+            {
+                
+            }
+
+        }
 
 
         [TestMethod]

@@ -818,13 +818,13 @@ namespace Checkmarx.API.Tests
 
             StringBuilder stringBuilder = new StringBuilder();
 
-
             foreach (var project in projects)
             {
                 var last2MonthScans = clientV93.GetScansFromOData(project.Key).Where(x => x.EngineStartedOn.Date > date).ToArray();
 
                 if (!last2MonthScans.SelectMany(x => clientV93.GetResult(x.Id))
-                      .Where(x => x.PathPerResult.Any(y => ((ResultState)y.State) == ResultState.NonExploitable && !similarityIdResult.Contains(y.SimilarityId)))
+                      .Where(x => x.PathPerResult.Any(y => ((ResultState)y.State) == ResultState.NonExploitable && 
+                      !similarityIdResult.Contains(y.SimilarityId)))
                       .Any())
                 {
                     continue;
@@ -837,7 +837,8 @@ namespace Checkmarx.API.Tests
                 {
                     // stringBuilder.AppendLine($"<h2>Scan: {scan.Id}</h2>");
 
-                    var scanResults = clientV93.GetResult(scan.Id).Where(x => x.PathPerResult.Any(y => ((ResultState)y.State) == ResultState.NonExploitable && !similarityIdResult.Contains(y.SimilarityId)));
+                    var scanResults = clientV93.GetResult(scan.Id)
+                        .Where(x => x.PathPerResult.Any(y => ((ResultState)y.State) == ResultState.NonExploitable && !similarityIdResult.Contains(y.SimilarityId)));
 
                     if (!scanResults.Any())
                         continue;

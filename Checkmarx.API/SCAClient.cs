@@ -131,6 +131,28 @@ namespace Checkmarx.API
             }
         }
 
+        /// <summary>
+        /// Name -> Project
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, Project> GetProjects()
+        {
+            var scaProjectsKist = ClientSCA.GetProjectsAsync().Result;
+
+            var scaProjects = new Dictionary<string, Project>(StringComparer.InvariantCultureIgnoreCase);
+
+            // Support when there are duplicated project inside SCA.
+            foreach (var scaProj in scaProjectsKist)
+            {
+                if (scaProjects.ContainsKey(scaProj.Name))
+                    continue;
+
+                scaProjects.Add(scaProj.Name, scaProj);
+            }
+
+            return scaProjects;
+        }
+
         public void ScanWithSourceCode(Guid projectID, string sourceCodePath)
         {
             var resultLink = ClientSCA.GenerateUploadLinkAsync(new Body

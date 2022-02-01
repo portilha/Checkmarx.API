@@ -70,6 +70,8 @@ namespace Checkmarx.API
             return _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
         }
 
+
+   
         /// <summary>
         /// SOAP client
         /// </summary>
@@ -255,19 +257,7 @@ namespace Checkmarx.API
 
                     if (_authenticationHeaderValue != null)
                     {
-                        var webServer = SASTServerURL;
-                        if (webServer.LocalPath != "cxrestapi")
-                        {
-                            webServer = new Uri(webServer, "/cxrestapi/");
-                        }
-
-                        httpClient = new HttpClient
-                        {
-                            BaseAddress = webServer
-                        };
-
                         _jwtSecurityToken = new JwtSecurityToken(_authenticationHeaderValue.Parameter);
-                        httpClient.DefaultRequestHeaders.Authorization = _authenticationHeaderValue;
                     }
                 }
             }
@@ -342,7 +332,9 @@ namespace Checkmarx.API
 
             var httpClient = new HttpClient
             {
-                BaseAddress = webServer
+                BaseAddress = webServer,
+                Timeout = TimeSpan.FromMinutes(20)
+                
             };
 
 
@@ -430,6 +422,9 @@ namespace Checkmarx.API
                     AuthenticationToken = new AuthenticationHeaderValue("Bearer", authToken);
 
                     httpClient.DefaultRequestHeaders.Authorization = AuthenticationToken;
+                    httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+                    
+                    //httpClient.DefaultRequestHeaders.Add("Keep-Alive", "timeout=600000");
 
                     return httpClient;
                 }
@@ -1423,19 +1418,35 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            // List Project Now..
-            var projectListResponse = httpClient.GetAsync("projects").Result;
-
-            if (projectListResponse.StatusCode == HttpStatusCode.OK)
+            using (var projects = new HttpRequestMessage(HttpMethod.Get, "projects"))
             {
-                string plResult = projectListResponse.Content.ReadAsStringAsync().Result;
-                return JsonConvert.DeserializeObject<List<ProjectDetails>>(plResult);
+                try
+                {
+                    projects.Headers.Add("Accept", "application/json;v=2.0");
+                    projects.Headers.Add("Connection", "keep-alive");
+
+                    Task<HttpResponseMessage> projectListTask = httpClient.SendAsync(projects);
+
+
+                    var projectListResponse =  projectListTask.GetAwaiter().GetResult();
+
+                    if (projectListResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        string plResult = projectListResponse.Content.ReadAsStringAsync().Result;
+                        return JsonConvert.DeserializeObject<List<ProjectDetails>>(plResult);
+                    }
+
+                    if (projectListResponse.StatusCode == HttpStatusCode.Unauthorized)
+                        throw new UnauthorizedAccessException();
+
+                    throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
+                }
+                catch (AggregateException ex)
+                {
+
+                    throw;
+                }
             }
-
-            if (projectListResponse.StatusCode == HttpStatusCode.Unauthorized)
-                throw new UnauthorizedAccessException();
-
-            throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
         }
 
         #region Presets & Queries

@@ -116,12 +116,18 @@ namespace Checkmarx.API.Tests.SCA
             }
         }
 
+        [TestMethod]
         public void ListAllProjects()
         {
-            foreach (var project in _client.ClientSCA.GetProjectsAsync().Result)
-            {
-                Trace.WriteLine(project.Id + "  " + project.Name);
-            }
+            _client.ClientSCA.GetProjectsAsync().Result.ToDictionary(x => x.Name);
+
+            //StringBuilder st = new StringBuilder();
+
+            //foreach (var project in _client.ClientSCA.GetProjectsAsync().Result)
+            //{
+            //    st.AppendLine(project.Name);
+            //}
+            //File.WriteAllText(@"d:\stats\file.csv", st.ToString());
         }
 
         [TestMethod]
@@ -233,6 +239,13 @@ namespace Checkmarx.API.Tests.SCA
 
         }
 
+
+
+        [TestMethod]
+        public void GetPDFReport()
+        {
+            Trace.WriteLine(_client.ClientSCA.GetScanReportAsync(TestScan).Result);
+        }
 
 
         [TestMethod]

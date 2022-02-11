@@ -71,7 +71,7 @@ namespace Checkmarx.API
         }
 
 
-   
+
         /// <summary>
         /// SOAP client
         /// </summary>
@@ -334,7 +334,7 @@ namespace Checkmarx.API
             {
                 BaseAddress = webServer,
                 Timeout = TimeSpan.FromMinutes(20)
-                
+
             };
 
 
@@ -423,7 +423,7 @@ namespace Checkmarx.API
 
                     httpClient.DefaultRequestHeaders.Authorization = AuthenticationToken;
                     httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
-                    
+
                     //httpClient.DefaultRequestHeaders.Add("Keep-Alive", "timeout=600000");
 
                     return httpClient;
@@ -1428,7 +1428,7 @@ namespace Checkmarx.API
                     Task<HttpResponseMessage> projectListTask = httpClient.SendAsync(projects);
 
 
-                    var projectListResponse =  projectListTask.GetAwaiter().GetResult();
+                    var projectListResponse = projectListTask.GetAwaiter().GetResult();
 
                     if (projectListResponse.StatusCode == HttpStatusCode.OK)
                     {
@@ -1994,6 +1994,27 @@ namespace Checkmarx.API
             }
         }
 
+        private bool? isOsaAvailable;
+        public bool IsOsaAvailable
+        {
+            get
+            {
+                checkConnection();
+
+                if (isOsaAvailable == null)
+                {
+                    try
+                    {
+                        isOsaAvailable = GetLicense().IsOsaEnabled;
+                    }
+                    catch
+                    {
+                        isOsaAvailable = false;
+                    }
+                }
+                return isOsaAvailable.Value;
+            }
+        }
 
         public void GetCommentsHistoryTest(long scanId)
         {

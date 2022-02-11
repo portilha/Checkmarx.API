@@ -98,17 +98,20 @@ namespace Checkmarx.API.Tests
 
             var roles = accessControlClient.RolesAllAsync().Result.ToDictionary(x => x.Id);
             var teams = accessControlClient.TeamsAllAsync().Result.ToDictionary(x => x.Id);
+            var authentication = accessControlClient.AuthenticationProvidersAsync().Result.ToDictionary(x => x.Id);
 
             foreach (var user in accessControlClient.GetAllUsersDetailsAsync().Result)
             {
                 if (user.Email.EndsWith("@checkmarx.com"))
                 {
-                    Trace.WriteLine(user.Id  + " " + user.Email + string.Join(";", user.TeamIds.Select(x => teams[x].FullName)) +" " + user.LastLoginDate);
+                    Trace.WriteLine($"[{authentication[user.AuthenticationProviderId].Name}] {user.FirstName} {user.LastName}");
 
-                    foreach (var role in user.RoleIds.Select(x => roles[x].Name))
-                    {
-                        Trace.WriteLine("+ " + role);
-                    }
+                    // + " " + user.Email + string.Join(";", user.TeamIds.Select(x => teams[x].FullName)) +" " + user.LastLoginDate);
+
+                    //foreach (var role in user.RoleIds.Select(x => roles[x].Name))
+                    //{
+                    //    Trace.WriteLine("+ " + role);
+                    //}
                 }
             }
         }
@@ -219,7 +222,7 @@ namespace Checkmarx.API.Tests
             AccessControlClient accessControlClient = clientV9.AC;
             foreach (var item in accessControlClient.GetAllUsersDetailsAsync().Result)
             {
-                
+
             }
 
         }

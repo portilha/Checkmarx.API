@@ -1999,12 +1999,14 @@ namespace Checkmarx.API
         {
             get
             {
-                checkConnection();
+              
 
                 if (isOsaAvailable == null)
                 {
                     try
                     {
+                        checkConnection();
+
                         isOsaAvailable = GetLicense().IsOsaEnabled;
                     }
                     catch

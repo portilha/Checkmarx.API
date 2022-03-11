@@ -1071,7 +1071,7 @@ namespace Checkmarx.API
 
                     HttpResponseMessage attachCodeResponse = httpClient.PostAsync(requestUri, content).Result;
 
-                    if (attachCodeResponse.StatusCode != HttpStatusCode.OK)
+                    if (attachCodeResponse.StatusCode != HttpStatusCode.OK && attachCodeResponse.StatusCode != HttpStatusCode.NoContent)
                     {
                         throw new NotSupportedException(attachCodeResponse.Content.ReadAsStringAsync().Result);
                     }
@@ -1097,14 +1097,14 @@ namespace Checkmarx.API
                     request.Content = stringContent;
                     HttpResponseMessage response = httpClient.SendAsync(request).Result;
 
-                    if (response.StatusCode != HttpStatusCode.OK)
+                    if (response.StatusCode != HttpStatusCode.Created)
                     {
                         throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
                     }
                 }
             }
 
-            throw new NotSupportedException();
+            // throw new NotSupportedException();
         }
 
         private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)

@@ -73,6 +73,14 @@ namespace Checkmarx.API.Tests
 
 
         [TestMethod]
+        public void GEtLastSCanDate()
+        {
+            var lastScan = clientV9.GetLastScan(3142);
+
+            Trace.WriteLine(lastScan?.DateAndTime?.EngineStartedOn);
+        }
+
+        [TestMethod]
         public void GetSourceCodeAndRunScanTest()
         {
             //var projectId = clientV93.GetProjects().First().Key;
@@ -81,11 +89,10 @@ namespace Checkmarx.API.Tests
             //clientV9.RunSASTScan(projectId);
 
             string fileNAme = @"mysource.zip";
+
             File.WriteAllBytes(fileNAme, clientV9.GetSourceCode(1006182));
 
             Assert.IsTrue(File.Exists(fileNAme));
-
-
         }
 
         [TestMethod]

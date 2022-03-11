@@ -119,7 +119,7 @@ namespace Checkmarx.API.Tests.SCA
         [TestMethod]
         public void ListAllProjects()
         {
-            _client.ClientSCA.GetProjectsAsync().Result.ToDictionary(x => x.Name);
+            _client.GetProjects();
 
             //StringBuilder st = new StringBuilder();
 

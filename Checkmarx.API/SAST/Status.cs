@@ -13,3 +13,4 @@ namespace Checkmarx.API.SAST
         public Details Details { get; set; }
     }
 }
+

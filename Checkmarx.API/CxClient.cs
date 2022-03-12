@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Globalization;
 
+
 namespace Checkmarx.API
 {
     /// <summary>
@@ -511,7 +512,7 @@ namespace Checkmarx.API
             }
         }
 
-        public IEnumerable<Project> GetProjectsWithLastScan()
+        public IEnumerable<CxDataRepository.Project> GetProjectsWithLastScan()
         {
             checkConnection();
 
@@ -1016,6 +1017,25 @@ namespace Checkmarx.API
 
             checkSoapResponse(result);
             return result.sourceCodeContainer.ZippedFile;
+        }
+
+
+        public void CancelScan(string runId)
+        {
+            checkConnection();
+
+            dynamic result = null;
+
+            if (_isV9)
+            {
+                result = _cxPortalWebServiceSoapClientV9.CancelScanAsync(_soapSessionId, runId).Result;
+            }
+            else
+            {
+                result = _cxPortalWebServiceSoapClient.CancelScanAsync(_soapSessionId, runId).Result;
+            }
+
+            checkSoapResponse(result);
         }
 
         public ProjectConfiguration GetProjectConfiguration(long projectId)
@@ -1999,7 +2019,7 @@ namespace Checkmarx.API
         {
             get
             {
-              
+
 
                 if (isOsaAvailable == null)
                 {

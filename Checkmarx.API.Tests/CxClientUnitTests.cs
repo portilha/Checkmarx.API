@@ -12,7 +12,6 @@ using System.Threading;
 using System.Web;
 using System.Xml.Linq;
 using Checkmarx.API;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -178,7 +177,7 @@ namespace Checkmarx.API.Tests
         {
             clientV9.SASTClient.ProjectsManagement_PostByprojectAsync(new SaveProjectDto
             {
-                IsPublic = true, 
+                IsPublic = true,
                 Name = "ProjectName",
                 OwningTeam = "34"
             });
@@ -463,30 +462,90 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void ResultStateTest()
+        {
+            foreach (var item in clientV93.PortalSOAP.GetResultStateListAsync(null).Result.ResultStateList)
+            {
+                Trace.WriteLine(item.ResultID + " -> " + item.ResultName);
+            }
+        }
+
+        [TestMethod]
         public void GetResultsForScan()
         {
-            var queries = clientV93.GetQueries().SelectMany(x => x.Queries).ToDictionary(x => x.QueryId);
+            // var projects = clientV93.GetProjects();
 
-            StringBuilder sb = new StringBuilder();
+            var csvFields = new List<object>();
 
-            foreach (var result in clientV9.GetResultsForScan(1006616).GroupBy(x => x.Severity)) // 
+            long scanId = 1004407;
+
+            var resultStateList = clientV93.GetResultStateList();
+
+            var stateList = resultStateList.ToArray();
+
+            // ask just once.
+            var queryGroups = clientV93.GetQueries().ToArray();
+
+            var queries = queryGroups.SelectMany(x => x.Queries).ToDictionary(x => x.QueryId);
+
+            Dictionary<long, cxPortalWebService93.CxWSQueryGroup> queryToQueryGroup = new Dictionary<long, cxPortalWebService93.CxWSQueryGroup>();
+            foreach (var queryGroup in queryGroups)
             {
-                sb.AppendLine(CxClient.toSeverityToString(result.Key));
+                foreach (var query in queryGroup.Queries)
+                {
+                    queryToQueryGroup.Add(query.QueryId, queryGroup);
+                }
+            }
 
+            var headers = new List<string>(new[] { "CxVersion", "Language", "Severity", "Query Id", "Query Name", });
+            headers.AddRange(stateList.Select(x => x.Value));
+            headers.AddRange(new[] { "New", "Fixed", "Reoccured" });
+            headers.Add("Package");
+
+            StringBuilder sb = new StringBuilder("sep=;\n" + string.Join(";",headers.Select(x => $"\"{x}\"")) + "\n");
+
+            var scanInfo = clientV93.GetScanById(scanId);
+
+            foreach (var result in clientV93.GetResultsForScan(scanId).GroupBy(x => x.Severity)) // 
+            {
                 foreach (var severity in result.GroupBy(x => x.QueryId))
                 {
-                    sb.AppendLine(queries[severity.Key].Name);
+                    csvFields = new List<object>();
 
-                    foreach (var item in severity)
+                    var query = queries[severity.Key];
+
+                    csvFields.Add(scanInfo.ScanState.CxVersion);
+
+                    csvFields.Add(queryToQueryGroup[query.QueryId].LanguageName);
+                    csvFields.Add(CxClient.toSeverityToString(result.Key));
+
+                    csvFields.Add(query.QueryId);
+                    csvFields.Add(query.Name);
+
+                    var resultByState = severity.GroupBy(x => x.State).ToDictionary(x => x.Key);
+
+                    foreach (var item in stateList)
                     {
-                        sb.AppendLine($"{ item.PathId } {CxClient.toResultStateToString((ResultState)item.State)}");
+                        csvFields.Add(!resultByState.ContainsKey((int)item.Key) ? 0 : resultByState[(int)item.Key].Count());
                     }
 
+                    //     sb.AppendLine($"\t\t{CxClient.toResultStateToString((ResultState)state.Key)} - {state.Count()}");
+
+                    // New, Fixed, Recorrence
+                    var resultByType = severity.GroupBy(x => x.ResultStatus).ToDictionary(x => x.Key);
+
+                    csvFields.Add(!resultByType.ContainsKey(PortalSoap.CompareStatusType.New) ? 0 : resultByType[PortalSoap.CompareStatusType.New].Count());
+                    csvFields.Add(!resultByType.ContainsKey(PortalSoap.CompareStatusType.Fixed) ? 0 : resultByType[PortalSoap.CompareStatusType.Fixed].Count());
+                    csvFields.Add(!resultByType.ContainsKey(PortalSoap.CompareStatusType.Reoccured) ? 0 : resultByType[PortalSoap.CompareStatusType.Reoccured].Count());
+
+                    csvFields.Add(query.Status.ToString());
+
+                    sb.AppendLine(string.Join(";", csvFields.Select(x => $"\"{x}\"")));
                 }
 
             }
 
-            Trace.WriteLine(sb.ToString());
+            File.WriteAllText($"C:\\test\\{scanInfo.Project.Name}_{scanInfo.Id}.csv", sb.ToString());
         }
 
         [TestMethod]
@@ -851,7 +910,7 @@ namespace Checkmarx.API.Tests
                 var last2MonthScans = clientV93.GetScansFromOData(project.Key).Where(x => x.EngineStartedOn.Date > date).ToArray();
 
                 if (!last2MonthScans.SelectMany(x => clientV93.GetResult(x.Id))
-                      .Where(x => x.PathPerResult.Any(y => ((ResultState)y.State) == ResultState.NonExploitable && 
+                      .Where(x => x.PathPerResult.Any(y => ((ResultState)y.State) == ResultState.NonExploitable &&
                       !similarityIdResult.Contains(y.SimilarityId)))
                       .Any())
                 {

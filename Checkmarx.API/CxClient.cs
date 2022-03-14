@@ -72,13 +72,22 @@ namespace Checkmarx.API
         }
 
 
-
         /// <summary>
         /// SOAP client
         /// </summary>
         private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
 
         private cxPortalWebService93.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClientV9;
+
+
+        public cxPortalWebService93.CxPortalWebServiceSoapClient PortalSOAP
+        {
+            get
+            {
+                checkConnection();
+                return _cxPortalWebServiceSoapClientV9;
+            }
+        }
 
 
         #region CxAudit
@@ -434,6 +443,8 @@ namespace Checkmarx.API
             }
         }
 
+        
+
         public string GetProjectTeamName(string teamId)
         {
             if (string.IsNullOrWhiteSpace(teamId))
@@ -783,6 +794,28 @@ namespace Checkmarx.API
             checkSoapResponse(result);
             return result.DataRetentionRequest.RequestDate;
 
+        }
+
+        public Dictionary<long, string> GetResultStateList()
+        {
+            checkConnection();
+
+            Dictionary<long, string> result = null;
+
+            if (_isV9)
+            {
+                var resultV9 = _cxPortalWebServiceSoapClientV9.GetResultStateListAsync(_soapSessionId).Result;
+                checkSoapResponse(resultV9);
+                result = resultV9.ResultStateList.ToDictionary(x => x.ResultID, y => y.ResultName);
+            }
+            else
+            {
+                var resultV8 = _cxPortalWebServiceSoapClient.GetResultStateListAsync(_soapSessionId).Result;
+                checkSoapResponse(resultV8);
+                result = resultV8.ResultStateList.ToDictionary(x => x.ResultID, y => y.ResultName);
+            }
+
+            return result;
         }
 
 

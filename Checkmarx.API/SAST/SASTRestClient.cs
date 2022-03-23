@@ -15,6 +15,8 @@
 namespace Checkmarx.API
 {
     using Checkmarx.API.SAST;
+    using Newtonsoft.Json;
+    using System;
     using System.Net.Http;
     using System = global::System;
 
@@ -4619,7 +4621,7 @@ namespace Checkmarx.API
         /// <param name="id">Unique ID of a specific scan</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<object> SastScans_DeleteByidAsync(long id)
+        public virtual System.Threading.Tasks.Task SastScans_DeleteByidAsync(long id)
         {
             return SastScans_DeleteByidAsync(id, System.Threading.CancellationToken.None);
         }
@@ -4631,7 +4633,7 @@ namespace Checkmarx.API
         /// <param name="id">Unique ID of a specific scan</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<object> SastScans_DeleteByidAsync(long id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task SastScans_DeleteByidAsync(long id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -4672,12 +4674,7 @@ namespace Checkmarx.API
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 202)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
+                            return ;
                         }
                         else
                         if (status_ == 400)
@@ -9239,37 +9236,45 @@ namespace Checkmarx.API
 
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class EngineServerResponsDto
     {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public long? Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("uri", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Uri { get; set; }
+        [JsonProperty("uri", NullValueHandling = NullValueHandling.Ignore)]
+        public Uri Uri { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("minLoc", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? MinLoc { get; set; }
+        [JsonProperty("minLoc", NullValueHandling = NullValueHandling.Ignore)]
+        public long? MinLoc { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("maxLoc", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? MaxLoc { get; set; }
+        [JsonProperty("maxLoc", NullValueHandling = NullValueHandling.Ignore)]
+        public long? MaxLoc { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("maxScans", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? MaxScans { get; set; }
+        [JsonProperty("maxScans", NullValueHandling = NullValueHandling.Ignore)]
+        public long? MaxScans { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("cxVersion", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [JsonProperty("cxVersion", NullValueHandling = NullValueHandling.Ignore)]
         public string CxVersion { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public EngineServerResponsDtoStatus? Status { get; set; }
+        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        public Status Status { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("link", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public LinkDtoBase Link { get; set; }
+        [JsonProperty("link", NullValueHandling = NullValueHandling.Ignore)]
+        public Link Link { get; set; }
+    }
 
+   
+
+    public partial class Status
+    {
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? Id { get; set; }
+
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        public string Value { get; set; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v12.0.0.0))")]

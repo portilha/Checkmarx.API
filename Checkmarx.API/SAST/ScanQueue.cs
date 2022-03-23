@@ -33,7 +33,7 @@
         public DateTimeOffset DateCreated { get; set; }
 
         [JsonProperty("queuedOn")]
-        public DateTimeOffset QueuedOn { get; set; }
+        public DateTimeOffset? QueuedOn { get; set; }
 
         [JsonProperty("engineStartedOn")]
         public DateTimeOffset? EngineStartedOn { get; set; }

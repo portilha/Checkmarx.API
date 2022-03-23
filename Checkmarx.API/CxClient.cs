@@ -443,7 +443,7 @@ namespace Checkmarx.API
             }
         }
 
-        
+
 
         public string GetProjectTeamName(string teamId)
         {
@@ -1082,14 +1082,35 @@ namespace Checkmarx.API
             return response.ProjectConfig;
         }
 
+        public void SetPreset(long projectId, string presetName)
+        {
+            SetPreset(projectId, GetPresets().First(x => string.Compare(x.Value, presetName) == 0).Key);
+        }
+
+        public void SetPreset(long projectId, long presetId)
+        {
+            var projecTconfigu = SASTClient.ScanSettings_GetByprojectIdAsync(projectId).Result;
+
+            SASTClient.ScanSettings_PutByscanSettingsAsync(new ScanSettingsRequestDto
+            {
+                ProjectId = projectId,
+                PresetId = presetId,
+                EngineConfigurationId = projecTconfigu.EngineConfiguration.Id.Value,
+                EmailNotifications = projecTconfigu.EmailNotifications,
+                PostScanActionId = projecTconfigu.PostScanAction?.Id
+            }).Wait();
+        }
+
         /// <summary>
         /// Runs a SAST Scan or re-runs it with the last source code.
         /// </summary>
         /// <param name="projectId">Project ID in SAST</param>
+        /// <param name="preset">What preset to use</param>
         /// <param name="comment"></param>
         /// <param name="forceScan"></param>
         /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
-        public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null)
+        public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null, 
+            bool useLastScanPreset = false)
         {
             checkConnection();
 
@@ -1107,6 +1128,11 @@ namespace Checkmarx.API
                         throw new NotSupportedException("There is no last scan in the project to download the source code from, please pass it on the parameters");
 
                     sourceCodeZipContent = GetSourceCode(scan.Id);
+
+                    if (useLastScanPreset) // Update SAST Project Config to match CI/CD
+                    {
+                        SetPreset(projectId, GetScanPreset(scan.Id));
+                    }
                 }
 
                 using (var content = new MultipartFormDataContent())
@@ -1156,8 +1182,6 @@ namespace Checkmarx.API
                     }
                 }
             }
-
-            // throw new NotSupportedException();
         }
 
         private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)
@@ -1634,12 +1658,22 @@ namespace Checkmarx.API
             return stringBuilder.ToString();
         }
 
+        public IEnumerable<long> GetPresetDetails(int presetId)
+        {
+            checkConnection();
+
+            if (_isV9)
+                return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset.queryIds;
+
+            return _cxPortalWebServiceSoapClient.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset.queryIds;
+        }
+
 
         /// <summary>
         /// Get Query Information about the CWE of the Checkmarx Queries and other information.
         /// </summary>
         /// <returns></returns>
-        public StringBuilder GetQueryInformation()
+        public StringBuilder GetQueryInformation(params string[] presetNames)
         {
             StringBuilder result = new StringBuilder();
             result.AppendLine("sep=,");
@@ -1656,6 +1690,23 @@ namespace Checkmarx.API
                 "Severity",
                 "Categories"
             };
+
+            // we need order
+            List<HashSet<long>> presetQueries = new List<HashSet<long>>();
+
+            if (presetNames != null)
+            {
+                var presets = GetPresets();
+
+                foreach (var preset in presetNames)
+                {
+                    var presetId = presets.First(x => x.Value == preset);
+
+                    headers.Add(preset);
+
+                    presetQueries.Add(GetPresetDetails(presetId.Key).ToHashSet());
+                }
+            }
 
             Dictionary<string, HashSet<string>> standards = new Dictionary<string, HashSet<string>>();
 
@@ -1692,6 +1743,12 @@ namespace Checkmarx.API
                         query.Severity.ToString(),
                         string.Join(";", categories)
                     };
+
+                    // add the presence of the queries in the presets.
+                    foreach (var preset in presetQueries)
+                    {
+                        values.Add(preset.Contains(query.QueryId).ToString());
+                    }
 
                     result.AppendLine(string.Join(",", values.Select(x => $"\"{x}\"")));
                 }

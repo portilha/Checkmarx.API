@@ -1,4 +1,5 @@
 ﻿using Checkmarx.API.SAST;
+using Checkmarx.API.SCA;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

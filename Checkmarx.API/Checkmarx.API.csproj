@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>2.3.0</Version>
+    <Version>2.4.0</Version>
     <Authors>Pedro Portilha</Authors>
     <Company>Checkmarx</Company>
     <Description>Checkmarx API (Unofficial)
@@ -18,6 +18,12 @@ It also provides access to the Access Control API.</Description>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AST\**" />
+    <EmbeddedResource Remove="AST\**" />
+    <None Remove="AST\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="output.cs" />
@@ -36,6 +42,8 @@ It also provides access to the Access Control API.</Description>
 
   <ItemGroup>
     <PackageReference Include="Capri" Version="0.0.1" />
+    <PackageReference Include="Checkmarx.API.AccessControl" Version="1.0.0" />
+    <PackageReference Include="Checkmarx.API.SCA" Version="1.0.0" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
     <PackageReference Include="Microsoft.OData.Client" Version="7.9.4" />
     <PackageReference Include="Microsoft.OData.Core" Version="7.9.4" />
@@ -64,7 +72,6 @@ It also provides access to the Access Control API.</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AST\" />
     <Folder Include="Properties\" />
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>

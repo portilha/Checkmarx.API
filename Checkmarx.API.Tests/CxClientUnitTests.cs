@@ -72,6 +72,15 @@ namespace Checkmarx.API.Tests
 
 
         [TestMethod]
+        public void GetConfigurationLstTEst()
+        {
+            foreach (var item in clientV93.PortalSOAP.GetConfigurationSetListAsync(null).Result.ConfigSetList)
+            {
+                Trace.WriteLine(item.ConfigSetName);
+            }
+        }
+
+        [TestMethod]
         public void GEtLastSCanDate()
         {
             var lastScan = clientV9.GetLastScan(3142);
@@ -737,6 +746,43 @@ namespace Checkmarx.API.Tests
             {
 
             }
+        }
+
+        [TestMethod]
+        public void CheckBranchesTest()
+        {
+            var projectDetails = clientV9.GetAllProjectsDetails();
+
+            foreach (var item in projectDetails.Where(x => x.IsBranched.HasValue && x.IsBranched.Value))
+            {
+                Trace.Write(item.Name + " -> " + item.OriginalProjectId);
+            }
+        }
+
+        [TestMethod]
+        public void CheckAPISupportTest()
+        {
+            var versions = new string[] { "0.1", "1", "1.1", "1.2", "1.3", "2", "2.1", "2.2", "3" };
+
+            Trace.WriteLine($"> {clientV89.Version}");
+
+            foreach (var version in versions)
+            {
+                Trace.WriteLine($"{version} - {clientV89.SupportsRESTAPIVersion(version)}");
+            }
+
+            Trace.WriteLine($"> {clientV9.Version}");
+            foreach (var version in versions)
+            {
+                Trace.WriteLine($"{version} - {clientV9.SupportsRESTAPIVersion(version)}");
+            }
+
+            Trace.WriteLine($"> {clientV93.Version}");
+            foreach (var version in versions)
+            {
+                Trace.WriteLine($"{version} - {clientV93.SupportsRESTAPIVersion(version)}");
+            }
+
         }
 
         [TestMethod]

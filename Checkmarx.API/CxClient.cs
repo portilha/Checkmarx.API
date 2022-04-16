@@ -814,7 +814,7 @@ namespace Checkmarx.API
                 GetRequest<JObject>($"CxRestAPI/help/swagger/docs/v{version}");
                 return true;
             }
-            catch 
+            catch
             {
                 return false;
             }
@@ -1738,19 +1738,17 @@ namespace Checkmarx.API
             return stringBuilder.ToString();
         }
 
-        public IEnumerable<long> GetPresetDetails(int presetId)
+        public IEnumerable<long> GetPresetQueryIds(int presetId)
         {
             checkConnection();
 
-            
+            return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset.queryIds;
         }
 
-        public CxPresetDetails GetPresetDetails(int presetId)
+        public cxPortalWebService93.CxPresetDetails GetPresetDetails(int presetId)
         {
-            if (_isV9)
-                return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset;
 
-            return _cxPortalWebServiceSoapClient.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset;
+            return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId,presetId).Result.preset;
         }
 
         /// <summary>
@@ -1788,7 +1786,7 @@ namespace Checkmarx.API
 
                     headers.Add(preset);
 
-                    presetQueries.Add(GetPresetDetails(presetId.Key).ToHashSet());
+                    presetQueries.Add(GetPresetQueryIds(presetId.Key).ToHashSet());
                 }
             }
 

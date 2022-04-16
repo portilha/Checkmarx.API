@@ -17,6 +17,7 @@ It also provides access to the Access Control API.</Description>
     <RepositoryUrl>https://github.com/portilha/Checkmarx.API</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Configurations>Debug;Release;Publish</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

@@ -143,6 +143,11 @@ namespace Checkmarx.API
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
+        public cxPortalWebService93.CxWSResponceScanCompareResults GetCompareScanResultsAsync(long previousScanId, long newScanId)
+        {
+            return PortalSOAP.GetCompareScanResultsAsync(_soapSessionId, previousScanId, newScanId).Result;
+        }
+
         /// <summary>
         /// GET Generic Request... ODATA/REST/SOAP
         /// </summary>
@@ -718,10 +723,10 @@ namespace Checkmarx.API
             checkConnection();
 
             var result = _cxPortalWebServiceSoapClientV9.GetCompareScanResultsAsync(_soapSessionId, oldScanId, newScanId).Result;
-            if (result.IsSuccesfull)
-                return result.Results;
 
-            throw new Exception(result.ErrorMessage);
+            checkSoapResponse(result);
+
+            return result.Results;
         }
 
         /// <summary>
@@ -750,6 +755,26 @@ namespace Checkmarx.API
                 {
                     throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the SAST version supports a given version.s
+        /// </summary>
+        /// <param name="version">1.1, 0.1, 1, ...</param>
+        /// <returns>true if the api supports a given version of the REST API, otherwise false.</returns>
+        public bool SupportsRESTAPIVersion(string version)
+        {
+            var _ = double.Parse(version);
+
+            try
+            {
+                GetRequest<JObject>($"CxRestAPI/help/swagger/docs/v{version}");
+                return true;
+            }
+            catch 
+            {
+                return false;
             }
         }
 
@@ -1109,7 +1134,7 @@ namespace Checkmarx.API
         /// <param name="comment"></param>
         /// <param name="forceScan"></param>
         /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
-        public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null, 
+        public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
             bool useLastScanPreset = false)
         {
             checkConnection();
@@ -1499,7 +1524,11 @@ namespace Checkmarx.API
             {
                 try
                 {
-                    projects.Headers.Add("Accept", "application/json;v=2.0");
+                    string version = "2.0";
+                    if (SupportsRESTAPIVersion("2.2"))
+                        version = "2.2";
+
+                    projects.Headers.Add("Accept", $"application/json;v={version}");
                     projects.Headers.Add("Connection", "keep-alive");
 
                     Task<HttpResponseMessage> projectListTask = httpClient.SendAsync(projects);

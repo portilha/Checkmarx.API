@@ -1662,12 +1662,16 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            if (_isV9)
-                return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset.queryIds;
-
-            return _cxPortalWebServiceSoapClient.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset.queryIds;
+            
         }
 
+        public CxPresetDetails GetPresetDetails(int presetId)
+        {
+            if (_isV9)
+                return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset;
+
+            return _cxPortalWebServiceSoapClient.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset;
+        }
 
         /// <summary>
         /// Get Query Information about the CWE of the Checkmarx Queries and other information.

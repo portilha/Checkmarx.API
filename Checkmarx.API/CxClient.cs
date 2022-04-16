@@ -150,7 +150,6 @@ namespace Checkmarx.API
                 if (_supportsV1_1 == null)
                 {
                     checkConnection();
-
                     _supportsV1_1 = SupportsRESTAPIVersion("1.1");
                 }
                 return _supportsV1_1.Value;
@@ -177,6 +176,21 @@ namespace Checkmarx.API
             }
         }
 
+
+        private bool? _supportsV2_2 = null;
+
+        public bool SupportsV2_2
+        {
+            get
+            {
+                if (_supportsV2_2 == null)
+                {
+                    checkConnection();
+                    _supportsV2_2 = SupportsRESTAPIVersion("2.2");
+                }
+                return _supportsV2_2.Value;
+            }
+        }
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
@@ -1567,18 +1581,24 @@ namespace Checkmarx.API
             return GetAllProjectsDetails().ToDictionary(x => (int)x.Id, x => x.Name);
         }
 
-        public List<ProjectDetails> GetAllProjectsDetails()
+        public List<ProjectDetails> GetAllProjectsDetails(bool showAlsoDeletedProjects = false)
         {
             checkConnection();
 
-            using (var projects = new HttpRequestMessage(HttpMethod.Get, "projects"))
+            string version = "2.0";
+            string link = "projects";
+            if (SupportsRESTAPIVersion("2.2"))
+            {
+                if (showAlsoDeletedProjects)
+                    link += "?showAlsoDeletedProjects=true";
+
+                version = "2.2";
+            }
+
+            using (var projects = new HttpRequestMessage(HttpMethod.Get, link))
             {
                 try
                 {
-                    string version = "2.0";
-                    if (SupportsRESTAPIVersion("2.2"))
-                        version = "2.2";
-
                     projects.Headers.Add("Accept", $"application/json;v={version}");
                     projects.Headers.Add("Connection", "keep-alive");
 

@@ -190,6 +190,8 @@ namespace Checkmarx.API.Tests
             {
                 var projectConfig = clientV93.GetProjectConfiguration(project.Key);
 
+                
+
                 switch (projectConfig.SourceCodeSettings.SourceOrigin)
                 {
                     case PortalSoap.SourceLocationType.Local:
@@ -198,7 +200,45 @@ namespace Checkmarx.API.Tests
                         break;
                     case PortalSoap.SourceLocationType.SourceControl:
                         {
-                            Trace.WriteLine(projectConfig.SourceCodeSettings.SourceControlSetting);
+                            switch (projectConfig.SourceCodeSettings.SourceControlSetting.Repository)
+                            {
+                                case PortalSoap.RepositoryType.TFS:
+                                    break;
+                                case PortalSoap.RepositoryType.SVN:
+                                    break;
+                                case PortalSoap.RepositoryType.CVS:
+                                    break;
+                                case PortalSoap.RepositoryType.GIT:
+                                    {
+                                        Trace.WriteLine($"Project {project.Key} {project.Value}");
+
+                                        GetGitSourceSettingsDto projectConfigSAST = clientV93.SASTClient.GitSourceSettings_GetGitSettingsByidAsync(project.Key).Result;
+
+                                        Trace.WriteLine("SOAP: ");
+
+                                        Trace.WriteLine("Repo:" + projectConfig.SourceCodeSettings.SourceControlSetting.ServerName);
+                                        Trace.WriteLine("Branch:" + projectConfig.SourceCodeSettings.SourceControlSetting.GITBranch);
+                                        Trace.WriteLine("User:" + projectConfig.SourceCodeSettings.SourceControlSetting.UserCredentials?.User);
+
+                                        if (projectConfig.SourceCodeSettings.SourceControlSetting.UseSSH)
+                                        {
+                                            Trace.WriteLine("SSH:" + projectConfig.SourceCodeSettings.SourceControlSetting.SSHPublicKey);
+                                        }
+
+                                        Trace.WriteLine("REST: ");
+
+                                        Trace.WriteLine("Repo:" + projectConfigSAST.Url);
+                                        Trace.WriteLine("Branch:" + projectConfigSAST.Branch);
+                                        Trace.WriteLine("SSH:" + projectConfigSAST.UseSsh);
+                                    }
+                                    break;
+                                case PortalSoap.RepositoryType.Perforce:
+                                    break;
+                                case PortalSoap.RepositoryType.NONE:
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
 
                         break;

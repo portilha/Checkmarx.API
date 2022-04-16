@@ -321,6 +321,21 @@ namespace Checkmarx.API.Tests
             }
         }
 
+
+        [TestMethod]
+        public void UploadPresetTest()
+        {
+            cxPortalWebService93.CxPresetDetails preset = clientV93.GetPresetDetails(2);
+
+            new cxPortalWebService93.CxPresetDetails newPrset = new cxPortalWebService93.CxPresetDetails
+            {
+                id = preset.id,
+                
+            }
+
+            clientV93.PortalSOAP.UpdatePresetAsync(null, preset);
+        }
+
         [TestMethod]
         public void GetQueriesInformationTest()
         {

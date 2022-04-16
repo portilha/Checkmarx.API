@@ -141,11 +141,53 @@ namespace Checkmarx.API
             }
         }
 
+        private bool? _supportsV1_1 = null;
+
+        public bool SupportsV1_1
+        {
+            get
+            {
+                if (_supportsV1_1 == null)
+                {
+                    checkConnection();
+
+                    _supportsV1_1 = SupportsRESTAPIVersion("1.1");
+                }
+                return _supportsV1_1.Value;
+            }
+        }
+
+        private SASTV1_1 _sastClientV1_1;
+
+        /// <summary>
+        /// Interface to all SAST/OSA REST methods.
+        /// </summary>
+        /// <remarks>Supports only V1.1</remarks>
+        public SASTV1_1 SASTClientV1_1
+        {
+            get
+            {
+                if (!SupportsV1_1)
+                    return null;
+
+                if (_sastClientV1_1 == null)
+                    _sastClientV1_1 = new SASTV1_1(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClientV1_1;
+            }
+        }
+
+
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
         public cxPortalWebService93.CxWSResponceScanCompareResults GetCompareScanResultsAsync(long previousScanId, long newScanId)
         {
             return PortalSOAP.GetCompareScanResultsAsync(_soapSessionId, previousScanId, newScanId).Result;
+        }
+
+        public cxPortalWebService93.CxWSResponseScanCompareSummary GetScanCompareSummaryAsync(long previousScanId, long newScanId)
+        {
+            return PortalSOAP.GetScanCompareSummaryAsync(_soapSessionId, previousScanId, newScanId).Result;
         }
 
         /// <summary>
@@ -772,7 +814,7 @@ namespace Checkmarx.API
                 GetRequest<JObject>($"CxRestAPI/help/swagger/docs/v{version}");
                 return true;
             }
-            catch 
+            catch
             {
                 return false;
             }
@@ -1154,11 +1196,20 @@ namespace Checkmarx.API
 
                     sourceCodeZipContent = GetSourceCode(scan.Id);
 
+                    // Scan without overriding anything
+                    //if (SASTClientV1_1 != null)
+                    //{
+                    //    SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(projectId, false, false, true, true, "", 1, projectConfig.ProjectSettings.)
+
+                    //        return;
+                    //}
+
                     if (useLastScanPreset) // Update SAST Project Config to match CI/CD
                     {
                         SetPreset(projectId, GetScanPreset(scan.Id));
                     }
                 }
+
 
                 using (var content = new MultipartFormDataContent())
                 {
@@ -1687,19 +1738,17 @@ namespace Checkmarx.API
             return stringBuilder.ToString();
         }
 
-        public IEnumerable<long> GetPresetDetails(int presetId)
+        public IEnumerable<long> GetPresetQueryIds(int presetId)
         {
             checkConnection();
 
-            
+            return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset.queryIds;
         }
 
-        public CxPresetDetails GetPresetDetails(int presetId)
+        public cxPortalWebService93.CxPresetDetails GetPresetDetails(int presetId)
         {
-            if (_isV9)
-                return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset;
 
-            return _cxPortalWebServiceSoapClient.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset;
+            return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId,presetId).Result.preset;
         }
 
         /// <summary>
@@ -1737,7 +1786,7 @@ namespace Checkmarx.API
 
                     headers.Add(preset);
 
-                    presetQueries.Add(GetPresetDetails(presetId.Key).ToHashSet());
+                    presetQueries.Add(GetPresetQueryIds(presetId.Key).ToHashSet());
                 }
             }
 
@@ -2247,7 +2296,7 @@ namespace Checkmarx.API
             switch (severity)
             {
                 case 0:
-                    return "Low";
+                    return "Info";
                 case 1:
                     return "Low";
                 case 2:

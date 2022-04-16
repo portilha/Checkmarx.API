@@ -358,11 +358,11 @@ namespace Checkmarx.API.Tests
         {
             cxPortalWebService93.CxPresetDetails preset = clientV93.GetPresetDetails(2);
 
-            new cxPortalWebService93.CxPresetDetails newPrset = new cxPortalWebService93.CxPresetDetails
+            var newPreset = new cxPortalWebService93.CxPresetDetails()
             {
-                id = preset.id,
-                
-            }
+                id = preset.id
+
+            };
 
             clientV93.PortalSOAP.UpdatePresetAsync(null, preset);
         }

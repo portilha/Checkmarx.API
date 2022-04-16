@@ -181,6 +181,37 @@ namespace Checkmarx.API.Tests
             }
         }
 
+
+        [TestMethod]
+        public void GetSourceCodeSettingsTest()
+        {
+
+            foreach (var project in clientV93.GetProjects())
+            {
+                var projectConfig = clientV93.GetProjectConfiguration(project.Key);
+
+                switch (projectConfig.SourceCodeSettings.SourceOrigin)
+                {
+                    case PortalSoap.SourceLocationType.Local:
+                        break;
+                    case PortalSoap.SourceLocationType.Shared:
+                        break;
+                    case PortalSoap.SourceLocationType.SourceControl:
+                        {
+                            Trace.WriteLine(projectConfig.SourceCodeSettings.SourceControlSetting);
+                        }
+
+                        break;
+                    case PortalSoap.SourceLocationType.SourcePulling:
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+        }
+
         [TestMethod]
         public void CreateProjectTEst()
         {

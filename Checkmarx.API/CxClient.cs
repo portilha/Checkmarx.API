@@ -1758,6 +1758,20 @@ namespace Checkmarx.API
             return stringBuilder.ToString();
         }
 
+        public void ImportQueryGroupQuery93(IEnumerable<CxAuditWebServiceV9.CxWSQueryGroup> queryGroup)
+        {
+            checkConnection();
+            dynamic response = null;
+            if (_isV9)
+            {
+                
+                response = CxAuditV9
+                      .UploadQueriesAsync(_soapSessionId, queryGroup.ToArray()).Result;
+            }
+            checkSoapResponse(response);
+            _queryGroupsCache = null;
+        }
+
         public IEnumerable<long> GetPresetQueryIds(int presetId)
         {
             checkConnection();
@@ -2230,30 +2244,61 @@ namespace Checkmarx.API
             }
         }
 
-        public void GetCommentsHistoryTest(long scanId)
+        /// <summary>
+        /// Returns a list of tuples with comment remarks list per path id
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <returns></returns>
+        public List<Tuple<List<string>, long>> GetAllCommentRemarksForScan(long scanId)
         {
             checkConnection();
 
             var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
-
-            // Assert.IsTrue(response.IsSuccesfull);
-
+            var commentList = new List<Tuple<List<string>, long>>();
             foreach (var item in response.Results)
             {
-                //Console.WriteLine(item.State);
+                var pathCommentList = new List<string>();
 
-                if (!string.IsNullOrWhiteSpace(item.Comment))
+                VerifyAndAddComment(_cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, item.PathId,
+                        ResultLabelTypeEnum.Remark), pathCommentList);
+
+                if (pathCommentList.Any())
                 {
-                    var commentsResults = _cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, item.PathId,
-                         ResultLabelTypeEnum.Remark);
+                    commentList.Add(new Tuple<List<string>, long>(pathCommentList, item.PathId));
+                }
+            }
 
-                    foreach (var comment in commentsResults.Path.Comment.Split(new[] { CommentSeparator },
-                        StringSplitOptions.RemoveEmptyEntries))
+            return commentList;
+        }
+
+        /// <summary>
+        /// Return a comment remark list for a specific scan and path id
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <param name="pathId"></param>
+        /// <returns></returns>
+        public List<string> GetAllCommentRemarksForScanAndPath(long scanId, long pathId)
+        {
+            checkConnection();
+
+            var commentList = new List<string>();
+
+            VerifyAndAddComment(_cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, pathId,
+                    ResultLabelTypeEnum.Remark), commentList);
+
+            return commentList;
+        }
+
+        private void VerifyAndAddComment(CxWSResponceResultPath cxWSResponceResultPath, List<string> pathCommentList)
+        {
+            if (cxWSResponceResultPath != null)
+            {
+                if (cxWSResponceResultPath.Path != null)
+                {
+                    if (cxWSResponceResultPath.Path.Comment != null)
                     {
-                        string commentText = comment.Substring(comment.IndexOf(']') + 3);
-
-                        Console.WriteLine(string.Join(";",
-                            toSeverityToString(item.Severity), toResultStateToString((ResultState)item.State), commentText));
+                        var comments = cxWSResponceResultPath.Path.Comment.Split(new char[] { 'ÿ' }, StringSplitOptions.RemoveEmptyEntries);
+                        pathCommentList.AddRange(comments);
                     }
                 }
             }

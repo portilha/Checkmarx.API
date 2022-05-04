@@ -795,10 +795,6 @@ namespace Checkmarx.API
                         if (status_ == 204)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
                             return objectResponse_.Object;
                         }
                         else

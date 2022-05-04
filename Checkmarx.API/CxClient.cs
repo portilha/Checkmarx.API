@@ -2264,7 +2264,6 @@ namespace Checkmarx.API
 
                 if (pathCommentList.Any())
                 {
-                    SortComments(pathCommentList);
                     commentList.Add(new Tuple<List<string>, long>(pathCommentList, item.PathId));
                 }
             }
@@ -2287,17 +2286,7 @@ namespace Checkmarx.API
             VerifyAndAddComment(_cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, pathId,
                     ResultLabelTypeEnum.Remark), commentList);
 
-            if (commentList.Any())
-            {
-                SortComments(commentList);
-            }
-
             return commentList;
-        }
-
-        private void SortComments(List<string> pathCommentList)
-        {
-            var t = pathCommentList;
         }
 
         private void VerifyAndAddComment(CxWSResponceResultPath cxWSResponceResultPath, List<string> pathCommentList)

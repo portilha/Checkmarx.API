@@ -1413,6 +1413,12 @@ namespace Checkmarx.API
             return scan.FirstOrDefault();
         }
 
+        public Scan GetLastScanByVersion(long projectId, string version)
+        {
+            var scan = GetScans(projectId, true, ScanRetrieveKind.Last, version);
+            return scan.FirstOrDefault();
+        }
+
         public Scan GetLastScanFinishOrFailed(long projectId)
         {
             var scan = GetScans(projectId, false, ScanRetrieveKind.Last);
@@ -1432,11 +1438,14 @@ namespace Checkmarx.API
         }
 
         public IEnumerable<Scan> GetScans(long projectId, bool finished,
-            ScanRetrieveKind scanKind = ScanRetrieveKind.All)
+            ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null)
         {
             checkConnection();
 
             IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
+
+            if (version != null)
+                scans = scans.Where(x => version.StartsWith(x.ProductVersion));
 
             switch (scanKind)
             {

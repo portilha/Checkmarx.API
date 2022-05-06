@@ -2269,8 +2269,9 @@ namespace Checkmarx.API
                 var pathCommentList = new List<string>();
                 if (!string.IsNullOrEmpty(item.Comment) && !string.IsNullOrWhiteSpace(item.Comment))
                 {
-                    VerifyAndAddComment(_cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, item.PathId,
-                        ResultLabelTypeEnum.Remark), pathCommentList);   
+                    var commentHistory = _cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, item.PathId,
+                        ResultLabelTypeEnum.Remark);
+                    VerifyAndAddComment(commentHistory, pathCommentList);
                 }
                 if (pathCommentList.Any())
                 {

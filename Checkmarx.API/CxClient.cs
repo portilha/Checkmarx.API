@@ -2267,14 +2267,16 @@ namespace Checkmarx.API
             foreach (var item in response.Results)
             {
                 var pathCommentList = new List<string>();
-
-                VerifyAndAddComment(_cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, item.PathId,
-                        ResultLabelTypeEnum.Remark), pathCommentList);
-
+                if (!string.IsNullOrEmpty(item.Comment) && !string.IsNullOrWhiteSpace(item.Comment))
+                {
+                    VerifyAndAddComment(_cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, item.PathId,
+                        ResultLabelTypeEnum.Remark), pathCommentList);   
+                }
                 if (pathCommentList.Any())
                 {
                     commentList.Add(new Tuple<List<string>, long>(pathCommentList, item.PathId));
                 }
+
             }
 
             return commentList;
@@ -2306,7 +2308,7 @@ namespace Checkmarx.API
                 {
                     if (cxWSResponceResultPath.Path.Comment != null)
                     {
-                        var comments = cxWSResponceResultPath.Path.Comment.Split(new char[] { 'ÿ' }, StringSplitOptions.RemoveEmptyEntries);
+                        var comments = cxWSResponceResultPath.Path.Comment.Split(new char[] { CommentSeparator }, StringSplitOptions.RemoveEmptyEntries);
                         pathCommentList.AddRange(comments);
                     }
                 }

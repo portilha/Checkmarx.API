@@ -22,6 +22,7 @@ namespace Checkmarx.API.Tests
 
         private static CxClient clientV89;
         private static CxClient clientV9;
+        private static CxClient clientV93;
 
 
         [ClassInitialize]
@@ -41,7 +42,8 @@ namespace Checkmarx.API.Tests
                         new CxClient(new Uri(v8),
                         Configuration["V89:Username"],
                         new NetworkCredential("", Configuration["V89:Password"]).Password);
-                var version = clientV89.Version;
+               
+                Assert.IsTrue(clientV89.Version.StartsWith("8."));
             }
 
             string v9 = Configuration["V9:URL"];
@@ -51,7 +53,19 @@ namespace Checkmarx.API.Tests
                     new CxClient(new Uri(v9),
                     Configuration["V9:Username"],
                     new NetworkCredential("", Configuration["V9:Password"]).Password);
-                var _ = clientV9.Version;
+
+                Assert.IsTrue(clientV9.Version.StartsWith("9."));
+            }
+
+            string v93 = Configuration["V93:URL"];
+            if (!string.IsNullOrWhiteSpace(v93))
+            {
+                clientV93 =
+                      new CxClient(new Uri(v93),
+                      Configuration["V93:Username"],
+                      new NetworkCredential("", Configuration["V93:Password"]).Password);
+
+                Assert.IsTrue(clientV93.Version.StartsWith("9.3"));
             }
         }
 
@@ -294,10 +308,6 @@ namespace Checkmarx.API.Tests
             //}
 
 
-            CxClient clientV93 =
-                        new CxClient(new Uri(Configuration["V93:URL"]),
-                        Configuration["V93:Username"],
-                        new NetworkCredential("", Configuration["V93:Password"]).Password);
 
             foreach (var result in clientV93.GetResultsForScan(1001263))
             {
@@ -383,6 +393,23 @@ namespace Checkmarx.API.Tests
 
                     if (query.Cwe != 0)
                         Trace.WriteLine(clientV89.GetCWEDescription(query.Cwe));
+                }
+            }
+        }
+
+
+        [TestMethod]
+        public void GetFailingScansTest()
+        {
+            var results = clientV93.GetFailingScans();
+
+            foreach (var item in results.GroupBy(x => x.Id))
+            {
+                Console.WriteLine($"# Failing Scan Id: {item.Key}");
+
+                foreach (var failedScan in item)
+                {
+                    Console.WriteLine(failedScan.Details);
                 }
             }
         }

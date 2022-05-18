@@ -360,7 +360,21 @@ namespace Checkmarx.API
             }
         }
 
-      
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public FailedScansDisplayData[] GetFailingScans()
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetFailedScansDisplayData(_soapSessionId);
+
+            if (!result.IsSuccesfull)
+                throw new ActionNotSupportedException(result.ErrorMessage);
+
+            return result.FailedScansList;
+        }
 
         public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {
@@ -622,8 +636,7 @@ namespace Checkmarx.API
 
         public ICollection<Guid> GetOSAScans(int projectId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"osa/scans?projectId={projectId}"))
             {

@@ -18,6 +18,7 @@ namespace Checkmarx.API
 
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
             Default.Container context = new Default.Container(serviceUri);
+            context.Timeout = 7200;
 
             string auth = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
 
@@ -49,6 +50,7 @@ namespace Checkmarx.API
 
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
             DefaultV9.Container context = new DefaultV9.Container(serviceUri);
+            context.Timeout = 7200;
 
             //string auth = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
             //Registering the handle to the BuildingRequest event. 

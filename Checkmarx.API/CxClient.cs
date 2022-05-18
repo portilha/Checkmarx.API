@@ -21,6 +21,8 @@ using PortalSoap;
 using Scan = Checkmarx.API.SAST.Scan;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Globalization;
+
 
 namespace Checkmarx.API
 {
@@ -29,6 +31,8 @@ namespace Checkmarx.API
     /// </summary>
     public class CxClient : IDisposable
     {
+        #region Clients
+
         /// <summary>
         /// REST API client
         /// </summary>
@@ -38,65 +42,208 @@ namespace Checkmarx.API
         /// OData client
         /// </summary>
         private Default.Container _oData;
+
         private DefaultV9.Container _oDataV9;
-        private List<CxDataRepository.Project> _oDataProjs;
 
+        private List<CxDataRepository.Project> _odp;
+        private List<CxDataRepository.Project> _oDataProjs
+        {
+            get
+            {
+                if (_odp == null)
+                {
+                    _odp = _isV9 ? _oDataV9.Projects.ToList() : _oData.Projects.ToList();
+                }
+                return _odp;
+            }
+        }
 
-        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> soapScans => _isV9 ? _oDataV9.Scans : _oData.Scans;
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> _oDataScans => _isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages) : _oData.Scans.Expand(x => x.ScannedLanguages);
+
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
+
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? _oDataV9.Results : _oData.Results;
+
+        public IQueryable<Result> GetODataResults(long scanId)
+        {
+            checkConnection();
+
+            return _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
+        }
+
 
         /// <summary>
         /// SOAP client
         /// </summary>
         private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
 
+        private cxPortalWebService93.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClientV9;
 
+
+        public cxPortalWebService93.CxPortalWebServiceSoapClient PortalSOAP
+        {
+            get
+            {
+                checkConnection();
+                return _cxPortalWebServiceSoapClientV9;
+            }
+        }
+
+
+        #region CxAudit
+
+        private CxAuditWebServiceV9.CxAuditWebServiceSoapClient _cxAuditWebServiceSoapClientV9 = null;
+
+
+        private CxAuditWebServiceV9.CxAuditWebServiceSoapClient CxAuditV9
+        {
+            get
+            {
+                checkConnection();
+
+                if (_cxAuditWebServiceSoapClientV9 == null)
+                {
+                    _cxAuditWebServiceSoapClientV9 = new CxAuditWebServiceV9.CxAuditWebServiceSoapClient(SASTServerURL, TimeSpan.FromSeconds(360), Username, Password);
+
+                    var portalChannelFactory = _cxAuditWebServiceSoapClientV9.ChannelFactory;
+                    portalChannelFactory.UseMessageInspector(async (request, channel, next) =>
+                    {
+                        HttpRequestMessageProperty reqProps = new HttpRequestMessageProperty();
+                        reqProps.Headers.Add("Authorization", $"Bearer {AuthenticationToken.Parameter}");
+                        request.Properties.Add(HttpRequestMessageProperty.Name, reqProps);
+                        var response = await next(request);
+                        return response;
+                    });
+                }
+
+                return _cxAuditWebServiceSoapClientV9;
+            }
+        }
+
+        #endregion
+
+        private SASTRestClient _sastClient;
+
+        /// <summary>
+        /// Interface to all SAST/OSA REST methods.
+        /// </summary>
+        /// <remarks>Supports only V1</remarks>
+        public SASTRestClient SASTClient
+        {
+            get
+            {
+                checkConnection();
+
+                if (_sastClient == null)
+                    _sastClient = new SASTRestClient(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClient;
+            }
+        }
+
+        private bool? _supportsV1_1 = null;
+
+        public bool SupportsV1_1
+        {
+            get
+            {
+                if (_supportsV1_1 == null)
+                {
+                    checkConnection();
+                    _supportsV1_1 = SupportsRESTAPIVersion("1.1");
+                }
+                return _supportsV1_1.Value;
+            }
+        }
+
+        private SASTV1_1 _sastClientV1_1;
+
+        /// <summary>
+        /// Interface to all SAST/OSA REST methods.
+        /// </summary>
+        /// <remarks>Supports only V1.1</remarks>
+        public SASTV1_1 SASTClientV1_1
+        {
+            get
+            {
+                if (!SupportsV1_1)
+                    return null;
+
+                if (_sastClientV1_1 == null)
+                    _sastClientV1_1 = new SASTV1_1(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClientV1_1;
+            }
+        }
+
+
+        private bool? _supportsV2_2 = null;
+
+        public bool SupportsV2_2
+        {
+            get
+            {
+                if (_supportsV2_2 == null)
+                {
+                    checkConnection();
+                    _supportsV2_2 = SupportsRESTAPIVersion("2.2");
+                }
+                return _supportsV2_2.Value;
+            }
+        }
 
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
+        public cxPortalWebService93.CxWSResponceScanCompareResults GetCompareScanResultsAsync(long previousScanId, long newScanId)
+        {
+            return PortalSOAP.GetCompareScanResultsAsync(_soapSessionId, previousScanId, newScanId).Result;
+        }
+
+        public cxPortalWebService93.CxWSResponseScanCompareSummary GetScanCompareSummaryAsync(long previousScanId, long newScanId)
+        {
+            return PortalSOAP.GetScanCompareSummaryAsync(_soapSessionId, previousScanId, newScanId).Result;
+        }
+
         /// <summary>
-        /// Get a preset for a specific scan.
+        /// GET Generic Request... ODATA/REST/SOAP
         /// </summary>
-        /// <param name="id"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="requestUri"></param>
         /// <returns></returns>
-        public string GetScanPreset(long id)
+        public T GetRequest<T>(string requestUri)
         {
             checkConnection();
 
-            if (id <= 0)
+            try
             {
-                throw new ArgumentException(nameof(id));
-            }
-
-            if (_scanCache == null)
-            {
-#if DEBUG
-                var watch = new Stopwatch();
-                watch.Start();
-#endif
-
-                _scanCache = soapScans.Where(x => x.IsLocked).ToDictionary(x => x.Id);
-
-#if DEBUG
-                watch.Stop();
-                Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.Elapsed.TotalMinutes} minutes");
-                Console.SetCursorPosition(0, Console.CursorTop);
-#endif
-            }
-
-            if (!_scanCache.ContainsKey(id))
-            {
-                var scan = soapScans.Where(x => x.Id == id).FirstOrDefault();
-                if (scan != null)
+                var uri = new Uri(SASTServerURL, requestUri);
+                if (!_isV9 && uri.LocalPath.ToLowerInvariant().StartsWith("/cxwebinterface"))
                 {
-                    _scanCache.Add(scan.Id, scan);
-                    return scan.PresetName;
+                    var byteArray = Encoding.ASCII.GetBytes($"{Username}:{Password}");
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 }
 
-                throw new KeyNotFoundException($"Scan with Id {id} does not exist.");
-            }
+                using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
+                {
+                    HttpResponseMessage response = httpClient.SendAsync(request).Result;
 
-            return _scanCache[id].PresetName;
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+                    }
+
+                    throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
+                }
+            }
+            finally
+            {
+                httpClient.DefaultRequestHeaders.Authorization = AuthenticationToken;
+            }
         }
+
+        #endregion
+
+        #region Credentials
 
         /// <summary>
         /// Check if the wrapper is connected.
@@ -128,6 +275,8 @@ namespace Checkmarx.API
         /// </summary>
         public int LcId { get; private set; } = 1033;
 
+        #endregion
+
         /// <summary>
         /// Constructor of the Checkmarx Client
         /// </summary>
@@ -158,7 +307,7 @@ namespace Checkmarx.API
         /// <summary>
         /// Authentication Token for the Version REST 8.9, and all service 9.X
         /// </summary>
-        protected AuthenticationHeaderValue AuthenticationToken
+        public AuthenticationHeaderValue AuthenticationToken
         {
             get
             {
@@ -179,19 +328,7 @@ namespace Checkmarx.API
 
                     if (_authenticationHeaderValue != null)
                     {
-                        var webServer = SASTServerURL;
-                        if (webServer.LocalPath != "cxrestapi")
-                        {
-                            webServer = new Uri(webServer, "/cxrestapi/");
-                        }
-
-                        httpClient = new HttpClient
-                        {
-                            BaseAddress = webServer
-                        };
-
                         _jwtSecurityToken = new JwtSecurityToken(_authenticationHeaderValue.Parameter);
-                        httpClient.DefaultRequestHeaders.Authorization = _authenticationHeaderValue;
                     }
                 }
             }
@@ -212,7 +349,41 @@ namespace Checkmarx.API
 
         private bool _isV9 = false;
 
+
+
         #region Access Control 
+
+        private AccessControlClient _ac = null;
+        public AccessControlClient AC
+        {
+            get
+            {
+                if (_ac == null)
+                {
+                    checkConnection();
+
+                    _ac = new AccessControlClient(httpClient);
+                }
+                return _ac;
+            }
+        }
+
+        /// <summary>
+        /// Returns the version of the Checkmarx.
+        /// </summary>
+        /// <param name="baseURL"></param>
+        /// <returns></returns>
+        public static string GetVersionWithoutConnecting(string baseURL)
+        {
+            var webServer = new Uri(baseURL);
+
+            Uri baseServer = new Uri(webServer.AbsoluteUri);
+
+            var cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
+              baseServer, TimeSpan.FromSeconds(60), "dummy", "dummy");
+
+            return cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+        }
 
         private HttpClient Login(string baseURL = "http://localhost/cxrestapi/",
             string userName = "", string password = "")
@@ -228,10 +399,15 @@ namespace Checkmarx.API
 
             _isV9 = _version.StartsWith("V 9.");
 
+            Console.WriteLine("Checkmarx " + _version);
+
             var httpClient = new HttpClient
             {
-                BaseAddress = webServer
+                BaseAddress = webServer,
+                Timeout = TimeSpan.FromMinutes(20)
+
             };
+
 
             if (httpClient.BaseAddress.LocalPath != "cxrestapi")
             {
@@ -247,7 +423,7 @@ namespace Checkmarx.API
                     new KeyValuePair<string, string>("password", password),
                     new KeyValuePair<string, string>("grant_type", "password"),
                     new KeyValuePair<string, string>("scope",
-                    _isV9 ? "offline_access sast_api" : "sast_rest_api"),
+                    _isV9 ? "offline_access sast_api access_control_api" : "sast_rest_api"),
                     new KeyValuePair<string, string>("client_id",
                     _isV9 ? "resource_owner_sast_client" : "resource_owner_client"),
                     new KeyValuePair<string, string>("client_secret", "014DF517-39D1-4453-B7B3-9930C563627C")
@@ -263,9 +439,13 @@ namespace Checkmarx.API
 
                     string authToken = ((JProperty)accessToken.First).Value.ToString();
 
+                    _cxAuditWebServiceSoapClientV9 = null;
+
                     if (_isV9)
                     {
-                        _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(60), userName, password);
+                        #region V8
+
+                        _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(360), userName, password);
 
                         var portalChannelFactory = _cxPortalWebServiceSoapClient.ChannelFactory;
                         portalChannelFactory.UseMessageInspector(async (request, channel, next) =>
@@ -277,9 +457,26 @@ namespace Checkmarx.API
                             return response;
                         });
 
+                        #endregion
+
+                        #region V9
+
+                        _cxPortalWebServiceSoapClientV9 = new cxPortalWebService93.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(360), userName, password);
+
+                        var portalChannelFactoryV9 = _cxPortalWebServiceSoapClientV9.ChannelFactory;
+                        portalChannelFactoryV9.UseMessageInspector(async (request, channel, next) =>
+                        {
+                            HttpRequestMessageProperty reqProps = new HttpRequestMessageProperty();
+                            reqProps.Headers.Add("Authorization", $"Bearer {authToken}");
+                            request.Properties.Add(HttpRequestMessageProperty.Name, reqProps);
+                            var response = await next(request);
+                            return response;
+                        });
+
+                        #endregion
+
                         // ODATA V9
                         _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
-                        _oDataProjs = _oDataV9.Projects.ToList();
                     }
                     else
                     {
@@ -291,12 +488,14 @@ namespace Checkmarx.API
 
                         // ODATA V8
                         _oData = CxOData.ConnectToOData(webServer, userName, password);
-                        _oDataProjs = _oData.Projects.ToList();
                     }
 
                     AuthenticationToken = new AuthenticationHeaderValue("Bearer", authToken);
 
                     httpClient.DefaultRequestHeaders.Authorization = AuthenticationToken;
+                    httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+
+                    //httpClient.DefaultRequestHeaders.Add("Keep-Alive", "timeout=600000");
 
                     return httpClient;
                 }
@@ -305,15 +504,19 @@ namespace Checkmarx.API
             }
         }
 
+
+
         public string GetProjectTeamName(string teamId)
         {
+            if (string.IsNullOrWhiteSpace(teamId))
+                throw new ArgumentNullException(nameof(teamId));
+
             return GetTeams()[teamId];
         }
 
         public PortalSoap.CxWSResponseServerLicenseData GetLicense()
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             return _cxPortalWebServiceSoapClient.GetServerLicenseData(_soapSessionId);
         }
@@ -321,18 +524,39 @@ namespace Checkmarx.API
         // Cache
         private Dictionary<string, string> _teamsCache;
 
+        /// <summary>
+        /// Full Team Name
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
         public string GetProjectTeamName(int projectId)
         {
             return GetProjectTeamName(GetProjectTeamId(projectId));
         }
 
+        /// <summary>
+        /// Id -> Full Team Name
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, string> GetTeams()
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             if (_teamsCache != null)
                 return _teamsCache;
+
+            if (_isV9)
+            {
+                _teamsCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var item in AC.TeamsAllAsync().Result)
+                {
+                    if (!_teamsCache.ContainsKey(item.Id.ToString()))
+                        _teamsCache.Add(item.Id.ToString(), item.FullName);
+                }
+
+                return _teamsCache;
+            }
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, "auth/teams"))
             {
@@ -341,7 +565,7 @@ namespace Checkmarx.API
                 HttpResponseMessage response = httpClient.SendAsync(request).Result;
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    _teamsCache = new Dictionary<string, string>();
+                    _teamsCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
                     foreach (var item in (JArray)JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result))
                     {
@@ -360,6 +584,12 @@ namespace Checkmarx.API
             }
         }
 
+        public IEnumerable<CxDataRepository.Project> GetProjectsWithLastScan()
+        {
+            checkConnection();
+
+            return _oDataProjects.Expand(x => x.LastScan);
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -379,7 +609,7 @@ namespace Checkmarx.API
         public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {
             checkConnection();
-            return soapScans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId);
+            return _oDataScans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId);
         }
 
         #endregion
@@ -400,6 +630,8 @@ namespace Checkmarx.API
         public Tuple<string, string> GetExcludedSettings(int projectId)
         {
             checkConnection();
+
+            // SASTClient.ExcludeSettings_GetByidAsync(projectId).Result
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}/sourceCode/excludeSettings"))
             {
@@ -493,15 +725,20 @@ namespace Checkmarx.API
 
         public void SetCustomFields(ProjectDetails projDetails, IEnumerable<CustomField> customFields)
         {
+            SetCustomFields(projDetails.Id, projDetails.Name, projDetails.TeamId.ToString(), customFields);
+        }
+
+        public void SetCustomFields(long projId, string projName, string teamId, IEnumerable<CustomField> customFields)
+        {
             checkConnection();
 
-            using (var request = new HttpRequestMessage(HttpMethod.Put, $"projects/{projDetails.Id}"))
+            using (var request = new HttpRequestMessage(HttpMethod.Put, $"projects/{projId}"))
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
                 JObject settings = new JObject
                 {
-                    { "name",  projDetails.Name },
-                    { "owningTeam", projDetails.TeamId.ToString() },
+                    { "name",  projName },
+                    { "owningTeam", teamId },
                     { "customFields", new JArray(
                         customFields.Select(x => new JObject
                         {
@@ -544,13 +781,162 @@ namespace Checkmarx.API
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     ProjectDetails projDetails = JsonConvert.DeserializeObject<ProjectDetails>(response.Content.ReadAsStringAsync().Result);
-
                     return projDetails;
-
                 }
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
+        }
+
+        public cxPortalWebService93.CxWSSingleResultCompareData[] GetScansDiff(int oldScanId, int newScanId)
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClientV9.GetCompareScanResultsAsync(_soapSessionId, oldScanId, newScanId).Result;
+
+            checkSoapResponse(result);
+
+            return result.Results;
+        }
+
+        /// <summary>
+        /// Deletes an existing project with all related scans
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="deleteRunningScans"></param>
+        public void DeleteProject(int projectId, bool deleteRunningScans = true)
+        {
+            checkConnection();
+
+            using (var request = new HttpRequestMessage(HttpMethod.Delete, $"projects/{projectId}"))
+            {
+                request.Headers.Add("Accept", "application/json;v=2.0");
+
+                JObject settings = new JObject
+                {
+                    { "deleteRunningScans",  deleteRunningScans },
+                };
+
+                request.Content = new StringContent(JsonConvert.SerializeObject(settings));
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the SAST version supports a given version.s
+        /// </summary>
+        /// <param name="version">1.1, 0.1, 1, ...</param>
+        /// <returns>true if the api supports a given version of the REST API, otherwise false.</returns>
+        public bool SupportsRESTAPIVersion(string version)
+        {
+            var _ = double.Parse(version);
+
+            try
+            {
+                GetRequest<JObject>($"CxRestAPI/help/swagger/docs/v{version}");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private FailedScansDisplayData[] _failedScans = null;
+
+        public FailedScansDisplayData[] FailedScans
+        {
+            get
+            {
+                if (_failedScans == null)
+                {
+                    checkConnection();
+                    var response = _cxPortalWebServiceSoapClient.GetFailedScansDisplayData(_soapSessionId);
+                    checkSoapResponse(response);
+                    _failedScans = response.FailedScansList;
+                }
+                return _failedScans;
+            }
+        }
+
+        public IEnumerable<FailedScansDisplayData> GetFailedScans(long projectId)
+        {
+            return FailedScans.Where(x => x.ProjectId == projectId);
+        }
+
+
+        public DateTime GetLastDataRetention()
+        {
+            checkConnection();
+
+            dynamic result = null;
+
+            if (_isV9)
+            {
+                result = _cxPortalWebServiceSoapClientV9.GetLatestFinishedDataRetentionRequestAsync(_soapSessionId).Result;
+            }
+            else
+            {
+                result = _cxPortalWebServiceSoapClient.GetLatestFinishedDataRetentionRequest(_soapSessionId);
+            }
+
+            checkSoapResponse(result);
+            return result.DataRetentionRequest.RequestDate;
+
+        }
+
+        public Dictionary<long, string> GetResultStateList()
+        {
+            checkConnection();
+
+            Dictionary<long, string> result = null;
+
+            if (_isV9)
+            {
+                var resultV9 = _cxPortalWebServiceSoapClientV9.GetResultStateListAsync(_soapSessionId).Result;
+                checkSoapResponse(resultV9);
+                result = resultV9.ResultStateList.ToDictionary(x => x.ResultID, y => y.ResultName);
+            }
+            else
+            {
+                var resultV8 = _cxPortalWebServiceSoapClient.GetResultStateListAsync(_soapSessionId).Result;
+                checkSoapResponse(resultV8);
+                result = resultV8.ResultStateList.ToDictionary(x => x.ResultID, y => y.ResultName);
+            }
+
+            return result;
+        }
+
+
+        public cxPortalWebService93.CxWSResponceResultPath GetPathCommentsHistory(long scanId, long pathId)
+        {
+            checkConnection();
+
+            dynamic result = null;
+
+            if (_isV9)
+            {
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.State).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.Assign).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.IgnorePath).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.Remark).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.Severity).Result;
+                result = _cxPortalWebServiceSoapClientV9.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId, cxPortalWebService93.ResultLabelTypeEnum.IssueTracking).Result;
+            }
+            else
+            {
+                throw new NotImplementedException();
+                // result = _cxPortalWebServiceSoapClient.GetPathCommentsHistoryAsync(_soapSessionId, scanId, pathId);
+            }
+
+            checkSoapResponse(result);
+            return result;
         }
 
         /// <summary>
@@ -560,24 +946,7 @@ namespace Checkmarx.API
         /// <returns></returns>
         public string GetProjectTeamId(int projectId)
         {
-            checkConnection();
-
-            using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}"))
-            {
-                request.Headers.Add("Accept", "application/json;v=1.0");
-
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    JObject excludeSettings = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
-
-                    return (string)excludeSettings.SelectToken("teamId");
-
-                }
-
-                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
-            }
+            return GetProjectSettings(projectId).TeamId;
         }
 
         public Dictionary<string, int> GetSASTCustomFields()
@@ -613,28 +982,17 @@ namespace Checkmarx.API
 
         public Dictionary<string, CustomField> GetProjectCustomFields(int projectId)
         {
-            checkConnection();
-
-            using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}"))
-            {
-                request.Headers.Add("Accept", "application/json;v=2.0");
-
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    ProjectDetails projectSettings = JsonConvert.DeserializeObject<ProjectDetails>(response.Content.ReadAsStringAsync().Result);
-
-                    return projectSettings.CustomFields.ToDictionary(x => x.Name);
-                }
-
-                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
-            }
+            return GetProjectSettings(projectId).CustomFields.ToDictionary(x => x.Name);
         }
 
         #region OSA
 
-        public ICollection<Guid> GetOSAScans(int projectId)
+        public IEnumerable<Guid> GetOSAScansIds(int projectId)
+        {
+            return GetOSAScans(projectId).Select(x => x.Id);
+        }
+
+        public ICollection<OSAScanDto> GetOSAScans(int projectId)
         {
             checkConnection();
 
@@ -648,20 +1006,11 @@ namespace Checkmarx.API
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var projectList = (JArray)JsonConvert.DeserializeObject(response.Content.ReadAsStringAsync().Result);
-
-                    foreach (var item in projectList)
-                    {
-                        result.Add(Guid.Parse((string)item.SelectToken("id")));
-                    }
-
-                    return result;
+                    return JsonConvert.DeserializeObject<OSAScanDto[]>(response.Content.ReadAsStringAsync().Result);
                 }
 
-                throw new NotSupportedException(response.ToString());
+                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
-
-
         }
 
 
@@ -688,8 +1037,7 @@ namespace Checkmarx.API
          */
         public OSAReportDto GetOSAResults(Guid osaScanId)
         {
-            if (!Connected)
-                throw new NotSupportedException();
+            checkConnection();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"osa/reports?scanId={osaScanId}"))
             {
@@ -725,6 +1073,8 @@ namespace Checkmarx.API
 
                     return result;
                 }
+
+                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
 
             throw new NotSupportedException();
@@ -778,17 +1128,138 @@ namespace Checkmarx.API
 
         #region SAST
 
-        public void RunSASTScan(long projectId, string comment = "")
+        public byte[] GetSourceCode(long scanId)
         {
             checkConnection();
 
-            var projectResponse = _cxPortalWebServiceSoapClient.GetProjectConfiguration(_soapSessionId, projectId);
+            dynamic result = null;
 
-            if (!projectResponse.IsSuccesfull)
-                throw new Exception(projectResponse.ErrorMessage);
+            if (_isV9)
+            {
+                result = CxAuditV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
+            }
+            else
+            {
+                result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
+            }
 
-            if (projectResponse.ProjectConfig.SourceCodeSettings.SourceOrigin == PortalSoap.SourceLocationType.Local)
-                throw new NotSupportedException("The location is setup for Local, we don't support it");
+            checkSoapResponse(result);
+            return result.sourceCodeContainer.ZippedFile;
+        }
+
+
+        public void CancelScan(string runId)
+        {
+            checkConnection();
+
+            dynamic result = null;
+
+            if (_isV9)
+            {
+                result = _cxPortalWebServiceSoapClientV9.CancelScanAsync(_soapSessionId, runId).Result;
+            }
+            else
+            {
+                result = _cxPortalWebServiceSoapClient.CancelScanAsync(_soapSessionId, runId).Result;
+            }
+
+            checkSoapResponse(result);
+        }
+
+        public ProjectConfiguration GetProjectConfiguration(long projectId)
+        {
+            checkConnection();
+
+            var response = _cxPortalWebServiceSoapClient.GetProjectConfiguration(_soapSessionId, projectId);
+
+            checkSoapResponse(response);
+
+            return response.ProjectConfig;
+        }
+
+        public void SetPreset(long projectId, string presetName)
+        {
+            SetPreset(projectId, GetPresets().First(x => string.Compare(x.Value, presetName) == 0).Key);
+        }
+
+        public void SetPreset(long projectId, long presetId)
+        {
+            var projecTconfigu = SASTClient.ScanSettings_GetByprojectIdAsync(projectId).Result;
+
+            SASTClient.ScanSettings_PutByscanSettingsAsync(new ScanSettingsRequestDto
+            {
+                ProjectId = projectId,
+                PresetId = presetId,
+                EngineConfigurationId = projecTconfigu.EngineConfiguration.Id.Value,
+                EmailNotifications = projecTconfigu.EmailNotifications,
+                PostScanActionId = projecTconfigu.PostScanAction?.Id
+            }).Wait();
+        }
+
+        /// <summary>
+        /// Runs a SAST Scan or re-runs it with the last source code.
+        /// </summary>
+        /// <param name="projectId">Project ID in SAST</param>
+        /// <param name="preset">What preset to use</param>
+        /// <param name="comment"></param>
+        /// <param name="forceScan"></param>
+        /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
+        public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
+            bool useLastScanPreset = false)
+        {
+            checkConnection();
+
+            var projectConfig = GetProjectConfiguration(projectId);
+
+            if (projectConfig.SourceCodeSettings.SourceOrigin == PortalSoap.SourceLocationType.Local)
+            {
+                if (sourceCodeZipContent == null || !sourceCodeZipContent.Any())
+                {
+                    if (!forceScan)
+                        throw new NotSupportedException("If the scan is not being forced, then you should pass the source code in the parameters.");
+
+                    var scan = GetLastScan(projectId);
+                    if (scan == null)
+                        throw new NotSupportedException("There is no last scan in the project to download the source code from, please pass it on the parameters");
+
+                    sourceCodeZipContent = GetSourceCode(scan.Id);
+
+                    // Scan without overriding anything
+                    //if (SASTClientV1_1 != null)
+                    //{
+                    //    SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(projectId, false, false, true, true, "", 1, projectConfig.ProjectSettings.)
+
+                    //        return;
+                    //}
+
+                    if (useLastScanPreset) // Update SAST Project Config to match CI/CD
+                    {
+                        SetPreset(projectId, GetScanPreset(scan.Id));
+                    }
+                }
+
+
+                using (var content = new MultipartFormDataContent())
+                {
+                    var fileContent = new ByteArrayContent(sourceCodeZipContent);
+                    fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = "filename.zip",
+                        Name = "zippedSource"
+                    };
+
+                    content.Add(fileContent);
+
+                    string requestUri = $"projects/{projectId}/sourceCode/attachments";
+
+                    HttpResponseMessage attachCodeResponse = httpClient.PostAsync(requestUri, content).Result;
+
+                    if (attachCodeResponse.StatusCode != HttpStatusCode.OK && attachCodeResponse.StatusCode != HttpStatusCode.NoContent)
+                    {
+                        throw new NotSupportedException(attachCodeResponse.Content.ReadAsStringAsync().Result);
+                    }
+                }
+            }
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, "sast/scans"))
             {
@@ -799,7 +1270,7 @@ namespace Checkmarx.API
                 {
                     ProjectId = projectId,
                     Comment = comment ?? string.Empty,
-                    ForceScan = true,
+                    ForceScan = forceScan,
                     IsIncremental = false,
                     IsPublic = true
                 });
@@ -809,15 +1280,32 @@ namespace Checkmarx.API
                     request.Content = stringContent;
                     HttpResponseMessage response = httpClient.SendAsync(request).Result;
 
-                    if (response.StatusCode != HttpStatusCode.OK)
+                    if (response.StatusCode != HttpStatusCode.Created)
                     {
                         throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
                     }
                 }
             }
-
-            throw new NotSupportedException();
         }
+
+        private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)
+        {
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+        }
+
+        private void checkSoapResponse(CxAuditWebServiceV9.CxWSBasicRepsonse result)
+        {
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+        }
+
+        private void checkSoapResponse(CxWSBasicRepsonse result)
+        {
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+        }
+
 
         public SASTResults GetSASTResults(long sastScanId)
         {
@@ -875,7 +1363,7 @@ namespace Checkmarx.API
                     return scans;
                 }
 
-                throw new NotSupportedException(request.ToString());
+                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
         }
 
@@ -914,7 +1402,7 @@ namespace Checkmarx.API
             }
         }
 
-        private enum ScanRetrieveKind
+        public enum ScanRetrieveKind
         {
             First,
             Last,
@@ -922,11 +1410,11 @@ namespace Checkmarx.API
             All
         }
 
-        public List<Scan> GetAllSASTScans(long projectId)
+        public IEnumerable<Scan> GetAllSASTScans(long projectId)
         {
-            var scans = GetScans(projectId, true, ScanRetrieveKind.All);
-            return scans;
+            return GetScans(projectId, true, ScanRetrieveKind.All);
         }
+
         public Scan GetFirstScan(long projectId)
         {
             var scan = GetScans(projectId, true, ScanRetrieveKind.First);
@@ -939,22 +1427,40 @@ namespace Checkmarx.API
             return scan.FirstOrDefault();
         }
 
-        public Scan GetLockedScan(long projectId)
+        public Scan GetLastScanByVersion(long projectId, string version)
         {
-            var scan = GetScans(projectId, true, ScanRetrieveKind.First);
+            var scan = GetScans(projectId, true, ScanRetrieveKind.Last, version);
             return scan.FirstOrDefault();
         }
+
+        public Scan GetLastScanFinishOrFailed(long projectId)
+        {
+            var scan = GetScans(projectId, false, ScanRetrieveKind.Last);
+            return scan.FirstOrDefault();
+        }
+
+        public Scan GetLockedScan(long projectId)
+        {
+            return GetScans(projectId, true, ScanRetrieveKind.Locked).FirstOrDefault();
+        }
+
 
         public int GetScanCount()
         {
             checkConnection();
-            return soapScans.Count();
+            return _oDataScans.Count();
         }
 
-        private List<Scan> GetScans(long projectId, bool finished,
-            ScanRetrieveKind scanKind = ScanRetrieveKind.All)
+        public IEnumerable<Scan> GetScans(long projectId, bool finished,
+            ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null)
         {
-            IQueryable<CxDataRepository.Scan> scans = soapScans.Where(x => x.ProjectId == projectId);
+            checkConnection();
+
+            IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
+
+            if (version != null)
+                scans = scans.Where(x => version.StartsWith(x.ProductVersion));
+
             switch (scanKind)
             {
                 case ScanRetrieveKind.First:
@@ -971,22 +1477,13 @@ namespace Checkmarx.API
                     break;
             }
 
-            var ret = new List<Scan>();
             foreach (var scan in scans)
             {
-                // 1 - finished
-                // 3 - unfinished
-
                 if (finished && scan.ScanType == 3)
-                {
                     continue;
-                }
-                var currentScan = ConvertScanFromOData(scan);
 
-                ret.Add(currentScan);
+                yield return ConvertScanFromOData(scan);
             }
-
-            return ret;
         }
 
         private static Scan ConvertScanFromOData(CxDataRepository.Scan scan)
@@ -996,6 +1493,8 @@ namespace Checkmarx.API
                 Comment = scan.Comment,
                 Id = scan.Id,
                 IsLocked = scan.IsLocked,
+                InitiatorName = scan.InitiatorName,
+                OwningTeamId = scan.OwningTeamId,
                 ScanState = new ScanState
                 {
                     LanguageStateCollection = scan.ScannedLanguages.Select(language => new LanguageStateCollection
@@ -1003,7 +1502,8 @@ namespace Checkmarx.API
                         LanguageName = language.LanguageName
                     }).ToList(),
 
-                    LinesOfCode = scan.LOC.GetValueOrDefault()
+                    LinesOfCode = scan.LOC.GetValueOrDefault(),
+                    CxVersion = scan.ProductVersion,
                 },
                 Origin = scan.Origin,
                 ScanRisk = scan.RiskScore,
@@ -1058,6 +1558,9 @@ namespace Checkmarx.API
                 {
                     var result = JsonConvert.DeserializeObject<ScanSettings>(response.Content.ReadAsStringAsync().Result);
 
+                    if (!GetPresets().ContainsKey(result.Preset.Id))
+                        return "Checkmarx Default";
+
                     return GetPresets()[result.Preset.Id];
                 }
 
@@ -1065,7 +1568,30 @@ namespace Checkmarx.API
             }
         }
 
-#endregion
+        #endregion
+
+        #region Checkmarx Configurations
+
+        public List<ComponentConfiguration> GetConfigurations(SAST.Group group)
+        {
+            checkConnection();
+
+            using (var request = new HttpRequestMessage(HttpMethod.Get, $"configurationsExtended/{ConvertToString(group)}"))
+            {
+                request.Headers.Add("Accept", "application/json;v=1.0");
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return JsonConvert.DeserializeObject<List<ComponentConfiguration>>(response.Content.ReadAsStringAsync().Result);
+                }
+
+                throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Gets the projects.
@@ -1075,61 +1601,63 @@ namespace Checkmarx.API
         /// <exception cref="NotImplementedException"></exception>
         public Dictionary<int, string> GetProjects()
         {
-            checkConnection();
-
-            // List Project Now..
-            var projectListResponse = httpClient.GetAsync("projects").Result;
-
-            var result = new Dictionary<int, string>();
-
-            if (projectListResponse.StatusCode == HttpStatusCode.OK)
-            {
-                string plResult = projectListResponse.Content.ReadAsStringAsync().Result;
-
-                var projectList = (JArray)JsonConvert.DeserializeObject(plResult);
-
-                foreach (var item in projectList)
-                {
-                    result.Add((int)item.SelectToken("id"),
-                        (string)item.SelectToken("name"));
-                }
-
-                return result;
-            }
-
-            if (projectListResponse.StatusCode == HttpStatusCode.Unauthorized)
-                throw new UnauthorizedAccessException();
-
-            throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
+            return GetAllProjectsDetails().ToDictionary(x => (int)x.Id, x => x.Name);
         }
 
-        public List<ProjectDetails> GetAllProjectsDetails()
+        public List<ProjectDetails> GetAllProjectsDetails(bool showAlsoDeletedProjects = false)
         {
             checkConnection();
 
-            // List Project Now..
-            var projectListResponse = httpClient.GetAsync("projects").Result;
-
-            if (projectListResponse.StatusCode == HttpStatusCode.OK)
+            string version = "2.0";
+            string link = "projects";
+            if (SupportsRESTAPIVersion("2.2"))
             {
-                string plResult = projectListResponse.Content.ReadAsStringAsync().Result;
-                return JsonConvert.DeserializeObject<List<ProjectDetails>>(plResult);
+                if (showAlsoDeletedProjects)
+                    link += "?showAlsoDeletedProjects=true";
+
+                version = "2.2";
             }
 
-            if (projectListResponse.StatusCode == HttpStatusCode.Unauthorized)
-                throw new UnauthorizedAccessException();
+            using (var projects = new HttpRequestMessage(HttpMethod.Get, link))
+            {
+                try
+                {
+                    projects.Headers.Add("Accept", $"application/json;v={version}");
+                    projects.Headers.Add("Connection", "keep-alive");
 
-            throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
+                    Task<HttpResponseMessage> projectListTask = httpClient.SendAsync(projects);
+
+
+                    var projectListResponse = projectListTask.GetAwaiter().GetResult();
+
+                    if (projectListResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        string plResult = projectListResponse.Content.ReadAsStringAsync().Result;
+                        return JsonConvert.DeserializeObject<List<ProjectDetails>>(plResult);
+                    }
+
+                    if (projectListResponse.StatusCode == HttpStatusCode.Unauthorized)
+                        throw new UnauthorizedAccessException();
+
+                    throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
+                }
+                catch (AggregateException ex)
+                {
+
+                    throw;
+                }
+            }
         }
 
+        #region Presets & Queries
 
         private Dictionary<int, string> _presetsCache;
         public Dictionary<int, string> GetPresets()
         {
-            checkConnection();
-
             if (_presetsCache != null)
                 return _presetsCache;
+
+            checkConnection();
 
             using (var presets = new HttpRequestMessage(HttpMethod.Get, $"sast/presets"))
             {
@@ -1150,7 +1678,384 @@ namespace Checkmarx.API
             }
         }
 
-#region Reports
+        /// <summary>
+        /// Get a preset for a specific scan.
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <returns></returns>
+        public string GetScanPreset(long scanId)
+        {
+            checkConnection();
+
+            if (scanId <= 0)
+            {
+                throw new ArgumentException(nameof(scanId));
+            }
+
+            if (_scanCache == null)
+            {
+#if DEBUG
+                //var watch = new Stopwatch();
+                //watch.Start();
+#endif
+
+                _scanCache = _oDataScans.Where(x => x.IsLocked).ToDictionary(x => x.Id);
+
+#if DEBUG
+                //watch.Stop();
+                //Console.WriteLine($"Found {_scanCache.Keys.Count} scans in {watch.Elapsed.TotalMinutes} minutes");
+                //Console.SetCursorPosition(0, Console.CursorTop);
+#endif
+            }
+
+            if (!_scanCache.ContainsKey(scanId))
+            {
+                var scan = _oDataScans.Where(x => x.Id == scanId).FirstOrDefault();
+                if (scan != null)
+                {
+                    _scanCache.Add(scan.Id, scan);
+                    return scan.PresetName;
+                }
+
+                throw new KeyNotFoundException($"Scan with Id {scanId} does not exist.");
+            }
+
+            return _scanCache[scanId].PresetName;
+        }
+
+        public Dictionary<string, List<long>> GetPresetCWEByLanguage(long presetId)
+        {
+            var listOfCWEByLanguage = new Dictionary<string, List<long>>();
+            var queryCWE = new Dictionary<long, Tuple<string, CxWSQuery>>();
+
+            foreach (var item in QueryGroups)
+            {
+                foreach (var query in item.Queries)
+                {
+                    queryCWE.Add(query.QueryId, new Tuple<string, CxWSQuery>(item.LanguageName, query));
+                }
+            }
+
+            // Language -> CWE
+            foreach (var queryId in _cxPortalWebServiceSoapClient.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset.queryIds)
+            {
+                var result = queryCWE[queryId];
+                if (result.Item2.Cwe != 0)
+                {
+                    if (!listOfCWEByLanguage.ContainsKey(result.Item1))
+                    {
+                        listOfCWEByLanguage.Add(result.Item1, new List<long> { result.Item2.Cwe });
+                    }
+                    else
+                    {
+                        listOfCWEByLanguage[result.Item1].Add(result.Item2.Cwe);
+                    }
+                }
+            }
+
+            return listOfCWEByLanguage;
+        }
+
+        public string GetPresetCWE(string presetName)
+        {
+            checkConnection();
+
+            var presets = _cxPortalWebServiceSoapClient.GetPresetListAsync(_soapSessionId).Result;
+
+            checkSoapResponse(presets);
+
+            presetName = presetName.ToLowerInvariant();
+            var preset = presets.PresetList.SingleOrDefault(x => x.PresetName.ToLowerInvariant() == presetName);
+
+            var stringBuilder = new StringBuilder();
+
+            if (preset == null)
+                throw new NotSupportedException($"The preset {presetName} was not found");
+
+            var languageAndCweIds = GetPresetCWEByLanguage(preset.ID);
+            foreach (var item in languageAndCweIds)
+            {
+                stringBuilder.AppendLine($"{item.Key} - {string.Join(",", item.Value.Distinct().OrderBy(x => x))}");
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        public void ImportQueryGroupQuery93(IEnumerable<CxAuditWebServiceV9.CxWSQueryGroup> queryGroup)
+        {
+            checkConnection();
+            dynamic response = null;
+            if (_isV9)
+            {
+
+                response = CxAuditV9
+                      .UploadQueriesAsync(_soapSessionId, queryGroup.ToArray()).Result;
+            }
+            checkSoapResponse(response);
+            _queryGroupsCache = null;
+        }
+
+        public IEnumerable<long> GetPresetQueryIds(int presetId)
+        {
+            checkConnection();
+
+            return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset.queryIds;
+        }
+
+        public cxPortalWebService93.CxPresetDetails GetPresetDetails(int presetId)
+        {
+
+            return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset;
+        }
+
+        /// <summary>
+        /// Get Query Information about the CWE of the Checkmarx Queries and other information.
+        /// </summary>
+        /// <returns></returns>
+        public StringBuilder GetQueryInformation(params string[] presetNames)
+        {
+            StringBuilder result = new StringBuilder();
+            result.AppendLine("sep=,");
+
+            List<string> headers = new List<string>
+            {
+                "QueryId",
+                "Language",
+                "PackageType",
+                "QueryGroup",
+                "QueryName",
+                "IsExecutable",
+                "CWE",
+                "Severity",
+                "Categories"
+            };
+
+            // we need order
+            List<HashSet<long>> presetQueries = new List<HashSet<long>>();
+
+            if (presetNames != null)
+            {
+                var presets = GetPresets();
+
+                foreach (var preset in presetNames)
+                {
+                    var presetId = presets.First(x => x.Value == preset);
+
+                    headers.Add(preset);
+
+                    presetQueries.Add(GetPresetQueryIds(presetId.Key).ToHashSet());
+                }
+            }
+
+            Dictionary<string, HashSet<string>> standards = new Dictionary<string, HashSet<string>>();
+
+            result.AppendLine(string.Join(",", headers));
+
+            List<string> values;
+            foreach (var queryGroup in this.GetQueries())
+            {
+                foreach (var query in queryGroup.Queries)
+                {
+                    List<string> categories = new List<string>();
+                    foreach (var item in query.Categories)
+                    {
+                        if (!standards.ContainsKey(item.CategoryType.Name))
+                            standards.Add(item.CategoryType.Name, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+
+                        var subTopic = standards[item.CategoryType.Name];
+
+                        if (!subTopic.Contains(item.CategoryName))
+                            subTopic.Add(item.CategoryName);
+
+                        categories.Add(item.CategoryType.Name);
+                    }
+
+                    values = new List<string>
+                    {
+                        query.QueryId.ToString(),
+                        queryGroup.LanguageName,
+                        queryGroup.PackageTypeName,
+                        queryGroup.PackageFullName,
+                        query.Name,
+                        query.IsExecutable.ToString(),
+                        query.Cwe.ToString(),
+                        query.Severity.ToString(),
+                        string.Join(";", categories)
+                    };
+
+                    // add the presence of the queries in the presets.
+                    foreach (var preset in presetQueries)
+                    {
+                        values.Add(preset.Contains(query.QueryId).ToString());
+                    }
+
+                    result.AppendLine(string.Join(",", values.Select(x => $"\"{x}\"")));
+                }
+            }
+
+            return result;
+        }
+
+        public Dictionary<long, List<Tuple<long, string>>> GetQueryForCWE(ICollection<long> cwes)
+        {
+            // CWE Query Name
+            var listOfQueriesForCWE = new Dictionary<long, List<Tuple<long, string>>>();
+
+            foreach (var item in QueryGroups)
+            {
+                foreach (var query in item.Queries)
+                {
+                    if (cwes.Contains(query.Cwe))
+                    {
+                        string fullQueryName = item.PackageFullName + "::" + query.Name;
+
+                        if (!listOfQueriesForCWE.ContainsKey(query.Cwe))
+                            listOfQueriesForCWE.Add(query.Cwe, new List<Tuple<long, string>>() { new Tuple<long, string>(query.QueryId, fullQueryName) });
+                        else
+                            listOfQueriesForCWE[query.Cwe].Add(new Tuple<long, string>(query.QueryId, fullQueryName));
+                    }
+                }
+            }
+
+            return listOfQueriesForCWE;
+        }
+
+        public void AddCWESupportToExistentPreset(
+            string presetFullFileName,
+            Dictionary<long, List<Tuple<long, string>>> results,
+            string outputFullFileName)
+        {
+            XDocument doc = XDocument.Load(presetFullFileName);
+
+            List<long> queryIdInPreset = new List<long>();
+
+            foreach (var xElement in doc.Descendants(XName.Get("OtherQueryId", doc.Root.GetDefaultNamespace().ToString())))
+            {
+                queryIdInPreset.Add(long.Parse(xElement.Value));
+            }
+
+            var queriesNode = doc.Descendants(XName.Get("OtherQueryIds")).First();
+
+            foreach (var cweQuery in results)
+            {
+                foreach (var queryId in cweQuery.Value)
+                {
+                    if (!queryIdInPreset.Contains(queryId.Item1))
+                    {
+                        queriesNode.Add(new XElement("OtherQueryId", queryId.Item1));
+                        queryIdInPreset.Add(queryId.Item1);
+                    }
+                }
+            }
+
+            doc.Save(outputFullFileName);
+        }
+
+        public void AddQueriesToPreset(string presetName, params long[] cxQueryIds)
+        {
+            if (string.IsNullOrWhiteSpace(presetName))
+                throw new ArgumentNullException(nameof(presetName));
+
+            if (cxQueryIds == null)
+                throw new ArgumentNullException(nameof(cxQueryIds));
+
+            checkConnection();
+
+            int presetId = GetPresets().Where(x => x.Value == presetName).First().Key;
+
+            var presetxmlResponse = _cxPortalWebServiceSoapClientV9.ExportPresetAsync(_soapSessionId, presetId).Result;
+
+            checkSoapResponse(presetxmlResponse);
+
+            using (MemoryStream ms = new MemoryStream(presetxmlResponse.Preset))
+            {
+                XDocument doc = XDocument.Load(ms);
+
+                List<long> queryIdInPreset = new List<long>();
+
+                foreach (var xElement in doc.Descendants(XName.Get("OtherQueryId", doc.Root.GetDefaultNamespace().ToString())))
+                {
+                    queryIdInPreset.Add(long.Parse(xElement.Value));
+                }
+
+                var queriesNode = doc.Descendants(XName.Get("OtherQueryIds")).First();
+
+                foreach (var queryId in cxQueryIds)
+                {
+                    if (!queryIdInPreset.Contains(queryId))
+                    {
+                        queriesNode.Add(new XElement("OtherQueryId", queryId));
+                        queryIdInPreset.Add(queryId);
+                    }
+                }
+
+                using (MemoryStream newPreset = new MemoryStream())
+                {
+                    doc.Save(newPreset);
+                    checkSoapResponse(_cxPortalWebServiceSoapClientV9.ImportPresetAsync(_soapSessionId, newPreset.ToArray()).Result.ImportPresetResult);
+                }
+            }
+        }
+
+        private IEnumerable<dynamic> _queryGroupsCache = null;
+
+        public IEnumerable<dynamic> QueryGroups
+        {
+            get
+            {
+                if (_queryGroupsCache == null)
+                {
+                    checkConnection();
+                    dynamic response = null;
+                    if (_isV9)
+                    {
+                        response = _cxPortalWebServiceSoapClientV9
+                              .GetQueryCollectionAsync(_soapSessionId).Result;
+                    }
+                    else
+                    {
+                        response = _cxPortalWebServiceSoapClient
+                              .GetQueryCollectionAsync(_soapSessionId).Result;
+
+                    }
+                    checkSoapResponse(response);
+                    _queryGroupsCache = response.QueryGroups;
+                }
+                return _queryGroupsCache;
+            }
+        }
+
+        public IEnumerable<dynamic> GetProjectLevelQueries(long projectId)
+        {
+            if (_isV9)
+            {
+                return QueryGroups
+                .Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Project && x.ProjectId == projectId)
+                .ToArray();
+            }
+
+            return QueryGroups
+            .Where(x => x.PackageType == CxWSPackageTypeEnum.Project && x.ProjectId == projectId)
+            .ToArray();
+        }
+
+        public IEnumerable<dynamic> GetCustomizedQueriesTeam(string teamid)
+        {
+            if (_isV9)
+            {
+                return QueryGroups
+                    .Where(group => group.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Team)
+                    .Where(group => group.OwningTeam.ToString() == teamid).ToArray();
+            }
+
+            return QueryGroups
+                .Where(group => group.PackageType == CxWSPackageTypeEnum.Team)
+                .Where(group => group.OwningTeam.ToString() == teamid).ToArray();
+        }
+
+        #endregion
+
+        #region Reports
 
         /// <summary>
         /// Returns the ScanId of a finished scan.
@@ -1332,9 +2237,16 @@ namespace Checkmarx.API
             return false;
         }
 
-#endregion
+        #endregion
 
-#region Results
+        #region Results
+
+
+        public CxAuditWebServiceV9.AuditScanResult[] GetResult(long scanId)
+        {
+
+            return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
+        }
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)
         {
@@ -1352,17 +2264,17 @@ namespace Checkmarx.API
         /// Get the all query groups of the CxSAST server.
         /// </summary>
         /// <returns></returns>
-        public CxWSQueryGroup[] GetQueries()
+        public cxPortalWebService93.CxWSQueryGroup[] GetQueries()
         {
             checkConnection();
 
-            var result = _cxPortalWebServiceSoapClient.GetQueryCollection(_soapSessionId);
+            var result = _cxPortalWebServiceSoapClientV9.GetQueryCollectionAsync(_soapSessionId).Result;
 
             if (!result.IsSuccesfull)
                 throw new ApplicationException(result.ErrorMessage);
 
             return result.QueryGroups;
-           
+
         }
 
         /// <summary>
@@ -1376,31 +2288,88 @@ namespace Checkmarx.API
             }
         }
 
+        private bool? isOsaAvailable;
+        public bool IsOsaAvailable
+        {
+            get
+            {
 
-        public void GetCommentsHistoryTest(long scanId)
+
+                if (isOsaAvailable == null)
+                {
+                    try
+                    {
+                        checkConnection();
+
+                        isOsaAvailable = GetLicense().IsOsaEnabled;
+                    }
+                    catch
+                    {
+                        isOsaAvailable = false;
+                    }
+                }
+                return isOsaAvailable.Value;
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of tuples with comment remarks list per path id
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <returns></returns>
+        public List<Tuple<List<string>, long>> GetAllCommentRemarksForScan(long scanId)
         {
             checkConnection();
 
             var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
-
-            // Assert.IsTrue(response.IsSuccesfull);
-
+            var commentList = new List<Tuple<List<string>, long>>();
             foreach (var item in response.Results)
             {
-                //Console.WriteLine(item.State);
-
-                if (!string.IsNullOrWhiteSpace(item.Comment))
+                var pathCommentList = new List<string>();
+                if (!string.IsNullOrEmpty(item.Comment) && !string.IsNullOrWhiteSpace(item.Comment))
                 {
-                    var commentsResults = _cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, item.PathId,
-                         ResultLabelTypeEnum.Remark);
+                    var commentHistory = _cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, item.PathId,
+                        ResultLabelTypeEnum.Remark);
+                    VerifyAndAddComment(commentHistory, pathCommentList);
+                }
+                if (pathCommentList.Any())
+                {
+                    commentList.Add(new Tuple<List<string>, long>(pathCommentList, item.PathId));
+                }
 
-                    foreach (var comment in commentsResults.Path.Comment.Split(new[] { CommentSeparator },
-                        StringSplitOptions.RemoveEmptyEntries))
+            }
+
+            return commentList;
+        }
+
+        /// <summary>
+        /// Return a comment remark list for a specific scan and path id
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <param name="pathId"></param>
+        /// <returns></returns>
+        public List<string> GetAllCommentRemarksForScanAndPath(long scanId, long pathId)
+        {
+            checkConnection();
+
+            var commentList = new List<string>();
+
+            VerifyAndAddComment(_cxPortalWebServiceSoapClient.GetPathCommentsHistory(_soapSessionId, scanId, pathId,
+                    ResultLabelTypeEnum.Remark), commentList);
+
+            return commentList;
+        }
+
+        private void VerifyAndAddComment(CxWSResponceResultPath cxWSResponceResultPath, List<string> pathCommentList)
+        {
+            if (cxWSResponceResultPath != null)
+            {
+                if (cxWSResponceResultPath.Path != null)
+                {
+                    if (cxWSResponceResultPath.Path.Comment != null)
                     {
-                        string commentText = comment.Substring(comment.IndexOf(']') + 3);
-
-                        Console.WriteLine(string.Join(";",
-                            toSeverityToString(item.Severity), toResultStateToString((ResultState)item.State), commentText));
+                        var comments = cxWSResponceResultPath.Path.Comment.Split(new char[] { CommentSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                        pathCommentList.AddRange(comments);
                     }
                 }
             }
@@ -1432,14 +2401,14 @@ namespace Checkmarx.API
             checkConnection();
 
             var result = _cxPortalWebServiceSoapClient.GetQueryDescription(_soapSessionId, (int)cwe);
-            if (!result.IsSuccesfull)
-                throw new Exception(result.ErrorMessage);
+
+            checkSoapResponse(result);
 
             return result.QueryDescription;
         }
 
 
-        private static string toResultStateToString(ResultState state)
+        public static string toResultStateToString(ResultState state)
         {
             switch (state)
             {
@@ -1458,12 +2427,12 @@ namespace Checkmarx.API
             }
         }
 
-        private static string toSeverityToString(int severity)
+        public static string toSeverityToString(int severity)
         {
             switch (severity)
             {
                 case 0:
-                    return "Low";
+                    return "Info";
                 case 1:
                     return "Low";
                 case 2:
@@ -1475,8 +2444,58 @@ namespace Checkmarx.API
             }
         }
 
-#endregion
+        #endregion
 
+        #region Utils
+        private string ConvertToString(object value, CultureInfo cultureInfo = null)
+        {
+            if (value == null)
+            {
+                return "";
+            }
+
+            if (cultureInfo == null)
+                cultureInfo = CultureInfo.InvariantCulture;
+
+            if (value is System.Enum)
+            {
+                var name = System.Enum.GetName(value.GetType(), value);
+                if (name != null)
+                {
+                    var field = System.Reflection.IntrospectionExtensions.GetTypeInfo(value.GetType()).GetDeclaredField(name);
+                    if (field != null)
+                    {
+                        var attribute = System.Reflection.CustomAttributeExtensions.GetCustomAttribute(field, typeof(System.Runtime.Serialization.EnumMemberAttribute))
+                            as System.Runtime.Serialization.EnumMemberAttribute;
+                        if (attribute != null)
+                        {
+                            return attribute.Value != null ? attribute.Value : name;
+                        }
+                    }
+
+                    var converted = System.Convert.ToString(System.Convert.ChangeType(value, System.Enum.GetUnderlyingType(value.GetType()), cultureInfo));
+                    return converted == null ? string.Empty : converted;
+                }
+            }
+            else if (value is bool)
+            {
+                return System.Convert.ToString((bool)value, cultureInfo).ToLowerInvariant();
+            }
+            else if (value is byte[])
+            {
+                return System.Convert.ToBase64String((byte[])value);
+            }
+            else if (value.GetType().IsArray)
+            {
+                var array = System.Linq.Enumerable.OfType<object>((System.Array)value);
+                return string.Join(",", System.Linq.Enumerable.Select(array, o => ConvertToString(o, cultureInfo)));
+            }
+
+            var result = System.Convert.ToString(value, cultureInfo);
+            return result == null ? "" : result;
+        }
+
+        #endregion
 
         public void Dispose()
         {
@@ -1484,6 +2503,4 @@ namespace Checkmarx.API
 
         }
     }
-
-
 }

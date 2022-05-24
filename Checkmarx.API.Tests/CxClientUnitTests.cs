@@ -46,7 +46,7 @@ namespace Checkmarx.API.Tests
                         new CxClient(new Uri(v8),
                         Configuration["V89:Username"],
                         new NetworkCredential("", Configuration["V89:Password"]).Password);
-               
+
                 Assert.IsTrue(clientV89.Version.StartsWith("8."));
             }
 
@@ -82,17 +82,6 @@ namespace Checkmarx.API.Tests
             }
         }
 
-            string v93 = Configuration["V93:URL"];
-            if (!string.IsNullOrWhiteSpace(v93))
-            {
-                clientV93 =
-                      new CxClient(new Uri(v93),
-                      Configuration["V93:Username"],
-                      new NetworkCredential("", Configuration["V93:Password"]).Password);
-
-                Assert.IsTrue(clientV93.Version.StartsWith("9.3"));
-            }
-        }
 
         [TestMethod]
         public void GEtLastSCanDate()
@@ -204,7 +193,7 @@ namespace Checkmarx.API.Tests
             {
                 var projectConfig = clientV93.GetProjectConfiguration(project.Key);
 
-                
+
 
                 switch (projectConfig.SourceCodeSettings.SourceOrigin)
                 {
@@ -611,7 +600,7 @@ namespace Checkmarx.API.Tests
             headers.AddRange(new[] { "New", "Fixed", "Reoccured" });
             headers.Add("Package");
 
-            StringBuilder sb = new StringBuilder("sep=;\n" + string.Join(";",headers.Select(x => $"\"{x}\"")) + "\n");
+            StringBuilder sb = new StringBuilder("sep=;\n" + string.Join(";", headers.Select(x => $"\"{x}\"")) + "\n");
 
             var scanInfo = clientV93.GetScanById(scanId);
 

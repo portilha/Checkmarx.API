@@ -192,6 +192,41 @@ namespace Checkmarx.API
             }
         }
 
+        private bool? _supportsV2_1 = null;
+
+        public bool SupportsV2_1
+        {
+            get
+            {
+                if (_supportsV2_1 == null)
+                {
+                    checkConnection();
+                    _supportsV2_1 = SupportsRESTAPIVersion("2.1");
+                }
+                return _supportsV2_1.Value;
+            }
+        }
+
+        private SASTV2_1 _sastClientV2_1;
+
+        /// <summary>
+        /// Interface to all SAST/OSA REST methods.
+        /// </summary>
+        /// <remarks>Supports only V2.1</remarks>
+        public SASTV2_1 SASTClientV2_1
+        {
+            get
+            {
+                if (!SupportsV2_1)
+                    return null;
+
+                if (_sastClientV2_1 == null)
+                    _sastClientV2_1 = new SASTV2_1(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClientV2_1;
+            }
+        }
+
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
         public cxPortalWebService93.CxWSResponceScanCompareResults GetCompareScanResultsAsync(long previousScanId, long newScanId)

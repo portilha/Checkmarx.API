@@ -46,7 +46,8 @@ namespace Checkmarx.API.Tests
                         new CxClient(new Uri(v8),
                         Configuration["V89:Username"],
                         new NetworkCredential("", Configuration["V89:Password"]).Password);
-                var version = clientV89.Version;
+
+                Assert.IsTrue(clientV89.Version.StartsWith("8."));
             }
 
             string v9 = Configuration["V9:URL"];
@@ -56,7 +57,8 @@ namespace Checkmarx.API.Tests
                     new CxClient(new Uri(v9),
                     Configuration["V9:Username"],
                     new NetworkCredential("", Configuration["V9:Password"]).Password);
-                var _ = clientV9.Version;
+
+                Assert.IsTrue(clientV9.Version.StartsWith("9."));
             }
 
             string v93 = Configuration["V93:URL"];
@@ -79,6 +81,7 @@ namespace Checkmarx.API.Tests
                 Trace.WriteLine(item.ConfigSetName);
             }
         }
+
 
         [TestMethod]
         public void GEtLastSCanDate()
@@ -190,7 +193,7 @@ namespace Checkmarx.API.Tests
             {
                 var projectConfig = clientV93.GetProjectConfiguration(project.Key);
 
-                
+
 
                 switch (projectConfig.SourceCodeSettings.SourceOrigin)
                 {
@@ -597,7 +600,7 @@ namespace Checkmarx.API.Tests
             headers.AddRange(new[] { "New", "Fixed", "Reoccured" });
             headers.Add("Package");
 
-            StringBuilder sb = new StringBuilder("sep=;\n" + string.Join(";",headers.Select(x => $"\"{x}\"")) + "\n");
+            StringBuilder sb = new StringBuilder("sep=;\n" + string.Join(";", headers.Select(x => $"\"{x}\"")) + "\n");
 
             var scanInfo = clientV93.GetScanById(scanId);
 
@@ -1130,6 +1133,23 @@ namespace Checkmarx.API.Tests
                 Trace.WriteLine("scanid=" + item.ScanId);
                 Trace.WriteLine("pathid=" + item.PathId);
                 Trace.WriteLine(item.Comment);
+            }
+        }
+
+
+        [TestMethod]
+        public void GetFailingScansTest()
+        {
+            var results = clientV93.GetFailingScans();
+
+            foreach (var item in results.GroupBy(x => x.Id))
+            {
+                Console.WriteLine($"# Failing Scan Id: {item.Key}");
+
+                foreach (var failedScan in item)
+                {
+                    Console.WriteLine(failedScan.Details);
+                }
             }
         }
     }

@@ -625,7 +625,21 @@ namespace Checkmarx.API
 
             return _oDataProjects.Expand(x => x.LastScan);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public FailedScansDisplayData[] GetFailingScans()
+        {
+            checkConnection();
 
+            var result = _cxPortalWebServiceSoapClient.GetFailedScansDisplayData(_soapSessionId);
+
+            if (!result.IsSuccesfull)
+                throw new ActionNotSupportedException(result.ErrorMessage);
+
+            return result.FailedScansList;
+        }
 
         public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
         {
@@ -1808,7 +1822,7 @@ namespace Checkmarx.API
             dynamic response = null;
             if (_isV9)
             {
-                
+
                 response = CxAuditV9
                       .UploadQueriesAsync(_soapSessionId, queryGroup.ToArray()).Result;
             }
@@ -1826,7 +1840,7 @@ namespace Checkmarx.API
         public cxPortalWebService93.CxPresetDetails GetPresetDetails(int presetId)
         {
 
-            return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId,presetId).Result.preset;
+            return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset;
         }
 
         /// <summary>
@@ -1972,6 +1986,51 @@ namespace Checkmarx.API
             doc.Save(outputFullFileName);
         }
 
+        public void AddQueriesToPreset(string presetName, params long[] cxQueryIds)
+        {
+            if (string.IsNullOrWhiteSpace(presetName))
+                throw new ArgumentNullException(nameof(presetName));
+
+            if (cxQueryIds == null)
+                throw new ArgumentNullException(nameof(cxQueryIds));
+
+            checkConnection();
+
+            int presetId = GetPresets().Where(x => x.Value == presetName).First().Key;
+
+            var presetxmlResponse = _cxPortalWebServiceSoapClientV9.ExportPresetAsync(_soapSessionId, presetId).Result;
+
+            checkSoapResponse(presetxmlResponse);
+
+            using (MemoryStream ms = new MemoryStream(presetxmlResponse.Preset))
+            {
+                XDocument doc = XDocument.Load(ms);
+
+                List<long> queryIdInPreset = new List<long>();
+
+                foreach (var xElement in doc.Descendants(XName.Get("OtherQueryId", doc.Root.GetDefaultNamespace().ToString())))
+                {
+                    queryIdInPreset.Add(long.Parse(xElement.Value));
+                }
+
+                var queriesNode = doc.Descendants(XName.Get("OtherQueryIds")).First();
+
+                foreach (var queryId in cxQueryIds)
+                {
+                    if (!queryIdInPreset.Contains(queryId))
+                    {
+                        queriesNode.Add(new XElement("OtherQueryId", queryId));
+                        queryIdInPreset.Add(queryId);
+                    }
+                }
+
+                using (MemoryStream newPreset = new MemoryStream())
+                {
+                    doc.Save(newPreset);
+                    checkSoapResponse(_cxPortalWebServiceSoapClientV9.ImportPresetAsync(_soapSessionId, newPreset.ToArray()).Result.ImportPresetResult);
+                }
+            }
+        }
 
         private IEnumerable<dynamic> _queryGroupsCache = null;
 

@@ -13,18 +13,18 @@
 #pragma warning disable 3016 // Disable "CS3016 Arrays as attribute arguments is not CLS-compliant"
 #pragma warning disable 8603 // Disable "CS8603 Possible null reference return"
 
-namespace Checkmarx.API.SAST
+namespace Checkmarx.API.SASTV2_1
 {
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.16.0.0 (NJsonSchema v10.7.1.0 (Newtonsoft.Json v12.0.0.0))")]
-    public partial class SASTV2_1
+    public partial class SASTV2_1Client
     {
         private string _baseUrl = "";
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
 
-        public SASTV2_1(string baseUrl, System.Net.Http.HttpClient httpClient)
+        public SASTV2_1Client(string baseUrl, System.Net.Http.HttpClient httpClient)
         {
             BaseUrl = baseUrl;
             _httpClient = httpClient;
@@ -1450,9 +1450,7 @@ namespace Checkmarx.API.SAST
 
     }
 
-
-
-    /*[System.CodeDom.Compiler.GeneratedCode("NSwag", "13.16.0.0 (NJsonSchema v10.7.1.0 (Newtonsoft.Json v12.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.16.0.0 (NJsonSchema v10.7.1.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class ApiException : System.Exception
     {
         public int StatusCode { get; private set; }
@@ -1473,9 +1471,9 @@ namespace Checkmarx.API.SAST
         {
             return string.Format("HTTP Response: \n\n{0}\n\n{1}", Response, base.ToString());
         }
-    }*/
+    }
 
-    /*[System.CodeDom.Compiler.GeneratedCode("NSwag", "13.16.0.0 (NJsonSchema v10.7.1.0 (Newtonsoft.Json v12.0.0.0))")]
+    [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.16.0.0 (NJsonSchema v10.7.1.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class ApiException<TResult> : ApiException
     {
         public TResult Result { get; private set; }
@@ -1485,7 +1483,7 @@ namespace Checkmarx.API.SAST
         {
             Result = result;
         }
-    }*/
+    }
 
 }
 

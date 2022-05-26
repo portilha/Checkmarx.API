@@ -22,7 +22,8 @@ using Scan = Checkmarx.API.SAST.Scan;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Globalization;
-
+using Checkmarx.API.SASTV2_1;
+using Checkmarx.API.SASTV2;
 
 namespace Checkmarx.API
 {
@@ -207,13 +208,13 @@ namespace Checkmarx.API
             }
         }
 
-        private SASTV2_1 _sastClientV2_1;
+        private SASTV2_1Client _sastClientV2_1;
 
         /// <summary>
         /// Interface to all SAST/OSA REST methods.
         /// </summary>
         /// <remarks>Supports only V2.1</remarks>
-        public SASTV2_1 SASTClientV2_1
+        public SASTV2_1Client SASTClientV2_1
         {
             get
             {
@@ -221,9 +222,44 @@ namespace Checkmarx.API
                     return null;
 
                 if (_sastClientV2_1 == null)
-                    _sastClientV2_1 = new SASTV2_1(httpClient.BaseAddress.AbsoluteUri, httpClient);
+                    _sastClientV2_1 = new SASTV2_1Client(httpClient.BaseAddress.AbsoluteUri, httpClient);
 
                 return _sastClientV2_1;
+            }
+        }
+
+        private bool? _supportsV2 = null;
+
+        public bool SupportsV2
+        {
+            get
+            {
+                if (_supportsV2 == null)
+                {
+                    checkConnection();
+                    _supportsV2 = SupportsRESTAPIVersion("2");
+                }
+                return _supportsV2.Value;
+            }
+        }
+
+        private SASTV2Client _sastClientV2;
+
+        /// <summary>
+        /// Interface to all SAST/OSA REST methods.
+        /// </summary>
+        /// <remarks>Supports only V2</remarks>
+        public SASTV2Client SASTClientV2
+        {
+            get
+            {
+                if (!SupportsV2)
+                    return null;
+
+                if (_sastClientV2 == null)
+                    _sastClientV2 = new SASTV2Client(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClientV2;
             }
         }
 

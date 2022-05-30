@@ -88,6 +88,8 @@ namespace Checkmarx.API.Tests
         {
             var lastScan = clientV9.GetLastScan(3142);
 
+            //lastScan.IsIncremental
+
             Trace.WriteLine(lastScan?.DateAndTime?.EngineStartedOn);
         }
 

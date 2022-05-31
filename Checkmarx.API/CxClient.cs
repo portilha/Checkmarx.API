@@ -1492,10 +1492,14 @@ namespace Checkmarx.API
             return scan.FirstOrDefault();
         }
 
-        public Scan GetLastScan(long projectId)
+        public Scan GetLastScan(long projectId, bool fullScanOnly = false)
         {
             var scan = GetScans(projectId, true, ScanRetrieveKind.Last);
-            return scan.FirstOrDefault();
+
+            if(fullScanOnly)
+                return scan.Where(x => !x.IsIncremental).FirstOrDefault();
+            else
+                return scan.FirstOrDefault();
         }
 
         public Scan GetLastScanByVersion(long projectId, string version)

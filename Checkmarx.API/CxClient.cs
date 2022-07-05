@@ -1276,7 +1276,7 @@ namespace Checkmarx.API
         /// <param name="forceScan"></param>
         /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
         public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
-            bool useLastScanPreset = false)
+            bool useLastScanPreset = false, int? presetId = null)
         {
             checkConnection();
 
@@ -1295,13 +1295,13 @@ namespace Checkmarx.API
 
                     sourceCodeZipContent = GetSourceCode(scan.Id);
 
-                    // Scan without overriding anything
-                    //if (SASTClientV1_1 != null)
-                    //{
-                    //    SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(projectId, false, false, true, true, "", 1, projectConfig.ProjectSettings.)
-
-                    //        return;
-                    //}
+                    //Scan without overriding anything
+                    if (SASTClientV1_1 != null && presetId.HasValue)
+                    {
+                        SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
+                        SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, file);
+                        return;
+                    }
 
                     if (useLastScanPreset) // Update SAST Project Config to match CI/CD
                     {
@@ -1329,6 +1329,14 @@ namespace Checkmarx.API
                     {
                         throw new NotSupportedException(attachCodeResponse.Content.ReadAsStringAsync().Result);
                     }
+                }
+            }
+            else
+            {
+                if (SASTClientV1_1 != null && presetId.HasValue)
+                {
+                    SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null);
+                    return;
                 }
             }
 

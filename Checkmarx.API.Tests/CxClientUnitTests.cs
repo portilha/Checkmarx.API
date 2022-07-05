@@ -397,6 +397,16 @@ namespace Checkmarx.API.Tests
             }
         }
 
+        [TestMethod]
+        public void ReRunScanWithPresetTest()
+        {
+            foreach (var item in clientV89.GetPresets())
+            {
+                Trace.WriteLine($"{item.Key} {item.Value}");
+
+                clientV89.GetPresetCWE(item.Value);
+            }
+        }
 
         [TestMethod]
         public void UploadPresetTest()

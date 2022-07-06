@@ -389,23 +389,45 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetPresetTest()
         {
-            foreach (var item in clientV89.GetPresets())
+            foreach (var item in clientV93.GetPresets())
             {
                 Trace.WriteLine($"{item.Key} {item.Value}");
 
-                clientV89.GetPresetCWE(item.Value);
+                //clientV93.GetPresetCWE(item.Value);
             }
         }
 
         [TestMethod]
         public void ReRunScanWithPresetTest()
         {
-            foreach (var item in clientV89.GetPresets())
+            var projects = clientV93.GetProjects();
+            if (projects.Any())
             {
-                Trace.WriteLine($"{item.Key} {item.Value}");
+                var project = projects.Where(x => x.Key == 1).FirstOrDefault().Key;
 
-                clientV89.GetPresetCWE(item.Value);
+
+                int? presetId = 1000;
+                //var presets = clientV93.GetPresets();
+                //if (presets.Any())
+                //{
+                //    var presetsArray = presets.OrderBy(x => x.Key).ToArray();
+                //    for (int i = 0; i < presetsArray.Length; i++)
+                //    {
+                //        Console.WriteLine($"[{i}] {presetsArray[i].Key} - {presetsArray[i].Value}");
+                //    }
+                //    string sel = Console.ReadLine();
+                //    int presetSelected = 
+                //    if (presetSelected != -1 && presetSelected >= 0 && presetSelected < presetsArray.Length)
+                //        presetId = presetsArray[presetSelected].Key;
+                //}
+
+                clientV93.RunSASTScan(project, presetId: presetId);
             }
+
+            //foreach (var item in clientV93.GetPresets())
+            //{
+            //    Trace.WriteLine($"{item.Key} {item.Value}");
+            //}
         }
 
         [TestMethod]

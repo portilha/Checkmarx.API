@@ -400,29 +400,16 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void ReRunScanWithPresetTest()
         {
-            var projects = clientV93.GetProjects();
-            if (projects.Any())
-            {
-                var project = projects.Where(x => x.Key == 1).FirstOrDefault().Key;
+            clientV93.RunSASTScan(12132, presetId: 100000);
 
+            //var projects = clientV93.GetProjects();
+            //if (projects.Any())
+            //{
+            //    //var project = projects.Where(x => x.Key == 12132).FirstOrDefault().Key;
+            //    //int? presetId = 1000;
 
-                int? presetId = 1000;
-                //var presets = clientV93.GetPresets();
-                //if (presets.Any())
-                //{
-                //    var presetsArray = presets.OrderBy(x => x.Key).ToArray();
-                //    for (int i = 0; i < presetsArray.Length; i++)
-                //    {
-                //        Console.WriteLine($"[{i}] {presetsArray[i].Key} - {presetsArray[i].Value}");
-                //    }
-                //    string sel = Console.ReadLine();
-                //    int presetSelected = 
-                //    if (presetSelected != -1 && presetSelected >= 0 && presetSelected < presetsArray.Length)
-                //        presetId = presetsArray[presetSelected].Key;
-                //}
-
-                clientV93.RunSASTScan(project, presetId: presetId);
-            }
+            //    clientV93.RunSASTScan(12132, presetId: 100000);
+            //}
 
             //foreach (var item in clientV93.GetPresets())
             //{

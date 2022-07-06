@@ -1895,7 +1895,7 @@ namespace Checkmarx.API
         /// Get Query Information about the CWE of the Checkmarx Queries and other information.
         /// </summary>
         /// <returns></returns>
-        public StringBuilder GetQueryInformation(params string[] presetNames)
+        public StringBuilder GetQueryInformation(bool detailedCategories = false, params string[] presetNames)
         {
             StringBuilder result = new StringBuilder();
             result.AppendLine("sep=,");
@@ -1950,7 +1950,10 @@ namespace Checkmarx.API
                         if (!subTopic.Contains(item.CategoryName))
                             subTopic.Add(item.CategoryName);
 
-                        categories.Add(item.CategoryType.Name);
+                        if(detailedCategories)
+                            categories.Add($"{item.CategoryName} [{item.CategoryType.Name}]");
+                        else
+                            categories.Add(item.CategoryType.Name);
                     }
 
                     values = new List<string>

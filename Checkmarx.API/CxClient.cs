@@ -889,10 +889,11 @@ namespace Checkmarx.API
                 };
 
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
                 HttpResponseMessage response = httpClient.SendAsync(request).Result;
 
-                if (response.StatusCode != HttpStatusCode.OK)
+                if (response.StatusCode != HttpStatusCode.Accepted)
                 {
                     throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
                 }

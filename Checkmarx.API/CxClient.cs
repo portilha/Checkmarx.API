@@ -47,19 +47,23 @@ namespace Checkmarx.API
         private DefaultV9.Container _oDataV9;
 
         private List<CxDataRepository.Project> _odp;
-        private List<CxDataRepository.Project> _oDataProjs
+        public List<CxDataRepository.Project> ProjectsOData
         {
             get
             {
+                checkConnection();
+
                 if (_odp == null)
                 {
-                    _odp = _isV9 ? _oDataV9.Projects.ToList() : _oData.Projects.ToList();
+                    _odp = _oDataProjects.ToList();
                 }
                 return _odp;
             }
         }
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> _oDataScans => _isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages) : _oData.Scans.Expand(x => x.ScannedLanguages);
+
+       
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
@@ -836,7 +840,7 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            return _oDataProjs.Where(x => x.Id == projectID).First().CreatedDate;
+            return _oDataProjects.Where(x => x.Id == projectID).First().CreatedDate;
         }
 
         public ProjectDetails GetProjectSettings(int projectId)

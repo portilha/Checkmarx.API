@@ -1,4 +1,4 @@
-﻿using Capri;
+using Capri;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;

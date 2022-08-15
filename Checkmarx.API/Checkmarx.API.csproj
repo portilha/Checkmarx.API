@@ -43,15 +43,15 @@ It also provides access to the Access Control API.</Description>
 
   <ItemGroup>
     <PackageReference Include="Capri" Version="0.0.1" />
-    <PackageReference Include="Checkmarx.API.AccessControl" Version="1.0.0" />
-    <PackageReference Include="Checkmarx.API.SCA" Version="1.1.0" />
+    <PackageReference Include="Checkmarx.API.AccessControl" Version="2.0.0" />
+    <PackageReference Include="Checkmarx.API.SCA" Version="2.5.2" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.5" />
-    <PackageReference Include="Microsoft.OData.Client" Version="7.10.0" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.10.0" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="7.10.0" />
-    <PackageReference Include="Microsoft.Spatial" Version="7.10.0" />
+    <PackageReference Include="Microsoft.OData.Client" Version="7.12.2" />
+    <PackageReference Include="Microsoft.OData.Core" Version="7.12.2" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="7.12.2" />
+    <PackageReference Include="Microsoft.Spatial" Version="7.12.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.16.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="4.9.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.9.0" />

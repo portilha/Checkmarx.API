@@ -840,7 +840,7 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            return _oDataProjects.Where(x => x.Id == projectID).First().CreatedDate;
+            return ProjectsOData.Where(x => x.Id == projectID).First().CreatedDate;
         }
 
         public ProjectDetails GetProjectSettings(int projectId)
@@ -1304,7 +1304,9 @@ namespace Checkmarx.API
                     if (SASTClientV1_1 != null && presetId.HasValue)
                     {
                         SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
-                        SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, file);
+                        
+                        var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
+
                         return;
                     }
 

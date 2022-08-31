@@ -1585,6 +1585,8 @@ namespace Checkmarx.API
                 IsLocked = scan.IsLocked,
                 InitiatorName = scan.InitiatorName,
                 OwningTeamId = scan.OwningTeamId,
+                PresetId = scan.PresetId,
+                PresetName = scan.PresetName,
                 ScanState = new ScanState
                 {
                     LanguageStateCollection = scan.ScannedLanguages.Select(language => new LanguageStateCollection
@@ -1607,6 +1609,7 @@ namespace Checkmarx.API
                     High = (uint)scan.High,
                     Medium = (uint)scan.Medium,
                     Low = (uint)scan.Low,
+                    Info = (uint)scan.Info,
                     FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
                     LoC = (int)scan.LOC.GetValueOrDefault()
                 }
@@ -2337,7 +2340,6 @@ namespace Checkmarx.API
 
         public CxAuditWebServiceV9.AuditScanResult[] GetResult(long scanId)
         {
-
             return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
         }
 

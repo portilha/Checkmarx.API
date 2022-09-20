@@ -1509,12 +1509,12 @@ namespace Checkmarx.API
 
         public Scan GetLastScan(long projectId, bool fullScanOnly = false)
         {
-            var scan = GetScans(projectId, true, ScanRetrieveKind.Last);
+            var scan = GetScans(projectId, true, ScanRetrieveKind.All).OrderBy(x => x.DateAndTime.FinishedOn);
 
-            if(fullScanOnly)
-                return scan.Where(x => !x.IsIncremental).FirstOrDefault();
+            if (fullScanOnly)
+                return scan.Where(x => !x.IsIncremental).LastOrDefault();
             else
-                return scan.FirstOrDefault();
+                return scan.LastOrDefault();
         }
 
         public Scan GetLastScanByVersion(long projectId, string version)
@@ -1583,6 +1583,7 @@ namespace Checkmarx.API
                 Comment = scan.Comment,
                 Id = scan.Id,
                 IsLocked = scan.IsLocked,
+                IsIncremental = scan.IsIncremental.HasValue ? scan.IsIncremental.Value : false,
                 InitiatorName = scan.InitiatorName,
                 OwningTeamId = scan.OwningTeamId,
                 PresetId = scan.PresetId,
@@ -1606,12 +1607,12 @@ namespace Checkmarx.API
                 },
                 Results = new SASTResults
                 {
-                    High = (uint)scan.High,
-                    Medium = (uint)scan.Medium,
-                    Low = (uint)scan.Low,
+                    FinalHigh = (uint)scan.High,
+                    FinalMedium = (uint)scan.Medium,
+                    FinalLow = (uint)scan.Low,
                     Info = (uint)scan.Info,
                     FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
-                    LoC = (int)scan.LOC.GetValueOrDefault()
+                    FinalLoc = (int)scan.LOC.GetValueOrDefault()
                 }
             };
         }

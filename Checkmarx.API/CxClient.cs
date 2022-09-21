@@ -1607,12 +1607,12 @@ namespace Checkmarx.API
                 },
                 Results = new SASTResults
                 {
-                    FinalHigh = (uint)scan.High,
-                    FinalMedium = (uint)scan.Medium,
-                    FinalLow = (uint)scan.Low,
+                    High = (uint)scan.High,
+                    Medium = (uint)scan.Medium,
+                    Low = (uint)scan.Low,
                     Info = (uint)scan.Info,
                     FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
-                    FinalLoc = (int)scan.LOC.GetValueOrDefault()
+                    Loc = (int)scan.LOC.GetValueOrDefault()
                 }
             };
         }

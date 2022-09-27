@@ -72,7 +72,6 @@ namespace Checkmarx.API.Tests
 
         }
 
-
         [TestMethod]
         public void GetConfigurationLstTEst()
         {

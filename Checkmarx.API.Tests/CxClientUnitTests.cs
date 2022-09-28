@@ -468,6 +468,12 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void GetCustomFieldsTest()
+        {
+            var cfs = clientV93.GetSASTCustomFields();
+        }
+
+        [TestMethod]
         public void TestCreationDate()
         {
             clientV89.GetProjectCreationDate(9);

@@ -350,6 +350,22 @@ namespace Checkmarx.API
         /// </summary>
         public int LcId { get; private set; } = 1033;
 
+        public Uri GetProjectSummaryLink(long projectId)
+        {
+            return new Uri($"{SASTServerURL}CxWebClient/portal#/projectState/{ projectId }/Summary");
+        }
+
+        public Uri GetProjectScansLink(long projectId)
+        {
+            return new Uri($"{SASTServerURL}CxWebClient/projectscans.aspx?id={ projectId }");
+        }
+
+
+        public Uri GetScanLink(long projectId, long scanId)
+        {
+            return new Uri($"{SASTServerURL}CxWebClient/ViewerMain.aspx?scanId={scanId}&ProjectID={projectId}");
+        }
+
         #endregion
 
         /// <summary>
@@ -1735,9 +1751,8 @@ namespace Checkmarx.API
 
                     throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
                 }
-                catch (AggregateException ex)
+                catch (AggregateException)
                 {
-
                     throw;
                 }
             }

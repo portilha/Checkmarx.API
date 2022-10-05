@@ -1,0 +1,42 @@
+﻿{
+  "ProviderId": "Microsoft.OData.ConnectedService",
+  "Version": "1.0.0.0",
+  "GettingStartedDocument": {
+    "Uri": "http://odata.github.io/odata.net/"
+  },
+  "ExtendedData": {
+    "EnableNamingAlias": true,
+    "IgnoreUnexpectedElementsAndAttributes": true,
+    "IncludeT4File": false,
+    "ExcludedOperationImports": [],
+    "ExcludedBoundOperations": [],
+    "ServiceName": "CxSAST OData Service V94",
+    "Endpoint": "https://cserver.checkmarx.net/Cxwebinterface/odata/v1/$metadata",
+    "EdmxVersion": {
+      "Major": 4,
+      "Minor": 0,
+      "Build": 0,
+      "Revision": 0,
+      "MajorRevision": 0,
+      "MinorRevision": 0
+    },
+    "GeneratedFileNamePrefix": "ODataClient94",
+    "UseNamespacePrefix": false,
+    "NamespacePrefix": null,
+    "UseDataServiceCollection": false,
+    "MakeTypesInternal": false,
+    "OpenGeneratedFilesInIDE": false,
+    "GenerateMultipleFiles": true,
+    "CustomHttpHeaders": null,
+    "IncludeWebProxy": false,
+    "WebProxyHost": null,
+    "IncludeWebProxyNetworkCredentials": false,
+    "StoreWebProxyNetworkCredentials": false,
+    "WebProxyNetworkCredentialsUsername": null,
+    "WebProxyNetworkCredentialsPassword": null,
+    "WebProxyNetworkCredentialsDomain": null,
+    "IncludeCustomHeaders": false,
+    "StoreCustomHttpHeaders": false,
+    "ExcludedSchemaTypes": []
+  }
+}

@@ -24,6 +24,8 @@ using System.Diagnostics;
 using System.Globalization;
 using Checkmarx.API.SASTV2_1;
 using Checkmarx.API.SASTV2;
+using Checkmarx.API.SAST.OData;
+using Result = CxDataRepository.Result;
 
 namespace Checkmarx.API
 {
@@ -42,9 +44,23 @@ namespace Checkmarx.API
         /// <summary>
         /// OData client
         /// </summary>
-        private Default.Container _oData;
+        private Default.ODataClient8 _oData;
 
         private DefaultV9.Container _oDataV9;
+
+        private ODataClient94 _oDataV94;
+
+        /// <summary>
+        /// Returns the interface for the OData of SAST starting at V9.4
+        /// </summary>
+        public ODataClient94 ODataV94
+        {
+            get
+            {
+                checkConnection();
+                return _oDataV94;
+            }
+        }
 
         private List<CxDataRepository.Project> _odp;
         public List<CxDataRepository.Project> ProjectsOData
@@ -62,8 +78,6 @@ namespace Checkmarx.API
         }
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> _oDataScans => _isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages) : _oData.Scans.Expand(x => x.ScannedLanguages);
-
-       
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
@@ -409,11 +423,11 @@ namespace Checkmarx.API
             }
         }
 
-        private string _version;
+        private Version _version;
         /// <summary>
         /// Get SAST Version
         /// </summary>
-        public string Version
+        public Version Version
         {
             get
             {
@@ -470,9 +484,9 @@ namespace Checkmarx.API
             _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
                 baseServer, TimeSpan.FromSeconds(60), userName, password);
 
-            _version = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+            _version = new Version(_cxPortalWebServiceSoapClient.GetVersionNumber().Version.Remove(0, 2));
 
-            _isV9 = _version.StartsWith("V 9.");
+            _isV9 = _version.Major >= 9;
 
             Console.WriteLine("Checkmarx " + _version);
 
@@ -551,7 +565,10 @@ namespace Checkmarx.API
                         #endregion
 
                         // ODATA V9
-                        _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
+                        if (_version.Minor >= 4)
+                            _oDataV94 = CxOData.ConnectToODataV94(webServer, authToken);
+                        else
+                            _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
                     }
                     else
                     {
@@ -1304,7 +1321,7 @@ namespace Checkmarx.API
                     if (SASTClientV1_1 != null && presetId.HasValue)
                     {
                         SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
-                        
+
                         var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
 
                         return;
@@ -1511,7 +1528,7 @@ namespace Checkmarx.API
         {
             var scan = GetScans(projectId, true, ScanRetrieveKind.Last);
 
-            if(fullScanOnly)
+            if (fullScanOnly)
                 return scan.Where(x => !x.IsIncremental).FirstOrDefault();
             else
                 return scan.FirstOrDefault();
@@ -1957,7 +1974,7 @@ namespace Checkmarx.API
                         if (!subTopic.Contains(item.CategoryName))
                             subTopic.Add(item.CategoryName);
 
-                        if(detailedCategories)
+                        if (detailedCategories)
                             categories.Add($"{item.CategoryName} [{item.CategoryType.Name}]");
                         else
                             categories.Add(item.CategoryType.Name);

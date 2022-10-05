@@ -47,7 +47,7 @@ namespace Checkmarx.API.Tests
                         Configuration["V89:Username"],
                         new NetworkCredential("", Configuration["V89:Password"]).Password);
 
-                Assert.IsTrue(clientV89.Version.StartsWith("8."));
+                Assert.IsTrue(clientV89.Version.Major == 8);
             }
 
             string v9 = Configuration["V9:URL"];
@@ -58,7 +58,7 @@ namespace Checkmarx.API.Tests
                     Configuration["V9:Username"],
                     new NetworkCredential("", Configuration["V9:Password"]).Password);
 
-                Assert.IsTrue(clientV9.Version.StartsWith("9."));
+                Assert.IsTrue(clientV9.Version.Major >= 9);
             }
 
             string v93 = Configuration["V93:URL"];
@@ -513,7 +513,7 @@ namespace Checkmarx.API.Tests
 
             StringBuilder sb = new StringBuilder();
 
-            string version = Path.Combine(rootPath, clientV93.Version);
+            string version = Path.Combine(rootPath, clientV93.Version.ToString());
 
             var projects = clientV93.GetProjects();
             var teams = clientV93.GetTeams();

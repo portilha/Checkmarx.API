@@ -51,13 +51,17 @@ namespace Checkmarx.API
         private ODataClient94 _oDataV94;
 
         /// <summary>
-        /// Returns the interface for the OData of SAST starting at V9.4
+        /// Returns the interface for the OData of SAST starting at V9.4 or higher
         /// </summary>
         public ODataClient94 ODataV94
         {
             get
             {
                 checkConnection();
+
+                if (_oDataV94 == null)
+                    throw new NotSupportedException($"The SAST version  should be 9.4 or higher to support this OData interface, it is {Version.ToString()}");
+
                 return _oDataV94;
             }
         }
@@ -366,12 +370,12 @@ namespace Checkmarx.API
 
         public Uri GetProjectSummaryLink(long projectId)
         {
-            return new Uri($"{SASTServerURL}CxWebClient/portal#/projectState/{ projectId }/Summary");
+            return new Uri($"{SASTServerURL}CxWebClient/portal#/projectState/{projectId}/Summary");
         }
 
         public Uri GetProjectScansLink(long projectId)
         {
-            return new Uri($"{SASTServerURL}CxWebClient/projectscans.aspx?id={ projectId }");
+            return new Uri($"{SASTServerURL}CxWebClient/projectscans.aspx?id={projectId}");
         }
 
 
@@ -504,7 +508,7 @@ namespace Checkmarx.API
 
             _isV9 = _version.Major >= 9;
 
-            Console.WriteLine("Checkmarx " + _version);
+            Console.WriteLine("Checkmarx " + _version.ToString());
 
             var httpClient = new HttpClient
             {
@@ -580,11 +584,11 @@ namespace Checkmarx.API
 
                         #endregion
 
+                        // This object is to maintain compatibility with the current code.
+                        _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
                         // ODATA V9
                         if (_version.Minor >= 4)
                             _oDataV94 = CxOData.ConnectToODataV94(webServer, authToken);
-                        else
-                            _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
                     }
                     else
                     {

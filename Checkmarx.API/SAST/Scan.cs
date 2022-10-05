@@ -43,6 +43,12 @@ namespace Checkmarx.API.SAST
         [JsonProperty("owningTeamId")]
         public string OwningTeamId { get; set; }
 
+        [JsonProperty("presetId")]
+        public long? PresetId { get; set; }
+
+        [JsonProperty("presetName")]
+        public string PresetName { get; set; }
+
         [JsonProperty("isPublic")]
         public bool IsPublic { get; set; }
 

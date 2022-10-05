@@ -364,6 +364,22 @@ namespace Checkmarx.API
         /// </summary>
         public int LcId { get; private set; } = 1033;
 
+        public Uri GetProjectSummaryLink(long projectId)
+        {
+            return new Uri($"{SASTServerURL}CxWebClient/portal#/projectState/{ projectId }/Summary");
+        }
+
+        public Uri GetProjectScansLink(long projectId)
+        {
+            return new Uri($"{SASTServerURL}CxWebClient/projectscans.aspx?id={ projectId }");
+        }
+
+
+        public Uri GetScanLink(long projectId, long scanId)
+        {
+            return new Uri($"{SASTServerURL}CxWebClient/ViewerMain.aspx?scanId={scanId}&ProjectID={projectId}");
+        }
+
         #endregion
 
         /// <summary>
@@ -1526,12 +1542,12 @@ namespace Checkmarx.API
 
         public Scan GetLastScan(long projectId, bool fullScanOnly = false)
         {
-            var scan = GetScans(projectId, true, ScanRetrieveKind.Last);
+            var scan = GetScans(projectId, true, ScanRetrieveKind.All).OrderBy(x => x.DateAndTime.FinishedOn);
 
             if (fullScanOnly)
-                return scan.Where(x => !x.IsIncremental).FirstOrDefault();
+                return scan.Where(x => !x.IsIncremental).LastOrDefault();
             else
-                return scan.FirstOrDefault();
+                return scan.LastOrDefault();
         }
 
         public Scan GetLastScanByVersion(long projectId, string version)
@@ -1600,8 +1616,11 @@ namespace Checkmarx.API
                 Comment = scan.Comment,
                 Id = scan.Id,
                 IsLocked = scan.IsLocked,
+                IsIncremental = scan.IsIncremental.HasValue ? scan.IsIncremental.Value : false,
                 InitiatorName = scan.InitiatorName,
                 OwningTeamId = scan.OwningTeamId,
+                PresetId = scan.PresetId,
+                PresetName = scan.PresetName,
                 ScanState = new ScanState
                 {
                     LanguageStateCollection = scan.ScannedLanguages.Select(language => new LanguageStateCollection
@@ -1624,8 +1643,9 @@ namespace Checkmarx.API
                     High = (uint)scan.High,
                     Medium = (uint)scan.Medium,
                     Low = (uint)scan.Low,
+                    Info = (uint)scan.Info,
                     FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
-                    LoC = (int)scan.LOC.GetValueOrDefault()
+                    Loc = (int)scan.LOC.GetValueOrDefault()
                 }
             };
         }
@@ -1748,9 +1768,8 @@ namespace Checkmarx.API
 
                     throw new NotSupportedException(projectListResponse.Content.ReadAsStringAsync().Result);
                 }
-                catch (AggregateException ex)
+                catch (AggregateException)
                 {
-
                     throw;
                 }
             }
@@ -2354,7 +2373,6 @@ namespace Checkmarx.API
 
         public CxAuditWebServiceV9.AuditScanResult[] GetResult(long scanId)
         {
-
             return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
         }
 

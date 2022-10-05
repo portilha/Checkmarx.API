@@ -5,9 +5,6 @@ namespace Checkmarx.API.SAST
     public class SASTResults
     {
         public long Id { get; set; }
-
-        public int LoC { get; set; }
-
         public int FailedLoC { get; set; }
 
         /// <summary>
@@ -15,7 +12,8 @@ namespace Checkmarx.API.SAST
         /// </summary>
         public ICollection<string> TunningInfo { get; set; }
 
-        // True Positives
+        public int Loc { get; set; }
+
         public uint High { get; set; }
 
         public uint Medium { get; set; }

@@ -72,7 +72,6 @@ namespace Checkmarx.API.Tests
 
         }
 
-
         [TestMethod]
         public void GetConfigurationLstTEst()
         {
@@ -466,6 +465,12 @@ namespace Checkmarx.API.Tests
                     Value = "Onboarded"
                 }
             });
+        }
+
+        [TestMethod]
+        public void GetCustomFieldsTest()
+        {
+            var cfs = clientV93.GetSASTCustomFields();
         }
 
         [TestMethod]

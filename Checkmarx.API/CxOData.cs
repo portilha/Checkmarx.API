@@ -65,12 +65,12 @@ namespace Checkmarx.API
             return context;
         }
 
-        internal static ODataClient94 ConnectToODataV94(Uri webserverAddress, string bearerToken)
+        internal static ODataClient95 ConnectToODataV95(Uri webserverAddress, string bearerToken)
         {
             Console.WriteLine($"Connecting to OData V9 ({webserverAddress.AbsoluteUri}CxWebInterface/odata/v1/)");
 
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
-            var context = new ODataClient94(serviceUri);
+            var context = new ODataClient95(serviceUri);
             context.Timeout = 7200;
 
             //string auth = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));

@@ -48,21 +48,21 @@ namespace Checkmarx.API
 
         private DefaultV9.Container _oDataV9;
 
-        private ODataClient94 _oDataV94;
+        private ODataClient95 _oDataV95;
 
         /// <summary>
         /// Returns the interface for the OData of SAST starting at V9.4 or higher
         /// </summary>
-        public ODataClient94 ODataV94
+        public ODataClient95 ODataV95
         {
             get
             {
                 checkConnection();
 
-                if (_oDataV94 == null)
+                if (_oDataV95 == null)
                     throw new NotSupportedException($"The SAST version  should be 9.4 or higher to support this OData interface, it is {Version.ToString()}");
 
-                return _oDataV94;
+                return _oDataV95;
             }
         }
 
@@ -587,8 +587,8 @@ namespace Checkmarx.API
                         // This object is to maintain compatibility with the current code.
                         _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
                         // ODATA V9
-                        if (_version.Minor >= 4)
-                            _oDataV94 = CxOData.ConnectToODataV94(webServer, authToken);
+                        if (_version.Minor >= 5)
+                            _oDataV95 = CxOData.ConnectToODataV95(webServer, authToken);
                     }
                     else
                     {

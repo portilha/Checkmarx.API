@@ -18,7 +18,7 @@ namespace Checkmarx.API.Tests
         public static IConfigurationRoot Configuration { get; private set; }
 
 
-        private static CxClient clientV94;
+        private static CxClient clientV95;
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
@@ -30,36 +30,35 @@ namespace Checkmarx.API.Tests
             Configuration = builder.Build();
 
 
-            string v94 = Configuration["V94:URL"];
+            string v94 = Configuration["V95:URL"];
             if (!string.IsNullOrWhiteSpace(v94))
             {
-                clientV94 =
+                clientV95 =
                      new CxClient(new Uri(v94),
-                     Configuration["V94:Username"],
-                     new NetworkCredential("", Configuration["V94:Password"]).Password);
+                     Configuration["V95:Username"],
+                     new NetworkCredential("", Configuration["95:Password"]).Password);
             }
-
         }
 
 
         [TestMethod]
         public void ODataConnectTest()
         {
-            Assert.IsTrue(clientV94.Connected);
+            Assert.IsTrue(clientV95.Connected);
         }
 
         [TestMethod]
         public void ResultsWithDetectionDateTest()
         {
-            foreach (SAST.OData.Project proj in clientV94.ODataV94.Projects.Take(1))
+            foreach (SAST.OData.Project proj in clientV95.ODataV95.Projects.Take(1))
             {
                 Trace.WriteLine(proj.Name);
 
-                foreach (var scan in clientV94.ODataV94.Scans.Where(x => x.ProjectId == proj.Id).Take(3))
+                foreach (var scan in clientV95.ODataV95.Scans.Where(x => x.ProjectId == proj.Id).Take(3))
                 {
                     Trace.WriteLine(scan.Id);
 
-                    foreach (var result in clientV94.ODataV94.Results.Where(x => x.ScanId == scan.Id))
+                    foreach (var result in clientV95.ODataV95.Results.Where(x => x.ScanId == scan.Id))
                     {
                         Trace.WriteLine(result.SimilarityId + " " + result.DetectionDate.ToString());
                     }
@@ -70,7 +69,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void ProjectTest()
         {
-            foreach (var proj in clientV94.ODataV94.Projects.Expand(x => x.CustomFields))
+            foreach (var proj in clientV95.ODataV95.Projects.Expand(x => x.CustomFields))
             {
                 Trace.WriteLine(proj.Name + " " + proj.IsPublic);
 
@@ -87,31 +86,45 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void ProjectsExpandQueryTest()
         {
-            foreach (var proj in clientV94.ODataV94.Projects.Expand("LastScan($expand=Results($filter=Severity%20eq%20CxDataRepository.Severity%27High%27))&$top=1&$skip=0"))
+            foreach (var proj in clientV95.ODataV95.Projects.Expand("LastScan($expand=Results())&$top=1&$skip=0"))
             {
+                Assert.IsNotNull(proj.LastScan);
+
                 Trace.WriteLine(proj.Name + " " + proj.LastScan.Id);
+
+                foreach (var result in proj.LastScan.Results)
+                {
+                    Trace.WriteLine("\t" + result.GetLink(clientV95, proj.Id, proj.LastScan.Id).AbsolutePath + " " + result.SimilarityId + " " + result.DetectionDate);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void ResultScanTest()
+        {
+            foreach (var result in clientV95.ODataV95.Results.Expand(x => x.Scan).OrderByDescending(x => x.DetectionDate).Take(100))
+            {
+
+                Trace.WriteLine("\t" + result.GetLink(clientV95, result.Scan.ProjectId.Value, result.Scan.Id).AbsoluteUri + " " + result.SimilarityId + " " + result.DetectionDate);
+
             }
         }
 
         [TestMethod]
         public void ScansTest()
         {
-            foreach (var scan in clientV94.ODataV94.Scans.Take(40))
+            foreach (var scan in clientV95.ODataV95.Scans.Take(40))
             {
                 Trace.WriteLine(scan.ProjectId + " " + scan.Id + " " + scan.PresetName);
             }
         }
 
-
         [TestMethod]
         public void ProjectCountTest()
         {
-            Assert.IsTrue(clientV94.ODataV94.Projects.Count() > 0);
-            Assert.IsTrue(clientV94.ODataV94.Scans.Count() > 0);
-            Assert.IsTrue(clientV94.ODataV94.Results.Count() > 0);
-
+            Assert.IsTrue(clientV95.ODataV95.Projects.Count() > 0);
+            Assert.IsTrue(clientV95.ODataV95.Scans.Count() > 0);
+            Assert.IsTrue(clientV95.ODataV95.Results.Count() > 0);
         }
-
-
     }
 }

@@ -15,13 +15,13 @@ namespace Checkmarx.API.SAST.OData
     /// There are no comments for Container in the schema.
     /// </summary>
     [global::Microsoft.OData.Client.OriginalNameAttribute("Container")]
-    public partial class ODataClient94 : global::Microsoft.OData.Client.DataServiceContext
+    public partial class ODataClient95 : global::Microsoft.OData.Client.DataServiceContext
     {
         /// <summary>
         /// Initialize a new Container object.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public ODataClient94(global::System.Uri serviceRoot) :
+        public ODataClient95(global::System.Uri serviceRoot) :
                 this(serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion.V4)
         {
         }
@@ -30,7 +30,7 @@ namespace Checkmarx.API.SAST.OData
         /// Initialize a new Container object.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public ODataClient94(global::System.Uri serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion protocolVersion) :
+        public ODataClient95(global::System.Uri serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion protocolVersion) :
                 base(serviceRoot, protocolVersion)
         {
             this.ResolveName = new global::System.Func<global::System.Type, string>(this.ResolveNameFromType);

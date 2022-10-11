@@ -26,6 +26,7 @@ using Checkmarx.API.SASTV2_1;
 using Checkmarx.API.SASTV2;
 using Checkmarx.API.SAST.OData;
 using Result = CxDataRepository.Result;
+using System.Text.RegularExpressions;
 
 namespace Checkmarx.API
 {
@@ -504,7 +505,14 @@ namespace Checkmarx.API
             _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
                 baseServer, TimeSpan.FromSeconds(60), userName, password);
 
-            _version = new Version(_cxPortalWebServiceSoapClient.GetVersionNumber().Version.Remove(0, 2));
+            // Get version number with regex
+            var portalVersion = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+            string pattern = @"\d+(\.\d+)+";
+            Regex rg = new Regex(pattern);
+            Match m = rg.Match(portalVersion);
+            string version = m.Value;
+
+            _version = new Version(version);
 
             _isV9 = _version.Major >= 9;
 
@@ -514,7 +522,6 @@ namespace Checkmarx.API
             {
                 BaseAddress = webServer,
                 Timeout = TimeSpan.FromMinutes(20)
-
             };
 
 

@@ -24,6 +24,8 @@ using System.Diagnostics;
 using System.Globalization;
 using Checkmarx.API.SASTV2_1;
 using Checkmarx.API.SASTV2;
+using Checkmarx.API.SAST.OData;
+using Result = CxDataRepository.Result;
 
 namespace Checkmarx.API
 {
@@ -42,9 +44,27 @@ namespace Checkmarx.API
         /// <summary>
         /// OData client
         /// </summary>
-        private Default.Container _oData;
+        private Default.ODataClient8 _oData;
 
         private DefaultV9.Container _oDataV9;
+
+        private ODataClient95 _oDataV95;
+
+        /// <summary>
+        /// Returns the interface for the OData of SAST starting at V9.4 or higher
+        /// </summary>
+        public ODataClient95 ODataV95
+        {
+            get
+            {
+                checkConnection();
+
+                if (_oDataV95 == null)
+                    throw new NotSupportedException($"The SAST version  should be 9.4 or higher to support this OData interface, it is {Version.ToString()}");
+
+                return _oDataV95;
+            }
+        }
 
         private List<CxDataRepository.Project> _odp;
         public List<CxDataRepository.Project> ProjectsOData
@@ -62,8 +82,6 @@ namespace Checkmarx.API
         }
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> _oDataScans => _isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages) : _oData.Scans.Expand(x => x.ScannedLanguages);
-
-       
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
@@ -352,12 +370,12 @@ namespace Checkmarx.API
 
         public Uri GetProjectSummaryLink(long projectId)
         {
-            return new Uri($"{SASTServerURL}CxWebClient/portal#/projectState/{ projectId }/Summary");
+            return new Uri($"{SASTServerURL}CxWebClient/portal#/projectState/{projectId}/Summary");
         }
 
         public Uri GetProjectScansLink(long projectId)
         {
-            return new Uri($"{SASTServerURL}CxWebClient/projectscans.aspx?id={ projectId }");
+            return new Uri($"{SASTServerURL}CxWebClient/projectscans.aspx?id={projectId}");
         }
 
 
@@ -425,11 +443,11 @@ namespace Checkmarx.API
             }
         }
 
-        private string _version;
+        private Version _version;
         /// <summary>
         /// Get SAST Version
         /// </summary>
-        public string Version
+        public Version Version
         {
             get
             {
@@ -486,11 +504,11 @@ namespace Checkmarx.API
             _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
                 baseServer, TimeSpan.FromSeconds(60), userName, password);
 
-            _version = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+            _version = new Version(_cxPortalWebServiceSoapClient.GetVersionNumber().Version.Remove(0, 2));
 
-            _isV9 = _version.StartsWith("V 9.");
+            _isV9 = _version.Major >= 9;
 
-            Console.WriteLine("Checkmarx " + _version);
+            Console.WriteLine("Checkmarx " + _version.ToString());
 
             var httpClient = new HttpClient
             {
@@ -566,8 +584,11 @@ namespace Checkmarx.API
 
                         #endregion
 
-                        // ODATA V9
+                        // This object is to maintain compatibility with the current code.
                         _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
+                        // ODATA V9
+                        if (_version.Minor >= 5)
+                            _oDataV95 = CxOData.ConnectToODataV95(webServer, authToken);
                     }
                     else
                     {
@@ -1320,7 +1341,7 @@ namespace Checkmarx.API
                     if (SASTClientV1_1 != null && presetId.HasValue)
                     {
                         SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
-                        
+
                         var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
 
                         return;
@@ -1981,7 +2002,7 @@ namespace Checkmarx.API
                         if (!subTopic.Contains(item.CategoryName))
                             subTopic.Add(item.CategoryName);
 
-                        if(detailedCategories)
+                        if (detailedCategories)
                             categories.Add($"{item.CategoryName} [{item.CategoryType.Name}]");
                         else
                             categories.Add(item.CategoryType.Name);

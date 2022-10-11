@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>2.7</Version>
+    <Version>2.9</Version>
     <Authors>Pedro Portilha</Authors>
     <Company>Checkmarx</Company>
     <Description>Checkmarx API (Unofficial)
@@ -18,6 +18,7 @@ It also provides access to the Access Control API.</Description>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Configurations>Debug;Release;Publish</Configurations>
+
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,12 +32,14 @@ It also provides access to the Access Control API.</Description>
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Connected Services\CxSAST OData Service V94\CxSAST OData Service V94Csdl.xml" />
     <None Remove="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
     <None Remove="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
     <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Connected Services\CxSAST OData Service V94\CxSAST OData Service V94Csdl.xml" />
     <EmbeddedResource Include="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
     <EmbeddedResource Include="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
   </ItemGroup>
@@ -52,11 +55,13 @@ It also provides access to the Access Control API.</Description>
     <PackageReference Include="Microsoft.OData.Edm" Version="7.12.2" />
     <PackageReference Include="Microsoft.Spatial" Version="7.12.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="4.9.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.9.0" />
     <PackageReference Include="System.ServiceModel.Security" Version="4.9.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.6" />
   </ItemGroup>
 
   <ItemGroup>

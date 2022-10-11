@@ -33,5 +33,10 @@ namespace Checkmarx.API
         {
             return new Uri(clientV93.SASTServerURL, $"cxwebclient/ViewerMain.aspx?scanid={scanId}&projectid={projectId}&pathid={item.PathId}");
         }
+
+        public static Uri GetLink(this Checkmarx.API.SAST.OData.Result item, CxClient clientV94, long projectId, long scanId)
+        {
+            return new Uri(clientV94.SASTServerURL, $"cxwebclient/ViewerMain.aspx?scanid={scanId}&projectid={projectId}&pathid={item.PathId}");
+        }
     }
 }

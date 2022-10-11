@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Checkmarx.API.SAST.OData;
+using System;
 using System.Text;
 
 namespace Checkmarx.API
@@ -12,12 +13,12 @@ namespace Checkmarx.API
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns>Container from CxSASTOData</returns>
-        internal static Default.Container ConnectToOData(Uri webserverAddress, string username, string password)
+        internal static Default.ODataClient8 ConnectToOData(Uri webserverAddress, string username, string password)
         {
             Console.WriteLine($"Connecting to OData ({webserverAddress.AbsoluteUri}CxWebInterface/odata/v1/)");
 
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
-            Default.Container context = new Default.Container(serviceUri);
+            Default.ODataClient8 context = new Default.ODataClient8(serviceUri);
             context.Timeout = 7200;
 
             string auth = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
@@ -50,6 +51,26 @@ namespace Checkmarx.API
 
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
             DefaultV9.Container context = new DefaultV9.Container(serviceUri);
+            context.Timeout = 7200;
+
+            //string auth = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
+            //Registering the handle to the BuildingRequest event. 
+            context.BuildingRequest += (sender, e) =>
+            {
+                e.Headers.Add("Authorization", $"Bearer {bearerToken}");
+            };
+
+            Console.WriteLine("Connected to OData V9!");
+
+            return context;
+        }
+
+        internal static ODataClient95 ConnectToODataV95(Uri webserverAddress, string bearerToken)
+        {
+            Console.WriteLine($"Connecting to OData V9 ({webserverAddress.AbsoluteUri}CxWebInterface/odata/v1/)");
+
+            Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
+            var context = new ODataClient95(serviceUri);
             context.Timeout = 7200;
 
             //string auth = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));

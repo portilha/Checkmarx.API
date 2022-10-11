@@ -1525,24 +1525,29 @@ namespace Checkmarx.API
 
         public Scan GetLastScan(long projectId, bool fullScanOnly = false)
         {
-            var scan = GetScans(projectId, true, ScanRetrieveKind.All).OrderBy(x => x.DateAndTime.FinishedOn);
+            var scan = GetScans(projectId, true, ScanRetrieveKind.All)
+                        .OrderByDescending(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn).ToList();
 
             if (fullScanOnly)
-                return scan.Where(x => !x.IsIncremental).LastOrDefault();
+                return scan.Where(x => !x.IsIncremental).FirstOrDefault();
             else
-                return scan.LastOrDefault();
+                return scan.FirstOrDefault();
         }
 
         public Scan GetLastScanByVersion(long projectId, string version)
         {
-            var scan = GetScans(projectId, true, ScanRetrieveKind.Last, version);
+            var scan = GetScans(projectId, true, ScanRetrieveKind.All, version)
+                        .OrderByDescending(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn).ToList();
+
             return scan.FirstOrDefault();
         }
 
         public Scan GetLastScanFinishOrFailed(long projectId)
         {
-            var scan = GetScans(projectId, false, ScanRetrieveKind.Last);
-            return scan.FirstOrDefault();
+            var scan = GetScans(projectId, false, ScanRetrieveKind.Last)
+                        .OrderByDescending(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn).ToList();
+
+            return scan.LastOrDefault();
         }
 
         public Scan GetLockedScan(long projectId)

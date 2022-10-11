@@ -73,6 +73,24 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void GetLastScanTest()
+        {
+            var lastScan = clientV93.GetLastScan(7994);
+            var lastScanFinishOrFailed = clientV93.GetLastScanFinishOrFailed(7994);
+            var lastScanByVersion = clientV93.GetLastScanByVersion(7994, "9.4.4");
+        }
+
+        [TestMethod]
+        public void CheckProjectCustomFieldsTest()
+        {
+            var projects = clientV93.GetAllProjectsDetails();
+            var project = projects.FirstOrDefault(x => x.Id == 81);
+
+            foreach(var item in project.CustomFields)
+                Trace.WriteLine($"{item.Name}: {item.Value}");
+        }
+
+        [TestMethod]
         public void GetConfigurationLstTEst()
         {
             foreach (var item in clientV93.PortalSOAP.GetConfigurationSetListAsync(null).Result.ConfigSetList)

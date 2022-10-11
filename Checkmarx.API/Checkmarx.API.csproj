@@ -46,6 +46,7 @@ It also provides access to the Access Control API.</Description>
     <PackageReference Include="Checkmarx.API.AccessControl" Version="2.0.0" />
     <PackageReference Include="Checkmarx.API.SCA" Version="2.5.2" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
     <PackageReference Include="Microsoft.OData.Client" Version="7.12.2" />
     <PackageReference Include="Microsoft.OData.Core" Version="7.12.2" />
     <PackageReference Include="Microsoft.OData.Edm" Version="7.12.2" />

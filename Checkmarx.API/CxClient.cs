@@ -1547,47 +1547,46 @@ namespace Checkmarx.API
 
         public Scan GetFirstScan(long projectId)
         {
-            var scan = GetScans(projectId, true, ScanRetrieveKind.First);
-            return scan.FirstOrDefault();
+            return GetScansOrderedByDate(projectId, true).FirstOrDefault();
         }
 
         public Scan GetLastScan(long projectId, bool fullScanOnly = false)
         {
-            var scan = GetScans(projectId, true, ScanRetrieveKind.All)
-                        .OrderByDescending(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn).ToList();
+            var scan = GetScansOrderedByDate(projectId, true);
 
             if (fullScanOnly)
-                return scan.Where(x => !x.IsIncremental).FirstOrDefault();
+                return scan.Where(x => !x.IsIncremental).LastOrDefault();
             else
-                return scan.FirstOrDefault();
+                return scan.LastOrDefault();
         }
 
         public Scan GetLastScanByVersion(long projectId, string version)
         {
-            var scan = GetScans(projectId, true, ScanRetrieveKind.All, version)
-                        .OrderByDescending(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn).ToList();
-
-            return scan.FirstOrDefault();
+            return GetScansOrderedByDate(projectId, true, version).LastOrDefault();
         }
 
         public Scan GetLastScanFinishOrFailed(long projectId)
         {
-            var scan = GetScans(projectId, false, ScanRetrieveKind.Last)
-                        .OrderByDescending(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn).ToList();
-
-            return scan.LastOrDefault();
+            return GetScansOrderedByDate(projectId, false).LastOrDefault();
         }
 
         public Scan GetLockedScan(long projectId)
         {
-            return GetScans(projectId, true, ScanRetrieveKind.Locked).FirstOrDefault();
+            return GetScans(projectId, true, ScanRetrieveKind.Locked)
+                    .OrderBy(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn)
+                    .LastOrDefault();
         }
-
 
         public int GetScanCount()
         {
             checkConnection();
             return _oDataScans.Count();
+        }
+
+        public IEnumerable<Scan> GetScansOrderedByDate(long projectId, bool finished, string version = null)
+        {
+            return GetScans(projectId, false, ScanRetrieveKind.All, version)
+                        .OrderBy(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn);
         }
 
         public IEnumerable<Scan> GetScans(long projectId, bool finished,

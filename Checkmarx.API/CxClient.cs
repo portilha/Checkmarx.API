@@ -1011,6 +1011,11 @@ namespace Checkmarx.API
 
         }
 
+        public int? GetResultStateIdByName(string name)
+        {
+            return (int)GetResultStateList().First(x => x.Value == name).Key;
+        }
+
         public Dictionary<long, string> GetResultStateList()
         {
             checkConnection();
@@ -2389,6 +2394,18 @@ namespace Checkmarx.API
         public CxAuditWebServiceV9.AuditScanResult[] GetResult(long scanId)
         {
             return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
+        }
+
+        public int GetGetResultsForScanByState(long scanId, int state)
+        {
+            var infoResults = GetResultsForScan(scanId);
+            if (infoResults != null)
+            {
+                var results = infoResults.Where(x => x.State == state);
+                return results.Count();
+            }
+
+            return 0;
         }
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId)

@@ -1590,7 +1590,7 @@ namespace Checkmarx.API
 
         public IEnumerable<Scan> GetScansOrderedByDate(long projectId, bool finished, string version = null)
         {
-            return GetScans(projectId, false, ScanRetrieveKind.All, version)
+            return GetScans(projectId, finished, ScanRetrieveKind.All, version)
                         .OrderBy(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn);
         }
 

@@ -87,11 +87,10 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void CheckProjectCustomFieldsTest()
         {
-            var projects = clientV93.GetAllProjectsDetails();
-            var project = projects.FirstOrDefault(x => x.Id == 81);
+            var customFields = clientV93.GetProjectCustomFields(81);
 
-            foreach(var item in project.CustomFields)
-                Trace.WriteLine($"{item.Name}: {item.Value}");
+            foreach(var item in customFields)
+                Trace.WriteLine($"{item.Key} : {item.Value.Value}");
         }
 
         [TestMethod]

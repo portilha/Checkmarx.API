@@ -1330,7 +1330,7 @@ namespace Checkmarx.API
         /// <param name="forceScan"></param>
         /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
         public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
-            bool useLastScanPreset = false, int? presetId = null)
+            bool useLastScanPreset = false, int? presetId = null, bool runPublicScan = true)
         {
             checkConnection();
 
@@ -1391,7 +1391,7 @@ namespace Checkmarx.API
             {
                 if (SASTClientV1_1 != null && presetId.HasValue)
                 {
-                    SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null);
+                    SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, runPublicScan, true, comment, presetId.Value, null, null, null);
                     return;
                 }
             }
@@ -1407,7 +1407,7 @@ namespace Checkmarx.API
                     Comment = comment ?? string.Empty,
                     ForceScan = forceScan,
                     IsIncremental = false,
-                    IsPublic = true
+                    IsPublic = runPublicScan
                 });
 
                 using (var stringContent = new StringContent(requestBody, Encoding.UTF8, "application/json"))

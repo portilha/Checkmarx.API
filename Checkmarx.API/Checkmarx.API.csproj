@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>3.0</Version>
+    <Version>3.1</Version>
     <Authors>Pedro Portilha</Authors>
     <Company>Checkmarx</Company>
     <Description>Checkmarx API (Unofficial)
@@ -46,21 +46,21 @@ It also provides access to the Access Control API.</Description>
 
   <ItemGroup>
     <PackageReference Include="Capri" Version="0.0.1" />
-    <PackageReference Include="Checkmarx.API.AccessControl" Version="2.0.0" />
-    <PackageReference Include="Checkmarx.API.SCA" Version="2.5.2" />
+    <PackageReference Include="Checkmarx.API.AccessControl" Version="2.1.0" />
+    <PackageReference Include="Checkmarx.API.SCA" Version="2.9.0" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
-    <PackageReference Include="Microsoft.OData.Client" Version="7.12.2" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.12.2" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="7.12.2" />
-    <PackageReference Include="Microsoft.Spatial" Version="7.12.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+    <PackageReference Include="Microsoft.OData.Client" Version="7.12.4" />
+    <PackageReference Include="Microsoft.OData.Core" Version="7.12.4" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="7.12.4" />
+    <PackageReference Include="Microsoft.Spatial" Version="7.12.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.0" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="4.9.0" />
-    <PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.9.0" />
-    <PackageReference Include="System.ServiceModel.Security" Version="4.9.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.24.0" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.0" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.10.0" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.0" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.10.0" />
     <PackageReference Include="System.Text.Json" Version="6.0.6" />
   </ItemGroup>
 

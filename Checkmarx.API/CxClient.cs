@@ -27,6 +27,7 @@ using Checkmarx.API.SASTV2;
 using Checkmarx.API.SAST.OData;
 using Result = CxDataRepository.Result;
 using System.Text.RegularExpressions;
+using System.Linq.Expressions;
 
 namespace Checkmarx.API
 {
@@ -1552,34 +1553,32 @@ namespace Checkmarx.API
 
         public Scan GetFirstScan(long projectId)
         {
-            return GetScansOrderedByDate(projectId, true).FirstOrDefault();
+            return GetScans(projectId, true).FirstOrDefault();
         }
 
         public Scan GetLastScan(long projectId, bool fullScanOnly = false)
         {
-            var scan = GetScansOrderedByDate(projectId, true);
+            var scans = GetScans(projectId, true);
 
             if (fullScanOnly)
-                return scan.Where(x => !x.IsIncremental).LastOrDefault();
+                return scans.Where(x => !x.IsIncremental).LastOrDefault();
             else
-                return scan.LastOrDefault();
+                return scans.LastOrDefault();
         }
 
         public Scan GetLastScanByVersion(long projectId, string version)
         {
-            return GetScansOrderedByDate(projectId, true, version).LastOrDefault();
+            return GetScans(projectId, true, version: version).LastOrDefault();
         }
 
         public Scan GetLastScanFinishOrFailed(long projectId)
         {
-            return GetScansOrderedByDate(projectId, false).LastOrDefault();
+            return GetScans(projectId, false).LastOrDefault();
         }
 
         public Scan GetLockedScan(long projectId)
         {
-            return GetScans(projectId, true, ScanRetrieveKind.Locked)
-                    .OrderBy(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn)
-                    .LastOrDefault();
+            return GetScans(projectId, true, ScanRetrieveKind.Locked).LastOrDefault();
         }
 
         public int GetScanCount()
@@ -1588,18 +1587,16 @@ namespace Checkmarx.API
             return _oDataScans.Count();
         }
 
-        public IEnumerable<Scan> GetScansOrderedByDate(long projectId, bool finished, string version = null)
-        {
-            return GetScans(projectId, finished, ScanRetrieveKind.All, version)
-                        .OrderBy(x => x.DateAndTime.EngineFinishedOn.HasValue ? x.DateAndTime.EngineFinishedOn : x.DateAndTime.EngineStartedOn);
-        }
-
         public IEnumerable<Scan> GetScans(long projectId, bool finished,
             ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null)
         {
             checkConnection();
 
             IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
+
+            //var sortedScans = scans as IOrderedQueryable<CxDataRepository.Scan>;
+            //if (sortedScans != null)
+            //    scans = sortedScans.OrderBy(o => o.EngineStartedOn.DateTime);
 
             if (version != null)
                 scans = scans.Where(x => version.StartsWith(x.ProductVersion));

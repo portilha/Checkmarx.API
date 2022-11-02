@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Checkmarx.API.AccessControl" Version="2.1.0" />
-    <PackageReference Include="Checkmarx.API.SCA" Version="2.9.0" />
+    <PackageReference Include="Checkmarx.API.SCA" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />

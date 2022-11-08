@@ -1012,7 +1012,7 @@ namespace Checkmarx.API
 
         }
 
-        public int? GetResultStateIdByName(string name)
+        public int GetResultStateIdByName(string name)
         {
             return (int)GetResultStateList().First(x => x.Value == name).Key;
         }
@@ -2393,7 +2393,7 @@ namespace Checkmarx.API
             return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
         }
 
-        public int GetGetResultsForScanByState(long scanId, int state)
+        public int GetResultsForScanByStateId(long scanId, int state)
         {
             var infoResults = GetResultsForScan(scanId);
             if (infoResults != null)

@@ -1199,5 +1199,16 @@ namespace Checkmarx.API.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void ScanODataTest()
+        {
+            Trace.WriteLine(clientV93.ODataV95.Scans.Count());
+
+            foreach (var item in clientV93.ODataV95.Scans.Where(x => x.Id > 1003598))
+            {
+                Trace.WriteLine(item.Id);
+            }
+        }
     }
 }

@@ -881,6 +881,53 @@ namespace Checkmarx.API
             }
         }
 
+
+        public void SetProjectConfiguration(long projId, string projName = null, string teamId = null)
+        {
+            if (projId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(projId));
+
+            if (string.IsNullOrWhiteSpace(projName) && string.IsNullOrWhiteSpace(teamId))
+            {
+                throw new NotSupportedException(nameof(projName) + " and " + nameof(teamId) + " cannot be null in the same call");
+            }
+
+            checkConnection();
+
+            var projectProperties = GetProjectSettings((int)projId);
+
+            var projectName = projName ?? projectProperties.Name;
+            var projectTeamId = teamId ?? projectProperties.TeamId;
+            var customFields = projectProperties.CustomFields != null ? new JArray(
+                        projectProperties.CustomFields.Select(x => new JObject
+                        {
+                            {  "id", x.Id },
+                            {  "value", x.Value }
+                        })) : null;
+
+            using (var request = new HttpRequestMessage(HttpMethod.Put, $"projects/{projId}"))
+            {
+                request.Headers.Add("Accept", "application/json;v=2.0");
+                JObject settings = new JObject
+                {
+                    { "name",  projName },
+                    { "owningTeam", teamId },
+                    { "customFields", customFields }
+                };
+
+                request.Content = new StringContent(JsonConvert.SerializeObject(settings));
+
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
+                }
+            }
+        }
+
         public DateTimeOffset GetProjectCreationDate(long projectID)
         {
             checkConnection();
@@ -1149,17 +1196,17 @@ namespace Checkmarx.API
         /// </exception>
         /*
          * {
-  "totalLibraries": 37,
-  "highVulnerabilityLibraries": 6,
-  "mediumVulnerabilityLibraries": 1,
-  "lowVulnerabilityLibraries": 0,
-  "nonVulnerableLibraries": 30,
-  "vulnerableAndUpdated": 0,
-  "vulnerableAndOutdated": 7,
-  "vulnerabilityScore": "High",
-  "totalHighVulnerabilities": 25,
-  "totalMediumVulnerabilities": 12,
-  "totalLowVulnerabilities": 1 
+        "totalLibraries": 37,
+        "highVulnerabilityLibraries": 6,
+        "mediumVulnerabilityLibraries": 1,
+        "lowVulnerabilityLibraries": 0,
+        "nonVulnerableLibraries": 30,
+        "vulnerableAndUpdated": 0,
+        "vulnerableAndOutdated": 7,
+        "vulnerabilityScore": "High",
+        "totalHighVulnerabilities": 25,
+        "totalMediumVulnerabilities": 12,
+        "totalLowVulnerabilities": 1 
          */
         public OSAReportDto GetOSAResults(Guid osaScanId)
         {

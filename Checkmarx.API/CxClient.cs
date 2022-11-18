@@ -1603,19 +1603,19 @@ namespace Checkmarx.API
             return GetScans(projectId, true).FirstOrDefault();
         }
 
-        public Scan GetLastScan(long projectId, bool fullScanOnly = false)
+        public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null)
         {
-            var scans = GetScans(projectId, true);
+            var scans = GetScans(projectId, true, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
 
             if (fullScanOnly)
-                return scans.Where(x => !x.IsIncremental).LastOrDefault();
-            else
-                return scans.LastOrDefault();
+                scans = scans.Where(x => !x.IsIncremental);
+
+            return scans.LastOrDefault();
         }
 
-        public Scan GetLastScanByVersion(long projectId, string version)
+        public Scan GetLastScanByVersion(long projectId, string version, bool onlyPublic = false, DateTime? maxScanDate = null)
         {
-            return GetScans(projectId, true, version: version).LastOrDefault();
+            return GetScans(projectId, true, version: version, onlyPublic: onlyPublic, maxScanDate: maxScanDate).LastOrDefault();
         }
 
         public Scan GetLastScanFinishOrFailed(long projectId)
@@ -1635,7 +1635,7 @@ namespace Checkmarx.API
         }
 
         public IEnumerable<Scan> GetScans(long projectId, bool finished,
-            ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null)
+            ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTime? maxScanDate = null)
         {
             checkConnection();
 
@@ -1645,8 +1645,14 @@ namespace Checkmarx.API
             //if (sortedScans != null)
             //    scans = sortedScans.OrderBy(o => o.EngineStartedOn.DateTime);
 
+            if(onlyPublic)
+                scans = scans.Where(x => x.IsPublic);
+
             if (version != null)
                 scans = scans.Where(x => version.StartsWith(x.ProductVersion));
+
+            if (maxScanDate != null)
+                scans = scans.Where(x => x.EngineStartedOn <= maxScanDate);
 
             switch (scanKind)
             {

@@ -80,6 +80,7 @@ namespace Checkmarx.API.Tests
             var lastScan = clientV93.GetLastScan(7994);
             var lastFullScan = clientV93.GetLastScan(7994, true);
             var lastScanByVersion = clientV93.GetLastScanByVersion(7994, "9.4.4");
+            var lastScanByVersionAndDate = clientV93.GetLastScanByVersion(7994, "9.4.4", false, new DateTime(2022, 10, 5));
             var lastScanFinishOrFailed = clientV93.GetLastScanFinishOrFailed(7994);
             var lockedScan = clientV93.GetLockedScan(7994);
         }

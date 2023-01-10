@@ -28,6 +28,7 @@ using Checkmarx.API.SAST.OData;
 using Result = CxDataRepository.Result;
 using System.Text.RegularExpressions;
 using System.Linq.Expressions;
+using Checkmarx.API.SASTV4;
 
 namespace Checkmarx.API
 {
@@ -284,6 +285,41 @@ namespace Checkmarx.API
                     _sastClientV2 = new SASTV2Client(httpClient.BaseAddress.AbsoluteUri, httpClient);
 
                 return _sastClientV2;
+            }
+        }
+
+        private bool? _supportsV4 = null;
+
+        public bool SupportsV4
+        {
+            get
+            {
+                if (_supportsV4 == null)
+                {
+                    checkConnection();
+                    _supportsV4 = SupportsRESTAPIVersion("4");
+                }
+                return _supportsV4.Value;
+            }
+        }
+
+        private SASTV4Client _sastClientV4;
+
+        /// <summary>
+        /// Interface to SAST V4 Client.
+        /// </summary>
+        /// <remarks>Supports only V4</remarks>
+        public SASTV4Client SASTClientV4
+        {
+            get
+            {
+                if (!SupportsV4)
+                    return null;
+
+                if (_sastClientV4 == null)
+                    _sastClientV4 = new SASTV4Client(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClientV4;
             }
         }
 

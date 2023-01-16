@@ -104,7 +104,19 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-        public void GetLastScanTest()
+        public void GetLastScanResultsTest()
+        {
+            var lastScan = clientV9.GetLastScan(10183, true);
+            if (lastScan != null)
+            {
+                var toVerify = clientV9.GetODataResults(lastScan.Id).Where(x => x.StateId == 0).Count();
+
+                Trace.WriteLine($"ScanId: {lastScan.Id} | High: {lastScan.Results.High} | Medium: {lastScan.Results.Medium} | Low: {lastScan.Results.Low} | Info: {lastScan.Results.Info} | ToVerify: {toVerify}");
+            }
+        }
+
+        [TestMethod]
+        public void GetScansTest()
         {
             // FIS
             var firstScan = clientV93.GetFirstScan(7994);
@@ -232,10 +244,15 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void V9ConnectTest()
         {
-            foreach (var item in clientV9.GetProjects())
+            foreach (var item in clientV93.GetProjects())
             {
                 Trace.WriteLine(item.Key);
             }
+
+            //var projects = clientV9.GetProjects();
+            //var projById = projects.Where(x => x.Key == 23484);
+            //var projById2 = projects.Where(x => x.Key == 18730);
+            //var projByName = projects.Where(x => x.Value == "VSYS2R_dev");
         }
 
 

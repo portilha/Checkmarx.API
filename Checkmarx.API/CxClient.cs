@@ -2588,6 +2588,38 @@ namespace Checkmarx.API
             return commentList;
         }
 
+        public bool AllToVerifyScanResultsHaveComments(long scanId)
+        {
+            checkConnection();
+
+            var results = _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId && x.StateId == (int)ResultState.ToVerify);
+
+            foreach (var item in results)
+            {
+                if (string.IsNullOrEmpty(item.Comment) || string.IsNullOrWhiteSpace(item.Comment))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool ScanHasResultsFlagedAsProposedNoExploitable(long scanId)
+        {
+            checkConnection();
+
+            var results = _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId && x.StateId == (int)ResultState.ProposedNotExploitable);
+
+            if (results.Count() > 0)
+                return true;
+
+            return false;
+        }
+
+        public int GetTotalToVerifyFromScan(long scanId)
+        {
+            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify).Count();
+        }
+
         /// <summary>
         /// Return a comment remark list for a specific scan and path id
         /// </summary>

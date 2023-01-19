@@ -104,6 +104,40 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void UpdateResultStateTest()
+        {
+            long projectId = 1127;
+            long scanId = 1038685;
+            long pathId = 27;
+
+            // Get current comments
+            var currentComments = clientV89.GetAllCommentRemarksForScanAndPath(scanId, pathId);
+
+            // Update result state
+            clientV89.UpdateResultState(projectId, scanId, pathId, ResultState.ToVerify);
+
+            // Get current comments
+            var updatedComments = clientV89.GetAllCommentRemarksForScanAndPath(scanId, pathId);
+        }
+
+        [TestMethod]
+        public void AddResultCommentTest()
+        {
+            long projectId = 1127;
+            long scanId = 1038685;
+            long pathId = 27;
+
+            // Get current comments
+            var currentComments = clientV89.GetAllCommentRemarksForScanAndPath(scanId, pathId);
+
+            // Add result comment
+            clientV89.AddResultComment(projectId, scanId, pathId, "Added new comment");
+
+            // Get current comments
+            var updatedComments = clientV89.GetAllCommentRemarksForScanAndPath(scanId, pathId);
+        }
+
+        [TestMethod]
         public void GetLastScanResultsTest()
         {
             var lastScan = clientV9.GetLastScan(10183, true);

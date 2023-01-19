@@ -2582,7 +2582,6 @@ namespace Checkmarx.API
                 {
                     commentList.Add(new Tuple<List<string>, long>(pathCommentList, item.PathId));
                 }
-
             }
 
             return commentList;
@@ -2651,6 +2650,21 @@ namespace Checkmarx.API
                     }
                 }
             }
+        }
+
+        public void UpdateResultState(long projectId, long scanId, long pathId, ResultState resultState)
+        {
+            checkConnection();
+
+            var data = ((int)resultState).ToString();
+            var response = _cxPortalWebServiceSoapClient.UpdateResultState(_soapSessionId, scanId, pathId, projectId, null, (int)ResultLabelTypeEnum.State, data);
+        }
+
+        public void AddResultComment(long projectId, long scanId, long pathId, string comment)
+        {
+            checkConnection();
+
+            var response = _cxPortalWebServiceSoapClient.UpdateResultState(_soapSessionId, scanId, pathId, projectId, comment, (int)ResultLabelTypeEnum.Remark, null);
         }
 
         public enum ResultState : int

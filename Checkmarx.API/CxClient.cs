@@ -422,6 +422,11 @@ namespace Checkmarx.API
             return new Uri($"{SASTServerURL}CxWebClient/ViewerMain.aspx?scanId={scanId}&ProjectID={projectId}");
         }
 
+        public Uri GetVulnerabilityLink(long projectId, long scanId, long pathId)
+        {
+            return new Uri($"{SASTServerURL}CxWebClient/ViewerMain.aspx?scanId={scanId}&ProjectID={projectId}&pathid={pathId}");
+        }
+
         #endregion
 
         /// <summary>

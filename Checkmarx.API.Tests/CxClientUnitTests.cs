@@ -104,6 +104,14 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void GetProjectsTest()
+        {
+            var projects = clientV9.GetProjects();
+            var proj = projects.Where(x => x.Key == 23078);
+            var proj2 = projects.Where(x => x.Key == 23152);
+        }
+
+        [TestMethod]
         public void UpdateResultStateTest()
         {
             long projectId = 1127;
@@ -140,7 +148,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetLastScanResultsTest()
         {
-            var lastScan = clientV9.GetLastScan(10183, true);
+            var lastScan = clientV9.GetLastScan(17683, true);
             if (lastScan != null)
             {
                 var toVerify = clientV9.GetODataResults(lastScan.Id).Where(x => x.StateId == 0).Count();
@@ -153,13 +161,13 @@ namespace Checkmarx.API.Tests
         public void GetScansTest()
         {
             // FIS
-            var firstScan = clientV93.GetFirstScan(7994);
-            var lastScan = clientV93.GetLastScan(7994);
-            var lastFullScan = clientV93.GetLastScan(7994, true);
-            var lastScanByVersion = clientV93.GetLastScanByVersion(7994, "9.4.4");
-            var lastScanByVersionAndDate = clientV93.GetLastScanByVersion(7994, "9.4.4", false, new DateTime(2022, 10, 5));
-            var lastScanFinishOrFailed = clientV93.GetLastScanFinishOrFailed(7994);
-            var lockedScan = clientV93.GetLockedScan(7994);
+            var firstScan = clientV9.GetFirstScan(17683);
+            var lastScan = clientV9.GetLastScan(17683);
+            var lastFullScan = clientV9.GetLastScan(17683, true);
+            //var lastScanByVersion = clientV93.GetLastScanByVersion(7994, "9.4.4");
+            //var lastScanByVersionAndDate = clientV93.GetLastScanByVersion(7994, "9.4.4", false, new DateTime(2022, 10, 5));
+            var lastScanFinishOrFailed = clientV9.GetLastScanFinishOrFailed(17683);
+            var lockedScan = clientV9.GetLockedScan(17683);
         }
 
         [TestMethod]
@@ -454,7 +462,7 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-        public void GetProjectsTest()
+        public void GetProjects2Test()
         {
             foreach (var keyValuePair in clientV89.GetTeams())
             {

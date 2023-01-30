@@ -1439,11 +1439,11 @@ namespace Checkmarx.API
                     sourceCodeZipContent = GetSourceCode(scan.Id);
 
                     //Scan without overriding anything
-                    if (SASTClientV1_1 != null && presetId.HasValue)
+                    if (SASTClientV4 != null && presetId.HasValue)
                     {
-                        SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
+                        SASTV4.FileParameter file = new SASTV4.FileParameter(new MemoryStream(sourceCodeZipContent));
 
-                        var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
+                        var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, null, file).Result;
 
                         return;
                     }
@@ -1478,9 +1478,15 @@ namespace Checkmarx.API
             }
             else
             {
-                if (SASTClientV1_1 != null && presetId.HasValue)
+                //if (SASTClientV1_1 != null && presetId.HasValue)
+                //{
+                //    var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null).Result;
+                //    return;
+                //}
+
+                if (SASTClientV4 != null && presetId.HasValue)
                 {
-                    SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, runPublicScan, true, comment, presetId.Value, null, null, null);
+                    var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null, null).Result;
                     return;
                 }
             }

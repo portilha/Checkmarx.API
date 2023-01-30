@@ -176,9 +176,9 @@ namespace Checkmarx.API.SASTV4
         /// <param name="zippedSource">source Zip</param>
         /// <returns>Created</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<LinkedResource> StartScanByscanSettingsExtRequestDto_projectIdscanSettingsExtRequestDto_overrideProjectSettingscanSettingsExtRequestDto_isIncrementalscanSettingsExtRequestDto_isPublicscanSettingsExtRequestDto_forceScanscanSettingsExtRequestDto_commentscanSettingsExtRequestDto_presetIdscanSettingsExtRequestDto_engineConfigurationIdscanSettingsExtRequestDto_customFieldsscanSettingsExtRequestDto_postScanActionIdAsync(int projectId, bool? overrideProjectSetting, bool? isIncremental, bool? isPublic, bool? forceScan, string comment, int? presetId, int? engineConfigurationId, string customFields, int? postScanActionId, FileParameter zippedSource)
+        public virtual System.Threading.Tasks.Task<LinkedResource> ScanWithSettings_4_StartScanByscanSettings(int projectId, bool? overrideProjectSetting, bool? isIncremental, bool? isPublic, bool? forceScan, string comment, int? presetId, int? engineConfigurationId, string customFields, int? postScanActionId, FileParameter zippedSource)
         {
-            return StartScanByscanSettingsExtRequestDto_projectIdscanSettingsExtRequestDto_overrideProjectSettingscanSettingsExtRequestDto_isIncrementalscanSettingsExtRequestDto_isPublicscanSettingsExtRequestDto_forceScanscanSettingsExtRequestDto_commentscanSettingsExtRequestDto_presetIdscanSettingsExtRequestDto_engineConfigurationIdscanSettingsExtRequestDto_customFieldsscanSettingsExtRequestDto_postScanActionIdAsync(projectId, overrideProjectSetting, isIncremental, isPublic, forceScan, comment, presetId, engineConfigurationId, customFields, postScanActionId, zippedSource, System.Threading.CancellationToken.None);
+            return ScanWithSettings_4_StartScanByscanSettingsAsync(projectId, overrideProjectSetting, isIncremental, isPublic, forceScan, comment, presetId, engineConfigurationId, customFields, postScanActionId, zippedSource, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -198,7 +198,7 @@ namespace Checkmarx.API.SASTV4
         /// <param name="zippedSource">source Zip</param>
         /// <returns>Created</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<LinkedResource> StartScanByscanSettingsExtRequestDto_projectIdscanSettingsExtRequestDto_overrideProjectSettingscanSettingsExtRequestDto_isIncrementalscanSettingsExtRequestDto_isPublicscanSettingsExtRequestDto_forceScanscanSettingsExtRequestDto_commentscanSettingsExtRequestDto_presetIdscanSettingsExtRequestDto_engineConfigurationIdscanSettingsExtRequestDto_customFieldsscanSettingsExtRequestDto_postScanActionIdAsync(int projectId, bool? overrideProjectSetting, bool? isIncremental, bool? isPublic, bool? forceScan, string comment, int? presetId, int? engineConfigurationId, string customFields, int? postScanActionId, FileParameter zippedSource, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<LinkedResource> ScanWithSettings_4_StartScanByscanSettingsAsync(int projectId, bool? overrideProjectSetting, bool? isIncremental, bool? isPublic, bool? forceScan, string comment, int? presetId, int? engineConfigurationId, string customFields, int? postScanActionId, FileParameter zippedSource, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/sast/scanWithSettings");

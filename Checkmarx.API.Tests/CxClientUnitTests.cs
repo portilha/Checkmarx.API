@@ -148,7 +148,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetLastScanResultsTest()
         {
-            var lastScan = clientV9.GetLastScan(17683, true);
+            var lastScan = clientV9.GetLastScan(678, true);
             if (lastScan != null)
             {
                 var toVerify = clientV9.GetODataResults(lastScan.Id).Where(x => x.StateId == 0).Count();

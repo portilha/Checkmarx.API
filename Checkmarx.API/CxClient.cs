@@ -1439,13 +1439,27 @@ namespace Checkmarx.API
                     sourceCodeZipContent = GetSourceCode(scan.Id);
 
                     //Scan without overriding anything
-                    if (SASTClientV4 != null && presetId.HasValue)
+                    if(Version.Major >= 9 && Version.Minor >= 5)
                     {
-                        SASTV4.FileParameter file = new SASTV4.FileParameter(new MemoryStream(sourceCodeZipContent));
+                        if (SASTClientV4 != null && presetId.HasValue)
+                        {
+                            SASTV4.FileParameter file = new SASTV4.FileParameter(new MemoryStream(sourceCodeZipContent));
 
-                        var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, null, file).Result;
+                            var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, null, file).Result;
 
-                        return;
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (SASTClientV1_1 != null && presetId.HasValue)
+                        {
+                            SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
+
+                            var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
+
+                            return;
+                        }
                     }
 
                     if (useLastScanPreset) // Update SAST Project Config to match CI/CD
@@ -1478,16 +1492,21 @@ namespace Checkmarx.API
             }
             else
             {
-                //if (SASTClientV1_1 != null && presetId.HasValue)
-                //{
-                //    var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null).Result;
-                //    return;
-                //}
-
-                if (SASTClientV4 != null && presetId.HasValue)
+                if (Version.Major >= 9 && Version.Minor >= 5)
                 {
-                    var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null, null).Result;
-                    return;
+                    if (SASTClientV4 != null && presetId.HasValue)
+                    {
+                        var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null, null).Result;
+                        return;
+                    }
+                }
+                else
+                {
+                    if (SASTClientV1_1 != null && presetId.HasValue)
+                    {
+                        var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null).Result;
+                        return;
+                    }
                 }
             }
 

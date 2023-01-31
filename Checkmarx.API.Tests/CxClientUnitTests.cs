@@ -148,10 +148,12 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetLastScanResultsTest()
         {
-            var lastScan = clientV9.GetLastScan(678, true);
+            var lastScan = clientV9.GetLastScan(17585, true);
             if (lastScan != null)
             {
-                var toVerify = clientV9.GetODataResults(lastScan.Id).Where(x => x.StateId == 0).Count();
+                var results = clientV9.GetODataResults(lastScan.Id);
+
+                var toVerify = results.Where(x => x.StateId == 0).Count();
 
                 Trace.WriteLine($"ScanId: {lastScan.Id} | High: {lastScan.Results.High} | Medium: {lastScan.Results.Medium} | Low: {lastScan.Results.Low} | Info: {lastScan.Results.Info} | ToVerify: {toVerify}");
             }

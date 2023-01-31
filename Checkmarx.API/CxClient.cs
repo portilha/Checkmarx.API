@@ -1439,7 +1439,7 @@ namespace Checkmarx.API
                     sourceCodeZipContent = GetSourceCode(scan.Id);
 
                     //Scan without overriding anything
-                    if(Version.Major >= 9 && Version.Minor >= 5)
+                    if(Version.Major > 9 || (Version.Major == 9 && Version.Minor >= 5))
                     {
                         if (SASTClientV4 != null && presetId.HasValue)
                         {
@@ -1492,7 +1492,7 @@ namespace Checkmarx.API
             }
             else
             {
-                if (Version.Major >= 9 && Version.Minor >= 5)
+                if (Version.Major > 9 || (Version.Major == 9 && Version.Minor >= 5))
                 {
                     if (SASTClientV4 != null && presetId.HasValue)
                     {

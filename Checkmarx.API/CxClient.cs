@@ -29,6 +29,7 @@ using Result = CxDataRepository.Result;
 using System.Text.RegularExpressions;
 using System.Linq.Expressions;
 using Checkmarx.API.SASTV4;
+using CxDataRepositoryV9;
 
 namespace Checkmarx.API
 {
@@ -1910,6 +1911,49 @@ namespace Checkmarx.API
                 }
             }
         }
+
+        #region Users and Teams
+
+        private IEnumerable<UserViewModel> _users { get; set; }
+        public IEnumerable<UserViewModel> Users
+        {
+            get
+            {
+                if(_users == null)
+                    _users = AC.GetAllUsersDetailsAsync().Result;
+
+                return _users;
+            }
+        }
+
+        private IEnumerable<TeamViewModel> _teams { get; set; }
+        public IEnumerable<TeamViewModel> Teams
+        {
+            get
+            {
+                if (_teams == null)
+                    _teams = AC.TeamsAllAsync().Result;
+
+                return _teams;
+            }
+        }
+
+        public TeamViewModel GetTeamByFullName(string fullName)
+        {
+            return Teams.Where(x => x.FullName == fullName).FirstOrDefault();
+        }
+
+        public IEnumerable<UserViewModel> GetUsersByTeamId(long id)
+        {
+            return Users.Where(x => x.TeamIds.Any(x => x == id));
+        }
+
+        public UserViewModel GetUserByFullName(string fullName)
+        {
+            return Users.Where(x => string.Format("{0} {1}", x.FirstName, x.LastName) == fullName).FirstOrDefault();
+        }
+
+        #endregion
 
         #region Presets & Queries
 

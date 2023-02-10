@@ -1948,6 +1948,15 @@ namespace Checkmarx.API
             return Users.Where(x => x.TeamIds.Any(x => x == id));
         }
 
+        public UserViewModel GetScanInitiator(long scanId)
+        {
+            var scan = GetScanById(scanId);
+            if(scan != null)
+                return GetUserByFullName(scan.InitiatorName);
+
+            return null;
+        }
+
         public UserViewModel GetUserByFullName(string fullName)
         {
             return Users.Where(x => string.Format("{0} {1}", x.FirstName, x.LastName) == fullName).FirstOrDefault();
@@ -2690,7 +2699,12 @@ namespace Checkmarx.API
 
         public int GetTotalToVerifyFromScan(long scanId)
         {
-            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify).Count();
+            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository.Severity.Info).Count();
+        }
+
+        public IEnumerable<Result> GetToVerifyResultsFromScan(long scanId)
+        {
+            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify);
         }
 
         /// <summary>

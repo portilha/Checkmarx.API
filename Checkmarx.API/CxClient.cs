@@ -2565,19 +2565,20 @@ namespace Checkmarx.API
             return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
         }
 
-        public int GetResultsForScanByStateId(long scanId, int state)
+        public int GetResultsForScanByStateId(long scanId, ResultState state, bool includeInfoSeverityResults = true)
         {
-            var infoResults = GetResultsForScan(scanId);
+            var infoResults = GetResultsForScan(scanId, includeInfoSeverityResults);
             if (infoResults != null)
             {
-                var results = infoResults.Where(x => x.State == state);
+                var results = infoResults.Where(x => x.State == (int)state);
+
                 return results.Count();
             }
 
             return 0;
         }
 
-        public CxWSSingleResultData[] GetResultsForScan(long scanId)
+        public CxWSSingleResultData[] GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true)
         {
             checkConnection();
 
@@ -2586,7 +2587,15 @@ namespace Checkmarx.API
             if (!result.IsSuccesfull)
                 throw new ApplicationException(result.ErrorMessage);
 
-            return result.Results;
+            var results = result.Results;
+
+            if (!includeInfoSeverityResults)
+                results = results.Where(x => x.Severity != (int)Severity.Info).ToArray();
+
+            if (!includeNonExploitables)
+                results = results.Where(x => x.State != (int)ResultState.NonExploitable && x.State != (int)ResultState.ProposedNotExploitable).ToArray();
+
+            return results;
         }
 
         /// <summary>
@@ -2762,6 +2771,14 @@ namespace Checkmarx.API
             Confirmed = 2,
             Urgent = 3,
             ProposedNotExploitable = 4
+        }
+
+        public enum Severity
+        {
+            Info = 0,
+            Low = 1,
+            Medium = 2,
+            High = 3
         }
 
 

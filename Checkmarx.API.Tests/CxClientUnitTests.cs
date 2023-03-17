@@ -112,6 +112,20 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void GetVulnerabilitiesFromScanTest()
+        {
+            var results1 = clientV9.GetResultsForScan(1011900).ToList();
+            var results2 = clientV9.GetODataResults(1011900).ToList();
+            //var results3 = clientV9.GetODataV95Results(1011815).ToList();
+            var results4 = clientV9.GetResult(1011900).ToList();
+
+            var scan = clientV9.GetScanById(1011900);
+            var results = scan.Results;
+
+            var results5 = clientV9.GetSASTResults(1011900);
+        }
+
+        [TestMethod]
         public void UpdateResultStateTest()
         {
             long projectId = 1127;
@@ -148,13 +162,16 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetLastScanResultsTest()
         {
-            var lastScan = clientV89.GetLastScan(141, true);
+            var scans = clientV9.GetScans(26041, true).ToList();
+            var lastScan = clientV9.GetLastScan(26041, true);
             if (lastScan != null)
             {
-                var results = clientV89.GetODataResults(lastScan.Id);
+                var results = clientV9.GetODataResults(lastScan.Id);
+                var test = results.Where(x => x.Severity == CxDataRepository.Severity.High).ToList();
+
 
                 var toVerify = results.Where(x => x.StateId == 0).Count();
-                var toVerify2 = clientV89.GetTotalToVerifyFromScan(lastScan.Id);
+                var toVerify2 = clientV9.GetTotalToVerifyFromScan(lastScan.Id);
 
                 Trace.WriteLine($"ScanId: {lastScan.Id} | High: {lastScan.Results.High} | Medium: {lastScan.Results.Medium} | Low: {lastScan.Results.Low} | Info: {lastScan.Results.Info} | ToVerify: {toVerify}");
             }

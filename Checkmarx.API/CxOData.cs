@@ -67,7 +67,7 @@ namespace Checkmarx.API
 
         internal static ODataClient95 ConnectToODataV95(Uri webserverAddress, string bearerToken)
         {
-            Console.WriteLine($"Connecting to OData V9 ({webserverAddress.AbsoluteUri}CxWebInterface/odata/v1/)");
+            Console.WriteLine($"Connecting to OData V95 ({webserverAddress.AbsoluteUri}CxWebInterface/odata/v1/)");
 
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
             var context = new ODataClient95(serviceUri);

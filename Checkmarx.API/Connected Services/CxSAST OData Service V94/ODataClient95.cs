@@ -128,19 +128,19 @@ namespace Checkmarx.API.SAST.OData
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         [global::Microsoft.OData.Client.OriginalNameAttribute("Results")]
-        public virtual global::Microsoft.OData.Client.DataServiceQuery<Checkmarx.API.SAST.OData.Result> Results
+        public virtual global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> Results
         {
             get
             {
                 if ((this._Results == null))
                 {
-                    this._Results = base.CreateQuery<Checkmarx.API.SAST.OData.Result>("Results");
+                    this._Results = base.CreateQuery<global::CxDataRepository.Result>("Results");
                 }
                 return this._Results;
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        private global::Microsoft.OData.Client.DataServiceQuery<Checkmarx.API.SAST.OData.Result> _Results;
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _Results;
         /// <summary>
         /// There are no comments for Projects in the schema.
         /// </summary>

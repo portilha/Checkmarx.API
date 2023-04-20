@@ -29,6 +29,7 @@ namespace Checkmarx.API.Tests
         private static CxClient clientV89;
         private static CxClient clientV9;
         private static CxClient clientV93;
+        private static CxClient clientV95;
 
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
@@ -71,6 +72,14 @@ namespace Checkmarx.API.Tests
                      new NetworkCredential("", Configuration["V93:Password"]).Password);
             }
 
+            string v95 = Configuration["V95:URL"];
+            if (!string.IsNullOrWhiteSpace(v95))
+            {
+                clientV95 =
+                     new CxClient(new Uri(v95),
+                     Configuration["V95:Username"],
+                     new NetworkCredential("", Configuration["V95:Password"]).Password);
+            }
         }
 
         [TestMethod]
@@ -114,15 +123,26 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetVulnerabilitiesFromScanTest()
         {
-            var results1 = clientV9.GetResultsForScan(1011900).ToList();
-            var results2 = clientV9.GetODataResults(1011900).ToList();
-            //var results3 = clientV9.GetODataV95Results(1011815).ToList();
-            var results4 = clientV9.GetResult(1011900).ToList();
+            var test = clientV9.GetScans(44, true).ToList();
+            var test2 = clientV9.GetTotalToVerifyFromScan(1000226);
 
-            var scan = clientV9.GetScanById(1011900);
-            var results = scan.Results;
+            //// < 9.5
+            //var results1 = clientV9.GetResultsForScan(1661644).ToList();
+            //var results2 = clientV9.GetODataResults(1661644).ToList();
 
-            var results5 = clientV9.GetSASTResults(1011900);
+            //// >= 9.5
+            //var results3 = clientV95.GetResultsForScan(1015107).ToList();
+            //var results4 = clientV95.GetODataResults(1015107).ToList();
+
+            //var test1 = results3.FirstOrDefault();
+            //var test2 = results4.Where(x => x.PathId == test1.PathId);
+
+            //var results4 = clientV9.GetResult(1011900).ToList();
+
+            //var scan = clientV9.GetScanById(1011900);
+            //var results = scan.Results;
+
+            //var results5 = clientV9.GetSASTResults(1011900);
         }
 
         [TestMethod]
@@ -167,7 +187,7 @@ namespace Checkmarx.API.Tests
             if (lastScan != null)
             {
                 var results = clientV9.GetODataResults(lastScan.Id);
-                var test = results.Where(x => x.Severity == CxDataRepository.Severity.High).ToList();
+                var test = results.Where(x => x.Severity == SAST.OData.Severity.High).ToList();
 
 
                 var toVerify = results.Where(x => x.StateId == 0).Count();

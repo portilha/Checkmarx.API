@@ -89,7 +89,7 @@ namespace Checkmarx.API
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
-        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? _oDataV9.Results : _oData.Results;
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? (_isV95 ? _oDataV95.Results : _oDataV9.Results) : _oData.Results;
 
         public IQueryable<Result> GetODataResults(long scanId)
         {
@@ -501,8 +501,9 @@ namespace Checkmarx.API
         }
 
         private bool _isV9 = false;
+        private bool _isV95 = false;
 
-
+        public bool IsV95 { get { return _isV95; } }
 
         #region Access Control 
 
@@ -558,6 +559,9 @@ namespace Checkmarx.API
             _version = new Version(version);
 
             _isV9 = _version.Major >= 9;
+
+            if (_isV9)
+                _isV95 = _version.Minor >= 5;
 
             Console.WriteLine("Checkmarx " + _version.ToString());
 
@@ -2141,9 +2145,11 @@ namespace Checkmarx.API
                 "QueryName",
                 "IsExecutable",
                 "CWE",
-                "Severity",
-                "Categories"
+                "Severity"
             };
+
+            if (detailedCategories)
+                headers.Add("Categories");
 
             // we need order
             List<HashSet<long>> presetQueries = new List<HashSet<long>>();
@@ -2182,10 +2188,12 @@ namespace Checkmarx.API
                         if (!subTopic.Contains(item.CategoryName))
                             subTopic.Add(item.CategoryName);
 
-                        if (detailedCategories)
-                            categories.Add($"{item.CategoryName} [{item.CategoryType.Name}]");
-                        else
-                            categories.Add(item.CategoryType.Name);
+                        //if (detailedCategories)
+                        //    categories.Add($"{item.CategoryName} [{item.CategoryType.Name}]");
+                        //else
+                        //    categories.Add(item.CategoryType.Name);
+
+                        categories.Add($"{item.CategoryName} [{item.CategoryType.Name}]");
                     }
 
                     values = new List<string>
@@ -2197,9 +2205,11 @@ namespace Checkmarx.API
                         query.Name,
                         query.IsExecutable.ToString(),
                         query.Cwe.ToString(),
-                        query.Severity.ToString(),
-                        string.Join(";", categories)
+                        toSeverityToString(query.Severity)
                     };
+
+                    if (detailedCategories)
+                        values.Add(string.Join(";", categories));
 
                     // add the presence of the queries in the presets.
                     foreach (var preset in presetQueries)
@@ -2708,7 +2718,9 @@ namespace Checkmarx.API
 
         public int GetTotalToVerifyFromScan(long scanId)
         {
-            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository.Severity.Info).Count();
+            var results = GetODataResults(scanId).ToList();
+
+            return results.Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != SAST.OData.Severity.Info).Count();
         }
 
         public IEnumerable<Result> GetToVerifyResultsFromScan(long scanId)

@@ -89,13 +89,22 @@ namespace Checkmarx.API
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
-        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? (_isV95 ? _oDataV95.Results : _oDataV9.Results) : _oData.Results;
+        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? _oDataV9.Results : _oData.Results;
+
+        private global::Microsoft.OData.Client.DataServiceQuery<Checkmarx.API.SAST.OData.Result> _oDataV95Results => _isV95 ? _oDataV95.Results : null;
 
         public IQueryable<Result> GetODataResults(long scanId)
         {
             checkConnection();
 
             return _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
+        }
+
+        public IQueryable<Checkmarx.API.SAST.OData.Result> GetODataV95Results(long scanId)
+        {
+            checkConnection();
+
+            return _oDataV95Results.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
         }
 
 
@@ -640,9 +649,10 @@ namespace Checkmarx.API
 
                         // This object is to maintain compatibility with the current code.
                         _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
-                        // ODATA V9
-                        if (_version.Minor >= 5)
-                            _oDataV95 = CxOData.ConnectToODataV95(webServer, authToken);
+
+                        // ODATA V95
+                        //if (_isV95)
+                        //    _oDataV95 = CxOData.ConnectToODataV95(webServer, authToken);
                     }
                     else
                     {
@@ -2720,7 +2730,7 @@ namespace Checkmarx.API
         {
             var results = GetODataResults(scanId).ToList();
 
-            return results.Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != SAST.OData.Severity.Info).Count();
+            return results.Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository.Severity.Info).Count();
         }
 
         public IEnumerable<Result> GetToVerifyResultsFromScan(long scanId)

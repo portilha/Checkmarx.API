@@ -123,16 +123,14 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetVulnerabilitiesFromScanTest()
         {
-            var test = clientV9.GetScans(44, true).ToList();
-            var test2 = clientV9.GetTotalToVerifyFromScan(1000226);
-
             //// < 9.5
             //var results1 = clientV9.GetResultsForScan(1661644).ToList();
             //var results2 = clientV9.GetODataResults(1661644).ToList();
 
-            //// >= 9.5
-            //var results3 = clientV95.GetResultsForScan(1015107).ToList();
-            //var results4 = clientV95.GetODataResults(1015107).ToList();
+            // >= 9.5
+            var results3 = clientV95.GetResultsForScan(1000122).ToList();
+            var results4 = clientV95.GetODataResults(1000122).ToList();
+            var results5 = clientV95.GetODataV95Results(1000122).ToList();
 
             //var test1 = results3.FirstOrDefault();
             //var test2 = results4.Where(x => x.PathId == test1.PathId);
@@ -143,6 +141,31 @@ namespace Checkmarx.API.Tests
             //var results = scan.Results;
 
             //var results5 = clientV9.GetSASTResults(1011900);
+        }
+
+        [TestMethod]
+        public void GetVulnerabilitiesFromScanSpeedTest()
+        {
+            // SOAP
+            Stopwatch soapResultsStopwatch = new Stopwatch();
+            soapResultsStopwatch.Start();
+            var results1 = clientV95.GetResultsForScan(1000122).ToList();
+            soapResultsStopwatch.Stop();
+            Trace.WriteLine($"Time elapsed getting scan soap results: {soapResultsStopwatch.Elapsed}");
+
+            // ODATA V9
+            Stopwatch odataV9ResultsStopwatch = new Stopwatch();
+            odataV9ResultsStopwatch.Start();
+            var results2 = clientV95.GetODataResults(1000122).ToList();
+            odataV9ResultsStopwatch.Stop();
+            Trace.WriteLine($"Time elapsed getting scan ODATA V9 results: {odataV9ResultsStopwatch.Elapsed}");
+
+            // ODATA V95
+            Stopwatch odataV95ResultsStopwatch = new Stopwatch();
+            odataV95ResultsStopwatch.Start();
+            var results3 = clientV95.GetODataV95Results(1000122).ToList();
+            odataV95ResultsStopwatch.Stop();
+            Trace.WriteLine($"Time elapsed getting scan ODATA V95 results: {odataV95ResultsStopwatch.Elapsed}");
         }
 
         [TestMethod]
@@ -187,7 +210,7 @@ namespace Checkmarx.API.Tests
             if (lastScan != null)
             {
                 var results = clientV9.GetODataResults(lastScan.Id);
-                var test = results.Where(x => x.Severity == SAST.OData.Severity.High).ToList();
+                var test = results.Where(x => x.Severity == CxDataRepository.Severity.High).ToList();
 
 
                 var toVerify = results.Where(x => x.StateId == 0).Count();

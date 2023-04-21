@@ -1,6 +1,6 @@
 namespace CxDataRepository
 {
-/// <summary>
+    /// <summary>
     /// There are no comments for Result in the schema.
     /// </summary>
     /// <KeyProperties>
@@ -8,7 +8,6 @@ namespace CxDataRepository
     /// ScanId
     /// </KeyProperties>
     [global::Microsoft.OData.Client.Key("Id", "ScanId")]
-    [global::Microsoft.OData.Client.OriginalNameAttribute("Result")]
     public partial class Result : global::Microsoft.OData.Client.BaseEntityType
     {
         /// <summary>
@@ -21,16 +20,14 @@ namespace CxDataRepository
         /// <param name="severity">Initial value of Severity.</param>
         /// <param name="stateId">Initial value of StateId.</param>
         /// <param name="queryVersionId">Initial value of QueryVersionId.</param>
-        /// <param name="detectionDate">Initial value of DetectionDate.</param>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         public static Result CreateResult(int ID,
                     long similarityId,
                     long pathId,
                     global::System.DateTimeOffset date,
-                    Checkmarx.API.SAST.OData.Severity severity,
+                    global::CxDataRepository.Severity severity,
                     int stateId,
-                    long queryVersionId,
-                    global::System.DateTimeOffset detectionDate)
+                    long queryVersionId)
         {
             Result result = new Result();
             result.Id = ID;
@@ -40,16 +37,12 @@ namespace CxDataRepository
             result.Severity = severity;
             result.StateId = stateId;
             result.QueryVersionId = queryVersionId;
-            result.DetectionDate = detectionDate;
             return result;
         }
         /// <summary>
         /// There are no comments for Property Id in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("Id")]
-        [global::System.ComponentModel.DataAnnotations.RequiredAttribute(ErrorMessage = "Id is required.")]
         public virtual int Id
         {
             get
@@ -71,8 +64,6 @@ namespace CxDataRepository
         /// There are no comments for Property ResultId in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("ResultId")]
         public virtual string ResultId
         {
             get
@@ -94,8 +85,6 @@ namespace CxDataRepository
         /// There are no comments for Property ScanId in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("ScanId")]
         public virtual global::System.Nullable<long> ScanId
         {
             get
@@ -117,9 +106,6 @@ namespace CxDataRepository
         /// There are no comments for Property SimilarityId in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("SimilarityId")]
-        [global::System.ComponentModel.DataAnnotations.RequiredAttribute(ErrorMessage = "SimilarityId is required.")]
         public virtual long SimilarityId
         {
             get
@@ -141,9 +127,7 @@ namespace CxDataRepository
         /// There are no comments for Property RawPriority in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("RawPriority")]
-        public virtual global::System.Nullable<float> RawPriority
+        public virtual global::System.Nullable<long> RawPriority
         {
             get
             {
@@ -157,16 +141,13 @@ namespace CxDataRepository
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        private global::System.Nullable<float> _RawPriority;
-        partial void OnRawPriorityChanging(global::System.Nullable<float> value);
+        private global::System.Nullable<long> _RawPriority;
+        partial void OnRawPriorityChanging(global::System.Nullable<long> value);
         partial void OnRawPriorityChanged();
         /// <summary>
         /// There are no comments for Property PathId in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("PathId")]
-        [global::System.ComponentModel.DataAnnotations.RequiredAttribute(ErrorMessage = "PathId is required.")]
         public virtual long PathId
         {
             get
@@ -188,8 +169,6 @@ namespace CxDataRepository
         /// There are no comments for Property ConfidenceLevel in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("ConfidenceLevel")]
         public virtual global::System.Nullable<int> ConfidenceLevel
         {
             get
@@ -211,9 +190,6 @@ namespace CxDataRepository
         /// There are no comments for Property Date in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("Date")]
-        [global::System.ComponentModel.DataAnnotations.RequiredAttribute(ErrorMessage = "Date is required.")]
         public virtual global::System.DateTimeOffset Date
         {
             get
@@ -235,10 +211,7 @@ namespace CxDataRepository
         /// There are no comments for Property Severity in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("Severity")]
-        [global::System.ComponentModel.DataAnnotations.RequiredAttribute(ErrorMessage = "Severity is required.")]
-        public virtual Checkmarx.API.SAST.OData.Severity Severity
+        public virtual global::CxDataRepository.Severity Severity
         {
             get
             {
@@ -252,16 +225,13 @@ namespace CxDataRepository
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        private Checkmarx.API.SAST.OData.Severity _Severity;
-        partial void OnSeverityChanging(Checkmarx.API.SAST.OData.Severity value);
+        private global::CxDataRepository.Severity _Severity;
+        partial void OnSeverityChanging(global::CxDataRepository.Severity value);
         partial void OnSeverityChanged();
         /// <summary>
         /// There are no comments for Property StateId in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("StateId")]
-        [global::System.ComponentModel.DataAnnotations.RequiredAttribute(ErrorMessage = "StateId is required.")]
         public virtual int StateId
         {
             get
@@ -283,8 +253,6 @@ namespace CxDataRepository
         /// There are no comments for Property AssignedToUserId in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("AssignedToUserId")]
         public virtual global::System.Nullable<int> AssignedToUserId
         {
             get
@@ -306,8 +274,6 @@ namespace CxDataRepository
         /// There are no comments for Property AssignedTo in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("AssignedTo")]
         public virtual string AssignedTo
         {
             get
@@ -329,8 +295,6 @@ namespace CxDataRepository
         /// There are no comments for Property Comment in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("Comment")]
         public virtual string Comment
         {
             get
@@ -352,8 +316,6 @@ namespace CxDataRepository
         /// There are no comments for Property QueryId in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("QueryId")]
         public virtual global::System.Nullable<long> QueryId
         {
             get
@@ -375,9 +337,6 @@ namespace CxDataRepository
         /// There are no comments for Property QueryVersionId in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("QueryVersionId")]
-        [global::System.ComponentModel.DataAnnotations.RequiredAttribute(ErrorMessage = "QueryVersionId is required.")]
         public virtual long QueryVersionId
         {
             get
@@ -396,36 +355,10 @@ namespace CxDataRepository
         partial void OnQueryVersionIdChanging(long value);
         partial void OnQueryVersionIdChanged();
         /// <summary>
-        /// There are no comments for Property DetectionDate in the schema.
-        /// </summary>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("DetectionDate")]
-        [global::System.ComponentModel.DataAnnotations.RequiredAttribute(ErrorMessage = "DetectionDate is required.")]
-        public virtual global::System.DateTimeOffset DetectionDate
-        {
-            get
-            {
-                return this._DetectionDate;
-            }
-            set
-            {
-                this.OnDetectionDateChanging(value);
-                this._DetectionDate = value;
-                this.OnDetectionDateChanged();
-            }
-        }
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        private global::System.DateTimeOffset _DetectionDate;
-        partial void OnDetectionDateChanging(global::System.DateTimeOffset value);
-        partial void OnDetectionDateChanged();
-        /// <summary>
         /// There are no comments for Property Query in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("Query")]
-        public virtual Checkmarx.API.SAST.OData.Query Query
+        public virtual global::CxDataRepository.Query Query
         {
             get
             {
@@ -439,16 +372,14 @@ namespace CxDataRepository
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        private Checkmarx.API.SAST.OData.Query _Query;
-        partial void OnQueryChanging(Checkmarx.API.SAST.OData.Query value);
+        private global::CxDataRepository.Query _Query;
+        partial void OnQueryChanging(global::CxDataRepository.Query value);
         partial void OnQueryChanged();
         /// <summary>
         /// There are no comments for Property Scan in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("Scan")]
-        public virtual Checkmarx.API.SAST.OData.Scan Scan
+        public virtual global::CxDataRepository.Scan Scan
         {
             get
             {
@@ -462,16 +393,14 @@ namespace CxDataRepository
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        private Checkmarx.API.SAST.OData.Scan _Scan;
-        partial void OnScanChanging(Checkmarx.API.SAST.OData.Scan value);
+        private global::CxDataRepository.Scan _Scan;
+        partial void OnScanChanging(global::CxDataRepository.Scan value);
         partial void OnScanChanged();
         /// <summary>
         /// There are no comments for Property AssignedToUser in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("AssignedToUser")]
-        public virtual Checkmarx.API.SAST.OData.User AssignedToUser
+        public virtual global::CxDataRepository.User AssignedToUser
         {
             get
             {
@@ -485,16 +414,14 @@ namespace CxDataRepository
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        private Checkmarx.API.SAST.OData.User _AssignedToUser;
-        partial void OnAssignedToUserChanging(Checkmarx.API.SAST.OData.User value);
+        private global::CxDataRepository.User _AssignedToUser;
+        partial void OnAssignedToUserChanging(global::CxDataRepository.User value);
         partial void OnAssignedToUserChanged();
         /// <summary>
         /// There are no comments for Property State in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-
-        [global::Microsoft.OData.Client.OriginalNameAttribute("State")]
-        public virtual Checkmarx.API.SAST.OData.ResultState State
+        public virtual global::CxDataRepository.ResultState State
         {
             get
             {
@@ -508,8 +435,8 @@ namespace CxDataRepository
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        private Checkmarx.API.SAST.OData.ResultState _State;
-        partial void OnStateChanging(Checkmarx.API.SAST.OData.ResultState value);
+        private global::CxDataRepository.ResultState _State;
+        partial void OnStateChanging(global::CxDataRepository.ResultState value);
         partial void OnStateChanged();
     }
 }

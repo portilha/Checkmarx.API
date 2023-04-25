@@ -2728,9 +2728,7 @@ namespace Checkmarx.API
 
         public int GetTotalToVerifyFromScan(long scanId)
         {
-            var results = GetODataResults(scanId).ToList();
-
-            return results.Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository.Severity.Info).Count();
+            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository.Severity.Info).Count();
         }
 
         public IEnumerable<Result> GetToVerifyResultsFromScan(long scanId)

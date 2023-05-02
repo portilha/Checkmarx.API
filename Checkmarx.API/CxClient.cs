@@ -2618,6 +2618,11 @@ namespace Checkmarx.API
             return results;
         }
 
+        public int GetTotalConfirmedResultsForScan(long scanId)
+        {
+            return GetResultsForScan(scanId, false, false).Where(x => x.State == (int)ResultState.Confirmed || x.State == (int)ResultState.Urgent).Count();
+        }
+
         /// <summary>
         /// Get the all query groups of the CxSAST server.
         /// </summary>

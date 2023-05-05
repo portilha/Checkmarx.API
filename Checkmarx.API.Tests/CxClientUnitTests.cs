@@ -205,8 +205,8 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetLastScanResultsTest()
         {
-            var scans = clientV9.GetScans(26041, true).ToList();
-            var lastScan = clientV9.GetLastScan(26041, true);
+            var scans = clientV9.GetScans(18122, true).ToList();
+            var lastScan = clientV9.GetLastScan(18122, true);
             if (lastScan != null)
             {
                 var results = clientV9.GetODataResults(lastScan.Id);

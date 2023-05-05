@@ -651,8 +651,8 @@ namespace Checkmarx.API
                         _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken);
 
                         // ODATA V95
-                        //if (_isV95)
-                        //    _oDataV95 = CxOData.ConnectToODataV95(webServer, authToken);
+                        if (_isV95)
+                            _oDataV95 = CxOData.ConnectToODataV95(webServer, authToken);
                     }
                     else
                     {

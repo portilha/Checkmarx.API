@@ -30,6 +30,7 @@ using System.Text.RegularExpressions;
 using System.Linq.Expressions;
 using Checkmarx.API.SASTV4;
 using CxDataRepositoryV9;
+using Checkmarx.API.SASTV3;
 
 namespace Checkmarx.API
 {
@@ -295,6 +296,40 @@ namespace Checkmarx.API
                     _sastClientV2 = new SASTV2Client(httpClient.BaseAddress.AbsoluteUri, httpClient);
 
                 return _sastClientV2;
+            }
+        }
+
+        private bool? _supportsV3 = null;
+        public bool SupportsV3
+        {
+            get
+            {
+                if (_supportsV3 == null)
+                {
+                    checkConnection();
+                    _supportsV3 = SupportsRESTAPIVersion("3");
+                }
+                return _supportsV3.Value;
+            }
+        }
+
+        private SASTV3Client _sastClientV3;
+
+        /// <summary>
+        /// Interface to SAST V4 Client.
+        /// </summary>
+        /// <remarks>Supports only V4</remarks>
+        public SASTV3Client SASTClientV3
+        {
+            get
+            {
+                if (!SupportsV3)
+                    return null;
+
+                if (_sastClientV3 == null)
+                    _sastClientV3 = new SASTV3Client(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClientV3;
             }
         }
 

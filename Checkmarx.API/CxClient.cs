@@ -2817,6 +2817,18 @@ namespace Checkmarx.API
 
         public void UpdateResultState(long projectId, long scanId, long pathId, int result, string remarks = null)
         {
+            if (projectId < 0)
+                throw new ArgumentNullException(nameof(projectId));
+
+            if (scanId < 0)
+                throw new ArgumentNullException(nameof(scanId));
+
+            if (pathId < 0)
+                throw new ArgumentNullException(nameof(pathId));
+
+            if (result < 0)
+                throw new ArgumentNullException(nameof(result));
+
             checkConnection();
 
             var data = ((int)result).ToString();

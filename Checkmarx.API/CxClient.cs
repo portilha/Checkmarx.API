@@ -1489,7 +1489,7 @@ namespace Checkmarx.API
                     sourceCodeZipContent = GetSourceCode(scan.Id);
 
                     //Scan without overriding anything
-                    if(Version.Major > 9 || (Version.Major == 9 && Version.Minor >= 5))
+                    if (Version.Major > 9 || (Version.Major == 9 && Version.Minor >= 5))
                     {
                         if (SASTClientV4 != null && presetId.HasValue)
                         {
@@ -1761,7 +1761,7 @@ namespace Checkmarx.API
             //if (sortedScans != null)
             //    scans = sortedScans.OrderBy(o => o.EngineStartedOn.DateTime);
 
-            if(onlyPublic)
+            if (onlyPublic)
                 scans = scans.Where(x => x.IsPublic);
 
             if (version != null)
@@ -1968,7 +1968,7 @@ namespace Checkmarx.API
         {
             get
             {
-                if(_users == null)
+                if (_users == null)
                     _users = AC.GetAllUsersDetailsAsync().Result;
 
                 return _users;
@@ -2000,7 +2000,7 @@ namespace Checkmarx.API
         public UserViewModel GetScanInitiator(long scanId)
         {
             var scan = GetScanById(scanId);
-            if(scan != null)
+            if (scan != null)
                 return GetUserByFullName(scan.InitiatorName);
 
             return null;
@@ -2809,13 +2809,22 @@ namespace Checkmarx.API
             }
         }
 
-        public void UpdateResultState(long projectId, long scanId, long pathId, ResultState resultState)
+
+        public void UpdateResultState(long projectId, long scanId, long pathId, ResultState resultState, string remarks = null)
+        {
+            UpdateResultState(scanId, pathId, projectId, (int)resultState, remarks);
+        }
+
+        public void UpdateResultState(long projectId, long scanId, long pathId, int result, string remarks = null)
         {
             checkConnection();
 
-            var data = ((int)resultState).ToString();
-            var response = _cxPortalWebServiceSoapClient.UpdateResultState(_soapSessionId, scanId, pathId, projectId, null, (int)ResultLabelTypeEnum.State, data);
+            var data = ((int)result).ToString();
+            var response = _cxPortalWebServiceSoapClient.UpdateResultState(_soapSessionId, scanId, pathId, projectId, remarks, (int)ResultLabelTypeEnum.State, data);
+
+            checkSoapResponse(response);
         }
+
 
         public void AddResultComment(long projectId, long scanId, long pathId, string comment)
         {

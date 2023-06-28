@@ -121,6 +121,22 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void CheckResultsIgnoreStatusTest()
+        {
+            var projects = clientV9.GetProjects();
+            foreach(var proj in projects)
+            {
+                var lastScan = clientV9.GetLastScan(proj.Key);
+                if(lastScan != null)
+                {
+                    var oDataScanResults = clientV9.GetODataV95Results(lastScan.Id).ToList();
+                    if(oDataScanResults.Any(x => x.StateId == 5 && x.DetectionDate >= new DateTime(2023, 6, 6)))
+                        Trace.WriteLine($"Project {proj.Key}");
+                }
+            }
+        }
+
+        [TestMethod]
         public void GetVulnerabilitiesFromScanTest()
         {
             //// < 9.5

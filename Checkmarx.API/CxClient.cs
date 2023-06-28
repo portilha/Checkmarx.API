@@ -2817,6 +2817,14 @@ namespace Checkmarx.API
             var response = _cxPortalWebServiceSoapClient.UpdateResultState(_soapSessionId, scanId, pathId, projectId, null, (int)ResultLabelTypeEnum.State, data);
         }
 
+        public void UpdateResultStatev2(long projectId, long scanId, long pathId, int resultState, string remarks)
+        {
+            checkConnection();
+
+            var data = ((int)resultState).ToString();
+            var response = _cxPortalWebServiceSoapClient.UpdateResultState(_soapSessionId, scanId, pathId, projectId, remarks, (int)ResultLabelTypeEnum.State, data);
+        }
+
         public void AddResultComment(long projectId, long scanId, long pathId, string comment)
         {
             checkConnection();

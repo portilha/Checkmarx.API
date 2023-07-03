@@ -1469,13 +1469,13 @@ namespace Checkmarx.API
         /// <param name="forceScan"></param>
         /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
         public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
-            bool useLastScanPreset = false, int? presetId = null, bool runPublicScan = true)
+            bool useLastScanPreset = false, int? presetId = null, bool runPublicScan = true, bool forceLocal = false)
         {
             checkConnection();
 
             var projectConfig = GetProjectConfiguration(projectId);
 
-            if (projectConfig.SourceCodeSettings.SourceOrigin == PortalSoap.SourceLocationType.Local)
+            if (forceLocal || projectConfig.SourceCodeSettings.SourceOrigin == PortalSoap.SourceLocationType.Local)
             {
                 if (sourceCodeZipContent == null || !sourceCodeZipContent.Any())
                 {

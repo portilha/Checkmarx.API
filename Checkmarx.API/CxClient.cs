@@ -1469,7 +1469,7 @@ namespace Checkmarx.API
         /// <param name="forceScan"></param>
         /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
         public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
-            bool useLastScanPreset = false, int? presetId = null, bool runPublicScan = true, bool forceLocal = false)
+            bool useLastScanPreset = false, int? presetId = null, bool runPublicScan = true, bool forceLocal = false, CxClient cxClient2 = null)
         {
             checkConnection();
 
@@ -1488,14 +1488,79 @@ namespace Checkmarx.API
 
                     sourceCodeZipContent = GetSourceCode(scan.Id);
 
-                    //Scan without overriding anything
+                    if (cxClient2 == null)
+                    {
+                        //Scan without overriding anything
+                        if (Version.Major > 9 || (Version.Major == 9 && Version.Minor >= 5))
+                        {
+                            if (SASTClientV4 != null && presetId.HasValue)
+                            {
+                                SASTV4.FileParameter file = new SASTV4.FileParameter(new MemoryStream(sourceCodeZipContent));
+
+                                var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, null, file).Result;
+
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            if (SASTClientV1_1 != null && presetId.HasValue)
+                            {
+                                SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
+
+                                var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
+
+                                return;
+                            }
+                        }
+
+                        if (useLastScanPreset) // Update SAST Project Config to match CI/CD
+                            SetPreset(projectId, GetScanPreset(scan.Id));
+
+                        UploadSourceCode(projectId, sourceCodeZipContent);
+                    }
+                    else
+                    {
+                        //Scan without overriding anything
+                        if (cxClient2.Version.Major > 9 || (cxClient2.Version.Major == 9 && cxClient2.Version.Minor >= 5))
+                        {
+                            if (cxClient2.SASTClientV4 != null && presetId.HasValue)
+                            {
+                                SASTV4.FileParameter file = new SASTV4.FileParameter(new MemoryStream(sourceCodeZipContent));
+
+                                var result = cxClient2.SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, null, file).Result;
+
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            if (cxClient2.SASTClientV1_1 != null && presetId.HasValue)
+                            {
+                                SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
+
+                                var result = cxClient2.SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
+
+                                return;
+                            }
+                        }
+
+                        if (useLastScanPreset) // Update SAST Project Config to match CI/CD
+                            cxClient2.SetPreset(projectId, GetScanPreset(scan.Id));
+
+                        cxClient2.UploadSourceCode(projectId, sourceCodeZipContent);
+                    }
+                }
+            }
+            else
+            {
+                if (cxClient2 == null)
+                {
                     if (Version.Major > 9 || (Version.Major == 9 && Version.Minor >= 5))
                     {
                         if (SASTClientV4 != null && presetId.HasValue)
                         {
-                            SASTV4.FileParameter file = new SASTV4.FileParameter(new MemoryStream(sourceCodeZipContent));
-
-                            var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, null, file).Result;
+                            var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null, null).Result;
 
                             return;
                         }
@@ -1504,62 +1569,67 @@ namespace Checkmarx.API
                     {
                         if (SASTClientV1_1 != null && presetId.HasValue)
                         {
-                            SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
-
-                            var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
+                            var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null).Result;
 
                             return;
                         }
                     }
-
-                    if (useLastScanPreset) // Update SAST Project Config to match CI/CD
-                    {
-                        SetPreset(projectId, GetScanPreset(scan.Id));
-                    }
-                }
-
-
-                using (var content = new MultipartFormDataContent())
-                {
-                    var fileContent = new ByteArrayContent(sourceCodeZipContent);
-                    fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                    {
-                        FileName = "filename.zip",
-                        Name = "zippedSource"
-                    };
-
-                    content.Add(fileContent);
-
-                    string requestUri = $"projects/{projectId}/sourceCode/attachments";
-
-                    HttpResponseMessage attachCodeResponse = httpClient.PostAsync(requestUri, content).Result;
-
-                    if (attachCodeResponse.StatusCode != HttpStatusCode.OK && attachCodeResponse.StatusCode != HttpStatusCode.NoContent)
-                    {
-                        throw new NotSupportedException(attachCodeResponse.Content.ReadAsStringAsync().Result);
-                    }
-                }
-            }
-            else
-            {
-                if (Version.Major > 9 || (Version.Major == 9 && Version.Minor >= 5))
-                {
-                    if (SASTClientV4 != null && presetId.HasValue)
-                    {
-                        var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null, null).Result;
-                        return;
-                    }
                 }
                 else
                 {
-                    if (SASTClientV1_1 != null && presetId.HasValue)
+                    if (cxClient2.Version.Major > 9 || (cxClient2.Version.Major == 9 && cxClient2.Version.Minor >= 5))
                     {
-                        var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null).Result;
-                        return;
+                        if (cxClient2.SASTClientV4 != null && presetId.HasValue)
+                        {
+                            var result = cxClient2.SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null, null).Result;
+
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (cxClient2.SASTClientV1_1 != null && presetId.HasValue)
+                        {
+                            var result = cxClient2.SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null).Result;
+
+                            return;
+                        }
                     }
                 }
             }
 
+            if (cxClient2 == null)
+                RunScan(projectId, forceScan, runPublicScan, comment);
+            else
+                cxClient2.RunScan(projectId, forceScan, runPublicScan, comment);
+        }
+
+        private void UploadSourceCode(long projectId, byte[] sourceCodeZipContent)
+        {
+            using (var content = new MultipartFormDataContent())
+            {
+                var fileContent = new ByteArrayContent(sourceCodeZipContent);
+                fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = "filename.zip",
+                    Name = "zippedSource"
+                };
+
+                content.Add(fileContent);
+
+                string requestUri = $"projects/{projectId}/sourceCode/attachments";
+
+                HttpResponseMessage attachCodeResponse = httpClient.PostAsync(requestUri, content).Result;
+
+                if (attachCodeResponse.StatusCode != HttpStatusCode.OK && attachCodeResponse.StatusCode != HttpStatusCode.NoContent)
+                {
+                    throw new NotSupportedException(attachCodeResponse.Content.ReadAsStringAsync().Result);
+                }
+            }
+        }
+
+        private void RunScan(long projectId, bool forceScan, bool runPublicScan, string comment)
+        {
             using (var request = new HttpRequestMessage(HttpMethod.Post, "sast/scans"))
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");

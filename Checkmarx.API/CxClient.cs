@@ -2366,7 +2366,7 @@ namespace Checkmarx.API
         public void AddCWESupportToExistentPreset(
             string presetFullFileName,
             Dictionary<long, List<Tuple<long, string>>> results,
-            string outputFullFileName)
+            string outputFullFileName = null)
         {
             XDocument doc = XDocument.Load(presetFullFileName);
 
@@ -2391,7 +2391,10 @@ namespace Checkmarx.API
                 }
             }
 
-            doc.Save(outputFullFileName);
+            if (string.IsNullOrWhiteSpace(outputFullFileName))
+                doc.Save(presetFullFileName);
+            else
+                doc.Save(outputFullFileName);
         }
 
         public void AddQueriesToPreset(string presetName, params long[] cxQueryIds)

@@ -144,9 +144,9 @@ namespace Checkmarx.API.Tests
             //var results2 = clientV9.GetODataResults(1661644).ToList();
 
             // >= 9.5
-            var results3 = clientV95.GetResultsForScan(1000122).ToList();
-            var results4 = clientV95.GetODataResults(1000122).ToList();
-            var results5 = clientV95.GetODataV95Results(1000122).ToList();
+            //var results3 = clientV9.GetResultsForScan(1000122).ToList();
+            var results4 = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1).ToList();
+            //var results5 = clientV9.GetODataV95Results(1000122).ToList();
 
             //var test1 = results3.FirstOrDefault();
             //var test2 = results4.Where(x => x.PathId == test1.PathId);

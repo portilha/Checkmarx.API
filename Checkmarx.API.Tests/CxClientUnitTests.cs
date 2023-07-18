@@ -13,6 +13,7 @@ using System.Web;
 using System.Xml;
 using System.Xml.Linq;
 using Checkmarx.API;
+using Checkmarx.API.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -55,6 +56,9 @@ namespace Checkmarx.API.Tests
             string v9 = Configuration["V9:URL"];
             if (!string.IsNullOrWhiteSpace(v9))
             {
+                //var builderuri = new UriBuilder(v9);
+                //var uri = builderuri.Uri;
+
                 clientV9 =
                     new CxClient(new Uri(v9),
                     Configuration["V9:Username"],
@@ -113,11 +117,33 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-        public void GetProjectsTest()
+        public void UploadQueryTest()
         {
-            var projects = clientV9.GetProjects();
-            var proj = projects.Where(x => x.Key == 23078);
-            var proj2 = projects.Where(x => x.Key == 23152);
+            var projects = clientV9.GetProjects().ToList();
+            var project = projects.FirstOrDefault(x => x.Key == 1);
+
+            var queryFile = "D:\\Users\\bruno.vilela\\OneDrive - Checkmarx\\Documents\\query.txt";
+            string query = File.ReadAllText(queryFile);
+        }
+
+        [TestMethod]
+        public void DisableUserTest()
+        {
+            try
+            {
+                string email = "bruno.vilela@checkmarx.com";
+
+                clientV9.DisableUserByEmail(email);
+                Trace.WriteLine($"User {email} disabled.");
+            }
+            catch (UserNotFoundException ex)
+            {
+                Trace.WriteLine($"Error disabling user. Reason: {ex.Message}.");
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         [TestMethod]

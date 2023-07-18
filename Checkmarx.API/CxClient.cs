@@ -31,6 +31,7 @@ using System.Linq.Expressions;
 using Checkmarx.API.SASTV4;
 using CxDataRepositoryV9;
 using Checkmarx.API.SASTV3;
+using Checkmarx.API.Exceptions;
 
 namespace Checkmarx.API
 {
@@ -2079,6 +2080,34 @@ namespace Checkmarx.API
         public UserViewModel GetUserByFullName(string fullName)
         {
             return Users.Where(x => string.Format("{0} {1}", x.FirstName, x.LastName) == fullName).FirstOrDefault();
+        }
+
+        public void DisableUserByEmail(string email)
+        {
+            var user = Users.FirstOrDefault(x => x.Email == email);
+
+            if (user == null)
+                throw new UserNotFoundException("User not found");
+
+            UpdateUserModel updateUserModel = new UpdateUserModel()
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                ExpirationDate = user.ExpirationDate,
+                PhoneNumber = user.PhoneNumber,
+                AllowedIpList = user.AllowedIpList,
+                CellPhoneNumber = user.CellPhoneNumber,
+                Country = user.Country,
+                JobTitle = user.JobTitle,
+                LocaleId = user.LocaleId,
+                Other = user.Other,
+                TeamIds = user.TeamIds,
+                RoleIds = user.RoleIds,
+                Active = false
+            };
+
+            AC.UpdateUserDetails(user.Id, updateUserModel);
         }
 
         #endregion

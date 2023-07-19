@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using Checkmarx.API;
 using Checkmarx.API.Exceptions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OData.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -117,13 +118,20 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-        public void UploadQueryTest()
+        public void InsertQueryTest()
         {
             var projects = clientV9.GetProjects().ToList();
             var project = projects.FirstOrDefault(x => x.Key == 1);
 
             var queryFile = "D:\\Users\\bruno.vilela\\OneDrive - Checkmarx\\Documents\\query.txt";
             string query = File.ReadAllText(queryFile);
+
+            // Get queries
+            var queries = clientV9.GetQueries();
+
+            // Adicionar mais uma
+
+            // 
         }
 
         [TestMethod]
@@ -150,13 +158,13 @@ namespace Checkmarx.API.Tests
         public void CheckResultsIgnoreStatusTest()
         {
             var projects = clientV9.GetProjects();
-            foreach(var proj in projects)
+            foreach (var proj in projects)
             {
                 var lastScan = clientV9.GetLastScan(proj.Key);
-                if(lastScan != null)
+                if (lastScan != null)
                 {
                     var oDataScanResults = clientV9.GetODataV95Results(lastScan.Id).ToList();
-                    if(oDataScanResults.Any(x => x.StateId == 5 && x.DetectionDate >= new DateTime(2023, 6, 6)))
+                    if (oDataScanResults.Any(x => x.StateId == 5 && x.DetectionDate >= new DateTime(2023, 6, 6)))
                         Trace.WriteLine($"Project {proj.Key}");
                 }
             }
@@ -183,6 +191,41 @@ namespace Checkmarx.API.Tests
             //var results = scan.Results;
 
             //var results5 = clientV9.GetSASTResults(1011900);
+
+            Trace.WriteLine($"Results: {results4}");
+        }
+
+        [TestMethod]
+        public void OdataSpeedTest()
+        {
+            var scanResults = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1).ToList();
+
+            var scanResultsHigh = scanResults.Where(x => x.Severity == CxDataRepository.Severity.High);
+            var scanResultsMedium = scanResults.Where(x => x.Severity == CxDataRepository.Severity.Medium);
+            var scanResultsLow = scanResults.Where(x => x.Severity == CxDataRepository.Severity.Low);
+
+            var scanQueriesHigh = scanResultsHigh.Select(x => x.QueryId).Distinct().ToList();
+            var scanQueriesMedium = scanResultsMedium.Select(x => x.QueryId).Distinct().ToList();
+            var scanQueriesLow = scanResultsLow.Select(x => x.QueryId).Distinct().ToList();
+
+            var InitialQueriesHigh = scanQueriesHigh.Count();
+            var InitialQueriesMedium = scanQueriesMedium.Count();
+            var InitialQueriesLow = scanQueriesLow.Count();
+
+            Trace.WriteLine($"High: {InitialQueriesHigh} | Medium: {InitialQueriesMedium} | Low: {InitialQueriesLow}");
+        }
+
+        [TestMethod]
+        public void OdataSpeedTest2()
+        {
+            var scanResults = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1);
+
+            //var InitialQueriesHigh = scanResults.Where(x => x.Severity == CxDataRepository.Severity.High).GroupBy(x => x.QueryId).Select(g => new { Name = g.Key, Count = g.Count() })
+            //.Count();
+            //var InitialQueriesMedium = scanResults.Where(x => x.Severity == CxDataRepository.Severity.Medium).GroupBy(x => x.QueryId).Count();
+            //var InitialQueriesLow = scanResults.Where(x => x.Severity == CxDataRepository.Severity.Low).GroupBy(x => x.QueryId).Count();
+
+            //Trace.WriteLine($"High: {InitialQueriesHigh} | Medium: {InitialQueriesMedium} | Low: {InitialQueriesLow}");
         }
 
         [TestMethod]

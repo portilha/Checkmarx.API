@@ -308,12 +308,9 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetScansTest()
         {
-            // FIS
             var firstScan = clientV9.GetFirstScan(17683);
             var lastScan = clientV9.GetLastScan(17683);
             var lastFullScan = clientV9.GetLastScan(17683, true);
-            //var lastScanByVersion = clientV93.GetLastScanByVersion(7994, "9.4.4");
-            //var lastScanByVersionAndDate = clientV93.GetLastScanByVersion(7994, "9.4.4", false, new DateTime(2022, 10, 5));
             var lastScanFinishOrFailed = clientV9.GetLastScanFinishOrFailed(17683);
             var lockedScan = clientV9.GetLockedScan(17683);
         }

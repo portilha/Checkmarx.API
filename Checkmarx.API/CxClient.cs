@@ -32,6 +32,7 @@ using Checkmarx.API.SASTV4;
 using CxDataRepositoryV9;
 using Checkmarx.API.SASTV3;
 using Checkmarx.API.Exceptions;
+using Microsoft.OData.Client;
 
 namespace Checkmarx.API
 {
@@ -109,6 +110,7 @@ namespace Checkmarx.API
             return _oDataV95Results.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
         }
 
+        
 
         /// <summary>
         /// SOAP client
@@ -2755,6 +2757,18 @@ namespace Checkmarx.API
             return results;
         }
 
+        public CxWSQueryVulnerabilityData[] GetQueriesForScan(long scanId)
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetQueriesForScan(_soapSessionId, scanId);
+
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+
+            return result.Queries;
+        }
+
         public int GetTotalConfirmedResultsForScan(long scanId)
         {
             return GetResultsForScan(scanId, false, false).Where(x => x.State == (int)ResultState.Confirmed || x.State == (int)ResultState.Urgent).Count();
@@ -2769,6 +2783,19 @@ namespace Checkmarx.API
             checkConnection();
 
             var result = _cxPortalWebServiceSoapClientV9.GetQueryCollectionAsync(_soapSessionId).Result;
+
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+
+            return result.QueryGroups;
+
+        }
+
+        public CxAuditWebServiceV9.CxWSQueryGroup[] GetAuditQueries()
+        {
+            checkConnection();
+
+            var result = CxAuditV9.GetQueryCollectionAsync(_soapSessionId).Result;
 
             if (!result.IsSuccesfull)
                 throw new ApplicationException(result.ErrorMessage);
@@ -3021,6 +3048,92 @@ namespace Checkmarx.API
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        #endregion
+
+        #region Queries
+
+        public Dictionary<CxDataRepository.Severity, int> GetODataScanResultsQuerySeverityCounters(long scanId)
+        {
+            checkConnection();
+
+            //var query1 = _oDataResults.Expand(x => x.Scan)
+            //    .AddQueryOption("$filter", $"ScanId eq {scanId} and State ne null and QueryId ne null and StateId ne 1")
+            //    .AddQueryOption("$apply", "groupby((Severity), aggregate($countdistinct=QueryId as CountDistinct))");
+
+            //var results1 = query1.Execute();
+
+            var query = _oDataResults.AddQueryOption("$filter", $"ScanId eq {scanId} and State ne null and QueryId ne null and StateId ne 1");
+
+            var results = query.Execute();
+
+            var dic = results
+                .GroupBy(entity => entity.Severity)
+                .ToDictionary(x => x.Key, y => y.Select(x => x.QueryId).Distinct().Count());
+
+            if (!dic.ContainsKey(CxDataRepository.Severity.High))
+                dic.Add(CxDataRepository.Severity.High, 0);
+
+            if (!dic.ContainsKey(CxDataRepository.Severity.Medium))
+                dic.Add(CxDataRepository.Severity.Medium, 0);
+
+            if (!dic.ContainsKey(CxDataRepository.Severity.Low))
+                dic.Add(CxDataRepository.Severity.Low, 0);
+
+            return dic;
+        }
+
+        public Dictionary<CxDataRepository.Severity, int> GetScanResultsQuerySeverityCounters(long scanId)
+        {
+            checkConnection();
+
+            var severityCounters = GetResultsForScan(scanId).Where(x => x.QueryId != 0 && x.State != 1);
+
+            //var dic = severityCounters
+            //    .GroupBy(entity => entity.Severity)
+            //    .ToDictionary(x => (CxDataRepository.Severity)x.Key, y => y.Select(x => x.QueryId).Distinct().Count());
+
+            // The soap client is returning the vuln with the wrong severity in cases when a client changes the severity of a query.
+            // The odata results is returning the right severity but it takes a long time to filter the results -> does not suport select/distinct operator directly
+            // The solution for now is to check the severity of the query directly
+            //var scanQueries = _cxPortalWebServiceSoapClient.GetQueriesForScan(_soapSessionId, scanId);
+            var scanQueries = GetQueriesForScan(scanId);
+
+            Dictionary<long, CxDataRepository.Severity> queryDic = new Dictionary<long, CxDataRepository.Severity>();
+            var distinctQueries = severityCounters.Select(x => x.QueryId).Distinct();
+            foreach (var item in distinctQueries)
+            {
+                var qry = scanQueries.Where(x => x.QueryId == item).FirstOrDefault();
+                if (qry != null)
+                    queryDic.Add(item, (CxDataRepository.Severity)qry.Severity);
+                else
+                    queryDic.Add(item, (CxDataRepository.Severity)severityCounters.FirstOrDefault(x => x.QueryId == item).Severity);
+            }
+
+            Dictionary<CxDataRepository.Severity, int> dic = queryDic.GroupBy(x => x.Value).ToDictionary(x => x.Key, y => y.Count());
+
+            if (!dic.ContainsKey(CxDataRepository.Severity.High))
+                dic.Add(CxDataRepository.Severity.High, 0);
+
+            if (!dic.ContainsKey(CxDataRepository.Severity.Medium))
+                dic.Add(CxDataRepository.Severity.Medium, 0);
+
+            if (!dic.ContainsKey(CxDataRepository.Severity.Low))
+                dic.Add(CxDataRepository.Severity.Low, 0);
+
+            if (!dic.ContainsKey(CxDataRepository.Severity.Info))
+                dic.Add(CxDataRepository.Severity.Info, 0);
+
+            return dic;
+        }
+
+        public void UploadQueries(CxAuditWebServiceV9.CxWSQueryGroup[] queries)
+        {
+            var uploadResponse = CxAuditV9.UploadQueriesAsync(_soapSessionId, queries).Result;
+
+            if(!uploadResponse.IsSuccesfull)
+                throw new ApplicationException(uploadResponse.ErrorMessage);
         }
 
         #endregion

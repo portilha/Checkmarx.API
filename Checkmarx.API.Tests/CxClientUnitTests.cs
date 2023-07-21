@@ -118,23 +118,6 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
-        public void InsertQueryTest()
-        {
-            var projects = clientV9.GetProjects().ToList();
-            var project = projects.FirstOrDefault(x => x.Key == 1);
-
-            var queryFile = "D:\\Users\\bruno.vilela\\OneDrive - Checkmarx\\Documents\\query.txt";
-            string query = File.ReadAllText(queryFile);
-
-            // Get queries
-            var queries = clientV9.GetQueries();
-
-            // Adicionar mais uma
-
-            // 
-        }
-
-        [TestMethod]
         public void DisableUserTest()
         {
             try
@@ -198,34 +181,42 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void OdataSpeedTest()
         {
-            var scanResults = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1).ToList();
+            //var scanResults = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1).ToList();
+            var scanResults = clientV9.GetODataResults(1607268).Where(x => x.QueryId != null && x.State != null && x.StateId != 1).ToList();
 
             var scanResultsHigh = scanResults.Where(x => x.Severity == CxDataRepository.Severity.High);
             var scanResultsMedium = scanResults.Where(x => x.Severity == CxDataRepository.Severity.Medium);
             var scanResultsLow = scanResults.Where(x => x.Severity == CxDataRepository.Severity.Low);
 
-            var scanQueriesHigh = scanResultsHigh.Select(x => x.QueryId).Distinct().ToList();
-            var scanQueriesMedium = scanResultsMedium.Select(x => x.QueryId).Distinct().ToList();
-            var scanQueriesLow = scanResultsLow.Select(x => x.QueryId).Distinct().ToList();
-
-            var InitialQueriesHigh = scanQueriesHigh.Count();
-            var InitialQueriesMedium = scanQueriesMedium.Count();
-            var InitialQueriesLow = scanQueriesLow.Count();
+            var InitialQueriesHigh = scanResultsHigh.Select(x => x.QueryId).Distinct().Count();
+            var InitialQueriesMedium = scanResultsMedium.Select(x => x.QueryId).Distinct().Count();
+            var InitialQueriesLow = scanResultsLow.Select(x => x.QueryId).Distinct().Count();
 
             Trace.WriteLine($"High: {InitialQueriesHigh} | Medium: {InitialQueriesMedium} | Low: {InitialQueriesLow}");
         }
 
         [TestMethod]
-        public void OdataSpeedTest2()
+        public void OdataSpeedTest3()
         {
-            var scanResults = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1);
+            var severityCounters = clientV89.GetODataScanResultsQuerySeverityCounters(1003321);
 
-            //var InitialQueriesHigh = scanResults.Where(x => x.Severity == CxDataRepository.Severity.High).GroupBy(x => x.QueryId).Select(g => new { Name = g.Key, Count = g.Count() })
-            //.Count();
-            //var InitialQueriesMedium = scanResults.Where(x => x.Severity == CxDataRepository.Severity.Medium).GroupBy(x => x.QueryId).Count();
-            //var InitialQueriesLow = scanResults.Where(x => x.Severity == CxDataRepository.Severity.Low).GroupBy(x => x.QueryId).Count();
+            var InitialQueriesHigh = severityCounters[CxDataRepository.Severity.High];
+            var InitialQueriesMedium = severityCounters[CxDataRepository.Severity.Medium];
+            var InitialQueriesLow = severityCounters[CxDataRepository.Severity.Low];
 
-            //Trace.WriteLine($"High: {InitialQueriesHigh} | Medium: {InitialQueriesMedium} | Low: {InitialQueriesLow}");
+            Trace.WriteLine($"High: {InitialQueriesHigh} | Medium: {InitialQueriesMedium} | Low: {InitialQueriesLow}");
+        }
+
+        [TestMethod]
+        public void OdataSpeedTest4()
+        {
+            var severityCounters = clientV9.GetScanResultsQuerySeverityCounters(1731996);
+
+            var InitialQueriesHigh = severityCounters[CxDataRepository.Severity.High];
+            var InitialQueriesMedium = severityCounters[CxDataRepository.Severity.Medium];
+            var InitialQueriesLow = severityCounters[CxDataRepository.Severity.Low];
+
+            Trace.WriteLine($"High: {InitialQueriesHigh} | Medium: {InitialQueriesMedium} | Low: {InitialQueriesLow}");
         }
 
         [TestMethod]
@@ -450,8 +441,6 @@ namespace Checkmarx.API.Tests
             foreach (var project in clientV93.GetProjects())
             {
                 var projectConfig = clientV93.GetProjectConfiguration(project.Key);
-
-
 
                 switch (projectConfig.SourceCodeSettings.SourceOrigin)
                 {

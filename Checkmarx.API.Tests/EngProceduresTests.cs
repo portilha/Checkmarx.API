@@ -33,6 +33,8 @@ namespace Checkmarx.API.Tests
         private static CxClient clientV93;
         private static CxClient clientV95;
 
+        private static string QueryDescription = "PT temporary query";
+
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
         {
@@ -92,13 +94,11 @@ namespace Checkmarx.API.Tests
         {
             // NOTES
             // 1 - Is the query to create always the same? It can be something different? Or can it be more than one?
-            // 2 - Creating and saving the created object to delete does not work -> Probably because the object does not have a PackageId.
-            // I need to search for the created QueryGroups and then Delete them -> This is a problem
-            // 5 - What do i do when there is already a project with the same name for the same project?
 
-
+            // Get projects
             var projects = clientV9.GetProjects().ToList();
 
+            // Get query
             var queryFile = "D:\\Users\\bruno.vilela\\OneDrive - Checkmarx\\Documents\\query.txt";
             string customQuery = File.ReadAllText(queryFile);
 
@@ -109,26 +109,40 @@ namespace Checkmarx.API.Tests
             var querieGroupCounter = querieGroups.Count();
             var querieCounter = queries.Count();
 
+            // Get query templates
             CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource = querieGroups.Where(x => x.PackageId == 5).FirstOrDefault();
             CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery = queries.Where(x => x.Name.ToLower() == "hardcoded_password" && x.PackageId == 5).FirstOrDefault();
 
+            // Object with the created query to update for each project
+            CxAuditWebServiceV9.CxWSQueryGroup createdQueryGroup = null;
             foreach (var project in projects)
             {
-                var projConfig = clientV9.GetProjectConfiguration(project.Key);
-                var destinationTeamId = Convert.ToInt32(projConfig.ProjectSettings.AssociatedGroupID);
+                try
+                {
+                    // O QUE FAZER QUANDO JA EXISTE UMA PARA MESMO PROJECTO?
+                    var alreadyCreatedQuery = querieGroups.Where(x => x.Name.ToLower() == "hardcoded_password" && x.ProjectId == project.Key).FirstOrDefault();
+                    if (alreadyCreatedQuery != null)
+                        continue;
 
-                // O QUE FAZER QUANDO JA EXISTE UMA PARA MESMO PROJECTO? -> Verificar antes
-                UploadQueryForProject(queryGroupSource, queryGroupSourceQuery, project.Key, destinationTeamId, customQuery);
+                    // The first time will create, after that updates the query to run for the current project
+                    if (createdQueryGroup == null)
+                    {
+                        var projConfig = clientV9.GetProjectConfiguration(project.Key);
+                        var destinationTeamId = Convert.ToInt32(projConfig.ProjectSettings.AssociatedGroupID);
 
-                var querieGroups2 = clientV9.GetQueries();
-                var queries2 = querieGroups2.SelectMany(x => x.Queries);
-
-                var querieGroupCounter2 = querieGroups2.Count();
-                var querieCounter2 = queries2.Count();
+                        createdQueryGroup = InsertQueryForProject(queryGroupSource, queryGroupSourceQuery, project.Key, destinationTeamId, customQuery, QueryDescription);
+                    }
+                    else
+                        UpdateQueryGroup(createdQueryGroup, project.Key, QueryDescription);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error inserting query into project [{project.Key}] {project.Value}");
+                }
             }
 
-            // Delete Created Query Groups -> TENHO DE FAZER MELHOR FILTRO -> A ENCONTRAR MAIS QUERIES
-            CleanCustomQueries("hardcoded_password");
+            // Delete Created Query Groups by query description
+            CleanCustomQueries(QueryDescription);
 
             var querieGroups3 = clientV9.GetQueries();
             var queries3 = querieGroups3.SelectMany(x => x.Queries);
@@ -140,37 +154,26 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void CleanCustomQueriesTest()
         {
-            CleanCustomQueries("hardcoded_password");
+            CleanCustomQueries(QueryDescription);
         }
 
-        public void CleanCustomQueries(string queryName)
+        public void CleanCustomQueries(string queryDescription)
         {
             // Get querie and query group
             var querieGroups = clientV9.GetAuditQueries();
-            var queries = querieGroups.SelectMany(x => x.Queries);
-
-            // NAO CHEGA! -> Encontra outras queries
-            var queryGroupSourceQuery = queries.Where(x => x.Name.ToLower() == queryName).ToList();
-            var queryGroupSource = querieGroups.Where(x => queryGroupSourceQuery.Select(x => x.PackageId).Contains(x.PackageId) 
-                                                        && x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Project).ToList();
-
+            var queryGroupSource = querieGroups.Where(x => x.Description == queryDescription);
 
             // Delete Query Group
             if (queryGroupSource.Any())
             {
                 foreach (var createdQueryGroup in queryGroupSource)
                     DeleteQueryGroup(createdQueryGroup);
-
-                var querieGroups3 = clientV9.GetQueries();
-                var queries3 = querieGroups3.SelectMany(x => x.Queries);
-
-                var querieGroupCounter3 = querieGroups3.Count();
-                var querieCounter3 = queries3.Count();
             }
         }
 
-        public CxAuditWebServiceV9.CxWSQueryGroup UploadQueryForProject(CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource, CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery, long projectId, int teamId, string customQuery)
+        public CxAuditWebServiceV9.CxWSQueryGroup InsertQueryForProject(CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource, CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery, long projectId, int teamId, string customQuery, string description)
         {
+            // Create query objects and insert new
             CxAuditWebServiceV9.CxWSQuery queryToUp = new CxAuditWebServiceV9.CxWSQuery()
             {
                 Cwe = queryGroupSourceQuery.Cwe,
@@ -186,7 +189,8 @@ namespace Checkmarx.API.Tests
 
             var newQuerieGroup = new CxAuditWebServiceV9.CxWSQueryGroup()
             {
-                Description = queryGroupSource.Description,
+                //Description = queryGroupSource.Description,
+                Description = description,
                 IsEncrypted = queryGroupSource.IsEncrypted,
                 IsReadOnly = queryGroupSource.IsReadOnly,
                 Language = queryGroupSource.Language,
@@ -203,15 +207,23 @@ namespace Checkmarx.API.Tests
 
             clientV9.UploadQueries(new CxAuditWebServiceV9.CxWSQueryGroup[] { newQuerieGroup });
 
-            return newQuerieGroup;
+            // For some reason, the description is not added when creating. We need to update again with the description
+            var querieGroupsRefresh = clientV9.GetAuditQueries();
+            var createdQueryGroup = querieGroupsRefresh.FirstOrDefault(x => x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Project && x.ProjectId == projectId);
+
+            createdQueryGroup.Description = description;
+            clientV9.UploadQueries(new CxAuditWebServiceV9.CxWSQueryGroup[] { createdQueryGroup });
+
+            return createdQueryGroup;
         }
 
-        public void UpdateQueryGroup(CxAuditWebServiceV9.CxWSQueryGroup queryGroupToUpdate, long projectId, int teamId)
+        public void UpdateQueryGroup(CxAuditWebServiceV9.CxWSQueryGroup queryGroupToUpdate, long projectId, string description)
         {
             queryGroupToUpdate.Status = CxAuditWebServiceV9.QueryStatus.Edited;
             queryGroupToUpdate.PackageTypeName = $"CxProject_{projectId}";
             queryGroupToUpdate.PackageFullName = $"{queryGroupToUpdate.LanguageName}:CxProject_{projectId}:{queryGroupToUpdate.Name}";
             queryGroupToUpdate.ProjectId = projectId;
+            queryGroupToUpdate.Description = description;
 
             clientV9.UploadQueries(new CxAuditWebServiceV9.CxWSQueryGroup[] { queryGroupToUpdate });
         }

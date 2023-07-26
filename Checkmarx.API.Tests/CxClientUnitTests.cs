@@ -210,7 +210,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void OdataSpeedTest4()
         {
-            var severityCounters = clientV9.GetScanResultsQuerySeverityCounters(1731996);
+            var severityCounters = clientV89.GetScanResultsQuerySeverityCounters(1003321);
 
             var InitialQueriesHigh = severityCounters[CxDataRepository.Severity.High];
             var InitialQueriesMedium = severityCounters[CxDataRepository.Severity.Medium];
@@ -362,7 +362,7 @@ namespace Checkmarx.API.Tests
             // unzip
             ZipFile.ExtractToDirectory(zipPath, extractPath);
 
-            var exclusions = Exclusions.FromJson("exclusion.json");
+            var exclusions = Exclusions.FromJson("exclusions.json");
 
             Regex[] filesRegex = exclusions.Files.Select(x => new Regex(x, RegexOptions.Compiled)).ToArray();
             Regex[] foldersRegex = exclusions.Folders.Select(x => new Regex(x, RegexOptions.Compiled)).ToArray();

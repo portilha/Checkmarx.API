@@ -3058,11 +3058,13 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            //var query1 = _oDataResults.Expand(x => x.Scan)
+            //var query1 = _oDataResults
             //    .AddQueryOption("$filter", $"ScanId eq {scanId} and State ne null and QueryId ne null and StateId ne 1")
             //    .AddQueryOption("$apply", "groupby((Severity), aggregate($countdistinct=QueryId as CountDistinct))");
 
             //var results1 = query1.Execute();
+
+            //var test = results1.ToList();
 
             var query = _oDataResults.AddQueryOption("$filter", $"ScanId eq {scanId} and State ne null and QueryId ne null and StateId ne 1");
 

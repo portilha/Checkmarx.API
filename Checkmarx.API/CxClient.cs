@@ -866,6 +866,32 @@ namespace Checkmarx.API
             throw new NotSupportedException();
         }
 
+        public void SetExcludedSettings(int projectId, string excludeFoldersPattern, string excludeFilesPattern)
+        {
+            checkConnection();
+
+            //SASTClient.ExcludeSettings_PutByidexcludeSettingsAsync(projectId, new ExcludeSettingsDto() { ExcludeFilesPattern = "", ExcludeFoldersPattern = ""}).Result
+
+            using (var request = new HttpRequestMessage(HttpMethod.Put, $"projects/{projectId}/sourceCode/excludeSettings"))
+            {
+                request.Headers.Add("Accept", "application/json;v=1.0");
+
+                JObject settings = new JObject
+                {
+                    { "excludeFoldersPattern", excludeFoldersPattern },
+                    { "excludeFilesPattern", excludeFilesPattern },
+                };
+
+                request.Content = new StringContent(JsonConvert.SerializeObject(settings));
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                    throw new Exception($"Error updating excluded settings for project {projectId} ({response.StatusCode})");
+            }
+        }
+
         public void SetProjectSettings(int projectId, int presetId, int engineConfigurationId, int scanActionId)
         {
             checkConnection();
@@ -1442,6 +1468,17 @@ namespace Checkmarx.API
             checkSoapResponse(response);
 
             return response.ProjectConfig;
+        }
+
+        public ConfigurationSet[] GetConfigurationSetList()
+        {
+            checkConnection();
+
+            var response = _cxPortalWebServiceSoapClient.GetConfigurationSetList(_soapSessionId);
+
+            checkSoapResponse(response);
+
+            return response.ConfigSetList;
         }
 
         public void SetPreset(long projectId, string presetName)

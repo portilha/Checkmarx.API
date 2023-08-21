@@ -90,17 +90,38 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void ExclusionTest()
+        {
+            var exclusions = clientV9.GetExcludedSettings(1);
+            clientV9.SetExcludedSettings(1, "test", "test.js");
+        }
+
+        [TestMethod]
         public void InsertDeleteQueryTest()
         {
             // NOTES
             // 1 - Is the query to create always the same? It can be something different? Or can it be more than one?
 
+            // Gets default preset and Configuration
+            var presets = clientV9.GetPresets();
+            var defaultPreset = presets.Where(x => x.Value == "OWASP TOP 10 - 2017").FirstOrDefault();
+
+            if (defaultPreset.Key == 0)
+                throw new Exception($"No preset found with name ...");
+
+            var configurations = clientV9.GetConfigurationSetList();
+            var defaultConfiguration = configurations.Where(x => x.ConfigSetName == "Default Configuration").FirstOrDefault();
+
+            if (defaultConfiguration == null)
+                throw new Exception($"No Configuration found with name ...");
+
             // Get projects
             var projects = clientV9.GetProjects().ToList();
 
             // Get query
-            var queryFile = "D:\\Users\\bruno.vilela\\OneDrive - Checkmarx\\Documents\\query.txt";
+            var queryFile = "D:\\Users\\bruno.vilela\\OneDrive - Checkmarx\\Documents\\hardcoded_password.txt";
             string customQuery = File.ReadAllText(queryFile);
+            string queryName = Path.GetFileNameWithoutExtension(queryFile);
 
             // Get querie and query group
             var querieGroups = clientV9.GetAuditQueries();
@@ -110,13 +131,22 @@ namespace Checkmarx.API.Tests
             var querieCounter = queries.Count();
 
             // Get query templates
-            CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource = querieGroups.Where(x => x.PackageId == 5).FirstOrDefault();
-            CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery = queries.Where(x => x.Name.ToLower() == "hardcoded_password" && x.PackageId == 5).FirstOrDefault();
+            var possibleQueries = queries.Where(x => x.Name.ToLower() == queryName).Select(x => x.PackageId).Distinct();
+            var queryGroupSource = querieGroups.Where(x => possibleQueries.Contains(x.PackageId) && x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Cx).FirstOrDefault();
+            var queryGroupSourceQuery = queryGroupSource.Queries.Where(x => x.Name.ToLower() == queryName).FirstOrDefault();
+
+            //CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource = querieGroups.Where(x => x.PackageId == 5).FirstOrDefault();
+            //CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery = queries.Where(x => x.Name.ToLower() == queryName && x.PackageId == 5).FirstOrDefault();
+
+            if (queryGroupSource == null || queryGroupSourceQuery == null)
+                throw new Exception($"No query group found to override with the name {queryName}");
 
             // Object with the created query to update for each project
             CxAuditWebServiceV9.CxWSQueryGroup createdQueryGroup = null;
             foreach (var project in projects)
             {
+                
+
                 try
                 {
                     // O QUE FAZER QUANDO JA EXISTE UMA PARA MESMO PROJECTO?

@@ -30,4 +30,10 @@
     <ProjectReference Include="..\Checkmarx.API\Checkmarx.API.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\exclusions.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

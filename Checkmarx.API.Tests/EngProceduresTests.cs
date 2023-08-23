@@ -92,8 +92,87 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void ExclusionTest()
         {
-            var exclusions = clientV9.GetExcludedSettings(1);
+            var exclusions = clientV9.GetExcludedSettings(2);
             clientV9.SetExcludedSettings(1, "test", "test.js");
+        }
+
+        [TestMethod]
+        public void SuggestExclusionsTest()
+        {
+            int projectId = 2;
+            int scanId = 1000005;
+
+            var currentExclusions = clientV9.GetExcludedSettings(projectId);
+            if (string.IsNullOrEmpty(currentExclusions.Item1) || string.IsNullOrEmpty(currentExclusions.Item2))
+            {
+                string extractPath = Path.GetTempFileName();
+                string zipPath = Path.GetTempFileName();
+
+                try
+                {
+                    File.WriteAllBytes(zipPath, clientV9.GetSourceCode(scanId));
+
+                    if (File.Exists(extractPath))
+                        File.Delete(extractPath);
+
+                    // unzip
+                    ZipFile.ExtractToDirectory(zipPath, extractPath, true);
+
+                    var exclusions = Exclusions.FromJson(File.ReadAllText("Assets/exclusions.json"));
+
+                    Regex[] filesRegex = exclusions.Files.Select(x => new Regex(x, RegexOptions.Compiled)).ToArray();
+                    Regex[] foldersRegex = exclusions.Folders.Select(x => new Regex(x, RegexOptions.Compiled)).ToArray();
+
+                    List<string> foldersExclusions = new List<string>();
+                    List<string> filesExclusions = new List<string>();
+
+                    // detect exclusions
+                    foreach (var directoy in Directory.EnumerateDirectories(extractPath, "*.*"))
+                    {
+                        if (foldersRegex.Any(x => x.Match(directoy).Success))
+                        {
+                            foreach (var item in foldersRegex.Where(x => x.Match(directoy).Success))
+                            {
+                                if (!foldersExclusions.Any(x => x == item.ToString()))
+                                    foldersExclusions.Add(item.ToString());
+                            }
+                        }
+                    }
+
+                    foreach (var file in Directory.EnumerateFiles(extractPath, "*.*"))
+                    {
+                        if (filesRegex.Any(x => x.Match(file).Success))
+                        {
+                            foreach (var item in filesRegex.Where(x => x.Match(file).Success))
+                            {
+                                if (!filesExclusions.Any(x => x == item.ToString()))
+                                    filesExclusions.Add(item.ToString());
+                            }
+                        }
+                    }
+
+                    string finalFolderExclusions = string.IsNullOrEmpty(currentExclusions.Item1) ?
+                        foldersExclusions.Any() ? string.Join(",", foldersExclusions) : string.Empty
+                        : currentExclusions.Item1;
+                    string finalFileExclusions = string.IsNullOrEmpty(currentExclusions.Item2) ?
+                        filesExclusions.Any() ? string.Join(",", filesExclusions) : string.Empty
+                        : currentExclusions.Item2;
+
+                    clientV9.SetExcludedSettings(projectId, finalFolderExclusions, finalFileExclusions);
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    if (File.Exists(zipPath))
+                        File.Delete(zipPath);
+
+                    if (File.Exists(extractPath))
+                        File.Delete(extractPath);
+                }
+            }
         }
 
         [TestMethod]
@@ -145,7 +224,7 @@ namespace Checkmarx.API.Tests
             CxAuditWebServiceV9.CxWSQueryGroup createdQueryGroup = null;
             foreach (var project in projects)
             {
-                
+
 
                 try
                 {
@@ -263,7 +342,7 @@ namespace Checkmarx.API.Tests
             foreach (var query in queryGroupToDelete.Queries)
                 query.Status = CxAuditWebServiceV9.QueryStatus.Deleted;
 
-            if(queryGroupToDelete.Queries.All(x => x.Status == CxAuditWebServiceV9.QueryStatus.Deleted))
+            if (queryGroupToDelete.Queries.All(x => x.Status == CxAuditWebServiceV9.QueryStatus.Deleted))
                 queryGroupToDelete.Status = CxAuditWebServiceV9.QueryStatus.Deleted;
 
             clientV9.UploadQueries(new CxAuditWebServiceV9.CxWSQueryGroup[] { queryGroupToDelete });

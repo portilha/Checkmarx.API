@@ -841,7 +841,7 @@ namespace Checkmarx.API
         /// <returns>excludedFoldersPattern, excludedFilesPattern</returns>
         /// <exception cref="NotSupportedException">
         /// </exception>
-        public Tuple<string, string> GetExcludedSettings(int projectId)
+        public Tuple<string, string> GetExcludedSettings(long projectId)
         {
             checkConnection();
 
@@ -1509,7 +1509,7 @@ namespace Checkmarx.API
         /// <param name="forceScan"></param>
         /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
         public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
-            bool useLastScanPreset = false, int? presetId = null, bool runPublicScan = true, bool forceLocal = false, CxClient cxClient2 = null)
+            bool useLastScanPreset = false, int? presetId = null, int? configurationId = null, bool runPublicScan = true, bool forceLocal = false, CxClient cxClient2 = null)
         {
             checkConnection();
 
@@ -1537,7 +1537,7 @@ namespace Checkmarx.API
                             {
                                 SASTV4.FileParameter file = new SASTV4.FileParameter(new MemoryStream(sourceCodeZipContent));
 
-                                var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, null, file).Result;
+                                var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, configurationId, null, null, file).Result;
 
                                 return;
                             }
@@ -1548,7 +1548,7 @@ namespace Checkmarx.API
                             {
                                 SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
 
-                                var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
+                                var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, configurationId, null, file).Result;
 
                                 return;
                             }
@@ -1568,7 +1568,7 @@ namespace Checkmarx.API
                             {
                                 SASTV4.FileParameter file = new SASTV4.FileParameter(new MemoryStream(sourceCodeZipContent));
 
-                                var result = cxClient2.SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, null, file).Result;
+                                var result = cxClient2.SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, configurationId, null, null, file).Result;
 
                                 return;
                             }
@@ -1579,7 +1579,7 @@ namespace Checkmarx.API
                             {
                                 SAST.FileParameter file = new SAST.FileParameter(new MemoryStream(sourceCodeZipContent));
 
-                                var result = cxClient2.SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, null, null, file).Result;
+                                var result = cxClient2.SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, configurationId, null, file).Result;
 
                                 return;
                             }
@@ -1600,7 +1600,7 @@ namespace Checkmarx.API
                     {
                         if (SASTClientV4 != null && presetId.HasValue)
                         {
-                            var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null, null).Result;
+                            var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, configurationId, null, null, null).Result;
 
                             return;
                         }
@@ -1609,7 +1609,7 @@ namespace Checkmarx.API
                     {
                         if (SASTClientV1_1 != null && presetId.HasValue)
                         {
-                            var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null).Result;
+                            var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, configurationId, null, null).Result;
 
                             return;
                         }
@@ -1621,7 +1621,7 @@ namespace Checkmarx.API
                     {
                         if (cxClient2.SASTClientV4 != null && presetId.HasValue)
                         {
-                            var result = cxClient2.SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null, null).Result;
+                            var result = cxClient2.SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, configurationId, null, null, null).Result;
 
                             return;
                         }
@@ -1630,7 +1630,7 @@ namespace Checkmarx.API
                     {
                         if (cxClient2.SASTClientV1_1 != null && presetId.HasValue)
                         {
-                            var result = cxClient2.SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, null, null, null).Result;
+                            var result = cxClient2.SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, configurationId, null, null).Result;
 
                             return;
                         }
@@ -1829,9 +1829,9 @@ namespace Checkmarx.API
             return GetScans(projectId, true).FirstOrDefault();
         }
 
-        public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null)
+        public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true)
         {
-            var scans = GetScans(projectId, true, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
+            var scans = GetScans(projectId, finished, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
 
             if (fullScanOnly)
                 scans = scans.Where(x => !x.IsIncremental);
@@ -1917,6 +1917,11 @@ namespace Checkmarx.API
                 OwningTeamId = scan.OwningTeamId,
                 PresetId = scan.PresetId,
                 PresetName = scan.PresetName,
+                ScanType = new FinishedScanStatus
+                {
+                    Id = scan.ScanType,
+                    //Value = 
+                },
                 ScanState = new ScanState
                 {
                     LanguageStateCollection = scan.ScannedLanguages.Select(language => new LanguageStateCollection

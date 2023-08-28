@@ -46,7 +46,5 @@ namespace Checkmarx.API.Tests
 
             File.WriteAllText("C:\\Users\\pedropo\\OneDrive - Checkmarx\\Checkmarx.API\\v1_Copy.json", Newtonsoft.Json.JsonConvert.SerializeObject(jsonObject));
         }
-
-
     }
 }

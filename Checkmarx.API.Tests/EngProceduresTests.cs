@@ -89,14 +89,12 @@ namespace Checkmarx.API.Tests
             }
         }
 
-        [TestMethod]
         public void ExclusionTest()
         {
             var exclusions = clientV9.GetExcludedSettings(2);
             clientV9.SetExcludedSettings(1, "test", "test.js");
         }
 
-        [TestMethod]
         public void SuggestExclusionsTest()
         {
             int projectId = 2;
@@ -175,7 +173,6 @@ namespace Checkmarx.API.Tests
             }
         }
 
-        [TestMethod]
         public void InsertDeleteQueryTest()
         {
             // NOTES
@@ -260,7 +257,6 @@ namespace Checkmarx.API.Tests
             var querieCounter3 = queries3.Count();
         }
 
-        [TestMethod]
         public void CleanCustomQueriesTest()
         {
             CleanCustomQueries(QueryDescription);

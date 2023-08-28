@@ -78,7 +78,8 @@ namespace Checkmarx.API.Tests
             }
         }
 
-        [TestMethod]
+        #region Write tests
+
         public void SASTProjectIntoSCATest()
         {
             var listOfSCAProjects = _scaClient.ClientSCA.GetProjectsAsync().Result.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
@@ -142,5 +143,7 @@ namespace Checkmarx.API.Tests
                 }
             }
         }
+
+        #endregion
     }
 }

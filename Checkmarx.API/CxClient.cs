@@ -2825,6 +2825,25 @@ namespace Checkmarx.API
             return results;
         }
 
+        public CxWSSingleResultData[] GetResultsForScanNeitherConfirmedNorNonExploitable(long scanId, bool includeInfoSeverityResults = true)
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+
+            var results = result.Results;
+
+            if (!includeInfoSeverityResults)
+                results = results.Where(x => x.Severity != (int)Severity.Info).ToArray();
+
+            results = results.Where(x => x.State != (int)ResultState.Confirmed && x.State != (int)ResultState.NonExploitable).ToArray();
+
+            return results;
+        }
+
         public CxWSQueryVulnerabilityData[] GetQueriesForScan(long scanId)
         {
             checkConnection();

@@ -90,18 +90,53 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void ReadScanLogsTest()
+        {
+            var scanId = 1465492;
+            string extractPathScan1 = Path.Combine(Path.GetTempPath(), scanId.ToString());
+
+            var logsScanZip = clientV93.GetScanLogs(1465492);
+
+            string tempDirectory = Path.GetTempPath();
+            string logPath = Path.Combine(tempDirectory, $"{scanId}");
+
+            if (Directory.Exists(logPath))
+                Directory.Delete(logPath, true);
+
+            var zipPath = Path.Combine(logPath, $"{scanId}.zip");
+
+            if (!Directory.Exists(logPath))
+                Directory.CreateDirectory(logPath);
+
+            File.WriteAllBytes(zipPath, logsScanZip);
+
+            ZipFile.ExtractToDirectory(zipPath, logPath);
+
+            ZipFile.ExtractToDirectory(Path.Combine(logPath, $"Scan_{scanId}.zip"), logPath);
+
+            string logFile1 = Directory.GetFiles(logPath, "*.log").First();
+        }
+
+        [TestMethod]
+        public void GetProjectConfigurationTest()
+        {
+            var projId = 16524;
+            var projectSettings = clientV93.GetProjectConfiguration(projId);
+        }
+
+        [TestMethod]
         public void GetLastScanResultsTest()
         {
-            var scans = clientV9.GetScans(18122, true).ToList();
-            var lastScan = clientV9.GetLastScan(18122, true);
+            var scans = clientV93.GetScans(25852, true).ToList();
+            var lastScan = clientV93.GetLastScan(25852, true);
             if (lastScan != null)
             {
-                var results = clientV9.GetODataResults(lastScan.Id);
+                var results = clientV93.GetODataResults(lastScan.Id);
                 var test = results.Where(x => x.Severity == CxDataRepository.Severity.High).ToList();
 
 
                 var toVerify = results.Where(x => x.StateId == 0).Count();
-                var toVerify2 = clientV9.GetTotalToVerifyFromScan(lastScan.Id);
+                var toVerify2 = clientV93.GetTotalToVerifyFromScan(lastScan.Id);
 
                 Trace.WriteLine($"ScanId: {lastScan.Id} | High: {lastScan.Results.High} | Medium: {lastScan.Results.Medium} | Low: {lastScan.Results.Low} | Info: {lastScan.Results.Info} | ToVerify: {toVerify}");
             }

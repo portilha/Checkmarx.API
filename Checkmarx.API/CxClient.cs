@@ -1459,7 +1459,7 @@ namespace Checkmarx.API
             checkSoapResponse(result);
         }
 
-        public ProjectConfiguration GetProjectConfiguration(long projectId)
+        public ProjectConfiguration GetProjectConfigurations(long projectId)
         {
             checkConnection();
 
@@ -1513,7 +1513,7 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            var projectConfig = GetProjectConfiguration(projectId);
+            var projectConfig = GetProjectConfigurations(projectId);
 
             if (forceLocal || projectConfig.SourceCodeSettings.SourceOrigin == PortalSoap.SourceLocationType.Local)
             {
@@ -1990,6 +1990,32 @@ namespace Checkmarx.API
                         return "Checkmarx Default";
 
                     return GetPresets()[result.Preset.Id];
+                }
+
+                throw new NotSupportedException(response.ToString());
+            }
+        }
+
+        public string GetProjectConfiguration(int projectId)
+        {
+            checkConnection();
+
+            using (var request = new HttpRequestMessage(HttpMethod.Get, $"sast/scanSettings/{projectId}"))
+            {
+                request.Headers.Add("Accept", "application/json;v=1.0");
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var result = JsonConvert.DeserializeObject<ScanSettings>(response.Content.ReadAsStringAsync().Result);
+
+                    var config = GetConfigurationSetList().Where(x => x.ID == result.EngineConfiguration.Id).FirstOrDefault();
+
+                    if (config == null)
+                        return "Default Configuration";
+
+                    return config.ConfigSetName;
                 }
 
                 throw new NotSupportedException(response.ToString());
@@ -2809,6 +2835,18 @@ namespace Checkmarx.API
                 throw new ApplicationException(result.ErrorMessage);
 
             return result.Queries;
+        }
+
+        public CxWSResponseScanProperties GetScanProperties(long scanId)
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetScanProperties(_soapSessionId, scanId);
+
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+
+            return result;
         }
 
         public int GetTotalConfirmedResultsForScan(long scanId)

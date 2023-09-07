@@ -411,7 +411,7 @@ namespace Checkmarx.API.SAST
         /// <param name="projectId">Unique Id of the specific Project</param>
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ScanSettingsResponseDto> ScanSettingsV1_1__GetByprojectIdAsync(long projectId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ScanSettingsResponseDto> ScanSettingsV1_1__GetByprojectIdAsync(long projectId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (projectId == null)
                 throw new System.ArgumentNullException("projectId");

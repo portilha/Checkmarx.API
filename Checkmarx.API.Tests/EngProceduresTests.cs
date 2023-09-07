@@ -233,7 +233,7 @@ namespace Checkmarx.API.Tests
                     // The first time will create, after that updates the query to run for the current project
                     if (createdQueryGroup == null)
                     {
-                        var projConfig = clientV9.GetProjectConfiguration(project.Key);
+                        var projConfig = clientV9.GetProjectConfigurations(project.Key);
                         var destinationTeamId = Convert.ToInt32(projConfig.ProjectSettings.AssociatedGroupID);
 
                         createdQueryGroup = InsertQueryForProject(queryGroupSource, queryGroupSourceQuery, project.Key, destinationTeamId, customQuery, QueryDescription);

@@ -250,7 +250,7 @@ namespace Checkmarx.API.Tests
 
             foreach (var project in clientV93.GetProjects())
             {
-                var projectConfig = clientV93.GetProjectConfiguration(project.Key);
+                var projectConfig = clientV93.GetProjectConfigurations(project.Key);
 
                 switch (projectConfig.SourceCodeSettings.SourceOrigin)
                 {

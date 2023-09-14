@@ -2345,7 +2345,7 @@ namespace Checkmarx.API
         /// Get Query Information about the CWE of the Checkmarx Queries and other information.
         /// </summary>
         /// <returns></returns>
-        public StringBuilder GetQueryInformation(bool detailedCategories = false, params string[] presetNames)
+        public StringBuilder GetQueryInformation(bool detailedCategories = false, bool exportNonExecutableQueries = false, params string[] presetNames)
         {
             StringBuilder result = new StringBuilder();
             result.AppendLine("sep=,");
@@ -2353,6 +2353,7 @@ namespace Checkmarx.API
             List<string> headers = new List<string>
             {
                 "QueryId",
+                "Preset QueryId",
                 "Language",
                 "PackageType",
                 "QueryGroup",
@@ -2386,11 +2387,24 @@ namespace Checkmarx.API
 
             result.AppendLine(string.Join(",", headers));
 
-            List<string> values;
-            foreach (var queryGroup in this.GetQueries())
+
+            var queries = this.GetQueries();
+
+            // structure the name of the queries -> id of the CX queries 
+            var cxQueries = queries
+                .Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx)
+                .SelectMany(x => x.Queries)
+                .ToDictionary(x => x.Name, x => x.QueryId);
+
+            List<object> values;
+
+            foreach (var queryGroup in queries)
             {
                 foreach (var query in queryGroup.Queries)
                 {
+                    if (!exportNonExecutableQueries && !query.IsExecutable)
+                        continue;
+
                     List<string> categories = new List<string>();
                     foreach (var item in query.Categories)
                     {
@@ -2402,23 +2416,21 @@ namespace Checkmarx.API
                         if (!subTopic.Contains(item.CategoryName))
                             subTopic.Add(item.CategoryName);
 
-                        //if (detailedCategories)
-                        //    categories.Add($"{item.CategoryName} [{item.CategoryType.Name}]");
-                        //else
-                        //    categories.Add(item.CategoryType.Name);
-
                         categories.Add($"{item.CategoryName} [{item.CategoryType.Name}]");
                     }
 
-                    values = new List<string>
+                    long presetQueryId = query.QueryId;
+
+                    values = new List<object>
                     {
-                        query.QueryId.ToString(),
+                        query.QueryId,
+                        presetQueryId,
                         queryGroup.LanguageName,
                         queryGroup.PackageTypeName,
                         queryGroup.PackageFullName,
                         query.Name,
-                        query.IsExecutable.ToString(),
-                        query.Cwe.ToString(),
+                        query.IsExecutable,
+                        query.Cwe,
                         toSeverityToString(query.Severity)
                     };
 
@@ -2431,12 +2443,13 @@ namespace Checkmarx.API
                         values.Add(preset.Contains(query.QueryId).ToString());
                     }
 
-                    result.AppendLine(string.Join(",", values.Select(x => $"\"{x}\"")));
+                    result.AppendLine(string.Join(",", values.Select(x => $"\"{x?.ToString()}\"")));
                 }
             }
 
             return result;
         }
+
 
         public Dictionary<long, List<Tuple<long, string>>> GetQueryForCWE(ICollection<long> cwes)
         {

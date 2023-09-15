@@ -33,6 +33,7 @@ using CxDataRepositoryV9;
 using Checkmarx.API.SASTV3;
 using Checkmarx.API.Exceptions;
 using Microsoft.OData.Client;
+using System.Runtime.CompilerServices;
 
 namespace Checkmarx.API
 {
@@ -110,7 +111,7 @@ namespace Checkmarx.API
             return _oDataV95Results.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
         }
 
-        
+
 
         /// <summary>
         /// SOAP client
@@ -1836,6 +1837,13 @@ namespace Checkmarx.API
             if (fullScanOnly)
                 scans = scans.Where(x => !x.IsIncremental);
 
+            if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
+            {
+                long? scanId = _oDataV95.Projects.Where(p => p.Id == projectId).First().LastScanId;
+
+                return scanId != null ?  scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
+            }
+
             return scans.LastOrDefault();
         }
 
@@ -2341,6 +2349,51 @@ namespace Checkmarx.API
             return _cxPortalWebServiceSoapClientV9.GetPresetDetailsAsync(_soapSessionId, presetId).Result.preset;
         }
 
+
+        // structure the name of the queries -> id of the CX queries
+        private Dictionary<string, long> _cxQueryId = null;
+        public long GetPresetQueryId(cxPortalWebService93.CxWSQueryGroup queryGroup, cxPortalWebService93.CxWSQuery query)
+        {
+            if (queryGroup == null)
+                throw new ArgumentNullException(nameof(queryGroup));
+
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            if (_cxQueryId == null)
+            {
+                var queryGroups = GetQueries();
+
+                _cxQueryId = new Dictionary<string, long>();
+
+                foreach (var queryGroupCx in queryGroups.Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx))
+                {
+                    foreach (var queryCx in queryGroupCx.Queries)
+                    {
+                        _cxQueryId.Add(queryGroupCx.Language + "_" + queryGroupCx.Name + "_" + queryCx.Name, queryCx.QueryId);
+                    }
+                }
+
+                foreach (var queryGroupCorporate in queryGroups.Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Corporate))
+                {
+                    foreach (var queryCorporate in queryGroupCorporate.Queries)
+                    {
+                        string queryPAth = queryGroupCorporate.Language + "_" + queryGroupCorporate.Name + "_" + queryCorporate.Name;
+
+                        if (!_cxQueryId.ContainsKey(queryPAth))
+                            _cxQueryId.Add(queryPAth, query.QueryId);
+                    }
+                }
+            }
+
+            if (queryGroup.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx)
+                return query.QueryId;
+
+            string queryFullName = queryGroup.Language + "_" + queryGroup.Name + "_" + query.Name;
+
+            return _cxQueryId[queryFullName];
+        }
+
         /// <summary>
         /// Get Query Information about the CWE of the Checkmarx Queries and other information.
         /// </summary>
@@ -2388,17 +2441,12 @@ namespace Checkmarx.API
             result.AppendLine(string.Join(",", headers));
 
 
-            var queries = this.GetQueries();
+            var queryGroups = this.GetQueries();
 
-            // structure the name of the queries -> id of the CX queries 
-            var cxQueries = queries
-                .Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx)
-                .SelectMany(x => x.Queries)
-                .ToDictionary(x => x.Name, x => x.QueryId);
 
             List<object> values;
 
-            foreach (var queryGroup in queries)
+            foreach (var queryGroup in queryGroups)
             {
                 foreach (var query in queryGroup.Queries)
                 {
@@ -2419,7 +2467,7 @@ namespace Checkmarx.API
                         categories.Add($"{item.CategoryName} [{item.CategoryType.Name}]");
                     }
 
-                    long presetQueryId = query.QueryId;
+                    long presetQueryId = GetPresetQueryId(queryGroup, query);
 
                     values = new List<object>
                     {
@@ -3056,6 +3104,16 @@ namespace Checkmarx.API
             UpdateResultState(scanId, pathId, projectId, (int)resultState, remarks);
         }
 
+
+        public void UpdateSetOfResultState(params ResultStateData[] results)
+        {
+            checkConnection();
+
+            var response = _cxPortalWebServiceSoapClient.UpdateSetOfResultState(_soapSessionId, results);
+
+            checkSoapResponse(response);
+        }
+
         public void UpdateResultState(long projectId, long scanId, long pathId, int result, string remarks = null)
         {
             if (projectId < 0)
@@ -3246,7 +3304,7 @@ namespace Checkmarx.API
         {
             var uploadResponse = CxAuditV9.UploadQueriesAsync(_soapSessionId, queries).Result;
 
-            if(!uploadResponse.IsSuccesfull)
+            if (!uploadResponse.IsSuccesfull)
                 throw new ApplicationException(uploadResponse.ErrorMessage);
         }
 

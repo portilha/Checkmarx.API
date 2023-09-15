@@ -127,19 +127,33 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetLastScanResultsTest()
         {
-            var scans = clientV93.GetScans(25852, true).ToList();
-            var lastScan = clientV93.GetLastScan(25852, true);
-            if (lastScan != null)
-            {
-                var results = clientV93.GetODataResults(lastScan.Id);
-                var test = results.Where(x => x.Severity == CxDataRepository.Severity.High).ToList();
+            // var scans = clientV93.GetScans(18123, true).ToList();
+            var lastScan = clientV93.GetLastScan(18123, true);
+
+            Assert.IsTrue(lastScan.Id == 5498);
+
+            //if (lastScan != null)
+            //{
+            //    var results = clientV93.GetODataResults(lastScan.Id);
+            //    var test = results.Where(x => x.Severity == CxDataRepository.Severity.High).ToList();
 
 
-                var toVerify = results.Where(x => x.StateId == 0).Count();
-                var toVerify2 = clientV93.GetTotalToVerifyFromScan(lastScan.Id);
+            //    var toVerify = results.Where(x => x.StateId == 0).Count();
+            //    var toVerify2 = clientV93.GetTotalToVerifyFromScan(lastScan.Id);
 
-                Trace.WriteLine($"ScanId: {lastScan.Id} | High: {lastScan.Results.High} | Medium: {lastScan.Results.Medium} | Low: {lastScan.Results.Low} | Info: {lastScan.Results.Info} | ToVerify: {toVerify}");
-            }
+            //    Trace.WriteLine($"ScanId: {lastScan.Id} | High: {lastScan.Results.High} | Medium: {lastScan.Results.Medium} | Low: {lastScan.Results.Low} | Info: {lastScan.Results.Info} | ToVerify: {toVerify}");
+            //}
+        }
+
+
+        [TestMethod]
+        public void ListSCansTEst()
+        {
+            //foreach (var scan in )
+            //{
+                Trace.WriteLine(clientV93.GetLastScan(18123).Id);
+            //}
+
         }
 
         [TestMethod]

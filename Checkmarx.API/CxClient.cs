@@ -1841,7 +1841,7 @@ namespace Checkmarx.API
             {
                 long? scanId = _oDataV95.Projects.Where(p => p.Id == projectId).First().LastScanId;
 
-                return scanId != null ?  scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
+                return scanId != null ? scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
             }
 
             return scans.LastOrDefault();
@@ -2390,8 +2390,10 @@ namespace Checkmarx.API
                 return query.QueryId;
 
             string queryFullName = queryGroup.Language + "_" + queryGroup.Name + "_" + query.Name;
+            if (_cxQueryId.ContainsKey(queryFullName))
+                return _cxQueryId[queryFullName];
 
-            return _cxQueryId[queryFullName];
+            return query.QueryId;
         }
 
         /// <summary>

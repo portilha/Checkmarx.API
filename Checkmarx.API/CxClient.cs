@@ -2490,7 +2490,7 @@ namespace Checkmarx.API
                     // add the presence of the queries in the presets.
                     foreach (var preset in presetQueries)
                     {
-                        values.Add(preset.Contains(query.QueryId).ToString());
+                        values.Add(preset.Contains(presetQueryId).ToString());
                     }
 
                     result.AppendLine(string.Join(",", values.Select(x => $"\"{x?.ToString()}\"")));

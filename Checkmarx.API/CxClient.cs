@@ -2442,9 +2442,7 @@ namespace Checkmarx.API
 
             result.AppendLine(string.Join(",", headers));
 
-
             var queryGroups = this.GetQueries();
-
 
             List<object> values;
 

@@ -92,29 +92,73 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void ReadScanLogsTest()
         {
-            var scanId = 1465492;
-            string extractPathScan1 = Path.Combine(Path.GetTempPath(), scanId.ToString());
+            try
+            {
+                var scanId = 1000013;
 
-            var logsScanZip = clientV93.GetScanLogs(1465492);
+                var logsScanZip = clientV9.GetScanLogs(scanId);
 
-            string tempDirectory = Path.GetTempPath();
-            string logPath = Path.Combine(tempDirectory, $"{scanId}");
+                string tempDirectory = Path.GetTempPath();
+                string logPath = Path.Combine(tempDirectory, $"{scanId}");
 
-            if (Directory.Exists(logPath))
-                Directory.Delete(logPath, true);
+                if (Directory.Exists(logPath))
+                    Directory.Delete(logPath, true);
 
-            var zipPath = Path.Combine(logPath, $"{scanId}.zip");
+                var zipPath = Path.Combine(logPath, $"{scanId}.zip");
 
-            if (!Directory.Exists(logPath))
-                Directory.CreateDirectory(logPath);
+                if (!Directory.Exists(logPath))
+                    Directory.CreateDirectory(logPath);
 
-            File.WriteAllBytes(zipPath, logsScanZip);
+                File.WriteAllBytes(zipPath, logsScanZip);
 
-            ZipFile.ExtractToDirectory(zipPath, logPath);
+                ZipFile.ExtractToDirectory(zipPath, logPath);
 
-            ZipFile.ExtractToDirectory(Path.Combine(logPath, $"Scan_{scanId}.zip"), logPath);
+                ZipFile.ExtractToDirectory(Path.Combine(logPath, $"Scan_{scanId}.zip"), logPath);
 
-            string logFile1 = Directory.GetFiles(logPath, "*.log").First();
+                string logFilePath = Directory.GetFiles(logPath, "*.log").First();
+
+                // Read Log
+                double firstFinalScanAccuracy = 0;
+                List<string> firstFinalScanLanguages = new List<string>();
+
+                string log = File.ReadAllText(logFilePath);
+                Regex regex = new Regex("^Scan\\scoverage:\\s+(?<pc>[\\d\\.]+)\\%", RegexOptions.Multiline);
+                MatchCollection mc = regex.Matches(log);
+                foreach (Match m in mc)
+                {
+                    GroupCollection groups = m.Groups;
+                    double.TryParse(groups["pc"].Value.Replace(".", ","), out firstFinalScanAccuracy);
+                }
+
+                //Languages that will be scanned: Java=3, CPP=1, JavaScript=1, Groovy=6, Kotlin=361
+                Regex regexLang = new Regex("^Languages\\sthat\\swill\\sbe\\sscanned:\\s+(?:(\\w+)\\=\\d+\\,?\\s?)+", RegexOptions.Multiline);
+                MatchCollection mcLang = regexLang.Matches(log);
+                var langsTmp = new List<string>();
+                foreach (Match m in mcLang)
+                {
+                    System.Text.RegularExpressions.GroupCollection groups = m.Groups;
+                    foreach (System.Text.RegularExpressions.Group g in groups)
+                    {
+                        foreach (Capture c in g.Captures)
+                        {
+                            if (c.Value != "" && !c.Value.StartsWith("Languages that will be scanned:"))
+                            {
+                                langsTmp.Add(c.Value);
+                            }
+                        }
+                    }
+                }
+
+                if (langsTmp.Count > 0)
+                {
+                    firstFinalScanLanguages = langsTmp;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Error: {ex.Message}");
+            }
         }
 
         [TestMethod]
@@ -151,7 +195,7 @@ namespace Checkmarx.API.Tests
         {
             //foreach (var scan in )
             //{
-                Trace.WriteLine(clientV93.GetLastScan(18123).Id);
+            Trace.WriteLine(clientV93.GetLastScan(18123).Id);
             //}
 
         }

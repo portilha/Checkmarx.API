@@ -89,6 +89,34 @@ namespace Checkmarx.API.Tests
             }
         }
 
+        [TestMethod]
+        public void CountQueriesTest()
+        {
+            int projectId = 1;
+
+            var projects = clientV9.GetProjects();
+            var project = projects[projectId];
+
+            var querieGroups = clientV9.GetQueries();
+            var queries = querieGroups.SelectMany(x => x.Queries);
+
+            var querieGroupCounter = querieGroups.Count();
+            var querieCounter = queries.Count();
+
+            var alreadyCreatedQuery = querieGroups.Where(x => x.Name.ToLower() == "hardcoded_password" && x.ProjectId == projectId).FirstOrDefault();
+            if (alreadyCreatedQuery != null)
+                Trace.WriteLine($"WARNING: The custom query \"hardcoded_password\" exists in this project query group.");
+
+            Trace.WriteLine($"Querie Groups: {querieGroupCounter}");
+            Trace.WriteLine($"Queries: {querieCounter}");
+        }
+
+        [TestMethod]
+        public void CleanCustomQueriesTest()
+        {
+            CleanCustomQueries(QueryDescription);
+        }
+
         public void ExclusionTest()
         {
             var exclusions = clientV9.GetExcludedSettings(2);
@@ -173,14 +201,12 @@ namespace Checkmarx.API.Tests
             }
         }
 
+        [TestMethod]
         public void InsertDeleteQueryTest()
         {
-            // NOTES
-            // 1 - Is the query to create always the same? It can be something different? Or can it be more than one?
-
             // Gets default preset and Configuration
             var presets = clientV9.GetPresets();
-            var defaultPreset = presets.Where(x => x.Value == "OWASP TOP 10 - 2017").FirstOrDefault();
+            var defaultPreset = presets.Where(x => x.Value == "ASA Premium").FirstOrDefault();
 
             if (defaultPreset.Key == 0)
                 throw new Exception($"No preset found with name ...");
@@ -192,10 +218,10 @@ namespace Checkmarx.API.Tests
                 throw new Exception($"No Configuration found with name ...");
 
             // Get projects
-            var projects = clientV9.GetProjects().ToList();
+            var projects = clientV9.GetAllProjectsDetails().Where(x => x.Id == 8).ToList();
 
             // Get query
-            var queryFile = "D:\\Users\\bruno.vilela\\OneDrive - Checkmarx\\Documents\\hardcoded_password.txt";
+            var queryFile = "D:\\Users\\bruno.vilela\\OneDrive - Checkmarx\\Documents\\use_of_hardcoded_password.txt";
             string customQuery = File.ReadAllText(queryFile);
             string queryName = Path.GetFileNameWithoutExtension(queryFile);
 
@@ -208,42 +234,82 @@ namespace Checkmarx.API.Tests
 
             // Get query templates
             var possibleQueries = queries.Where(x => x.Name.ToLower() == queryName).Select(x => x.PackageId).Distinct();
-            var queryGroupSource = querieGroups.Where(x => possibleQueries.Contains(x.PackageId) && x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Cx).FirstOrDefault();
-            var queryGroupSourceQuery = queryGroupSource.Queries.Where(x => x.Name.ToLower() == queryName).FirstOrDefault();
-
-            //CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource = querieGroups.Where(x => x.PackageId == 5).FirstOrDefault();
-            //CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery = queries.Where(x => x.Name.ToLower() == queryName && x.PackageId == 5).FirstOrDefault();
-
-            if (queryGroupSource == null || queryGroupSourceQuery == null)
-                throw new Exception($"No query group found to override with the name {queryName}");
+            var queryGroupSources = querieGroups.Where(x => possibleQueries.Contains(x.PackageId) && x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Cx);
+            
 
             // Object with the created query to update for each project
             CxAuditWebServiceV9.CxWSQueryGroup createdQueryGroup = null;
             foreach (var project in projects)
             {
-
-
                 try
                 {
+                    // Get detected languages
+                    var lastScan = clientV9.GetLastScan(project.Id);
+                    var scanInfo = GetScanAccuracyAndLanguagesFromScanLog(lastScan.Id);
+
+                    // Logic to select group query to override
+                    if(!scanInfo.Item2.Any())
+                        throw new Exception($"No query group found to override with the name {queryName}");
+
+                    string language = null;
+                    if(scanInfo.Item2.Any(x => x.ToLower() == "csharp"))
+                        language = "csharp";
+                    else if (scanInfo.Item2.Any(x => x.ToLower() == "java"))
+                        language = "java";
+                    else if (scanInfo.Item2.Any(x => x.ToLower() == "javascript"))
+                        language = "javascript";
+                    else if (scanInfo.Item2.Any(x => x.ToLower() == "python"))
+                        language = "python";
+
+
+                    CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource = null;
+                    CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery = null;
+                    if (!string.IsNullOrWhiteSpace(language))
+                    {
+                        queryGroupSource = queryGroupSources.Where(x => x.PackageFullName.ToLower().StartsWith(language)).FirstOrDefault();
+                        if(queryGroupSource != null)
+                            queryGroupSourceQuery = queryGroupSource.Queries.Where(x => x.Name.ToLower() == queryName).FirstOrDefault();
+                    }
+                    
+                    if(queryGroupSource == null || queryGroupSourceQuery == null)
+                    {
+                        foreach(var lang in scanInfo.Item2)
+                        {
+                            queryGroupSource = queryGroupSources.Where(x => x.PackageFullName.ToLower().StartsWith(lang.ToLower())).FirstOrDefault();
+                            if (queryGroupSource != null)
+                                queryGroupSourceQuery = queryGroupSource.Queries.Where(x => x.Name.ToLower() == queryName).FirstOrDefault();
+                        }
+                    }
+
+                    if (queryGroupSource == null || queryGroupSourceQuery == null)
+                        throw new Exception($"No query group found to override with the name {queryName}");
+
                     // O QUE FAZER QUANDO JA EXISTE UMA PARA MESMO PROJECTO?
-                    var alreadyCreatedQuery = querieGroups.Where(x => x.Name.ToLower() == "hardcoded_password" && x.ProjectId == project.Key).FirstOrDefault();
+                    var alreadyCreatedQuery = querieGroups.Where(x => x.Name.ToLower() == "use_of_hardcoded_password" && x.ProjectId == project.Id).FirstOrDefault();
                     if (alreadyCreatedQuery != null)
                         continue;
 
                     // The first time will create, after that updates the query to run for the current project
                     if (createdQueryGroup == null)
                     {
-                        var projConfig = clientV9.GetProjectConfigurations(project.Key);
+                        var projConfig = clientV9.GetProjectConfigurations(project.Id);
                         var destinationTeamId = Convert.ToInt32(projConfig.ProjectSettings.AssociatedGroupID);
 
-                        createdQueryGroup = InsertQueryForProject(queryGroupSource, queryGroupSourceQuery, project.Key, destinationTeamId, customQuery, QueryDescription);
+                        createdQueryGroup = InsertQueryForProject(queryGroupSource, queryGroupSourceQuery, project.Id, destinationTeamId, customQuery, QueryDescription);
+
+                        var scandId = clientV9.RunSASTScan(project.Id, useLastScanPreset: false, presetId: defaultPreset.Key, configurationId: (int)defaultConfiguration.ID);
                     }
-                    else
-                        UpdateQueryGroup(createdQueryGroup, project.Key, QueryDescription);
+
+                    var querieGroups4 = clientV9.GetQueries();
+                    var queries4 = querieGroups4.SelectMany(x => x.Queries);
+
+                    var querieGroupCounter4 = querieGroups4.Count();
+                    var querieCounter4 = queries4.Count();
+
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine($"Error inserting query into project [{project.Key}] {project.Value}");
+                    Trace.WriteLine($"Error inserting query into project [{project.Id}] {project.Name}");
                 }
             }
 
@@ -257,9 +323,67 @@ namespace Checkmarx.API.Tests
             var querieCounter3 = queries3.Count();
         }
 
-        public void CleanCustomQueriesTest()
+        private Tuple<double, List<string>> GetScanAccuracyAndLanguagesFromScanLog(long scanId)
         {
-            CleanCustomQueries(QueryDescription);
+            var logsScanZip = clientV9.GetScanLogs(scanId);
+
+            string tempDirectory = Path.GetTempPath();
+            string logPath = Path.Combine(tempDirectory, $"{scanId}");
+
+            if (Directory.Exists(logPath))
+                Directory.Delete(logPath, true);
+
+            var zipPath = Path.Combine(logPath, $"{scanId}.zip");
+
+            if (!Directory.Exists(logPath))
+                Directory.CreateDirectory(logPath);
+
+            File.WriteAllBytes(zipPath, logsScanZip);
+
+            ZipFile.ExtractToDirectory(zipPath, logPath);
+
+            ZipFile.ExtractToDirectory(Path.Combine(logPath, $"Scan_{scanId}.zip"), logPath);
+
+            string logFilePath = Directory.GetFiles(logPath, "*.log").First();
+
+            // Read Log
+            double scanAccuracy = 0;
+            List<string> scanLanguages = new List<string>();
+
+            string log = File.ReadAllText(logFilePath);
+            Regex regex = new Regex("^Scan\\scoverage:\\s+(?<pc>[\\d\\.]+)\\%", RegexOptions.Multiline);
+            MatchCollection mc = regex.Matches(log);
+            foreach (Match m in mc)
+            {
+                GroupCollection groups = m.Groups;
+                double.TryParse(groups["pc"].Value.Replace(".", ","), out scanAccuracy);
+            }
+
+            //Languages that will be scanned: Java=3, CPP=1, JavaScript=1, Groovy=6, Kotlin=361
+            Regex regexLang = new Regex("^Languages\\sthat\\swill\\sbe\\sscanned:\\s+(?:(\\w+)\\=\\d+\\,?\\s?)+", RegexOptions.Multiline);
+            MatchCollection mcLang = regexLang.Matches(log);
+            var langsTmp = new List<string>();
+            foreach (Match m in mcLang)
+            {
+                System.Text.RegularExpressions.GroupCollection groups = m.Groups;
+                foreach (System.Text.RegularExpressions.Group g in groups)
+                {
+                    foreach (Capture c in g.Captures)
+                    {
+                        if (c.Value != "" && !c.Value.StartsWith("Languages that will be scanned:"))
+                        {
+                            langsTmp.Add(c.Value);
+                        }
+                    }
+                }
+            }
+
+            if (langsTmp.Count > 0)
+            {
+                scanLanguages = langsTmp;
+            }
+
+            return new Tuple<double, List<string>>(scanAccuracy, scanLanguages);
         }
 
         public void CleanCustomQueries(string queryDescription)
@@ -292,6 +416,8 @@ namespace Checkmarx.API.Tests
                 IsEncrypted = queryGroupSourceQuery.IsEncrypted
             };
 
+            string packageTypeName = $"CxProject_{projectId}";
+            string packageFullName = $"{queryGroupSource.LanguageName}:CxProject_{projectId}:{queryGroupSource.Name}";
             var newQuerieGroup = new CxAuditWebServiceV9.CxWSQueryGroup()
             {
                 //Description = queryGroupSource.Description,
@@ -303,8 +429,8 @@ namespace Checkmarx.API.Tests
                 Name = queryGroupSource.Name,
                 OwningTeam = teamId,
                 PackageType = CxAuditWebServiceV9.CxWSPackageTypeEnum.Project,
-                PackageTypeName = $"CxProject_{projectId}",
-                PackageFullName = $"{queryGroupSource.LanguageName}:CxProject_{projectId}:{queryGroupSource.Name}",
+                PackageTypeName = packageTypeName,
+                PackageFullName = packageFullName,
                 ProjectId = projectId,
                 Status = CxAuditWebServiceV9.QueryStatus.New,
                 Queries = new CxAuditWebServiceV9.CxWSQuery[] { queryToUp }
@@ -314,7 +440,7 @@ namespace Checkmarx.API.Tests
 
             // For some reason, the description is not added when creating. We need to update again with the description
             var querieGroupsRefresh = clientV9.GetAuditQueries();
-            var createdQueryGroup = querieGroupsRefresh.FirstOrDefault(x => x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Project && x.ProjectId == projectId);
+            var createdQueryGroup = querieGroupsRefresh.FirstOrDefault(x => x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Project && x.ProjectId == projectId && x.PackageFullName == packageFullName);
 
             createdQueryGroup.Description = description;
             clientV9.UploadQueries(new CxAuditWebServiceV9.CxWSQueryGroup[] { createdQueryGroup });

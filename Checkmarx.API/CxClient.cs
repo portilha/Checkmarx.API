@@ -1509,9 +1509,11 @@ namespace Checkmarx.API
         /// <param name="comment"></param>
         /// <param name="forceScan"></param>
         /// <param name="sourceCodeZipContent">Zipped source code to scan</param>
-        public void RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
+        public long? RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
             bool useLastScanPreset = false, int? presetId = null, int? configurationId = null, bool runPublicScan = true, bool forceLocal = false, CxClient cxClient2 = null)
         {
+            long? scanId = null;
+
             checkConnection();
 
             var projectConfig = GetProjectConfigurations(projectId);
@@ -1540,7 +1542,7 @@ namespace Checkmarx.API
 
                                 var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, configurationId, null, null, file).Result;
 
-                                return;
+                                return result.Id;
                             }
                         }
                         else
@@ -1551,7 +1553,7 @@ namespace Checkmarx.API
 
                                 var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, configurationId, null, file).Result;
 
-                                return;
+                                return result.Id;
                             }
                         }
 
@@ -1571,7 +1573,7 @@ namespace Checkmarx.API
 
                                 var result = cxClient2.SASTClientV4.ScanWithSettings_4_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, configurationId, null, null, file).Result;
 
-                                return;
+                                return result.Id;
                             }
                         }
                         else
@@ -1582,7 +1584,7 @@ namespace Checkmarx.API
 
                                 var result = cxClient2.SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings((int)projectId, false, false, true, true, comment, presetId.Value, configurationId, null, file).Result;
 
-                                return;
+                                return result.Id;
                             }
                         }
 
@@ -1603,7 +1605,7 @@ namespace Checkmarx.API
                         {
                             var result = SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, configurationId, null, null, null).Result;
 
-                            return;
+                            return result.Id;
                         }
                     }
                     else
@@ -1612,7 +1614,7 @@ namespace Checkmarx.API
                         {
                             var result = SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, configurationId, null, null).Result;
 
-                            return;
+                            return result.Id;
                         }
                     }
                 }
@@ -1624,7 +1626,7 @@ namespace Checkmarx.API
                         {
                             var result = cxClient2.SASTClientV4.ScanWithSettings_4_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, configurationId, null, null, null).Result;
 
-                            return;
+                            return result.Id;
                         }
                     }
                     else
@@ -1633,16 +1635,18 @@ namespace Checkmarx.API
                         {
                             var result = cxClient2.SASTClientV1_1.ScanWithSettings1_1_StartScanByscanSettings(Convert.ToInt32(projectId), false, false, true, true, comment, presetId.Value, configurationId, null, null).Result;
 
-                            return;
+                            return result.Id;
                         }
                     }
                 }
             }
 
             if (cxClient2 == null)
-                RunScan(projectId, forceScan, runPublicScan, comment);
+                scanId = RunScan(projectId, forceScan, runPublicScan, comment);
             else
-                cxClient2.RunScan(projectId, forceScan, runPublicScan, comment);
+                scanId = cxClient2.RunScan(projectId, forceScan, runPublicScan, comment);
+
+            return scanId;
         }
 
         private void UploadSourceCode(long projectId, byte[] sourceCodeZipContent)
@@ -1669,8 +1673,9 @@ namespace Checkmarx.API
             }
         }
 
-        private void RunScan(long projectId, bool forceScan, bool runPublicScan, string comment)
+        public long? RunScan(long projectId, bool forceScan, bool runPublicScan, string comment)
         {
+            long? scanId = null;
             using (var request = new HttpRequestMessage(HttpMethod.Post, "sast/scans"))
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
@@ -1694,8 +1699,19 @@ namespace Checkmarx.API
                     {
                         throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
                     }
+
+                    try
+                    {
+                        var fetchScanId = response.Headers.Location.ToString().Split("/").Last();
+                        scanId = Convert.ToInt64(fetchScanId);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Scan triggered successfuly, but it was not possible to fetch the scan id.");
+                    }
                 }
             }
+            return scanId;
         }
 
         private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)

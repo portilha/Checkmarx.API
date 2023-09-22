@@ -2706,11 +2706,9 @@ namespace Checkmarx.API
                 x.Serialize(xmlWriter, objectName);
             }
 
-            Console.WriteLine(sb.ToString());
+            //Console.WriteLine(sb.ToString());
 
             var result = _cxPortalWebServiceSoapClient.GetScanLogs(objectName);
-
-
 
             if (!result.IsSuccesfull)
                 throw new ActionNotSupportedException(result.ErrorMessage);

@@ -40,7 +40,7 @@ namespace Checkmarx.API.Tests
         {
             // TODO REMOVE
             var builder = new ConfigurationBuilder()
-                .AddUserSecrets<EngProceduresTests>();
+                .AddUserSecrets<ProcessTests>();
 
             Configuration = builder.Build();
 

@@ -1846,18 +1846,21 @@ namespace Checkmarx.API
             return GetScans(projectId, true).FirstOrDefault();
         }
 
-        public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true)
+        public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true, bool ignoreVersion = false)
         {
             var scans = GetScans(projectId, finished, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
 
             if (fullScanOnly)
                 scans = scans.Where(x => !x.IsIncremental);
 
-            if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
+            if (!ignoreVersion)
             {
-                long? scanId = _oDataV95.Projects.Where(p => p.Id == projectId).First().LastScanId;
+                if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
+                {
+                    long? scanId = _oDataV95.Projects.Where(p => p.Id == projectId).First().LastScanId;
 
-                return scanId != null ? scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
+                    return scanId != null ? scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
+                }
             }
 
             return scans.LastOrDefault();

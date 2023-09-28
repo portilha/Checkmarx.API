@@ -112,6 +112,18 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void CountQueriesTest2()
+        {
+            int projectId = 8;
+
+            var projects = clientV9.GetAllProjectsDetails();
+            var project = projects.FirstOrDefault(x => x.Id == projectId);
+
+            var totalProjectQueries = clientV9.GetProjectLevelQueries(project.Id).Count();
+            var totalTeamCorpQueries = clientV9.GetTeamCorpLevelQueries(project.TeamId).Count();
+        }
+
+        [TestMethod]
         public void CleanCustomQueriesTest()
         {
             CleanCustomQueries(QueryDescription);

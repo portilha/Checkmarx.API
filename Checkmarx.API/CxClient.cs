@@ -1460,6 +1460,24 @@ namespace Checkmarx.API
             checkSoapResponse(result);
         }
 
+        public void DeleteScan(long scanId)
+        {
+            checkConnection();
+
+            dynamic result = null;
+
+            var scan = GetScanById(scanId);
+            if (scan != null)
+            {
+                if (scan.Status.Name == "Running" || scan.Status.Name == "Queued")
+                    CancelScan(scanId.ToString());
+
+                result = _cxPortalWebServiceSoapClient.DeleteScanAsync(_soapSessionId, scanId).Result;
+            }
+
+            checkSoapResponse(result);
+        }
+
         public ProjectConfiguration GetProjectConfigurations(long projectId)
         {
             checkConnection();
@@ -1972,6 +1990,16 @@ namespace Checkmarx.API
                     Medium = (uint)scan.Medium,
                     Low = (uint)scan.Low,
                     Info = (uint)scan.Info,
+                    
+                    HighToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.High && x.StateId == (int)ResultState.ToVerify).Count(),
+                    MediumToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.Medium && x.StateId == (int)ResultState.ToVerify).Count(),
+                    LowToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.Low && x.StateId == (int)ResultState.ToVerify).Count(),
+
+                    ToVerify = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.ToVerify).Count(),
+                    NotExploitableMarked = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.NonExploitable).Count(),
+                    PNEMarked = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.ProposedNotExploitable).Count(),
+                    OtherStates = (uint)scan.Results.Where(x => x.StateId != (int)ResultState.Confirmed && x.StateId != (int)ResultState.Urgent && x.StateId != (int)ResultState.NonExploitable && x.StateId != (int)ResultState.ProposedNotExploitable && x.StateId != (int)ResultState.ToVerify).Count(),
+
                     FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
                     Loc = (int)scan.LOC.GetValueOrDefault()
                 }
@@ -2661,6 +2689,20 @@ namespace Checkmarx.API
 
             return QueryGroups
             .Where(x => x.PackageType == CxWSPackageTypeEnum.Project && x.ProjectId == projectId)
+            .ToArray();
+        }
+
+        public IEnumerable<dynamic> GetTeamCorpLevelQueries(string teamId)
+        {
+            if (_isV9)
+            {
+                return QueryGroups
+                .Where(x => (x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Team && x.OwningTeam.ToString() == teamId.ToString()) || x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Corporate)
+                .ToArray();
+            }
+
+            return QueryGroups
+            .Where(x => (x.PackageType == CxWSPackageTypeEnum.Team && x.OwningTeam.ToString() == teamId.ToString()) || x.PackageType == CxWSPackageTypeEnum.Corporate)
             .ToArray();
         }
 

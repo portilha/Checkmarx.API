@@ -161,6 +161,12 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void CertificateTest()
+        {
+            var severityCounters = clientV89.GetProjects();
+        }
+
+        [TestMethod]
         public void CheckProjectCustomFieldsTest()
         {
             var customFields = clientV93.GetProjectCustomFields(81);

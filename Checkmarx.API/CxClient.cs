@@ -34,6 +34,8 @@ using Checkmarx.API.SASTV3;
 using Checkmarx.API.Exceptions;
 using Microsoft.OData.Client;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+using System.ServiceModel.Security;
 
 namespace Checkmarx.API
 {
@@ -597,6 +599,13 @@ namespace Checkmarx.API
             _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
                 baseServer, TimeSpan.FromSeconds(60), userName, password);
 
+            // Ignore certificate for soap
+            //_cxPortalWebServiceSoapClient.ClientCredentials.ServiceCertificate.SslCertificateAuthentication = new System.ServiceModel.Security.X509ServiceCertificateAuthentication() 
+            //{
+            //    CertificateValidationMode = X509CertificateValidationMode.None,
+            //    RevocationMode = X509RevocationMode.NoCheck
+            //};
+
             // Get version number with regex
             var portalVersion = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
             string pattern = @"\d+(\.\d+)+";
@@ -613,12 +622,21 @@ namespace Checkmarx.API
 
             Console.WriteLine("Checkmarx " + _version.ToString());
 
-            var httpClient = new HttpClient
+            // Ignore certificate for http client
+            //HttpClientHandler httpClientHandler = new HttpClientHandler();
+            //httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+
+            //var httpClient = new HttpClient(httpClientHandler)
+            //{
+            //    BaseAddress = webServer,
+            //    Timeout = TimeSpan.FromMinutes(20),
+            //};
+
+            var httpClient = new HttpClient()
             {
                 BaseAddress = webServer,
-                Timeout = TimeSpan.FromMinutes(20)
+                Timeout = TimeSpan.FromMinutes(20),
             };
-
 
             if (httpClient.BaseAddress.LocalPath != "cxrestapi")
             {

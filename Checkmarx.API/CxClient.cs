@@ -2008,7 +2008,7 @@ namespace Checkmarx.API
                     Medium = (uint)scan.Medium,
                     Low = (uint)scan.Low,
                     Info = (uint)scan.Info,
-                    
+
                     HighToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.High && x.StateId == (int)ResultState.ToVerify).Count(),
                     MediumToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.Medium && x.StateId == (int)ResultState.ToVerify).Count(),
                     LowToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.Low && x.StateId == (int)ResultState.ToVerify).Count(),
@@ -2425,6 +2425,9 @@ namespace Checkmarx.API
             if (query == null)
                 throw new ArgumentNullException(nameof(query));
 
+            if (queryGroup.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx)
+                return query.QueryId;
+
             if (_cxQueryId == null)
             {
                 var queryGroups = GetQueries();
@@ -2451,15 +2454,35 @@ namespace Checkmarx.API
                 }
             }
 
-            if (queryGroup.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx)
-                return query.QueryId;
-
             string queryFullName = queryGroup.Language + "_" + queryGroup.Name + "_" + query.Name;
             if (_cxQueryId.ContainsKey(queryFullName))
                 return _cxQueryId[queryFullName];
 
             return query.QueryId;
         }
+
+
+        public Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>> _queryCache = null;
+
+        public long GetPresetQueryId(long overrideQueryId)
+        {
+            if (_queryCache == null)
+            {
+                _queryCache = new Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>>();
+
+                foreach (var queryGroup in QueryGroups)
+                {
+                    foreach (var query in queryGroup)
+                    {
+                        _queryCache.Add(query.Id, new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query));
+                    }
+                }
+            }
+
+            var pair = _queryCache[overrideQueryId];
+            return GetPresetQueryId(pair.Item1, pair.Item2);
+        }
+
 
         /// <summary>
         /// Get Query Information about the CWE of the Checkmarx Queries and other information.
@@ -2562,7 +2585,6 @@ namespace Checkmarx.API
 
             return result;
         }
-
 
         public Dictionary<long, List<Tuple<long, string>>> GetQueryForCWE(ICollection<long> cwes)
         {

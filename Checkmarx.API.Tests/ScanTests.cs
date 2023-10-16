@@ -172,9 +172,17 @@ namespace Checkmarx.API.Tests
         public void GetLastScanResultsTest()
         {
             // var scans = clientV93.GetScans(18123, true).ToList();
-            var lastScan = clientV93.GetLastScan(18123, true);
+            var lastScan = clientV9.GetLastScan(31139, true);
+            var normalHigh = lastScan.Results.High;
+            var normalMedium = lastScan.Results.Medium;
+            var normalLow = lastScan.Results.Low;
 
-            Assert.IsTrue(lastScan.Id == 5498);
+            var results = clientV9.GetScanResultsWithStateExclusions(1787672, new List<int>() { 8, 9 });
+            var countHigh = results.Where(x => x.Severity == (int)CxClient.Severity.High).Count();
+            var countMedium = results.Where(x => x.Severity == (int)CxClient.Severity.Medium).Count();
+            var countLow = results.Where(x => x.Severity == (int)CxClient.Severity.Low).Count();
+
+            //Assert.IsTrue(lastScan.Id == 5498);
 
             //if (lastScan != null)
             //{

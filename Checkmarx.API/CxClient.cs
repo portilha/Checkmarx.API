@@ -3154,6 +3154,16 @@ namespace Checkmarx.API
             return false;
         }
 
+        public IEnumerable<CxWSSingleResultData> GetScanResultsWithStateExclusions(long scanId, List<int> customStatesToExclude)
+        {
+            var results = GetResultsForScan(scanId);
+            foreach(var result in results)
+            {
+                if(!customStatesToExclude.Any(y => y == result.State))
+                    yield return result;
+            }
+        }
+
         public int GetTotalToVerifyFromScan(long scanId)
         {
             return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository.Severity.Info).Count();

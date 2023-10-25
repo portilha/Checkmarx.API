@@ -592,6 +592,19 @@ namespace Checkmarx.API
         private HttpClient Login(string baseURL = "http://localhost/cxrestapi/",
             string userName = "", string password = "")
         {
+            // Check if there is a invalid certificate exception
+            bool ignoreCertificate = false;
+            string portalVersion = null;
+            try
+            {
+                portalVersion = GetVersionWithoutConnecting(baseURL);
+            }
+            catch (System.ServiceModel.Security.SecurityNegotiationException ex)
+            {
+                ignoreCertificate = true;
+                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException. That usualy means there is a certificate issue. Please check this issue and reach out to Cloud Operations if necessary.");
+            }
+
             var webServer = new Uri(baseURL);
 
             Uri baseServer = new Uri(webServer.AbsoluteUri);
@@ -599,15 +612,21 @@ namespace Checkmarx.API
             _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
                 baseServer, TimeSpan.FromSeconds(60), userName, password);
 
-            // Ignore certificate for soap
-            //_cxPortalWebServiceSoapClient.ClientCredentials.ServiceCertificate.SslCertificateAuthentication = new System.ServiceModel.Security.X509ServiceCertificateAuthentication() 
-            //{
-            //    CertificateValidationMode = X509CertificateValidationMode.None,
-            //    RevocationMode = X509RevocationMode.NoCheck
-            //};
+            if (ignoreCertificate)
+            {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+
+                _cxPortalWebServiceSoapClient.ClientCredentials.ServiceCertificate.SslCertificateAuthentication = new System.ServiceModel.Security.X509ServiceCertificateAuthentication()
+                {
+                    CertificateValidationMode = X509CertificateValidationMode.None,
+                    RevocationMode = X509RevocationMode.NoCheck
+                };
+            }
 
             // Get version number with regex
-            var portalVersion = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+            if (string.IsNullOrWhiteSpace(portalVersion))
+                portalVersion = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+
             string pattern = @"\d+(\.\d+)+";
             Regex rg = new Regex(pattern);
             Match m = rg.Match(portalVersion);
@@ -622,21 +641,24 @@ namespace Checkmarx.API
 
             Console.WriteLine("Checkmarx " + _version.ToString());
 
-            // Ignore certificate for http client
-            //HttpClientHandler httpClientHandler = new HttpClientHandler();
-            //httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
-
-            //var httpClient = new HttpClient(httpClientHandler)
-            //{
-            //    BaseAddress = webServer,
-            //    Timeout = TimeSpan.FromMinutes(20),
-            //};
-
-            var httpClient = new HttpClient()
+            HttpClient httpClient = new HttpClient()
             {
                 BaseAddress = webServer,
                 Timeout = TimeSpan.FromMinutes(20),
-            };
+            }; ;
+
+            if (ignoreCertificate)
+            {
+                // Ignore certificate for http client
+                HttpClientHandler httpClientHandler = new HttpClientHandler();
+                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+
+                httpClient = new HttpClient(httpClientHandler)
+                {
+                    BaseAddress = webServer,
+                    Timeout = TimeSpan.FromMinutes(20),
+                };
+            }
 
             if (httpClient.BaseAddress.LocalPath != "cxrestapi")
             {
@@ -676,6 +698,15 @@ namespace Checkmarx.API
 
                         _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(360), userName, password);
 
+                        if (ignoreCertificate)
+                        {
+                            _cxPortalWebServiceSoapClient.ClientCredentials.ServiceCertificate.SslCertificateAuthentication = new System.ServiceModel.Security.X509ServiceCertificateAuthentication()
+                            {
+                                CertificateValidationMode = X509CertificateValidationMode.None,
+                                RevocationMode = X509RevocationMode.NoCheck
+                            };
+                        }
+
                         var portalChannelFactory = _cxPortalWebServiceSoapClient.ChannelFactory;
                         portalChannelFactory.UseMessageInspector(async (request, channel, next) =>
                         {
@@ -691,6 +722,15 @@ namespace Checkmarx.API
                         #region V9
 
                         _cxPortalWebServiceSoapClientV9 = new cxPortalWebService93.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(360), userName, password);
+
+                        if (ignoreCertificate)
+                        {
+                            _cxPortalWebServiceSoapClientV9.ClientCredentials.ServiceCertificate.SslCertificateAuthentication = new System.ServiceModel.Security.X509ServiceCertificateAuthentication()
+                            {
+                                CertificateValidationMode = X509CertificateValidationMode.None,
+                                RevocationMode = X509RevocationMode.NoCheck
+                            };
+                        }
 
                         var portalChannelFactoryV9 = _cxPortalWebServiceSoapClientV9.ChannelFactory;
                         portalChannelFactoryV9.UseMessageInspector(async (request, channel, next) =>
@@ -3157,9 +3197,9 @@ namespace Checkmarx.API
         public IEnumerable<CxWSSingleResultData> GetScanResultsWithStateExclusions(long scanId, List<int> customStatesToExclude)
         {
             var results = GetResultsForScan(scanId);
-            foreach(var result in results)
+            foreach (var result in results)
             {
-                if(!customStatesToExclude.Any(y => y == result.State))
+                if (!customStatesToExclude.Any(y => y == result.State))
                     yield return result;
             }
         }

@@ -163,7 +163,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void CertificateTest()
         {
-            var severityCounters = clientV89.GetProjects();
+            var severityCounters = clientV89.GetAllProjectsDetails().ToList();
         }
 
         [TestMethod]

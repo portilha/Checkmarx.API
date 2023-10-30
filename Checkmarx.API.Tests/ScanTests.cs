@@ -177,7 +177,7 @@ namespace Checkmarx.API.Tests
             var normalMedium = lastScan.Results.Medium;
             var normalLow = lastScan.Results.Low;
 
-            var results = clientV9.GetScanResultsWithStateExclusions(1787672, new List<int>() { 8, 9 });
+            var results = clientV9.GetScanResultsWithStateExclusions(1787672, new List<long>() { 8, 9 });
             var countHigh = results.Where(x => x.Severity == (int)CxClient.Severity.High).Count();
             var countMedium = results.Where(x => x.Severity == (int)CxClient.Severity.Medium).Count();
             var countLow = results.Where(x => x.Severity == (int)CxClient.Severity.Low).Count();

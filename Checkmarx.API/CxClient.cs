@@ -3194,7 +3194,7 @@ namespace Checkmarx.API
             return false;
         }
 
-        public IEnumerable<CxWSSingleResultData> GetScanResultsWithStateExclusions(long scanId, List<int> customStatesToExclude)
+        public IEnumerable<CxWSSingleResultData> GetScanResultsWithStateExclusions(long scanId, List<long> customStatesToExclude)
         {
             var results = GetResultsForScan(scanId);
             foreach (var result in results)

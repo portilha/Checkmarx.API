@@ -1220,7 +1220,6 @@ namespace Checkmarx.API
             return FailedScans.Where(x => x.ProjectId == projectId);
         }
 
-
         public DateTime GetLastDataRetention()
         {
             checkConnection();
@@ -1238,7 +1237,6 @@ namespace Checkmarx.API
 
             checkSoapResponse(result);
             return result.DataRetentionRequest.RequestDate;
-
         }
 
         public int GetResultStateIdByName(string name)
@@ -1905,6 +1903,44 @@ namespace Checkmarx.API
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
+        }
+
+        public bool LockScan(long scanId)
+        {
+            checkConnection();
+
+            bool sucess = true;
+
+            if (_isV9)
+            {
+                var response = _cxPortalWebServiceSoapClientV9.LockScanAsync(_soapSessionId, scanId).Result;
+                sucess = response.IsSuccesfull;
+            }
+            else
+            {
+                _cxPortalWebServiceSoapClient.LockScanAsync(_soapSessionId, scanId).Wait();
+            }
+
+            return sucess;
+        }
+
+        public bool UnlockScan(long scanId)
+        {
+            checkConnection();
+
+            bool sucess = true;
+
+            if (_isV9)
+            {
+                var response = _cxPortalWebServiceSoapClientV9.UnlockScanAsync(_soapSessionId, scanId).Result;
+                sucess = response.IsSuccesfull;
+            }
+            else
+            {
+                _cxPortalWebServiceSoapClient.UnlockScanAsync(_soapSessionId, scanId).Wait();
+            }
+
+            return sucess;
         }
 
         public enum ScanRetrieveKind
@@ -2988,7 +3024,6 @@ namespace Checkmarx.API
         #endregion
 
         #region Results
-
 
         public CxAuditWebServiceV9.AuditScanResult[] GetResult(long scanId)
         {

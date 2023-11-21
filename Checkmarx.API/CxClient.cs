@@ -777,6 +777,14 @@ namespace Checkmarx.API
             }
         }
 
+        //public string GetProjectTeamName(string teamId)
+        //{
+        //    if (string.IsNullOrWhiteSpace(teamId))
+        //        throw new ArgumentNullException(nameof(teamId));
+
+        //    return GetTeams()[teamId];
+        //}
+
         public string GetProjectTeamName(string teamId)
         {
             if (string.IsNullOrWhiteSpace(teamId))
@@ -785,8 +793,7 @@ namespace Checkmarx.API
             var teams = GetTeams();
             if (teams.ContainsKey(teamId))
                 return teams[teamId];
-                
-            Console.WriteLine($"Team Id {teamId} not found.");
+
             return null;
         }
 

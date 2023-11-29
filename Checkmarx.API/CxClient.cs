@@ -1912,7 +1912,7 @@ namespace Checkmarx.API
             }
         }
 
-        public bool LockScan(long scanId)
+        public bool LockScan(long scanId, string comment = null)
         {
             checkConnection();
 
@@ -1921,6 +1921,10 @@ namespace Checkmarx.API
             if (_isV9)
             {
                 var response = _cxPortalWebServiceSoapClientV9.LockScanAsync(_soapSessionId, scanId).Result;
+
+                if(!string.IsNullOrWhiteSpace(comment))
+                    _cxPortalWebServiceSoapClientV9.UpdateScanCommentAsync(_soapSessionId, scanId, comment);
+
                 sucess = response.IsSuccesfull;
             }
             else

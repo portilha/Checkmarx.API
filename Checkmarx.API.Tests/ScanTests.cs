@@ -90,6 +90,39 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void CompareScanResultsTest()
+        {
+            var compareScan = clientV89.GetCompareScanResultsAsync(1003127, 1009757).Results.ToList();
+
+            var previousScanNEResultList = clientV89.GetNotExploitableFromScan(1003127).ToList();
+            var scanNEResultList = clientV89.GetNotExploitableFromScan(1009757).ToList();
+
+            var results = clientV89.GetResultsForScanByStateId(1009757, ResultState.NonExploitable);
+            var previousResults = clientV89.GetResultsForScanByStateId(1003127, ResultState.NonExploitable);
+
+            //// < 9.5
+            //var results1 = clientV9.GetResultsForScan(1661644).ToList();
+            //var results2 = clientV9.GetODataResults(1661644).ToList();
+
+            // >= 9.5
+            //var results3 = clientV9.GetResultsForScan(1000122).ToList();
+            //var results4 = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1).ToList();
+            //var results5 = clientV9.GetODataV95Results(1000122).ToList();
+
+            //var test1 = results3.FirstOrDefault();
+            //var test2 = results4.Where(x => x.PathId == test1.PathId);
+
+            //var results4 = clientV9.GetResult(1011900).ToList();
+
+            //var scan = clientV9.GetScanById(1011900);
+            //var results = scan.Results;
+
+            //var results5 = clientV9.GetSASTResults(1011900);
+
+            //Trace.WriteLine($"Results: {results4}");
+        }
+
+        [TestMethod]
         public void ReadScanLogsTest()
         {
             try
@@ -256,12 +289,12 @@ namespace Checkmarx.API.Tests
         public void GetVulnerabilitiesFromScanTest()
         {
             //// < 9.5
-            //var results1 = clientV9.GetResultsForScan(1661644).ToList();
+            var results1 = clientV9.GetResultsForScan(1661644).ToList();
             //var results2 = clientV9.GetODataResults(1661644).ToList();
 
             // >= 9.5
             //var results3 = clientV9.GetResultsForScan(1000122).ToList();
-            var results4 = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1).ToList();
+            //var results4 = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1).ToList();
             //var results5 = clientV9.GetODataV95Results(1000122).ToList();
 
             //var test1 = results3.FirstOrDefault();
@@ -274,7 +307,7 @@ namespace Checkmarx.API.Tests
 
             //var results5 = clientV9.GetSASTResults(1011900);
 
-            Trace.WriteLine($"Results: {results4}");
+            //Trace.WriteLine($"Results: {results4}");
         }
 
         [TestMethod]

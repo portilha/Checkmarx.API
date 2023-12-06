@@ -3041,17 +3041,9 @@ namespace Checkmarx.API
             return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
         }
 
-        public int GetResultsForScanByStateId(long scanId, ResultState state, bool includeInfoSeverityResults = true)
+        public IEnumerable<CxWSSingleResultData> GetResultsForScanByStateId(long scanId, ResultState state, bool includeInfoSeverityResults = true)
         {
-            var infoResults = GetResultsForScan(scanId, includeInfoSeverityResults);
-            if (infoResults != null)
-            {
-                var results = infoResults.Where(x => x.State == (int)state);
-
-                return results.Count();
-            }
-
-            return 0;
+            return GetResultsForScan(scanId, includeInfoSeverityResults).Where(x => x.State == (int)state);
         }
 
         public CxWSSingleResultData[] GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true)
@@ -3256,6 +3248,11 @@ namespace Checkmarx.API
         public int GetTotalToVerifyFromScan(long scanId)
         {
             return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository.Severity.Info).Count();
+        }
+
+        public IEnumerable<Result> GetNotExploitableFromScan(long scanId)
+        {
+            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.NonExploitable);
         }
 
         public IEnumerable<Result> GetToVerifyResultsFromScan(long scanId)

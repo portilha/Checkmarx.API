@@ -161,6 +161,38 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void QueriesTest()
+        {
+            // Test1
+            var language = "Apex";
+            var queryName = "Privacy_Violation";
+
+            List<long> queriesIds = new List<long>();
+            var foundQueries = clientV89.GetQueriesByLanguageAndOrName(language, queryName);
+            foreach(var querie in foundQueries)
+            {
+                queriesIds.Add(querie.Key.QueryId);
+                var presetQueryId = clientV89.GetPresetQueryId(querie.Value, querie.Key);
+                if(!queriesIds.Contains(presetQueryId))
+                    queriesIds.Add(presetQueryId);
+            }
+
+            // Test2
+            var language2 = "CSharp";
+            var queryName2 = "Connection_String_Injection";
+
+            List<long> queriesIds2 = new List<long>();
+            var foundQueries2 = clientV89.GetQueriesByLanguageAndOrName(language2, queryName2);
+            foreach (var querie in foundQueries2)
+            {
+                queriesIds2.Add(querie.Key.QueryId);
+                var presetQueryId = clientV89.GetPresetQueryId(querie.Value, querie.Key);
+                if (!queriesIds.Contains(presetQueryId))
+                    queriesIds2.Add(presetQueryId);
+            }
+        }
+
+        [TestMethod]
         public void CertificateTest()
         {
             var severityCounters = clientV89.GetAllProjectsDetails().ToList();

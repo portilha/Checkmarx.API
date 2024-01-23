@@ -2551,7 +2551,6 @@ namespace Checkmarx.API
             return query.QueryId;
         }
 
-
         public Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>> _queryCache = null;
 
         public long GetPresetQueryId(long overrideQueryId)
@@ -2571,6 +2570,61 @@ namespace Checkmarx.API
 
             var pair = _queryCache[overrideQueryId];
             return GetPresetQueryId(pair.Item1, pair.Item2);
+        }
+
+        public cxPortalWebService93.CxWSQueryGroup[] _queryGroupCache = null;
+        public Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup> GetQueriesByLanguageAndOrName(string language, string queryName)
+        {
+            if (string.IsNullOrWhiteSpace(language) && string.IsNullOrWhiteSpace(queryName))
+                throw new NullReferenceException("Between language and query name, at least one must have a value.");
+
+            Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup> foundQueries = new Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup>();
+
+            if(_queryGroupCache == null)
+                _queryGroupCache = GetQueries().ToArray();
+
+            if (!string.IsNullOrWhiteSpace(language))
+            {
+                var selectedGroups = _queryGroupCache.Where(x => x.LanguageName.ToLower() == language.Trim().ToLower());
+                if (selectedGroups.Any())
+                {
+                    if (!string.IsNullOrWhiteSpace(queryName))
+                    {
+                        foreach (var g in selectedGroups)
+                        {
+                            foreach (var q in g.Queries)
+                            {
+                                if(q.Name.ToLower() == queryName.Trim().ToLower())
+                                    foundQueries.Add(q, g);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach(var g in selectedGroups)
+                        {
+                            foreach(var q in g.Queries)
+                                foundQueries.Add(q, g);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(queryName))
+                {
+                    foreach (var g in _queryGroupCache)
+                    {
+                        foreach (var q in g.Queries)
+                        {
+                            if (q.Name.ToLower() == queryName.Trim().ToLower())
+                                foundQueries.Add(q, g);
+                        }
+                    }
+                }
+            }
+
+            return foundQueries;
         }
 
 

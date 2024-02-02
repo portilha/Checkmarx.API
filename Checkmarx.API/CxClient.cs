@@ -1535,7 +1535,7 @@ namespace Checkmarx.API
             var scan = GetScanById(scanId);
             if (scan != null)
             {
-                if (scan.Status.Name == "Running" || scan.Status.Name == "Queued")
+                if (scan.Status.Name == "Scanning" || scan.Status.Name == "Running" || scan.Status.Name == "Queued")
                     CancelScan(scanId.ToString());
 
                 result = _cxPortalWebServiceSoapClient.DeleteScanAsync(_soapSessionId, scanId).Result;

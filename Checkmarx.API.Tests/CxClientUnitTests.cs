@@ -164,32 +164,22 @@ namespace Checkmarx.API.Tests
         public void QueriesTest()
         {
             // Test1
-            var language = "Apex";
-            var queryName = "Privacy_Violation";
+            string language = "java";
+            string queryName = "sql_injection";
 
             List<long> queriesIds = new List<long>();
-            var foundQueries = clientV89.GetQueriesByLanguageAndOrName(language, queryName);
+            var foundQueries = clientV9.GetQueriesByLanguageAndOrName(language, queryName);
             foreach(var querie in foundQueries)
-            {
                 queriesIds.Add(querie.Key.QueryId);
-                var presetQueryId = clientV89.GetPresetQueryId(querie.Value, querie.Key);
-                if(!queriesIds.Contains(presetQueryId))
-                    queriesIds.Add(presetQueryId);
-            }
 
             // Test2
-            var language2 = "CSharp";
-            var queryName2 = "Connection_String_Injection";
+            string language2 = null;
+            string queryName2 = "sql_injection";
 
             List<long> queriesIds2 = new List<long>();
-            var foundQueries2 = clientV89.GetQueriesByLanguageAndOrName(language2, queryName2);
+            var foundQueries2 = clientV9.GetQueriesByLanguageAndOrName(language2, queryName2);
             foreach (var querie in foundQueries2)
-            {
                 queriesIds2.Add(querie.Key.QueryId);
-                var presetQueryId = clientV89.GetPresetQueryId(querie.Value, querie.Key);
-                if (!queriesIds.Contains(presetQueryId))
-                    queriesIds2.Add(presetQueryId);
-            }
         }
 
         [TestMethod]

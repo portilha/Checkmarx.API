@@ -123,6 +123,18 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void TriggerScanTest()
+        {
+            var scandId = clientV9.RunSASTScan(17735, presetId: 100000, configurationId: 1);
+        }
+
+        [TestMethod]
+        public void DeleteScanTest()
+        {
+            clientV9.DeleteScan(1894824);
+        }
+
+        [TestMethod]
         public void ReadScanLogsTest()
         {
             try

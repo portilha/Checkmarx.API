@@ -17,6 +17,7 @@ using Checkmarx.API.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OData.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static Checkmarx.API.CxClient;
@@ -86,6 +87,57 @@ namespace Checkmarx.API.Tests
                      new CxClient(new Uri(v95),
                      Configuration["V95:Username"],
                      new NetworkCredential("", Configuration["V95:Password"]).Password);
+            }
+        }
+
+        [TestMethod]
+        public void MarkResultsTest()
+        {
+            long projId = 2740;
+            long scanId = 1024036;
+            string comment = "Test comment";
+
+            //var resultStateList = clientV89.GetResultStateList();
+            // 0, "To Verify"
+            // 1, "Not Exploitable"
+            // 2, "Confirmed"
+            // 3, "Urgent"
+            // 4, "Proposed Not Exploitable"
+
+            string resultState = "2";
+
+            var oDataScanResults = clientV89.GetODataV95Results(1024036);
+            var results = new List<PortalSoap.ResultStateData>();
+            try
+            {
+                foreach (var result in oDataScanResults)
+                {
+                    results.Add(new PortalSoap.ResultStateData
+                    {
+                        projectId = projId,
+                        PathId = result.PathId,
+                        Remarks = comment,
+                        scanId = scanId,
+                        data = resultState,
+                        ResultLabelType = (int)PortalSoap.ResultLabelTypeEnum.State
+                    });
+                }
+
+                if (results.Any())
+                {
+                    Trace.WriteLine($"Updating {results.Count} for scan {scanId}");
+
+                    clientV89.UpdateSetOfResultState(results.ToArray());
+
+                    foreach (var res in results)
+                        res.ResultLabelType = (int)PortalSoap.ResultLabelTypeEnum.Remark;
+
+                    clientV89.UpdateSetOfResultState(results.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex, $"Error updating result states for scan {scanId}");
             }
         }
 

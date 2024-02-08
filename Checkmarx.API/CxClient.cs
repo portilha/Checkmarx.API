@@ -495,12 +495,6 @@ namespace Checkmarx.API
             LcId = lcid;
         }
 
-        //public CxClient(Uri webServerAddress, AuthenticationHeaderValue authenticationHeaderValue)
-        //{
-        //    WebServerURL = webServerAddress;
-        //    AuthenticationToken = authenticationHeaderValue;
-        //}
-
         private JwtSecurityToken _jwtSecurityToken;
 
         private AuthenticationHeaderValue _authenticationHeaderValue = null;
@@ -776,14 +770,6 @@ namespace Checkmarx.API
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
         }
-
-        //public string GetProjectTeamName(string teamId)
-        //{
-        //    if (string.IsNullOrWhiteSpace(teamId))
-        //        throw new ArgumentNullException(nameof(teamId));
-
-        //    return GetTeams()[teamId];
-        //}
 
         public string GetProjectTeamName(string teamId)
         {
@@ -2019,10 +2005,6 @@ namespace Checkmarx.API
             checkConnection();
 
             IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
-
-            //var sortedScans = scans as IOrderedQueryable<CxDataRepository.Scan>;
-            //if (sortedScans != null)
-            //    scans = sortedScans.OrderBy(o => o.EngineStartedOn.DateTime);
 
             if (onlyPublic)
                 scans = scans.Where(x => x.IsPublic);
@@ -3361,6 +3343,20 @@ namespace Checkmarx.API
             var response = _cxPortalWebServiceSoapClient.UpdateSetOfResultState(_soapSessionId, results);
 
             checkSoapResponse(response);
+        }
+
+        public void UpdateSetOfResultStateAndComment(ResultStateData[] results, string remark)
+        {
+            UpdateSetOfResultState(results.ToArray());
+
+            // Workaround: Currently is not possible to change both Status and add a comment in the same call
+            if (!string.IsNullOrWhiteSpace(remark))
+            {
+                foreach (var res in results)
+                    res.ResultLabelType = (int)PortalSoap.ResultLabelTypeEnum.Remark;
+
+               UpdateSetOfResultState(results.ToArray());
+            }
         }
 
         public void UpdateResultState(long projectId, long scanId, long pathId, int result, string remarks = null)

@@ -95,7 +95,7 @@ namespace Checkmarx.API.Tests
         {
             long projId = 2740;
             long scanId = 1024036;
-            string comment = "Test comment";
+            string comment = "Rolling back again";
 
             //var resultStateList = clientV89.GetResultStateList();
             // 0, "To Verify"
@@ -104,7 +104,7 @@ namespace Checkmarx.API.Tests
             // 3, "Urgent"
             // 4, "Proposed Not Exploitable"
 
-            string resultState = "2";
+            string resultState = "0";
 
             var oDataScanResults = clientV89.GetODataV95Results(1024036);
             var results = new List<PortalSoap.ResultStateData>();
@@ -127,12 +127,7 @@ namespace Checkmarx.API.Tests
                 {
                     Trace.WriteLine($"Updating {results.Count} for scan {scanId}");
 
-                    clientV89.UpdateSetOfResultState(results.ToArray());
-
-                    foreach (var res in results)
-                        res.ResultLabelType = (int)PortalSoap.ResultLabelTypeEnum.Remark;
-
-                    clientV89.UpdateSetOfResultState(results.ToArray());
+                    clientV89.UpdateSetOfResultStateAndComment(results.ToArray(), comment);
                 }
             }
             catch (Exception ex)
@@ -432,6 +427,8 @@ namespace Checkmarx.API.Tests
             var csvFields = new List<object>();
 
             long scanId = 1004407;
+
+            var test = clientV9.GetProjectCustomFields(21927);
 
             var resultStateList = clientV93.GetResultStateList();
 

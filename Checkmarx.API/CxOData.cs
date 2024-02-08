@@ -34,11 +34,6 @@ namespace Checkmarx.API
             return context;
         }
 
-        //public static CxDataRepository.Project GetProjectInfo2(Default.Container container, long id)
-        //{
-        //    return container.Projects.Where(p => p.Id == id).SingleOrDefault();
-        //}
-
         /// <summary>
         /// Returns Container from V1 ODATA Version 9
         /// </summary>

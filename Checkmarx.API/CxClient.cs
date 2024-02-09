@@ -1908,7 +1908,7 @@ namespace Checkmarx.API
             {
                 var response = _cxPortalWebServiceSoapClientV9.LockScanAsync(_soapSessionId, scanId).Result;
 
-                if(!string.IsNullOrWhiteSpace(comment))
+                if (!string.IsNullOrWhiteSpace(comment))
                     _cxPortalWebServiceSoapClientV9.UpdateScanCommentAsync(_soapSessionId, scanId, comment);
 
                 sucess = response.IsSuccesfull;
@@ -1958,21 +1958,19 @@ namespace Checkmarx.API
             return GetScans(projectId, true).FirstOrDefault();
         }
 
-        public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true, bool ignoreVersion = false)
+        public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true)
         {
             var scans = GetScans(projectId, finished, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
 
             if (fullScanOnly)
                 scans = scans.Where(x => !x.IsIncremental);
 
-            if (!ignoreVersion)
+            if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
             {
-                if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
-                {
-                    long? scanId = _oDataV95.Projects.Where(p => p.Id == projectId).First().LastScanId;
+                long? scanId = _oDataV95.Projects.Expand(x => x.Scans).Where(p => p.Id == projectId).First()
+                    .Scans.Where(x => onlyPublic ? x.IsPublic : true).OrderByDescending(x => x.EngineStartedOn.Date).First().Id;
 
-                    return scanId != null ? scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
-                }
+                return scanId != null ? scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
             }
 
             return scans.LastOrDefault();
@@ -2562,7 +2560,7 @@ namespace Checkmarx.API
 
             Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup> foundQueries = new Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup>();
 
-            if(_queryGroupCache == null)
+            if (_queryGroupCache == null)
                 _queryGroupCache = GetQueries().ToArray();
 
             if (!string.IsNullOrWhiteSpace(language))
@@ -2576,16 +2574,16 @@ namespace Checkmarx.API
                         {
                             foreach (var q in g.Queries)
                             {
-                                if(q.Name.ToLower() == queryName.Trim().ToLower())
+                                if (q.Name.ToLower() == queryName.Trim().ToLower())
                                     foundQueries.Add(q, g);
                             }
                         }
                     }
                     else
                     {
-                        foreach(var g in selectedGroups)
+                        foreach (var g in selectedGroups)
                         {
-                            foreach(var q in g.Queries)
+                            foreach (var q in g.Queries)
                                 foundQueries.Add(q, g);
                         }
                     }
@@ -3355,7 +3353,7 @@ namespace Checkmarx.API
                 foreach (var res in results)
                     res.ResultLabelType = (int)PortalSoap.ResultLabelTypeEnum.Remark;
 
-               UpdateSetOfResultState(results.ToArray());
+                UpdateSetOfResultState(results.ToArray());
             }
         }
 

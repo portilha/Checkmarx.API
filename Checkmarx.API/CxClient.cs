@@ -2543,9 +2543,9 @@ namespace Checkmarx.API
 
                 foreach (var queryGroup in QueryGroups)
                 {
-                    foreach (var query in queryGroup)
+                    foreach (var query in queryGroup.Queries)
                     {
-                        _queryCache.Add(query.Id, new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query));
+                        _queryCache.Add(query.QueryId, new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query));
                     }
                 }
             }

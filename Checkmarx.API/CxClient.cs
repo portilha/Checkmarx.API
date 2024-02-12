@@ -1967,8 +1967,8 @@ namespace Checkmarx.API
 
             if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
             {
-                long? scanId = _oDataV95.Projects.Expand(x => x.Scans).Where(p => p.Id == projectId).First()
-                    .Scans.Where(x => onlyPublic ? x.IsPublic : true).OrderByDescending(x => x.EngineStartedOn.Date).First().Id;
+                long? scanId = _oDataV95.Projects.Expand(x => x.Scans).Where(p => p.Id == projectId).FirstOrDefault()?
+                    .Scans.Where(x => onlyPublic ? x.IsPublic : true).OrderByDescending(x => x.EngineStartedOn.Date).FirstOrDefault()?.Id;
 
                 return scanId != null ? scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
             }

@@ -771,6 +771,87 @@ namespace Checkmarx.API
             }
         }
 
+        public HttpStatusCode TestConnection(string baseURL = "http://localhost/cxrestapi/",
+            string userName = "", string password = "")
+        {
+            // Check if there is a invalid certificate exception
+            bool ignoreCertificate = false;
+            string portalVersion = null;
+            try
+            {
+                portalVersion = GetVersionWithoutConnecting(baseURL);
+            }
+            catch (System.ServiceModel.Security.SecurityNegotiationException ex)
+            {
+                ignoreCertificate = true;
+                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException. That usualy means there is a certificate issue. Please check this issue and reach out to Cloud Operations if necessary.");
+            }
+
+            var webServer = new Uri(baseURL);
+
+            Uri baseServer = new Uri(webServer.AbsoluteUri);
+
+            if (ignoreCertificate)
+                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+
+            // Get version number with regex
+            if (string.IsNullOrWhiteSpace(portalVersion))
+                portalVersion = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+
+            string pattern = @"\d+(\.\d+)+";
+            Regex rg = new Regex(pattern);
+            Match m = rg.Match(portalVersion);
+            string version = m.Value;
+
+            var isV9 = new Version(version).Major >= 9;
+
+            HttpClient httpClient = new HttpClient()
+            {
+                BaseAddress = webServer,
+                Timeout = TimeSpan.FromMinutes(20),
+            }; ;
+
+            if (ignoreCertificate)
+            {
+                // Ignore certificate for http client
+                HttpClientHandler httpClientHandler = new HttpClientHandler();
+                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+
+                httpClient = new HttpClient(httpClientHandler)
+                {
+                    BaseAddress = webServer,
+                    Timeout = TimeSpan.FromMinutes(20),
+                };
+            }
+
+            if (httpClient.BaseAddress.LocalPath != "cxrestapi")
+            {
+                httpClient.BaseAddress = new Uri(webServer, "/cxrestapi/");
+            }
+
+            using (var request = new HttpRequestMessage(HttpMethod.Post, "auth/identity/connect/token"))
+            {
+                request.Headers.Add("Accept", "application/json");
+
+                var values = new List<KeyValuePair<string, string>> {
+                    new KeyValuePair<string, string>("username", userName),
+                    new KeyValuePair<string, string>("password", password),
+                    new KeyValuePair<string, string>("grant_type", "password"),
+                    new KeyValuePair<string, string>("scope",
+                    isV9 ? "offline_access sast_api access_control_api" : "sast_rest_api"),
+                    new KeyValuePair<string, string>("client_id",
+                    isV9 ? "resource_owner_sast_client" : "resource_owner_client"),
+                    new KeyValuePair<string, string>("client_secret", "014DF517-39D1-4453-B7B3-9930C563627C")
+                };
+
+                request.Content = new FormUrlEncodedContent(values);
+
+                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                return response.StatusCode;
+            }
+        }
+
         public string GetProjectTeamName(string teamId)
         {
             if (string.IsNullOrWhiteSpace(teamId))
@@ -1972,7 +2053,7 @@ namespace Checkmarx.API
                 long? scanId = _oDataV95.Projects.Expand(x => x.Scans).Where(p => p.Id == projectId).FirstOrDefault()?
                     .Scans.Where(x => onlyPublic ? x.IsPublic : true).OrderByDescending(x => x.EngineStartedOn).FirstOrDefault()?.Id;
 
-                return scanId != null ? scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
+                return scanId != null ? scans.SingleOrDefault(x => x.Id == scanId.Value) : null;
             }
 
             return scans.LastOrDefault();

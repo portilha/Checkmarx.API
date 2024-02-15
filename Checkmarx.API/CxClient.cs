@@ -1960,6 +1960,8 @@ namespace Checkmarx.API
 
         public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true)
         {
+            httpClient = null;
+
             var scans = GetScans(projectId, finished, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
 
             if (fullScanOnly)
@@ -1968,7 +1970,7 @@ namespace Checkmarx.API
             if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
             {
                 long? scanId = _oDataV95.Projects.Expand(x => x.Scans).Where(p => p.Id == projectId).FirstOrDefault()?
-                    .Scans.Where(x => onlyPublic ? x.IsPublic : true).OrderByDescending(x => x.EngineStartedOn.Date).FirstOrDefault()?.Id;
+                    .Scans.Where(x => onlyPublic ? x.IsPublic : true).OrderByDescending(x => x.EngineStartedOn).FirstOrDefault()?.Id;
 
                 return scanId != null ? scans.FirstOrDefault(x => x.Id == scanId.Value) : null;
             }

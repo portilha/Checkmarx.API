@@ -2041,8 +2041,6 @@ namespace Checkmarx.API
 
         public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true)
         {
-            httpClient = null;
-
             var scans = GetScans(projectId, finished, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
 
             if (fullScanOnly)

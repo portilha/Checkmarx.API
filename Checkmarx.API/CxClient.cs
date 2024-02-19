@@ -805,7 +805,7 @@ namespace Checkmarx.API
 
             var isV9 = new Version(version).Major >= 9;
 
-            HttpClient httpClient = new HttpClient()
+            HttpClient client = new HttpClient()
             {
                 BaseAddress = webServer,
                 Timeout = TimeSpan.FromMinutes(20),
@@ -814,19 +814,19 @@ namespace Checkmarx.API
             if (ignoreCertificate)
             {
                 // Ignore certificate for http client
-                HttpClientHandler httpClientHandler = new HttpClientHandler();
-                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+                HttpClientHandler clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
 
-                httpClient = new HttpClient(httpClientHandler)
+                client = new HttpClient(clientHandler)
                 {
                     BaseAddress = webServer,
                     Timeout = TimeSpan.FromMinutes(20),
                 };
             }
 
-            if (httpClient.BaseAddress.LocalPath != "cxrestapi")
+            if (client.BaseAddress.LocalPath != "cxrestapi")
             {
-                httpClient.BaseAddress = new Uri(webServer, "/cxrestapi/");
+                client.BaseAddress = new Uri(webServer, "/cxrestapi/");
             }
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, "auth/identity/connect/token"))
@@ -846,7 +846,7 @@ namespace Checkmarx.API
 
                 request.Content = new FormUrlEncodedContent(values);
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = client.SendAsync(request).Result;
 
                 return response.StatusCode;
             }
@@ -2041,8 +2041,6 @@ namespace Checkmarx.API
 
         public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true)
         {
-            httpClient = null;
-
             var scans = GetScans(projectId, finished, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
 
             if (fullScanOnly)
@@ -2050,6 +2048,9 @@ namespace Checkmarx.API
 
             if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
             {
+                //if (!finished)
+                //    return scans.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
+
                 long? scanId = _oDataV95.Projects.Expand(x => x.Scans).Where(p => p.Id == projectId).FirstOrDefault()?
                     .Scans.Where(x => onlyPublic ? x.IsPublic : true).OrderByDescending(x => x.EngineStartedOn).FirstOrDefault()?.Id;
 

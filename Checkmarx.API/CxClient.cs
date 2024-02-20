@@ -771,7 +771,7 @@ namespace Checkmarx.API
             }
         }
 
-        public HttpStatusCode TestConnection(string baseURL = "http://localhost/cxrestapi/",
+        public HttpResponseMessage TestConnection(string baseURL = "http://localhost/cxrestapi/",
             string userName = "", string password = "")
         {
             // Check if there is a invalid certificate exception
@@ -809,7 +809,7 @@ namespace Checkmarx.API
             {
                 BaseAddress = webServer,
                 Timeout = TimeSpan.FromMinutes(20),
-            }; ;
+            };
 
             if (ignoreCertificate)
             {
@@ -848,7 +848,7 @@ namespace Checkmarx.API
 
                 HttpResponseMessage response = client.SendAsync(request).Result;
 
-                return response.StatusCode;
+                return response;
             }
         }
 

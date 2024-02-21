@@ -2048,11 +2048,11 @@ namespace Checkmarx.API
 
             if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
             {
-                //if (!finished)
-                //    return scans.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
+                if (!finished)
+                    return scans.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
 
                 long? scanId = _oDataV95.Projects.Expand(x => x.Scans).Where(p => p.Id == projectId).FirstOrDefault()?
-                    .Scans.Where(x => onlyPublic ? x.IsPublic : true).OrderByDescending(x => x.EngineStartedOn).FirstOrDefault()?.Id;
+                    .Scans.Where(x => onlyPublic ? x.IsPublic : true && (!finished || x.EngineFinishedOn != null)).OrderByDescending(x => x.EngineStartedOn).FirstOrDefault()?.Id;
 
                 return scanId != null ? scans.SingleOrDefault(x => x.Id == scanId.Value) : null;
             }
@@ -2196,6 +2196,16 @@ namespace Checkmarx.API
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
+        }
+
+        public bool ProjectHasScanRunning(long projectId)
+        {
+            return GetScansQueue(projectId).Any();
+        }
+
+        public ICollection<ScanQueue> GetScansQueue(long? projectId = null)
+        {
+            return SASTClient.ScansQueueV1_GetScansQueueByprojectIdAsync(projectId).Result;
         }
 
         // get preset /sast/scanSettings/{projectId}

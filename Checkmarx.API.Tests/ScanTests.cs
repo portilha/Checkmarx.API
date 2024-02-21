@@ -774,6 +774,36 @@ namespace Checkmarx.API.Tests
             }
         }
 
+        [TestMethod]
+        public void GetLastScanTest()
+        {
+            long projectId = 26555;
+
+            //var project = clientV9.GetProjects().FirstOrDefault(x => x.Key == projectId);
+
+            bool hasScanRunning = clientV9.ProjectHasScanRunning(projectId);
+
+            var scans = clientV9.GetScans(projectId, true).ToList();
+            var scansNotFinished = clientV9.GetScans(projectId, false).ToList();
+
+            var calculatedLastScan = scans.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
+            var calculatedLastScanNotFinished = scansNotFinished.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
+
+            var lastScan = clientV9.GetLastScan(projectId);
+            var lastScanNotFinished = clientV9.GetLastScan(projectId, finished: false);
+
+            Trace.WriteLine(lastScan.Id);
+        }
+
+        [TestMethod]
+        public void ListScanQueueTest()
+        {
+            foreach(var scan in clientV9.GetScansQueue())
+            {
+                Trace.WriteLine(scan.Project.Id + " - " + scan.Id.ToString());
+            }
+        }
+
         #region Write Tests
 
         public void ReRunScanWithPresetTest()

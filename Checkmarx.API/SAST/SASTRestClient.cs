@@ -6404,6 +6404,8 @@ namespace Checkmarx.API
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json;v=1.0"));
 
+                    content_.Headers.Add("cxOrigin", "Checkmarx.API");
+
                     PrepareRequest(client_, request_, urlBuilder_);
 
                     var url_ = urlBuilder_.ToString();

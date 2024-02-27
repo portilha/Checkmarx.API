@@ -640,7 +640,7 @@ namespace Checkmarx.API
             // Ignore certificate for http client
             if (ignoreCertificate)
             {
-                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };  
+                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
             }
 
             httpClient = new HttpClient(httpClientHandler)
@@ -1819,35 +1819,14 @@ namespace Checkmarx.API
 
         private long? triggerNewScan(long projectId, bool forceScan, bool runPublicScan, string comment)
         {
-            using (var request = new HttpRequestMessage(HttpMethod.Post, "sast/scans"))
+            return SASTClient.SastScans_PostByscanAsync(new SastScanRequestWriteDTO
             {
-                request.Headers.Add("Accept", "application/json;v=1.0");
-                request.Headers.Add("cxOrigin", "Checkmarx.API");
-
-                var requestBody = JsonConvert.SerializeObject(new ScanDetails
-                {
-                    ProjectId = projectId,
-                    Comment = comment ?? string.Empty,
-                    ForceScan = forceScan,
-                    IsIncremental = false,
-                    IsPublic = runPublicScan
-                });
-
-                using (var stringContent = new StringContent(requestBody, Encoding.UTF8, "application/json"))
-                {
-                    request.Content = stringContent;
-                    HttpResponseMessage response = httpClient.SendAsync(request).Result;
-
-                    if (response.StatusCode != HttpStatusCode.Created)
-                    {
-                        throw new ApplicationException(response.Content.ReadAsStringAsync().Result);
-                    }
-
-                    // Doesn't this come in the response??
-                    var fetchScanId = response.Headers.Location.ToString().Split("/").Last();
-                    return Convert.ToInt64(fetchScanId);
-                }
-            }
+                ProjectId = projectId,
+                Comment = comment ?? string.Empty,
+                ForceScan = forceScan,
+                IsIncremental = false,
+                IsPublic = runPublicScan
+            }).Result.Id;
         }
 
         private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)
@@ -1964,46 +1943,42 @@ namespace Checkmarx.API
             }
         }
 
-        public bool LockScan(long scanId, string comment = null)
+        public void LockScan(long scanId, string comment = null)
         {
             checkConnection();
-
-            bool sucess = true;
 
             if (_isV9)
             {
                 var response = _cxPortalWebServiceSoapClientV9.LockScanAsync(_soapSessionId, scanId).Result;
 
                 if (!string.IsNullOrWhiteSpace(comment))
-                    _cxPortalWebServiceSoapClientV9.UpdateScanCommentAsync(_soapSessionId, scanId, comment);
+                    checkSoapResponse(_cxPortalWebServiceSoapClientV9.UpdateScanCommentAsync(_soapSessionId, scanId, comment).Result);
 
-                sucess = response.IsSuccesfull;
+                checkSoapResponse(response);
             }
             else
             {
-                _cxPortalWebServiceSoapClient.LockScanAsync(_soapSessionId, scanId).Wait();
-            }
+                var response = _cxPortalWebServiceSoapClient.LockScanAsync(_soapSessionId, scanId).Result;
 
-            return sucess;
+                if (!string.IsNullOrWhiteSpace(comment))
+                    throw new NotImplementedException("Adding comment is not support for this version");
+
+                checkSoapResponse(response);
+            }
         }
 
-        public bool UnlockScan(long scanId)
+        public void UnlockScan(long scanId)
         {
             checkConnection();
 
-            bool sucess = true;
-
             if (_isV9)
             {
-                var response = _cxPortalWebServiceSoapClientV9.UnlockScanAsync(_soapSessionId, scanId).Result;
-                sucess = response.IsSuccesfull;
+                checkSoapResponse(_cxPortalWebServiceSoapClientV9.UnlockScanAsync(_soapSessionId, scanId).Result);
             }
             else
             {
-                _cxPortalWebServiceSoapClient.UnlockScanAsync(_soapSessionId, scanId).Wait();
+                checkSoapResponse(_cxPortalWebServiceSoapClient.UnlockScanAsync(_soapSessionId, scanId).REs);
             }
-
-            return sucess;
         }
 
         public enum ScanRetrieveKind

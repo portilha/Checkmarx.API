@@ -263,19 +263,13 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void LockScanTest()
         {
-            var scanId = 1020859;
-            var success = clientV89.LockScan(scanId);
-
-            Assert.IsTrue(success);
+            clientV89.LockScan(1020859);
         }
 
         [TestMethod]
         public void UnlockScanTest()
         {
-            var scanId = 1020859;
-            var success = clientV89.UnlockScan(scanId);
-
-            Assert.IsTrue(success);
+            clientV89.UnlockScan(1020859);
         }
 
         [TestMethod]

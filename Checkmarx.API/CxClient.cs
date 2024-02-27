@@ -596,7 +596,7 @@ namespace Checkmarx.API
             catch (System.ServiceModel.Security.SecurityNegotiationException ex)
             {
                 ignoreCertificate = true;
-                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException. That usualy means there is a certificate issue. Please check this issue and reach out to Cloud Operations if necessary.");
+                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException.");
             }
 
             var webServer = new Uri(baseURL);
@@ -635,24 +635,19 @@ namespace Checkmarx.API
 
             Console.WriteLine("Checkmarx " + _version.ToString());
 
-            HttpClient httpClient = new HttpClient()
-            {
-                BaseAddress = webServer,
-                Timeout = TimeSpan.FromMinutes(20),
-            }; ;
+            HttpClientHandler httpClientHandler = new();
 
+            // Ignore certificate for http client
             if (ignoreCertificate)
             {
-                // Ignore certificate for http client
-                HttpClientHandler httpClientHandler = new HttpClientHandler();
-                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
-
-                httpClient = new HttpClient(httpClientHandler)
-                {
-                    BaseAddress = webServer,
-                    Timeout = TimeSpan.FromMinutes(20),
-                };
+                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };  
             }
+
+            httpClient = new HttpClient(httpClientHandler)
+            {
+                BaseAddress = webServer,
+                Timeout = TimeSpan.FromMinutes(20)
+            };
 
             if (httpClient.BaseAddress.LocalPath != "cxrestapi")
             {
@@ -784,7 +779,7 @@ namespace Checkmarx.API
             catch (System.ServiceModel.Security.SecurityNegotiationException ex)
             {
                 ignoreCertificate = true;
-                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException. That usualy means there is a certificate issue. Please check this issue and reach out to Cloud Operations if necessary.");
+                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException. That usually means there is a certificate issue.");
             }
 
             var webServer = new Uri(baseURL);
@@ -1663,8 +1658,6 @@ namespace Checkmarx.API
         public long? RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
             bool useLastScanPreset = false, int? presetId = null, int? configurationId = null, bool runPublicScan = true, bool forceLocal = false, CxClient cxClient2 = null)
         {
-            long? scanId = null;
-
             checkConnection();
 
             var projectConfig = GetProjectConfigurations(projectId);
@@ -1793,11 +1786,11 @@ namespace Checkmarx.API
             }
 
             if (cxClient2 == null)
-                scanId = RunScan(projectId, forceScan, runPublicScan, comment);
+                return triggerNewScan(projectId, forceScan, runPublicScan, comment);
             else
-                scanId = cxClient2.RunScan(projectId, forceScan, runPublicScan, comment);
+                return cxClient2.triggerNewScan(projectId, forceScan, runPublicScan, comment);
 
-            return scanId;
+
         }
 
         private void UploadSourceCode(long projectId, byte[] sourceCodeZipContent)
@@ -1824,9 +1817,8 @@ namespace Checkmarx.API
             }
         }
 
-        public long? RunScan(long projectId, bool forceScan, bool runPublicScan, string comment)
+        private long? triggerNewScan(long projectId, bool forceScan, bool runPublicScan, string comment)
         {
-            long? scanId = null;
             using (var request = new HttpRequestMessage(HttpMethod.Post, "sast/scans"))
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
@@ -1848,21 +1840,14 @@ namespace Checkmarx.API
 
                     if (response.StatusCode != HttpStatusCode.Created)
                     {
-                        throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
+                        throw new ApplicationException(response.Content.ReadAsStringAsync().Result);
                     }
 
-                    try
-                    {
-                        var fetchScanId = response.Headers.Location.ToString().Split("/").Last();
-                        scanId = Convert.ToInt64(fetchScanId);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Scan triggered successfuly, but it was not possible to fetch the scan id.");
-                    }
+                    // Doesn't this come in the response??
+                    var fetchScanId = response.Headers.Location.ToString().Split("/").Last();
+                    return Convert.ToInt64(fetchScanId);
                 }
             }
-            return scanId;
         }
 
         private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)

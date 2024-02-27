@@ -825,6 +825,7 @@ namespace Checkmarx.API.SAST
                     var content_ = new System.Net.Http.MultipartFormDataContent(boundary_);
                     content_.Headers.Remove("Content-Type");
                     content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
+                    content_.Headers.Add("cxOrigin", "Checkmarx.API");
 
                     if (projectId == null)
                         throw new System.ArgumentNullException("projectId");

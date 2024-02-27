@@ -105,6 +105,7 @@ namespace Checkmarx.API.SASTV4
                     var content_ = new System.Net.Http.MultipartFormDataContent(boundary_);
                     content_.Headers.Remove("Content-Type");
                     content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
+                    content_.Headers.Add("cxOrigin", "Checkmarx.API");
 
                     if (projectId == null)
                         throw new System.ArgumentNullException("projectId");
@@ -168,6 +169,8 @@ namespace Checkmarx.API.SASTV4
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json;v=4.0"));
+
+                    
 
                     PrepareRequest(client_, request_, urlBuilder_);
 

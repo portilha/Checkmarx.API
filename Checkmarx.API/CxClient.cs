@@ -36,6 +36,7 @@ using Microsoft.OData.Client;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel.Security;
+using System.Runtime;
 
 namespace Checkmarx.API
 {
@@ -44,6 +45,8 @@ namespace Checkmarx.API
     /// </summary>
     public class CxClient : IDisposable
     {
+        public string Origin { get; set; } = "Checkmarx.API";
+
         #region Clients
 
         /// <summary>
@@ -1977,7 +1980,7 @@ namespace Checkmarx.API
             }
             else
             {
-                checkSoapResponse(_cxPortalWebServiceSoapClient.UnlockScanAsync(_soapSessionId, scanId).REs);
+                checkSoapResponse(_cxPortalWebServiceSoapClient.UnlockScanAsync(_soapSessionId, scanId).Result);
             }
         }
 

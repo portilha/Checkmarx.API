@@ -34,8 +34,6 @@ namespace Checkmarx.API.Tests
         private static CxClient clientV93;
         private static CxClient clientV95;
 
-        private static string QueryDescription = "PT temporary query";
-
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
         {
@@ -800,25 +798,13 @@ namespace Checkmarx.API.Tests
 
         #region Write Tests
 
+        
         public void ReRunScanWithPresetTest()
         {
             clientV93.RunSASTScan(12132, presetId: 100000);
-
-            //var projects = clientV93.GetProjects();
-            //if (projects.Any())
-            //{
-            //    //var project = projects.Where(x => x.Key == 12132).FirstOrDefault().Key;
-            //    //int? presetId = 1000;
-
-            //    clientV93.RunSASTScan(12132, presetId: 100000);
-            //}
-
-            //foreach (var item in clientV93.GetPresets())
-            //{
-            //    Trace.WriteLine($"{item.Key} {item.Value}");
-            //}
         }
 
+        
         public void UpdateResultStateTest()
         {
             long projectId = 1127;
@@ -835,6 +821,7 @@ namespace Checkmarx.API.Tests
             var updatedComments = clientV89.GetAllCommentRemarksForScanAndPath(scanId, pathId);
         }
 
+        
         public void AddResultCommentTest()
         {
             long projectId = 1127;

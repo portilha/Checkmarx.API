@@ -2016,11 +2016,10 @@ namespace Checkmarx.API
 
                 long? scanId = _oDataV95.Projects.Expand(x => x.Scans)
                     .Where(p => p.Id == projectId).FirstOrDefault()?.Scans
-                    .Where(x => (fullScanOnly ? !x.IsIncremental.Value : true) 
-                                && (onlyPublic ? x.IsPublic : true)
+                    .Where(x =>    (!fullScanOnly || !x.IsIncremental.Value) 
+                                && (!onlyPublic || x.IsPublic)
                                 && (!finished || x.EngineFinishedOn != null)
-                                && (maxScanDate == null || x.EngineFinishedOn?.DateTime < maxScanDate.Value)
-                                )
+                                && (maxScanDate == null || x.EngineFinishedOn?.DateTime <= maxScanDate.Value))
                     .OrderByDescending(x => x.EngineStartedOn)
                     .FirstOrDefault()?.Id;
 

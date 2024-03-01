@@ -2014,8 +2014,15 @@ namespace Checkmarx.API
                 if (!finished)
                     return scans.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
 
-                long? scanId = _oDataV95.Projects.Expand(x => x.Scans).Where(p => p.Id == projectId).FirstOrDefault()?
-                    .Scans.Where(x => onlyPublic ? x.IsPublic : true && (!finished || x.EngineFinishedOn != null)).OrderByDescending(x => x.EngineStartedOn).FirstOrDefault()?.Id;
+                long? scanId = _oDataV95.Projects.Expand(x => x.Scans)
+                    .Where(p => p.Id == projectId).FirstOrDefault()?.Scans
+                    .Where(x => (fullScanOnly ? !x.IsIncremental.Value : true) 
+                                && (onlyPublic ? x.IsPublic : true)
+                                && (!finished || x.EngineFinishedOn != null)
+                                && (maxScanDate == null || x.EngineFinishedOn?.DateTime < maxScanDate.Value)
+                                )
+                    .OrderByDescending(x => x.EngineStartedOn)
+                    .FirstOrDefault()?.Id;
 
                 return scanId != null ? scans.SingleOrDefault(x => x.Id == scanId.Value) : null;
             }

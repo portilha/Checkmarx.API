@@ -253,7 +253,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void TestGetVersion()
         {
-            Assert.AreEqual("V 9.0", clientV9.Version);
+            Assert.AreEqual("V 9.0", clientV9.Version.ToString());
         }
 
         [TestMethod]

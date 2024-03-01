@@ -599,7 +599,7 @@ namespace Checkmarx.API
             catch (System.ServiceModel.Security.SecurityNegotiationException ex)
             {
                 ignoreCertificate = true;
-                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException.");
+                Console.WriteLine(ex.Message);
             }
 
             var webServer = new Uri(baseURL);
@@ -782,7 +782,7 @@ namespace Checkmarx.API
             catch (System.ServiceModel.Security.SecurityNegotiationException ex)
             {
                 ignoreCertificate = true;
-                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException. That usually means there is a certificate issue.");
+                Console.WriteLine(ex.Message);
             }
 
             var webServer = new Uri(baseURL);
@@ -803,11 +803,7 @@ namespace Checkmarx.API
 
             var isV9 = new Version(version).Major >= 9;
 
-            HttpClient client = new HttpClient()
-            {
-                BaseAddress = webServer,
-                Timeout = TimeSpan.FromMinutes(20),
-            };
+            HttpClient client = null;
 
             if (ignoreCertificate)
             {
@@ -816,6 +812,14 @@ namespace Checkmarx.API
                 clientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
 
                 client = new HttpClient(clientHandler)
+                {
+                    BaseAddress = webServer,
+                    Timeout = TimeSpan.FromMinutes(20),
+                };
+            }
+            else
+            {
+                client = new HttpClient()
                 {
                     BaseAddress = webServer,
                     Timeout = TimeSpan.FromMinutes(20),
@@ -2014,9 +2018,10 @@ namespace Checkmarx.API
                 if (!finished)
                     return scans.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
 
+                // Prevent cases where the Id's counters of the scans where reinitiated.
                 long? scanId = _oDataV95.Projects.Expand(x => x.Scans)
                     .Where(p => p.Id == projectId).FirstOrDefault()?.Scans
-                    .Where(x =>    (!fullScanOnly || !x.IsIncremental.Value) 
+                    .Where(x => (!fullScanOnly || !x.IsIncremental.Value)
                                 && (!onlyPublic || x.IsPublic)
                                 && (!finished || x.EngineFinishedOn != null)
                                 && (maxScanDate == null || x.EngineFinishedOn?.DateTime <= maxScanDate.Value))

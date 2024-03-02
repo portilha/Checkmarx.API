@@ -2028,7 +2028,8 @@ namespace Checkmarx.API
                     .OrderByDescending(x => x.EngineStartedOn)
                     .FirstOrDefault()?.Id;
 
-                return scanId != null ? scans.SingleOrDefault(x => x.Id == scanId.Value) : null;
+                // There needs to be a scan in the scans list that match the value returned by the ODATA query.
+                return scanId != null ? scans.Single(x => x.Id == scanId.Value) : null;
             }
 
             return scans.LastOrDefault();

@@ -34,8 +34,6 @@ namespace Checkmarx.API.Tests
         private static CxClient clientV93;
         private static CxClient clientV95;
 
-        private static string QueryDescription = "PT temporary query";
-
         [ClassInitialize]
         public static void InitializeTest(TestContext testContext)
         {
@@ -263,19 +261,13 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void LockScanTest()
         {
-            var scanId = 1020859;
-            var success = clientV89.LockScan(scanId);
-
-            Assert.IsTrue(success);
+            clientV89.LockScan(1020859);
         }
 
         [TestMethod]
         public void UnlockScanTest()
         {
-            var scanId = 1020859;
-            var success = clientV89.UnlockScan(scanId);
-
-            Assert.IsTrue(success);
+            clientV89.UnlockScan(1020859);
         }
 
         [TestMethod]
@@ -774,27 +766,45 @@ namespace Checkmarx.API.Tests
             }
         }
 
+        [TestMethod]
+        public void GetLastScanTest()
+        {
+            long projectId = 26555;
+
+            //var project = clientV9.GetProjects().FirstOrDefault(x => x.Key == projectId);
+
+            bool hasScanRunning = clientV9.ProjectHasScanRunning(projectId);
+
+            var scans = clientV9.GetScans(projectId, true).ToList();
+            var scansNotFinished = clientV9.GetScans(projectId, false).ToList();
+
+            var calculatedLastScan = scans.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
+            var calculatedLastScanNotFinished = scansNotFinished.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
+
+            var lastScan = clientV9.GetLastScan(projectId);
+            var lastScanNotFinished = clientV9.GetLastScan(projectId, finished: false);
+
+            Trace.WriteLine(lastScan.Id);
+        }
+
+        [TestMethod]
+        public void ListScanQueueTest()
+        {
+            foreach(var scan in clientV9.GetScansQueue())
+            {
+                Trace.WriteLine(scan.Project.Id + " - " + scan.Id.ToString());
+            }
+        }
+
         #region Write Tests
 
+        
         public void ReRunScanWithPresetTest()
         {
             clientV93.RunSASTScan(12132, presetId: 100000);
-
-            //var projects = clientV93.GetProjects();
-            //if (projects.Any())
-            //{
-            //    //var project = projects.Where(x => x.Key == 12132).FirstOrDefault().Key;
-            //    //int? presetId = 1000;
-
-            //    clientV93.RunSASTScan(12132, presetId: 100000);
-            //}
-
-            //foreach (var item in clientV93.GetPresets())
-            //{
-            //    Trace.WriteLine($"{item.Key} {item.Value}");
-            //}
         }
 
+        
         public void UpdateResultStateTest()
         {
             long projectId = 1127;
@@ -811,6 +821,7 @@ namespace Checkmarx.API.Tests
             var updatedComments = clientV89.GetAllCommentRemarksForScanAndPath(scanId, pathId);
         }
 
+        
         public void AddResultCommentTest()
         {
             long projectId = 1127;

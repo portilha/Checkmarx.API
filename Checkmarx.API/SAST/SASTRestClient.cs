@@ -6384,7 +6384,7 @@ namespace Checkmarx.API
         /// <param name="scan">Scan details</param>
         /// <returns>Created</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<LinkedResource> SastScans_PostByscanAsync(SastScanRequestWriteDTO scan, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<LinkedResource> SastScans_PostByscanAsync( SastScanRequestWriteDTO scan, System.Threading.CancellationToken cancellationToken)
         {
             if (scan == null)
                 throw new System.ArgumentNullException("scan");
@@ -6403,6 +6403,8 @@ namespace Checkmarx.API
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json;v=1.0"));
+
+                    content_.Headers.Add("cxOrigin", "Checkmarx.API");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 

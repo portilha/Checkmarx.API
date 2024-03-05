@@ -36,6 +36,7 @@ using Microsoft.OData.Client;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel.Security;
+using System.Runtime;
 
 namespace Checkmarx.API
 {
@@ -44,6 +45,8 @@ namespace Checkmarx.API
     /// </summary>
     public class CxClient : IDisposable
     {
+        public string Origin { get; set; } = "Checkmarx.API";
+
         #region Clients
 
         /// <summary>
@@ -596,7 +599,7 @@ namespace Checkmarx.API
             catch (System.ServiceModel.Security.SecurityNegotiationException ex)
             {
                 ignoreCertificate = true;
-                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException. That usualy means there is a certificate issue. Please check this issue and reach out to Cloud Operations if necessary.");
+                Console.WriteLine(ex.Message);
             }
 
             var webServer = new Uri(baseURL);
@@ -635,24 +638,19 @@ namespace Checkmarx.API
 
             Console.WriteLine("Checkmarx " + _version.ToString());
 
-            HttpClient httpClient = new HttpClient()
-            {
-                BaseAddress = webServer,
-                Timeout = TimeSpan.FromMinutes(20),
-            }; ;
+            HttpClientHandler httpClientHandler = new();
 
+            // Ignore certificate for http client
             if (ignoreCertificate)
             {
-                // Ignore certificate for http client
-                HttpClientHandler httpClientHandler = new HttpClientHandler();
                 httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
-
-                httpClient = new HttpClient(httpClientHandler)
-                {
-                    BaseAddress = webServer,
-                    Timeout = TimeSpan.FromMinutes(20),
-                };
             }
+
+            httpClient = new HttpClient(httpClientHandler)
+            {
+                BaseAddress = webServer,
+                Timeout = TimeSpan.FromMinutes(20)
+            };
 
             if (httpClient.BaseAddress.LocalPath != "cxrestapi")
             {
@@ -771,7 +769,7 @@ namespace Checkmarx.API
             }
         }
 
-        public HttpStatusCode TestConnection(string baseURL = "http://localhost/cxrestapi/",
+        public HttpResponseMessage TestConnection(string baseURL = "http://localhost/cxrestapi/",
             string userName = "", string password = "")
         {
             // Check if there is a invalid certificate exception
@@ -784,7 +782,7 @@ namespace Checkmarx.API
             catch (System.ServiceModel.Security.SecurityNegotiationException ex)
             {
                 ignoreCertificate = true;
-                Console.WriteLine($"The endpoint {baseURL} is throwing an SecurityNegotiationException. That usualy means there is a certificate issue. Please check this issue and reach out to Cloud Operations if necessary.");
+                Console.WriteLine(ex.Message);
             }
 
             var webServer = new Uri(baseURL);
@@ -805,28 +803,32 @@ namespace Checkmarx.API
 
             var isV9 = new Version(version).Major >= 9;
 
-            HttpClient httpClient = new HttpClient()
-            {
-                BaseAddress = webServer,
-                Timeout = TimeSpan.FromMinutes(20),
-            }; ;
+            HttpClient client = null;
 
             if (ignoreCertificate)
             {
                 // Ignore certificate for http client
-                HttpClientHandler httpClientHandler = new HttpClientHandler();
-                httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
+                HttpClientHandler clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
 
-                httpClient = new HttpClient(httpClientHandler)
+                client = new HttpClient(clientHandler)
+                {
+                    BaseAddress = webServer,
+                    Timeout = TimeSpan.FromMinutes(20),
+                };
+            }
+            else
+            {
+                client = new HttpClient()
                 {
                     BaseAddress = webServer,
                     Timeout = TimeSpan.FromMinutes(20),
                 };
             }
 
-            if (httpClient.BaseAddress.LocalPath != "cxrestapi")
+            if (client.BaseAddress.LocalPath != "cxrestapi")
             {
-                httpClient.BaseAddress = new Uri(webServer, "/cxrestapi/");
+                client.BaseAddress = new Uri(webServer, "/cxrestapi/");
             }
 
             using (var request = new HttpRequestMessage(HttpMethod.Post, "auth/identity/connect/token"))
@@ -846,9 +848,9 @@ namespace Checkmarx.API
 
                 request.Content = new FormUrlEncodedContent(values);
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = client.SendAsync(request).Result;
 
-                return response.StatusCode;
+                return response;
             }
         }
 
@@ -1663,8 +1665,6 @@ namespace Checkmarx.API
         public long? RunSASTScan(long projectId, string comment = "", bool forceScan = true, byte[] sourceCodeZipContent = null,
             bool useLastScanPreset = false, int? presetId = null, int? configurationId = null, bool runPublicScan = true, bool forceLocal = false, CxClient cxClient2 = null)
         {
-            long? scanId = null;
-
             checkConnection();
 
             var projectConfig = GetProjectConfigurations(projectId);
@@ -1793,11 +1793,11 @@ namespace Checkmarx.API
             }
 
             if (cxClient2 == null)
-                scanId = RunScan(projectId, forceScan, runPublicScan, comment);
+                return triggerNewScan(projectId, forceScan, runPublicScan, comment);
             else
-                scanId = cxClient2.RunScan(projectId, forceScan, runPublicScan, comment);
+                return cxClient2.triggerNewScan(projectId, forceScan, runPublicScan, comment);
 
-            return scanId;
+
         }
 
         private void UploadSourceCode(long projectId, byte[] sourceCodeZipContent)
@@ -1824,45 +1824,16 @@ namespace Checkmarx.API
             }
         }
 
-        public long? RunScan(long projectId, bool forceScan, bool runPublicScan, string comment)
+        private long? triggerNewScan(long projectId, bool forceScan, bool runPublicScan, string comment)
         {
-            long? scanId = null;
-            using (var request = new HttpRequestMessage(HttpMethod.Post, "sast/scans"))
+            return SASTClient.SastScans_PostByscanAsync(new SastScanRequestWriteDTO
             {
-                request.Headers.Add("Accept", "application/json;v=1.0");
-                request.Headers.Add("cxOrigin", "Checkmarx.API");
-
-                var requestBody = JsonConvert.SerializeObject(new ScanDetails
-                {
-                    ProjectId = projectId,
-                    Comment = comment ?? string.Empty,
-                    ForceScan = forceScan,
-                    IsIncremental = false,
-                    IsPublic = runPublicScan
-                });
-
-                using (var stringContent = new StringContent(requestBody, Encoding.UTF8, "application/json"))
-                {
-                    request.Content = stringContent;
-                    HttpResponseMessage response = httpClient.SendAsync(request).Result;
-
-                    if (response.StatusCode != HttpStatusCode.Created)
-                    {
-                        throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
-                    }
-
-                    try
-                    {
-                        var fetchScanId = response.Headers.Location.ToString().Split("/").Last();
-                        scanId = Convert.ToInt64(fetchScanId);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Scan triggered successfuly, but it was not possible to fetch the scan id.");
-                    }
-                }
-            }
-            return scanId;
+                ProjectId = projectId,
+                Comment = comment ?? string.Empty,
+                ForceScan = forceScan,
+                IsIncremental = false,
+                IsPublic = runPublicScan
+            }).Result.Id;
         }
 
         private void checkSoapResponse(cxPortalWebService93.CxWSBasicRepsonse result)
@@ -1979,46 +1950,42 @@ namespace Checkmarx.API
             }
         }
 
-        public bool LockScan(long scanId, string comment = null)
+        public void LockScan(long scanId, string comment = null)
         {
             checkConnection();
-
-            bool sucess = true;
 
             if (_isV9)
             {
                 var response = _cxPortalWebServiceSoapClientV9.LockScanAsync(_soapSessionId, scanId).Result;
 
                 if (!string.IsNullOrWhiteSpace(comment))
-                    _cxPortalWebServiceSoapClientV9.UpdateScanCommentAsync(_soapSessionId, scanId, comment);
+                    checkSoapResponse(_cxPortalWebServiceSoapClientV9.UpdateScanCommentAsync(_soapSessionId, scanId, comment).Result);
 
-                sucess = response.IsSuccesfull;
+                checkSoapResponse(response);
             }
             else
             {
-                _cxPortalWebServiceSoapClient.LockScanAsync(_soapSessionId, scanId).Wait();
-            }
+                var response = _cxPortalWebServiceSoapClient.LockScanAsync(_soapSessionId, scanId).Result;
 
-            return sucess;
+                if (!string.IsNullOrWhiteSpace(comment))
+                    throw new NotImplementedException("Adding comment is not support for this version");
+
+                checkSoapResponse(response);
+            }
         }
 
-        public bool UnlockScan(long scanId)
+        public void UnlockScan(long scanId)
         {
             checkConnection();
 
-            bool sucess = true;
-
             if (_isV9)
             {
-                var response = _cxPortalWebServiceSoapClientV9.UnlockScanAsync(_soapSessionId, scanId).Result;
-                sucess = response.IsSuccesfull;
+                checkSoapResponse(_cxPortalWebServiceSoapClientV9.UnlockScanAsync(_soapSessionId, scanId).Result);
             }
             else
             {
-                _cxPortalWebServiceSoapClient.UnlockScanAsync(_soapSessionId, scanId).Wait();
+                checkSoapResponse(_cxPortalWebServiceSoapClient.UnlockScanAsync(_soapSessionId, scanId).Result);
             }
-
-            return sucess;
         }
 
         public enum ScanRetrieveKind
@@ -2048,10 +2015,21 @@ namespace Checkmarx.API
 
             if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
             {
-                long? scanId = _oDataV95.Projects.Expand(x => x.Scans).Where(p => p.Id == projectId).FirstOrDefault()?
-                    .Scans.Where(x => onlyPublic ? x.IsPublic : true).OrderByDescending(x => x.EngineStartedOn).FirstOrDefault()?.Id;
+                if (!finished)
+                    return scans.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
 
-                return scanId != null ? scans.SingleOrDefault(x => x.Id == scanId.Value) : null;
+                // Prevent cases where the Id's counters of the scans where reinitiated.
+                long? scanId = _oDataV95.Projects.Expand(x => x.Scans)
+                    .Where(p => p.Id == projectId).FirstOrDefault()?.Scans
+                    .Where(x => (!fullScanOnly || !x.IsIncremental.Value)
+                                && (!onlyPublic || x.IsPublic)
+                                && (!finished || x.EngineFinishedOn != null)
+                                && (maxScanDate == null || x.EngineFinishedOn?.DateTime <= maxScanDate.Value))
+                    .OrderByDescending(x => x.EngineStartedOn)
+                    .FirstOrDefault()?.Id;
+
+                // There needs to be a scan in the scans list that match the value returned by the ODATA query.
+                return scanId != null ? scans.Single(x => x.Id == scanId.Value) : null;
             }
 
             return scans.LastOrDefault();
@@ -2193,6 +2171,16 @@ namespace Checkmarx.API
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
             }
+        }
+
+        public bool ProjectHasScanRunning(long projectId)
+        {
+            return GetScansQueue(projectId).Any();
+        }
+
+        public ICollection<ScanQueue> GetScansQueue(long? projectId = null)
+        {
+            return SASTClient.ScansQueueV1_GetScansQueueByprojectIdAsync(projectId).Result;
         }
 
         // get preset /sast/scanSettings/{projectId}

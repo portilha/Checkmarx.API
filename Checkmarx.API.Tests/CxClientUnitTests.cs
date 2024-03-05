@@ -806,6 +806,18 @@ namespace Checkmarx.API.Tests
         }
 
 
+        [TestMethod]
+        public void GetLastScanTest()
+        {
+
+
+            var scan = clientV93.GetLastScan(53, true, true);
+
+            Assert.IsNotNull(scan);
+
+        }
+
+
         #region Write Tests
 
         public void DisableUserTest()

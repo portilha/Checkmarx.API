@@ -252,6 +252,18 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void GetQueryTimeTest()
+        {
+            var scanId = 1951776;
+            var keyValuePairs = clientV93.GetQueriesRuntimeDuration(scanId);
+
+            foreach (var item in keyValuePairs)
+            {
+                Trace.WriteLine(item.Key.ToString() + " took " + item.Value);
+            }           
+        }
+
+        [TestMethod]
         public void GetProjectConfigurationTest()
         {
             var projId = 16524;
@@ -275,7 +287,7 @@ namespace Checkmarx.API.Tests
         {
             // var scans = clientV93.GetScans(18123, true).ToList();
             var lastScan = clientV9.GetLastScan(36829, onlyPublic: false);
-            if(lastScan != null)
+            if (lastScan != null)
             {
                 var normalHigh = lastScan.Results.High;
                 var normalMedium = lastScan.Results.Medium;
@@ -790,7 +802,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void ListScanQueueTest()
         {
-            foreach(var scan in clientV9.GetScansQueue())
+            foreach (var scan in clientV9.GetScansQueue())
             {
                 Trace.WriteLine(scan.Project.Id + " - " + scan.Id.ToString());
             }
@@ -798,13 +810,13 @@ namespace Checkmarx.API.Tests
 
         #region Write Tests
 
-        
+
         public void ReRunScanWithPresetTest()
         {
             clientV93.RunSASTScan(12132, presetId: 100000);
         }
 
-        
+
         public void UpdateResultStateTest()
         {
             long projectId = 1127;
@@ -821,7 +833,7 @@ namespace Checkmarx.API.Tests
             var updatedComments = clientV89.GetAllCommentRemarksForScanAndPath(scanId, pathId);
         }
 
-        
+
         public void AddResultCommentTest()
         {
             long projectId = 1127;

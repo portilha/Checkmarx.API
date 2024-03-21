@@ -37,6 +37,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel.Security;
 using System.Runtime;
+using System.IO.Compression;
 
 namespace Checkmarx.API
 {
@@ -2969,7 +2970,6 @@ namespace Checkmarx.API
             if (scanId <= 0)
                 throw new ArgumentOutOfRangeException(nameof(scanId));
 
-
             var objectName = new CxWSRequestScanLogFinishedScan
             {
                 SessionID = _soapSessionId,
@@ -2992,6 +2992,71 @@ namespace Checkmarx.API
                 throw new ActionNotSupportedException(result.ErrorMessage);
 
             return result.ScanLog;
+        }
+
+        public string GetScanLog(int scanId)
+        {
+            if (scanId < 1)
+                throw new ArgumentOutOfRangeException(nameof(scanId));
+
+            var zipFileBytes = GetScanLogs(scanId);
+
+            // Create a MemoryStream over the byte array
+            using (MemoryStream zipMemoryStream = new MemoryStream(zipFileBytes))
+            {
+                using (ZipArchive archive = new ZipArchive(zipMemoryStream, ZipArchiveMode.Read))
+                {
+                    // Iterate through the files in the archive
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        if (entry.FullName.Equals($"Scan_{scanId}.zip", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Open a stream to the file within the ZIP
+                            using (MemoryStream reader = new MemoryStream())
+                            {
+                                entry.Open().CopyTo(reader);
+                                reader.Position = 0;
+
+                                using (ZipArchive scanZipFile = new ZipArchive(reader, ZipArchiveMode.Read))
+                                {
+                                    var txtLogFile = scanZipFile.Entries.First();
+
+                                    using (StreamReader txtReader = new StreamReader(txtLogFile.Open(), Encoding.UTF8))
+                                    {
+                                        // Read the contents of the file
+                                        return txtReader.ReadToEnd();
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+
+            throw new FileNotFoundException($"Log entry for the scan {scanId} was not found!");
+        }
+
+        /// <summary>
+        /// Get the time it took for each executable query to run.
+        /// </summary>
+        /// <param name="scanId">Id of the scan</param>
+        /// <returns></returns>
+        public Dictionary<string, TimeSpan> GetQueriesRuntimeDuration(int scanId)
+        {
+            var log = GetScanLog(scanId);
+
+            var reg = new Regex(@"Query\s+\-\s+(?<queryName>[^\s]+)\s+Severity:\s(?<severity>[^\s]+)\s+([^\s]+)\s+([^\s]+)\s+\d+\s+Duration\s\=\s(?<duration>[^\s]+)", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+            var queryTimespans = new Dictionary<string, TimeSpan>();
+
+            foreach (Match entry in reg.Matches(log))
+            {
+                queryTimespans.Add(entry.Groups["queryName"].Value,
+                   TimeSpan.Parse(entry.Groups["duration"].Value));
+            }
+
+            return queryTimespans;
         }
 
         /// <summary>
@@ -3678,5 +3743,9 @@ namespace Checkmarx.API
             // There is logoff...
 
         }
+
+
+
+
     }
 }

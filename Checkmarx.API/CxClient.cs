@@ -2994,7 +2994,7 @@ namespace Checkmarx.API
             return result.ScanLog;
         }
 
-        public string GetScanLog(int scanId)
+        public string GetScanLog(long scanId)
         {
             if (scanId < 1)
                 throw new ArgumentOutOfRangeException(nameof(scanId));
@@ -3042,7 +3042,7 @@ namespace Checkmarx.API
         /// </summary>
         /// <param name="scanId">Id of the scan</param>
         /// <returns></returns>
-        public Dictionary<string, TimeSpan> GetQueriesRuntimeDuration(int scanId)
+        public Dictionary<string, TimeSpan> GetQueriesRuntimeDuration(long scanId)
         {
             var log = GetScanLog(scanId);
 

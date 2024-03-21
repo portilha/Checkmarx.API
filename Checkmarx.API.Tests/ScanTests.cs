@@ -255,6 +255,7 @@ namespace Checkmarx.API.Tests
         public void GetQueryTimeTest()
         {
             var scanId = 1951776;
+
             var keyValuePairs = clientV93.GetQueriesRuntimeDuration(scanId);
 
             foreach (var item in keyValuePairs)

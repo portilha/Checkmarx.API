@@ -258,9 +258,11 @@ namespace Checkmarx.API.Tests
 
             var keyValuePairs = clientV93.GetQueriesRuntimeDuration(scanId);
 
-            foreach (var item in keyValuePairs)
+            foreach (var language in keyValuePairs)
             {
-                Trace.WriteLine(item.Key.ToString() + " took " + item.Value);
+                Trace.WriteLine(language.Key.ToString());
+                foreach (var query in language.Value)
+                    Trace.WriteLine("\t" + query.Key.ToString() + " took " + query.Value);
             }           
         }
 

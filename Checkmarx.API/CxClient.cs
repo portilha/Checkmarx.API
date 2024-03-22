@@ -3042,18 +3042,24 @@ namespace Checkmarx.API
         /// </summary>
         /// <param name="scanId">Id of the scan</param>
         /// <returns></returns>
-        public Dictionary<string, TimeSpan> GetQueriesRuntimeDuration(long scanId)
+        public Dictionary<string, Dictionary<string,TimeSpan>> GetQueriesRuntimeDuration(long scanId)
         {
             var log = GetScanLog(scanId);
 
-            var reg = new Regex(@"Query\s+\-\s+(?<queryName>[^\s]+)\s+Severity:\s(?<severity>[^\s]+)\s+([^\s]+)\s+([^\s]+)\s+\d+\s+Duration\s\=\s(?<duration>[^\s]+)", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            var reg = new Regex(@"Query\s+\-\s+(?<language>[^\.]+)\.([^\.]+)\.(?<queryGroup>[^\.]+)\.(?<queryName>[^\s]+)\s+Severity:\s(?<severity>[^\s]+)\s+([^\s]+)\s+([^\s]+)\s+\d+\s+Duration\s\=\s(?<duration>[^\s]+)", RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
-            var queryTimespans = new Dictionary<string, TimeSpan>();
+            var queryTimespans = new Dictionary<string, Dictionary<string, TimeSpan>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (Match entry in reg.Matches(log))
             {
-                queryTimespans.Add(entry.Groups["queryName"].Value,
-                   TimeSpan.Parse(entry.Groups["duration"].Value));
+                string language = entry.Groups["language"].Value;
+
+                if (!queryTimespans.ContainsKey(language))
+                    queryTimespans.Add(language, new Dictionary<string, TimeSpan>(StringComparer.OrdinalIgnoreCase));
+
+                string queryName = entry.Groups["queryName"].Value;
+
+                queryTimespans[language].Add(queryName,TimeSpan.Parse(entry.Groups["duration"].Value));
             }
 
             return queryTimespans;

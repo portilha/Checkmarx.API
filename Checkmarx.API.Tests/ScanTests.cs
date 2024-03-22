@@ -186,26 +186,7 @@ namespace Checkmarx.API.Tests
             {
                 var scanId = 1000013;
 
-                var logsScanZip = clientV9.GetScanLogs(scanId);
-
-                string tempDirectory = Path.GetTempPath();
-                string logPath = Path.Combine(tempDirectory, $"{scanId}");
-
-                if (Directory.Exists(logPath))
-                    Directory.Delete(logPath, true);
-
-                var zipPath = Path.Combine(logPath, $"{scanId}.zip");
-
-                if (!Directory.Exists(logPath))
-                    Directory.CreateDirectory(logPath);
-
-                File.WriteAllBytes(zipPath, logsScanZip);
-
-                ZipFile.ExtractToDirectory(zipPath, logPath);
-
-                ZipFile.ExtractToDirectory(Path.Combine(logPath, $"Scan_{scanId}.zip"), logPath);
-
-                string logFilePath = Directory.GetFiles(logPath, "*.log").First();
+                string logFilePath = clientV9.GetScanLog(scanId);
 
                 // Read Log
                 double firstFinalScanAccuracy = 0;
@@ -269,8 +250,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetProjectConfigurationTest()
         {
-            var projId = 16524;
-            var projectSettings = clientV93.GetProjectConfiguration(projId);
+            var projectSettings = clientV93.GetProjectConfiguration(16524);
         }
 
         [TestMethod]
@@ -355,30 +335,6 @@ namespace Checkmarx.API.Tests
             }
         }
 
-        [TestMethod]
-        public void GetVulnerabilitiesFromScanTest()
-        {
-            //// < 9.5
-            var results1 = clientV9.GetResultsForScan(1661644).ToList();
-            //var results2 = clientV9.GetODataResults(1661644).ToList();
-
-            // >= 9.5
-            //var results3 = clientV9.GetResultsForScan(1000122).ToList();
-            //var results4 = clientV9.GetODataResults(1731996).Where(x => x.QueryId != null && x.State != null && x.StateId != 1).ToList();
-            //var results5 = clientV9.GetODataV95Results(1000122).ToList();
-
-            //var test1 = results3.FirstOrDefault();
-            //var test2 = results4.Where(x => x.PathId == test1.PathId);
-
-            //var results4 = clientV9.GetResult(1011900).ToList();
-
-            //var scan = clientV9.GetScanById(1011900);
-            //var results = scan.Results;
-
-            //var results5 = clientV9.GetSASTResults(1011900);
-
-            //Trace.WriteLine($"Results: {results4}");
-        }
 
         [TestMethod]
         public void GetVulnerabilitiesFromScanSpeedTest()

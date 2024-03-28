@@ -3307,8 +3307,6 @@ namespace Checkmarx.API
 
         public CxAuditWebServiceV9.CxWSQueryGroup[] GetAuditQueries()
         {
-            checkConnection();
-
             var result = CxAuditV9.GetQueryCollectionAsync(_soapSessionId).Result;
 
             if (!result.IsSuccesfull)

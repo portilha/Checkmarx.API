@@ -771,7 +771,7 @@ namespace Checkmarx.API
         }
 
         public HttpResponseMessage TestConnection(string baseURL = "http://localhost/cxrestapi/",
-            string userName = "", string password = "")
+    string userName = "", string password = "")
         {
             // Check if there is a invalid certificate exception
             bool ignoreCertificate = false;
@@ -790,8 +790,19 @@ namespace Checkmarx.API
 
             Uri baseServer = new Uri(webServer.AbsoluteUri);
 
+            _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
+                baseServer, TimeSpan.FromSeconds(60), userName, password);
+
             if (ignoreCertificate)
+            {
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+
+                _cxPortalWebServiceSoapClient.ClientCredentials.ServiceCertificate.SslCertificateAuthentication = new System.ServiceModel.Security.X509ServiceCertificateAuthentication()
+                {
+                    CertificateValidationMode = X509CertificateValidationMode.None,
+                    RevocationMode = X509RevocationMode.NoCheck
+                };
+            }
 
             // Get version number with regex
             if (string.IsNullOrWhiteSpace(portalVersion))
@@ -3042,7 +3053,7 @@ namespace Checkmarx.API
         /// </summary>
         /// <param name="scanId">Id of the scan</param>
         /// <returns></returns>
-        public Dictionary<string, Dictionary<string,TimeSpan>> GetQueriesRuntimeDuration(long scanId)
+        public Dictionary<string, Dictionary<string, TimeSpan>> GetQueriesRuntimeDuration(long scanId)
         {
             var log = GetScanLog(scanId);
 
@@ -3059,7 +3070,7 @@ namespace Checkmarx.API
 
                 string queryName = entry.Groups["queryName"].Value;
 
-                queryTimespans[language].Add(queryName,TimeSpan.Parse(entry.Groups["duration"].Value));
+                queryTimespans[language].Add(queryName, TimeSpan.Parse(entry.Groups["duration"].Value));
             }
 
             return queryTimespans;

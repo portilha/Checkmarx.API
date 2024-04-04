@@ -764,9 +764,21 @@ namespace Checkmarx.API
             }
         }
 
-        public static HttpResponseMessage TestConnection(string baseURL = "http://localhost/cxrestapi/",
-            string userName = "", string password = "", bool ignoreCertificate = true)
+        public static HttpResponseMessage TestConnection(string baseURL,
+            string userName, string password, bool ignoreCertificate = true)
         {
+            if (string.IsNullOrWhiteSpace(baseURL))
+                throw new ArgumentNullException(nameof(baseURL));
+
+            if (!Uri.TryCreate(baseURL, UriKind.Absolute, out Uri outAstServer))
+                throw new ArgumentException($"{baseURL} is not a valid uri");
+
+            if (string.IsNullOrWhiteSpace(userName))
+                throw new ArgumentNullException(nameof(userName));
+
+            if (string.IsNullOrWhiteSpace(password))
+                throw new ArgumentNullException(nameof(password));
+
             string portalVersion = null;
             if(!ignoreCertificate)
                 portalVersion = GetVersionWithoutConnecting(baseURL);

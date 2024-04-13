@@ -588,20 +588,11 @@ namespace Checkmarx.API
         }
 
         private HttpClient Login(string baseURL = "http://localhost/cxrestapi/",
-            string userName = "", string password = "")
+            string userName = "", string password = "", bool ignoreCertificate = true)
         {
-            // Check if there is a invalid certificate exception
-            bool ignoreCertificate = false;
             string portalVersion = null;
-            try
-            {
+            if (!ignoreCertificate)
                 portalVersion = GetVersionWithoutConnecting(baseURL);
-            }
-            catch (System.ServiceModel.Security.SecurityNegotiationException ex)
-            {
-                ignoreCertificate = true;
-                Console.WriteLine(ex.Message);
-            }
 
             var webServer = new Uri(baseURL);
 
@@ -624,6 +615,9 @@ namespace Checkmarx.API
             // Get version number with regex
             if (string.IsNullOrWhiteSpace(portalVersion))
                 portalVersion = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+
+            if (string.IsNullOrWhiteSpace(portalVersion))
+                throw new Exception("Error fetching CxSAST portal version");
 
             string pattern = @"\d+(\.\d+)+";
             Regex rg = new Regex(pattern);
@@ -770,32 +764,48 @@ namespace Checkmarx.API
             }
         }
 
-        public HttpResponseMessage TestConnection(string baseURL = "http://localhost/cxrestapi/",
-            string userName = "", string password = "")
+        public static HttpResponseMessage TestConnection(string baseURL,
+            string userName, string password, bool ignoreCertificate = true)
         {
-            // Check if there is a invalid certificate exception
-            bool ignoreCertificate = false;
+            if (string.IsNullOrWhiteSpace(baseURL))
+                throw new ArgumentNullException(nameof(baseURL));
+
+            if (!Uri.TryCreate(baseURL, UriKind.Absolute, out Uri outAstServer))
+                throw new ArgumentException($"{baseURL} is not a valid uri");
+
+            if (string.IsNullOrWhiteSpace(userName))
+                throw new ArgumentNullException(nameof(userName));
+
+            if (string.IsNullOrWhiteSpace(password))
+                throw new ArgumentNullException(nameof(password));
+
             string portalVersion = null;
-            try
-            {
+            if(!ignoreCertificate)
                 portalVersion = GetVersionWithoutConnecting(baseURL);
-            }
-            catch (System.ServiceModel.Security.SecurityNegotiationException ex)
-            {
-                ignoreCertificate = true;
-                Console.WriteLine(ex.Message);
-            }
 
             var webServer = new Uri(baseURL);
-
             Uri baseServer = new Uri(webServer.AbsoluteUri);
 
+            var cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
+                baseServer, TimeSpan.FromSeconds(60), userName, password);
+
             if (ignoreCertificate)
+            {
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+
+                cxPortalWebServiceSoapClient.ClientCredentials.ServiceCertificate.SslCertificateAuthentication = new System.ServiceModel.Security.X509ServiceCertificateAuthentication()
+                {
+                    CertificateValidationMode = X509CertificateValidationMode.None,
+                    RevocationMode = X509RevocationMode.NoCheck
+                };
+            }
 
             // Get version number with regex
             if (string.IsNullOrWhiteSpace(portalVersion))
-                portalVersion = _cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+                portalVersion = cxPortalWebServiceSoapClient.GetVersionNumber().Version;
+
+            if (string.IsNullOrWhiteSpace(portalVersion))
+                throw new Exception("Error fetching CxSAST portal version");
 
             string pattern = @"\d+(\.\d+)+";
             Regex rg = new Regex(pattern);
@@ -3042,7 +3052,7 @@ namespace Checkmarx.API
         /// </summary>
         /// <param name="scanId">Id of the scan</param>
         /// <returns></returns>
-        public Dictionary<string, Dictionary<string,TimeSpan>> GetQueriesRuntimeDuration(long scanId)
+        public Dictionary<string, Dictionary<string, TimeSpan>> GetQueriesRuntimeDuration(long scanId)
         {
             var log = GetScanLog(scanId);
 
@@ -3059,7 +3069,7 @@ namespace Checkmarx.API
 
                 string queryName = entry.Groups["queryName"].Value;
 
-                queryTimespans[language].Add(queryName,TimeSpan.Parse(entry.Groups["duration"].Value));
+                queryTimespans[language].Add(queryName, TimeSpan.Parse(entry.Groups["duration"].Value));
             }
 
             return queryTimespans;

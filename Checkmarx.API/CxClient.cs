@@ -780,7 +780,7 @@ namespace Checkmarx.API
                 throw new ArgumentNullException(nameof(password));
 
             string portalVersion = null;
-            if(!ignoreCertificate)
+            if (!ignoreCertificate)
                 portalVersion = GetVersionWithoutConnecting(baseURL);
 
             var webServer = new Uri(baseURL);
@@ -2968,6 +2968,52 @@ namespace Checkmarx.API
 
         #region Reports
 
+        public IEnumerable<string> GetScannedLanguages(long scanId)
+        {
+            var log = GetScanLog(scanId);
+
+            var langsTmp = new List<string>();
+
+            //Languages that will be scanned: Java=3, CPP=1, JavaScript=1, Groovy=6, Kotlin=361
+            Regex regexLang = new Regex("^Languages\\sthat\\swill\\sbe\\sscanned:\\s+(?:(\\w+)\\=\\d+\\,?\\s?)+", RegexOptions.Multiline);
+            MatchCollection mcLang = regexLang.Matches(log);
+
+            foreach (Match m in mcLang)
+            {
+                System.Text.RegularExpressions.GroupCollection groups = m.Groups;
+                foreach (System.Text.RegularExpressions.Group g in groups)
+                {
+                    foreach (Capture c in g.Captures)
+                    {
+                        if (c.Value != "" && !c.Value.StartsWith("Languages that will be scanned:"))
+                        {
+                            langsTmp.Add(c.Value);
+                        }
+                    }
+                }
+            }
+
+            return langsTmp;
+        }
+
+        public double GetScanCoverage(long scanId)
+        {
+            string log = GetScanLog(scanId);
+
+            double firstFinalScanAccuracy = 0;
+
+            Regex regex = new Regex("^Scan\\scoverage:\\s+(?<pc>[\\d\\.]+)\\%", RegexOptions.Multiline);
+            MatchCollection mc = regex.Matches(log);
+            foreach (Match m in mc)
+            {
+                GroupCollection groups = m.Groups;
+                double.TryParse(groups["pc"].Value.Replace(".", ","), out firstFinalScanAccuracy);
+            }
+
+            return firstFinalScanAccuracy;
+
+        }
+
         /// <summary>
         /// Returns the ScanId of a finished scan.
         /// </summary>
@@ -3691,6 +3737,73 @@ namespace Checkmarx.API
             return dic;
         }
 
+        /// <summary>
+        /// not tested.
+        /// </summary>
+        /// <param name="queryGroupSource"></param>
+        /// <param name="queryGroupSourceQuery"></param>
+        /// <param name="projectId"></param>
+        /// <param name="teamId"></param>
+        /// <param name="customQuery"></param>
+        /// <param name="description"></param>
+        /// <returns></returns>
+        public CxAuditWebServiceV9.CxWSQueryGroup InsertQueryForProject(CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource, CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery, long projectId, int teamId, string customQuery, string description)
+        {
+            if (queryGroupSource == null)
+                throw new ArgumentNullException(nameof(queryGroupSource));
+
+            if (queryGroupSourceQuery == null)
+                throw new ArgumentNullException(nameof(queryGroupSourceQuery));
+
+            if (string.IsNullOrWhiteSpace(customQuery))
+                throw new ArgumentNullException(nameof(customQuery));
+
+            // Create query objects and insert new
+            CxAuditWebServiceV9.CxWSQuery queryToUp = new CxAuditWebServiceV9.CxWSQuery()
+            {
+                Cwe = queryGroupSourceQuery.Cwe,
+                EngineMetadata = " ",
+                Name = queryGroupSourceQuery.Name,
+                Severity = queryGroupSourceQuery.Severity,
+                Source = customQuery,
+                Status = CxAuditWebServiceV9.QueryStatus.New,
+                Type = CxAuditWebServiceV9.CxWSQueryType.Regular,
+                IsExecutable = queryGroupSourceQuery.IsExecutable,
+                IsEncrypted = queryGroupSourceQuery.IsEncrypted
+            };
+
+            string packageTypeName = $"CxProject_{projectId}";
+            string packageFullName = $"{queryGroupSource.LanguageName}:CxProject_{projectId}:{queryGroupSource.Name}";
+            var newQuerieGroup = new CxAuditWebServiceV9.CxWSQueryGroup()
+            {
+                //Description = queryGroupSource.Description,
+                Description = description,
+                IsEncrypted = queryGroupSource.IsEncrypted,
+                IsReadOnly = queryGroupSource.IsReadOnly,
+                Language = queryGroupSource.Language,
+                LanguageName = queryGroupSource.LanguageName,
+                Name = queryGroupSource.Name,
+                OwningTeam = teamId,
+                PackageType = CxAuditWebServiceV9.CxWSPackageTypeEnum.Project,
+                PackageTypeName = packageTypeName,
+                PackageFullName = packageFullName,
+                ProjectId = projectId,
+                Status = CxAuditWebServiceV9.QueryStatus.New,
+                Queries = [queryToUp]
+            };
+
+            UploadQueries([newQuerieGroup]);
+
+            // For some reason, the description is not added when creating. We need to update again with the description
+            var querieGroupsRefresh = GetAuditQueries();
+            var createdQueryGroup = querieGroupsRefresh.Single(x => x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Project && x.ProjectId == projectId && x.PackageFullName == packageFullName);
+
+            createdQueryGroup.Description = description;
+            UploadQueries([createdQueryGroup]);
+
+            return createdQueryGroup;
+        }
+
         public void UploadQueries(CxAuditWebServiceV9.CxWSQueryGroup[] queries)
         {
             var uploadResponse = CxAuditV9.UploadQueriesAsync(_soapSessionId, queries).Result;
@@ -3699,9 +3812,56 @@ namespace Checkmarx.API
                 throw new ApplicationException(uploadResponse.ErrorMessage);
         }
 
+        public void UpdateQueryGroup(CxAuditWebServiceV9.CxWSQueryGroup queryGroupToUpdate, long projectId, string description)
+        {
+            if (queryGroupToUpdate == null)
+                throw new ArgumentNullException(nameof(queryGroupToUpdate));
+
+            queryGroupToUpdate.Status = CxAuditWebServiceV9.QueryStatus.Edited;
+            queryGroupToUpdate.PackageTypeName = $"CxProject_{projectId}";
+            queryGroupToUpdate.PackageFullName = $"{queryGroupToUpdate.LanguageName}:CxProject_{projectId}:{queryGroupToUpdate.Name}";
+            queryGroupToUpdate.ProjectId = projectId;
+            queryGroupToUpdate.Description = description;
+
+            UploadQueries([queryGroupToUpdate]);
+        }
+
+        public void DeleteQueryGroup(CxAuditWebServiceV9.CxWSQueryGroup queryGroupToDelete)
+        {
+            if (queryGroupToDelete == null)
+                throw new ArgumentNullException(nameof(queryGroupToDelete));
+
+            foreach (var query in queryGroupToDelete.Queries)
+                query.Status = CxAuditWebServiceV9.QueryStatus.Deleted;
+
+            if (queryGroupToDelete.Queries.All(x => x.Status == CxAuditWebServiceV9.QueryStatus.Deleted))
+                queryGroupToDelete.Status = CxAuditWebServiceV9.QueryStatus.Deleted;
+            else
+                throw new Exception("something didn't work well deleting this query group");
+
+            UploadQueries([queryGroupToDelete]);
+        }
+
+        public void DeleteAnyQueryGroupWithTheDescription(string queryDescription)
+        {
+            if (string.IsNullOrWhiteSpace(queryDescription))
+                throw new ArgumentNullException(nameof(queryDescription));
+
+            var querieGroups = GetAuditQueries();
+            var queryGroupSource = querieGroups.Where(x => x.Description == queryDescription);
+
+            // Delete Query Group
+            if (queryGroupSource.Any())
+            {
+                foreach (var createdQueryGroup in queryGroupSource)
+                    DeleteQueryGroup(createdQueryGroup);
+            }
+        }
+
         #endregion
 
         #region Utils
+
         private string ConvertToString(object value, CultureInfo cultureInfo = null)
         {
             if (value == null)
@@ -3757,8 +3917,6 @@ namespace Checkmarx.API
             // There is logoff...
 
         }
-
-
 
 
     }

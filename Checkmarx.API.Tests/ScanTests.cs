@@ -182,54 +182,10 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void ReadScanLogsTest()
         {
-            try
-            {
-                var scanId = 1000013;
+            var scanId = 1000013;
 
-                string logFilePath = clientV9.GetScanLog(scanId);
-
-                // Read Log
-                double firstFinalScanAccuracy = 0;
-                List<string> firstFinalScanLanguages = new List<string>();
-
-                string log = File.ReadAllText(logFilePath);
-                Regex regex = new Regex("^Scan\\scoverage:\\s+(?<pc>[\\d\\.]+)\\%", RegexOptions.Multiline);
-                MatchCollection mc = regex.Matches(log);
-                foreach (Match m in mc)
-                {
-                    GroupCollection groups = m.Groups;
-                    double.TryParse(groups["pc"].Value.Replace(".", ","), out firstFinalScanAccuracy);
-                }
-
-                //Languages that will be scanned: Java=3, CPP=1, JavaScript=1, Groovy=6, Kotlin=361
-                Regex regexLang = new Regex("^Languages\\sthat\\swill\\sbe\\sscanned:\\s+(?:(\\w+)\\=\\d+\\,?\\s?)+", RegexOptions.Multiline);
-                MatchCollection mcLang = regexLang.Matches(log);
-                var langsTmp = new List<string>();
-                foreach (Match m in mcLang)
-                {
-                    System.Text.RegularExpressions.GroupCollection groups = m.Groups;
-                    foreach (System.Text.RegularExpressions.Group g in groups)
-                    {
-                        foreach (Capture c in g.Captures)
-                        {
-                            if (c.Value != "" && !c.Value.StartsWith("Languages that will be scanned:"))
-                            {
-                                langsTmp.Add(c.Value);
-                            }
-                        }
-                    }
-                }
-
-                if (langsTmp.Count > 0)
-                {
-                    firstFinalScanLanguages = langsTmp;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine($"Error: {ex.Message}");
-            }
+            var coverage = clientV9.GetScanCoverage(scanId);
+            var langsTmp = clientV9.GetScannedLanguages(scanId);
         }
 
         [TestMethod]
@@ -244,7 +200,7 @@ namespace Checkmarx.API.Tests
                 Trace.WriteLine(language.Key.ToString());
                 foreach (var query in language.Value)
                     Trace.WriteLine("\t" + query.Key.ToString() + " took " + query.Value);
-            }           
+            }
         }
 
         [TestMethod]

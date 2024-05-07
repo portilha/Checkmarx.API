@@ -234,35 +234,17 @@ namespace Checkmarx.API.Tests
 
                 var results = clientV9.GetResultsForScan(lastScan.Id);
                 //var results = clientV9.GetScanResultsWithStateExclusions(lastScan.Id, new List<long>() { 8, 9 });
-                var countHigh = results.Where(x => x.Severity == (int)CxClient.Severity.High).Count();
-                var countMedium = results.Where(x => x.Severity == (int)CxClient.Severity.Medium).Count();
-                var countLow = results.Where(x => x.Severity == (int)CxClient.Severity.Low).Count();
+                var countHigh = results.Where(x => x.Severity == (int)Severity.High).Count();
+                var countMedium = results.Where(x => x.Severity == (int)Severity.Medium).Count();
+                var countLow = results.Where(x => x.Severity == (int)Severity.Low).Count();
             }
-
-            //Assert.IsTrue(lastScan.Id == 5498);
-
-            //if (lastScan != null)
-            //{
-            //    var results = clientV93.GetODataResults(lastScan.Id);
-            //    var test = results.Where(x => x.Severity == CxDataRepository.Severity.High).ToList();
-
-
-            //    var toVerify = results.Where(x => x.StateId == 0).Count();
-            //    var toVerify2 = clientV93.GetTotalToVerifyFromScan(lastScan.Id);
-
-            //    Trace.WriteLine($"ScanId: {lastScan.Id} | High: {lastScan.Results.High} | Medium: {lastScan.Results.Medium} | Low: {lastScan.Results.Low} | Info: {lastScan.Results.Info} | ToVerify: {toVerify}");
-            //}
         }
 
 
         [TestMethod]
         public void ListSCansTEst()
         {
-            //foreach (var scan in )
-            //{
             Trace.WriteLine(clientV93.GetLastScan(18123).Id);
-            //}
-
         }
 
         [TestMethod]

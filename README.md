@@ -29,7 +29,7 @@ CxClient sastClient = new CxClient(new Uri("https://sast.server.com"),
                         "mypassword");
 
 // create a SCA client to interact with SCA and the Access Control (AC)
-CxClient scaClient = new SCAClient(Tenant, Username, Password);
+SCAClient scaClient = new SCAClient(Tenant, Username, Password);
 ```
 Check the version of Checkmarx Product
 

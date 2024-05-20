@@ -809,12 +809,9 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetLastScanTest()
         {
-
-
-            var scan = clientV93.GetLastScan(53, true, true);
+            var scan = clientV93.GetLastScan(39049, true, true);
 
             Assert.IsNotNull(scan);
-
         }
 
 

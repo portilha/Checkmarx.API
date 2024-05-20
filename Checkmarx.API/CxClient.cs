@@ -2033,10 +2033,10 @@ namespace Checkmarx.API
                 long? scanId = _oDataV95.Projects.Expand(x => x.Scans)
                     .Where(p => p.Id == projectId).FirstOrDefault()?.Scans
                     .Where(x => (!fullScanOnly || !x.IsIncremental.Value)
-                                && (!onlyPublic || x.IsPublic)
-                                && (!finished || x.EngineFinishedOn != null)
-                                && (maxScanDate == null || x.EngineFinishedOn?.DateTime <= maxScanDate.Value))
-                    .OrderByDescending(x => x.EngineStartedOn)
+                             && (!onlyPublic || x.IsPublic)
+                             && (!finished || x.ScanCompletedOn > default(DateTimeOffset)) // Odata returns unfinished scans?
+                             && (maxScanDate == null || x.ScanCompletedOn.DateTime <= maxScanDate.Value))
+                    .OrderByDescending(x => x.ScanRequestedOn)
                     .FirstOrDefault()?.Id;
 
                 // There needs to be a scan in the scans list that match the value returned by the ODATA query.
@@ -2081,7 +2081,7 @@ namespace Checkmarx.API
                 scans = scans.Where(x => version.StartsWith(x.ProductVersion));
 
             if (maxScanDate != null)
-                scans = scans.Where(x => x.EngineStartedOn <= maxScanDate);
+                scans = scans.Where(x => x.ScanRequestedOn.Value.DateTime <= maxScanDate.Value);
 
             switch (scanKind)
             {

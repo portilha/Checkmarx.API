@@ -699,7 +699,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void ListScanQueueTest()
         {
-            foreach (var scan in clientV9.GetScansQueue())
+            foreach (var scan in clientV93.GetScansQueue())
             {
                 Trace.WriteLine(scan.Project.Id + " - " + scan.Id.ToString());
             }
@@ -748,5 +748,28 @@ namespace Checkmarx.API.Tests
         }
 
         #endregion
+
+
+        [TestMethod]
+        public void GetGhostScanTest()
+        {
+            //   39049 - 2013808
+
+            var scan = clientV93.GetScanById(2020992);
+           
+            // var scanOdata = clientV93.odata
+
+            if (scan.DateAndTime.EngineStartedOn == null)
+            {
+                Trace.WriteLine(scan.Id);
+            }
+
+            var scanOData = clientV93.ODataV95.Scans.Where(x => x.Id == 2020992).Single();
+
+            Assert.IsNotNull(scanOData.EngineStartedOn);
+
+
+        }
+
     }
 }

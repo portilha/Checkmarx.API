@@ -2034,7 +2034,7 @@ namespace Checkmarx.API
                     .Where(p => p.Id == projectId).FirstOrDefault()?.Scans
                     .Where(x => (!fullScanOnly || !x.IsIncremental.Value)
                              && (!onlyPublic || x.IsPublic)
-                             && (!finished || x.ScanCompletedOn > default(DateTimeOffset)) // Odata returns unfinished scans?
+                             && (!finished || x.ScanType == 1)
                              && (maxScanDate == null || x.ScanCompletedOn.DateTime <= maxScanDate.Value))
                     .OrderByDescending(x => x.ScanRequestedOn)
                     .FirstOrDefault()?.Id;
@@ -2194,7 +2194,12 @@ namespace Checkmarx.API
             return SASTClient.ScansQueueV1_GetScansQueueByprojectIdAsync(projectId).Result;
         }
 
-        // get preset /sast/scanSettings/{projectId}
+        /// <summary>
+        /// get preset /sast/scanSettings/{projectId}
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
         public string GetSASTPreset(int projectId)
         {
             checkConnection();

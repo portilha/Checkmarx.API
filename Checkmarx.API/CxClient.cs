@@ -3098,6 +3098,18 @@ namespace Checkmarx.API
             throw new FileNotFoundException($"Log entry for the scan {scanId} was not found!");
         }
 
+
+        public byte[] GetSystemLogs()
+        {
+            checkConnection();
+
+            var result =  _cxPortalWebServiceSoapClientV9.GetSystemLogsAsync(_soapSessionId).Result;
+
+            checkSoapResponse(result);
+
+            return result.SystemLogs;
+        }
+
         /// <summary>
         /// Get the time it took for each executable query to run.
         /// </summary>

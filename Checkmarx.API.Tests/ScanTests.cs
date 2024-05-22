@@ -750,26 +750,22 @@ namespace Checkmarx.API.Tests
         #endregion
 
 
+        long ghostScan = 2020992;
+        long unfinishedScan = 2022041;
+        long incrementalScan = 2022063;
+
         [TestMethod]
         public void GetGhostScanTest()
         {
-            //   39049 - 2013808
+            var scan = clientV93.GetScanById(incrementalScan);
 
-            var scan = clientV93.GetScanById(2020992);
-           
-            // var scanOdata = clientV93.odata
-
-            if (scan.DateAndTime.EngineStartedOn == null)
-            {
+            if (scan.DateAndTime.EngineStartedOn == null) {
                 Trace.WriteLine(scan.Id);
             }
 
-            var scanOData = clientV93.ODataV95.Scans.Where(x => x.Id == 2020992).Single();
+            var scanOData = clientV93.ODataV95.Scans.Where(x => x.Id == incrementalScan).Single();
 
             Assert.IsNotNull(scanOData.EngineStartedOn);
-
-
         }
-
     }
 }

@@ -2035,7 +2035,7 @@ namespace Checkmarx.API
                     .Where(x => (!fullScanOnly || !x.IsIncremental.Value)
                              && (!onlyPublic || x.IsPublic)
                              && (!finished || x.ScanType == 1)
-                             && (maxScanDate == null || x.ScanCompletedOn.DateTime <= maxScanDate.Value))
+                             && (maxScanDate == null || x.ScanCompletedOn <= new DateTimeOffset(maxScanDate.Value)))
                     .OrderByDescending(x => x.ScanRequestedOn)
                     .FirstOrDefault()?.Id;
 

@@ -2081,7 +2081,7 @@ namespace Checkmarx.API
                 scans = scans.Where(x => version.StartsWith(x.ProductVersion));
 
             if (maxScanDate != null)
-                scans = scans.Where(x => x.ScanRequestedOn.Value.DateTime <= maxScanDate.Value);
+                scans = scans.Where(x => x.ScanRequestedOn <= new DateTimeOffset(maxScanDate.Value));
 
             switch (scanKind)
             {
@@ -3103,7 +3103,7 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            var result =  _cxPortalWebServiceSoapClientV9.GetSystemLogsAsync(_soapSessionId).Result;
+            var result = _cxPortalWebServiceSoapClientV9.GetSystemLogsAsync(_soapSessionId).Result;
 
             checkSoapResponse(result);
 

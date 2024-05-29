@@ -2027,7 +2027,7 @@ namespace Checkmarx.API
             if ((Version.Major == 9 && Version.Minor >= 5) || Version.Major > 9)
             {
                 if (!finished)
-                    return scans.OrderByDescending(x => x.DateAndTime.EngineStartedOn).FirstOrDefault();
+                    return scans.OrderByDescending(x => x.DateAndTime.StartedOn).FirstOrDefault();
 
                 // Prevent cases where the Id's counters of the scans where reinitiated.
                 long? scanId = _oDataV95.Projects.Expand(x => x.Scans)
@@ -2140,7 +2140,9 @@ namespace Checkmarx.API
                 DateAndTime = new DateAndTime
                 {
                     EngineFinishedOn = scan.EngineFinishedOn,
-                    EngineStartedOn = scan.EngineStartedOn
+                    EngineStartedOn = scan.EngineStartedOn,
+                    StartedOn = scan.ScanRequestedOn,
+                    FinishedOn = scan.ScanCompletedOn
                 },
                 Results = new SASTResults
                 {

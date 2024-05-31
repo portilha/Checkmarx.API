@@ -2112,7 +2112,7 @@ namespace Checkmarx.API
             }
         }
 
-        private static Scan ConvertScanFromOData(CxDataRepository.Scan scan)
+        public static Scan ConvertScanFromOData(CxDataRepository.Scan scan)
         {
             return new Scan
             {
@@ -2158,6 +2158,64 @@ namespace Checkmarx.API
                     HighToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.High && x.StateId == (int)ResultState.ToVerify).Count(),
                     MediumToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.Medium && x.StateId == (int)ResultState.ToVerify).Count(),
                     LowToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.Low && x.StateId == (int)ResultState.ToVerify).Count(),
+
+                    ToVerify = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.ToVerify).Count(),
+                    NotExploitableMarked = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.NonExploitable).Count(),
+                    PNEMarked = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.ProposedNotExploitable).Count(),
+                    OtherStates = (uint)scan.Results.Where(x => x.StateId != (int)ResultState.Confirmed && x.StateId != (int)ResultState.Urgent && x.StateId != (int)ResultState.NonExploitable && x.StateId != (int)ResultState.ProposedNotExploitable && x.StateId != (int)ResultState.ToVerify).Count(),
+
+                    FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
+                    Loc = (int)scan.LOC.GetValueOrDefault()
+                }
+            };
+        }
+
+        public static Scan ConvertScanFromOData(Checkmarx.API.SAST.OData.Scan scan)
+        {
+            return new Scan
+            {
+                Comment = scan.Comment,
+                Id = scan.Id,
+                IsLocked = scan.IsLocked,
+                IsIncremental = scan.IsIncremental.HasValue ? scan.IsIncremental.Value : false,
+                InitiatorName = scan.InitiatorName,
+                OwningTeamId = scan.OwningTeamId.ToString(),
+                PresetId = scan.PresetId,
+                PresetName = scan.PresetName,
+                ScanType = new FinishedScanStatus
+                {
+                    Id = scan.ScanType,
+                    //Value = 
+                },
+                ScanState = new ScanState
+                {
+                    LanguageStateCollection = scan.ScannedLanguages.Select(language => new LanguageStateCollection
+                    {
+                        LanguageName = language.LanguageName
+                    }).ToList(),
+
+                    LinesOfCode = scan.LOC.GetValueOrDefault(),
+                    CxVersion = scan.ProductVersion,
+                },
+                Origin = scan.Origin,
+                ScanRisk = scan.RiskScore,
+                DateAndTime = new DateAndTime
+                {
+                    EngineFinishedOn = scan.EngineFinishedOn,
+                    EngineStartedOn = scan.EngineStartedOn,
+                    StartedOn = scan.ScanRequestedOn,
+                    FinishedOn = scan.ScanCompletedOn
+                },
+                Results = new SASTResults
+                {
+                    High = (uint)scan.High,
+                    Medium = (uint)scan.Medium,
+                    Low = (uint)scan.Low,
+                    Info = (uint)scan.Info,
+
+                    HighToVerify = (uint)scan.Results.Where(x => x.Severity == Checkmarx.API.SAST.OData.Severity.High && x.StateId == (int)ResultState.ToVerify).Count(),
+                    MediumToVerify = (uint)scan.Results.Where(x => x.Severity == Checkmarx.API.SAST.OData.Severity.Medium && x.StateId == (int)ResultState.ToVerify).Count(),
+                    LowToVerify = (uint)scan.Results.Where(x => x.Severity == Checkmarx.API.SAST.OData.Severity.Low && x.StateId == (int)ResultState.ToVerify).Count(),
 
                     ToVerify = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.ToVerify).Count(),
                     NotExploitableMarked = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.NonExploitable).Count(),

@@ -2021,6 +2021,10 @@ namespace Checkmarx.API
         {
             var scans = GetScans(projectId, finished, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
 
+            // if there is no scans
+            if (!scans.Any())
+                return null;
+
             if (fullScanOnly)
                 scans = scans.Where(x => !x.IsIncremental);
 

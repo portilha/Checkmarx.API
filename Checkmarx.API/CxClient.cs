@@ -2172,6 +2172,9 @@ namespace Checkmarx.API
 
         public static Scan ConvertScanFromOData(Checkmarx.API.SAST.OData.Scan scan)
         {
+            if (scan == null)
+                throw new ArgumentNullException(nameof(scan));
+
             return new Scan
             {
                 Comment = scan.Comment,

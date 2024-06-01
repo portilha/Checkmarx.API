@@ -2039,7 +2039,8 @@ namespace Checkmarx.API
                     .Where(x => (!fullScanOnly || !x.IsIncremental.Value)
                              && (!onlyPublic || x.IsPublic)
                              && (!finished || x.ScanType == 1)
-                             && (maxScanDate == null || x.ScanCompletedOn <= new DateTimeOffset(maxScanDate.Value)))
+                             && (maxScanDate == null || x.ScanCompletedOn <= new DateTimeOffset(maxScanDate.Value))
+                          )
                     .OrderByDescending(x => x.ScanRequestedOn)
                     .FirstOrDefault()?.Id;
 
@@ -2124,6 +2125,7 @@ namespace Checkmarx.API
                 OwningTeamId = scan.OwningTeamId,
                 PresetId = scan.PresetId,
                 PresetName = scan.PresetName,
+                IsPublic = scan.IsPublic,
                 ScanType = new FinishedScanStatus
                 {
                     Id = scan.ScanType,
@@ -2181,6 +2183,7 @@ namespace Checkmarx.API
                 Id = scan.Id,
                 IsLocked = scan.IsLocked,
                 IsIncremental = scan.IsIncremental.HasValue ? scan.IsIncremental.Value : false,
+                IsPublic = scan.IsPublic,
                 InitiatorName = scan.InitiatorName,
                 OwningTeamId = scan.OwningTeamId.ToString(),
                 PresetId = scan.PresetId,

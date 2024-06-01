@@ -3165,7 +3165,6 @@ namespace Checkmarx.API
             throw new FileNotFoundException($"Log entry for the scan {scanId} was not found!");
         }
 
-
         public byte[] GetSystemLogs()
         {
             checkConnection();
@@ -3215,9 +3214,6 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            // reportType = "XML"
-            // scanId = scanId
-
             // POST reports/sastScan
             string reportTypeString = GetReportTypeString(reportType);
 
@@ -3240,7 +3236,7 @@ namespace Checkmarx.API
 
                     long reportId = (long)createReport["reportId"];
 
-                    while (!IsReportReady(reportId))
+                    while (!isReportReady(reportId))
                     {
                         // wait 
                         Thread.Sleep(TimeSpan.FromSeconds(1));
@@ -3255,9 +3251,6 @@ namespace Checkmarx.API
 
                         if (getReportResponse.StatusCode == HttpStatusCode.OK)
                         {
-                            //string fileName = $"{scanId} - {reportId}.{reportType}";
-                            //while (File.Exists(fileName))
-                            //    File.Delete(fileName);
                             return getReportResponse.Content.ReadAsStreamAsync().Result;
                         }
                     }
@@ -3326,7 +3319,7 @@ namespace Checkmarx.API
             throw new Exception(res.ErrorMessage);
         }
 
-        private bool IsReportReady(long reportId)
+        private bool isReportReady(long reportId)
         {
             if (!Connected)
                 throw new NotSupportedException();

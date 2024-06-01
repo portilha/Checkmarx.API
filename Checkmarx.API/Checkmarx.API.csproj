@@ -51,13 +51,13 @@ It also provides access to the Access Control API.</Description>
     <PackageReference Include="Checkmarx.API.SCA" Version="4.0.0" />
     <PackageReference Include="Microsoft.Data.OData" Version="5.8.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
-    <PackageReference Include="Microsoft.OData.Client" Version="7.20.0" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.20.0" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="7.20.0" />
-    <PackageReference Include="Microsoft.Spatial" Version="7.20.0" />
+    <PackageReference Include="Microsoft.OData.Client" Version="7.21.2" />
+    <PackageReference Include="Microsoft.OData.Core" Version="7.21.2" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="7.21.2" />
+    <PackageReference Include="Microsoft.Spatial" Version="7.21.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="8.0.0" />

@@ -24,6 +24,7 @@ namespace Checkmarx.API.SAST.OData
         public ODataClient95(global::System.Uri serviceRoot) :
                 this(serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion.V4)
         {
+            MergeOption = Microsoft.OData.Client.MergeOption.NoTracking;
         }
 
         /// <summary>

@@ -26,6 +26,7 @@ namespace Default
         {
             this.OnContextCreated();
             this.Format.LoadServiceModel = GeneratedEdmModel.GetInstance;
+            MergeOption = Microsoft.OData.Client.MergeOption.NoTracking;
             this.Format.UseJson();
         }
         partial void OnContextCreated();

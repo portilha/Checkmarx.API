@@ -24,7 +24,7 @@ namespace Checkmarx.API.SAST.OData
         public ODataClient95(global::System.Uri serviceRoot) :
                 this(serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion.V4)
         {
-            MergeOption = Microsoft.OData.Client.MergeOption.NoTracking;
+    
         }
 
         /// <summary>
@@ -37,6 +37,7 @@ namespace Checkmarx.API.SAST.OData
             this.ResolveName = new global::System.Func<global::System.Type, string>(this.ResolveNameFromType);
             this.ResolveType = new global::System.Func<string, global::System.Type>(this.ResolveTypeFromName);
             this.OnContextCreated();
+            MergeOption = Microsoft.OData.Client.MergeOption.NoTracking;
             this.Format.LoadServiceModel = GeneratedEdmModel.GetInstance;
             this.Format.UseJson();
         }

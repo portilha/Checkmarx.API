@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -6,9 +7,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using System.Xml.Linq;
@@ -759,13 +762,159 @@ namespace Checkmarx.API.Tests
         {
             var scan = clientV93.GetScanById(incrementalScan);
 
-            if (scan.DateAndTime.EngineStartedOn == null) {
+            if (scan.DateAndTime.EngineStartedOn == null)
+            {
                 Trace.WriteLine(scan.Id);
             }
 
             var scanOData = clientV93.ODataV95.Scans.Where(x => x.Id == incrementalScan).Single();
 
             Assert.IsNotNull(scanOData.EngineStartedOn);
+        }
+
+        [TestMethod]
+        public void GetBearerTokenTest()
+        {
+            Trace.WriteLine(clientV93.AuthenticationToken.ToString());
+        }
+
+        [TestMethod]
+        public void ParallelTest()
+        {
+            Stopwatch watch = new();
+            int count = 0;
+            SAST.Scan scan = null;
+            var projects = clientV93.GetProjects();
+            int total = projects.Count();
+
+            foreach (var project in projects)
+            {
+                try
+                {
+                    watch.Restart();
+                    scan = clientV93.GetLastScan(project.Key);
+                }
+                finally
+                {
+                    watch.Stop();
+                    Trace.WriteLine($"[{++count}/{total}] {project.Key} - {project.Value.PadRight(45)} - {(scan != null ? scan.Id.ToString().PadRight(15) : "No Scan".PadRight(15))} -> {watch.Elapsed.TotalSeconds.ToString().PadRight(10)} s");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void GetLastScanViaODataTest()
+        {
+            var projectsWithLastScans = clientV93.ODataV95.Projects
+                            .Expand(x => x.LastScan)
+                            .Expand(y => y.LastScan.ScannedLanguages)
+                            .Expand(x => x.Preset)
+                            .Expand(x => x.CustomFields)
+                            .ToList();
+
+            // clientV93.ODataV95.Projects.Expand(x => x.LastScan).Expand(y => y.LastScan.ScannedLanguages).Expand(x => x.Preset).Expand(x => x.CustomFields).ToList();
+            // .DistinctBy(x => x.Id)
+            Trace.WriteLine("Total: " + projectsWithLastScans.Count());
+
+            var dictionary = new HashSet<long>();
+
+            foreach (var item in projectsWithLastScans)
+            {
+                if (!dictionary.Contains(item.Id))
+                {
+                    dictionary.Add(item.Id);
+                    continue;
+                }
+
+                Trace.WriteLine($"{item.Id} | ScanId: {item.LastScan?.Id} | Incremental: {item.LastScan?.IsIncremental} | ScanType: {item.LastScan?.ScanType}");
+            }
+        }
+
+
+        [TestMethod]
+        public void GetProjectsViaODataTest()
+        {
+            var projectsWithLastScans = clientV93.ODataV95.Projects.ToList();
+
+            Trace.WriteLine("Total: " + projectsWithLastScans.Count());
+
+            foreach (var item in projectsWithLastScans)
+            {
+                Trace.WriteLine($"{item.Id} {item.LastScan?.Id} CustomFields: {item.CustomFields.Count} Team: {item.OwningTeamId}");
+            }
+        }
+
+        [TestMethod]
+        public void GetProjectsLastScanViaODataTest()
+        {
+            var projectsWithLastScans = clientV93.ODataV95.Projects.Expand(x => x.LastScan).ToList();
+
+            Trace.WriteLine("Total: " + projectsWithLastScans.Count());
+        }
+
+
+
+        [TestMethod]
+        public void GetProjectsLastScanWithScannedLanguagesViaODataTest()
+        {
+            var projectsWithLastScans = clientV93.ODataV95.Projects.Expand(x => x.LastScan).Expand(y => y.LastScan.ScannedLanguages).ToList();
+
+            Trace.WriteLine("Total: " + projectsWithLastScans.Count());
+
+            //foreach (var item in projectsWithLastScans)
+            //{
+            //    Trace.WriteLine($"{item.Id} {item.LastScan?.Id} CustomFields: {item.CustomFields.Count} Team: {item.OwningTeamId}");
+            //}
+        }
+
+
+        [TestMethod]
+        public void GetLastScanTEst()
+        {
+            var projects = clientV93.ODataV95.Projects
+                          .Expand(x => x.LastScan)
+                          .Expand(y => y.LastScan.ScannedLanguages)
+                          .Expand(x => x.Preset)
+                          .Expand(x => x.CustomFields)
+                          .Expand(x => x.Scans)
+                          .ToList();
+
+            var oDataScan = clientV93.ODataV95.Projects.Expand(x => x.Scans)
+                    .Where(p => p.Id == 3052).FirstOrDefault()?
+                    .Scans.Where(X => X.IsPublic)
+                    .OrderByDescending(x => x.ScanRequestedOn)
+                    .FirstOrDefault();
+
+            Trace.WriteLine(oDataScan.Id);
+
+            var scan = clientV93.GetLastScan(3052, onlyPublic: true);
+
+            Assert.IsNotNull(scan);
+
+            Assert.AreEqual(scan.Id, oDataScan.Id);
+
+            Assert.IsTrue(scan.IsPublic);
+            //Trace.WriteLine(oDataScan.IsPublic);
+
+        }
+
+        [TestMethod]
+        public void GetResultsFromScanOData()
+        {
+            var results = clientV93.ODataV95.Results.Where(x => x.ScanId == 1929000).ToList();
+
+            foreach (var severity in results.GroupBy(x => x.Severity))
+            {
+                Trace.WriteLine(severity.Key);
+                foreach (var query in severity.GroupBy(x => x.QueryId))
+                {
+                    Trace.WriteLine($"\t + {query.Key} - {query.Count()}");
+                    foreach (var status in query.GroupBy(x => x.StateId))
+                    {
+                        Trace.WriteLine($"\t\t - {status.Key} - {status.Count()}");
+                    }
+                }
+            }
         }
     }
 }

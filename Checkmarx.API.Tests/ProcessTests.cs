@@ -89,40 +89,6 @@ namespace Checkmarx.API.Tests
             }
         }
 
-        [TestMethod]
-        public void ProjectScanStatusTest()
-        {
-            int projectId = 1;
-
-            //var projects = clientV9.GetAllProjectsDetails();
-            //var project = projects.FirstOrDefault(x => x.Id == projectId);
-
-            var scan = clientV9.GetLastScan(projectId, finished: false);
-            var scanDetails = clientV9.GetScanById(scan.Id);
-
-            bool canProceedWithScan = false;
-            if(scanDetails.Status.Name != "Finished" && scanDetails.Status.Name != "Canceled" && scanDetails.Status.Name != "Failed")
-            {
-                int numberOfTries = 0;
-                while (numberOfTries < 3)
-                {
-                    System.Threading.Thread.Sleep(30 * 1000);
-
-                    var checkScanDetails = clientV9.GetScanById(scan.Id);
-                    if(scanDetails.Status.Name == "Finished" || scanDetails.Status.Name == "Canceled" || scanDetails.Status.Name == "Failed")
-                    {
-                        canProceedWithScan = true;
-                        break;
-                    }
-
-                    numberOfTries++;
-                }
-            }
-            else
-            {
-                canProceedWithScan = true;
-            }
-        }
 
         [TestMethod]
         public void CountQueriesTest()

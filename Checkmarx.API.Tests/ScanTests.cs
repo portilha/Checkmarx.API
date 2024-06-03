@@ -759,7 +759,8 @@ namespace Checkmarx.API.Tests
         {
             var scan = clientV93.GetScanById(incrementalScan);
 
-            if (scan.DateAndTime.EngineStartedOn == null) {
+            if (scan.DateAndTime.EngineStartedOn == null)
+            {
                 Trace.WriteLine(scan.Id);
             }
 
@@ -767,5 +768,54 @@ namespace Checkmarx.API.Tests
 
             Assert.IsNotNull(scanOData.EngineStartedOn);
         }
+
+
+
+        [TestMethod]
+        public void GetTeamFromInstanceTest()
+        {
+            var projects = clientV9.ODataV95.Projects
+                           .Expand(x => x.LastScan)
+                           .Expand(y => y.LastScan.ScannedLanguages)
+                           .Expand(x => x.Preset)
+                           .Expand(x => x.CustomFields)
+                           //.Expand(x => x.OwningTeam)
+                           .ToList();
+
+            Trace.WriteLine("Got all projects");
+
+            foreach (var project in projects)
+            {
+                try
+                {
+                    var team = project.OwningTeamId != -1 ? clientV9.GetProjectTeamName(project.OwningTeamId.ToString()) : null;
+
+                    if (string.IsNullOrEmpty(team))
+                    {
+                        Trace.WriteLine(project.Id + " " + project.Name + " " + project.OwningTeamId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex.Message);
+                    
+                }
+            }
+        }
+
+
+
+        [TestMethod]
+        public void GetTeams()
+        {
+            StringBuilder sb = new StringBuilder("sep=,\r\nId,Name\r\n");
+            foreach (var item in clientV9.GetTeams())
+            {
+                sb.AppendLine($"{item.Key},{item.Value}");
+            }
+
+            File.WriteAllText(@"D:\Users\pedro.portilha\OneDrive - Checkmarx\Operational\bpTEams.csv", sb.ToString());
+        }
+
     }
 }

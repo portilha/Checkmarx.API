@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -6,9 +7,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using System.Xml.Linq;
@@ -768,54 +771,5 @@ namespace Checkmarx.API.Tests
 
             Assert.IsNotNull(scanOData.EngineStartedOn);
         }
-
-
-
-        [TestMethod]
-        public void GetTeamFromInstanceTest()
-        {
-            var projects = clientV9.ODataV95.Projects
-                           .Expand(x => x.LastScan)
-                           .Expand(y => y.LastScan.ScannedLanguages)
-                           .Expand(x => x.Preset)
-                           .Expand(x => x.CustomFields)
-                           //.Expand(x => x.OwningTeam)
-                           .ToList();
-
-            Trace.WriteLine("Got all projects");
-
-            foreach (var project in projects)
-            {
-                try
-                {
-                    var team = project.OwningTeamId != -1 ? clientV9.GetProjectTeamName(project.OwningTeamId.ToString()) : null;
-
-                    if (string.IsNullOrEmpty(team))
-                    {
-                        Trace.WriteLine(project.Id + " " + project.Name + " " + project.OwningTeamId);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(ex.Message);
-                    
-                }
-            }
-        }
-
-
-
-        [TestMethod]
-        public void GetTeams()
-        {
-            StringBuilder sb = new StringBuilder("sep=,\r\nId,Name\r\n");
-            foreach (var item in clientV9.GetTeams())
-            {
-                sb.AppendLine($"{item.Key},{item.Value}");
-            }
-
-            File.WriteAllText(@"D:\Users\pedro.portilha\OneDrive - Checkmarx\Operational\bpTEams.csv", sb.ToString());
-        }
-
     }
 }

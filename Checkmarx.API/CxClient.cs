@@ -142,7 +142,7 @@ namespace Checkmarx.API
         private CxAuditWebServiceV9.CxAuditWebServiceSoapClient _cxAuditWebServiceSoapClientV9 = null;
 
 
-        private CxAuditWebServiceV9.CxAuditWebServiceSoapClient CxAuditV9
+        public CxAuditWebServiceV9.CxAuditWebServiceSoapClient CxAuditV9
         {
             get
             {
@@ -2686,7 +2686,7 @@ namespace Checkmarx.API
             return query.QueryId;
         }
 
-        public Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>> _queryCache = null;
+        private Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>> _queryCache = null;
 
         public long GetPresetQueryId(long overrideQueryId)
         {
@@ -2707,7 +2707,7 @@ namespace Checkmarx.API
             return GetPresetQueryId(pair.Item1, pair.Item2);
         }
 
-        public cxPortalWebService93.CxWSQueryGroup[] _queryGroupCache = null;
+        private cxPortalWebService93.CxWSQueryGroup[] _queryGroupCache = null;
         public Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup> GetQueriesByLanguageAndOrName(string language, string queryName)
         {
             if (string.IsNullOrWhiteSpace(language) && string.IsNullOrWhiteSpace(queryName))

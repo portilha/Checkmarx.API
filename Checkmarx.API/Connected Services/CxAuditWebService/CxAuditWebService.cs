@@ -16,7 +16,7 @@ namespace CxAuditWebServiceV9
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.ServiceModel.ServiceContractAttribute(Namespace="http://Checkmarx.com/v7", ConfigurationName="CxAuditWebServiceV9.CxAuditWebServiceSoap")]
-    internal interface CxAuditWebServiceSoap
+    public interface CxAuditWebServiceSoap
     {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/Login", ReplyAction="*")]
@@ -5437,7 +5437,7 @@ namespace CxAuditWebServiceV9
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(WrapperName="ImportQueries", WrapperNamespace="http://Checkmarx.com/v7", IsWrapped=true)]
-    internal partial class ImportQueriesRequest
+    public partial class ImportQueriesRequest
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://Checkmarx.com/v7", Order=0)]
@@ -5462,7 +5462,7 @@ namespace CxAuditWebServiceV9
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(WrapperName="ImportQueriesResponse", WrapperNamespace="http://Checkmarx.com/v7", IsWrapped=true)]
-    internal partial class ImportQueriesResponse
+    public partial class ImportQueriesResponse
     {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://Checkmarx.com/v7", Order=0)]
@@ -5485,7 +5485,7 @@ namespace CxAuditWebServiceV9
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    internal partial class CxAuditWebServiceSoapClient : System.ServiceModel.ClientBase<CxAuditWebServiceV9.CxAuditWebServiceSoap>, CxAuditWebServiceV9.CxAuditWebServiceSoap
+    public partial class CxAuditWebServiceSoapClient : System.ServiceModel.ClientBase<CxAuditWebServiceV9.CxAuditWebServiceSoap>, CxAuditWebServiceV9.CxAuditWebServiceSoap
     {
         
         /// <summary>

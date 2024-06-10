@@ -3,7 +3,7 @@
   "Version": "15.0.31022.994",
   "ExtendedData": {
     "inputs": [
-      "https://forgerock.checkmarx.net/Cxwebinterface/CxWebService_Audit.asmx"
+      "https://client90.checkmarx.net/Cxwebinterface/CxWebService_Audit.asmx"
     ],
     "collectionTypes": [
       "System.Collections.Generic.Dictionary`2",

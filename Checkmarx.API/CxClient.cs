@@ -167,6 +167,7 @@ namespace Checkmarx.API
             }
         }
 
+
         #endregion
 
         private SASTRestClient _sastClient;
@@ -3735,6 +3736,16 @@ namespace Checkmarx.API
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+
+        public CxAuditWebServiceV9.FileExtension[] GetSupportedFileFormats()
+        {
+            var result = CxAuditV9.GetFilesExtensionsAsync(_soapSessionId).Result;
+
+            checkSoapResponse(result);
+
+            return result.fileExtensionsSetList;
         }
 
         #endregion

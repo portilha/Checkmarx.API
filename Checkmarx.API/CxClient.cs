@@ -114,7 +114,7 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            return _oDataV95Results.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
+            return _oDataV95Results.Expand(x => x.Query).Expand(x => x.Scan).Where(x => x.ScanId == scanId);
         }
 
 
@@ -995,8 +995,6 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            // SASTClient.ExcludeSettings_GetByidAsync(projectId).Result
-
             using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}/sourceCode/excludeSettings"))
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
@@ -1083,6 +1081,7 @@ namespace Checkmarx.API
 
         }
 
+        #region Custom Fields
         /// <summary>
         /// Creates Manage Fields in SAST.
         /// </summary>
@@ -1149,8 +1148,8 @@ namespace Checkmarx.API
                     throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
                 }
             }
-        }
-
+        } 
+        #endregion
 
         public void SetProjectConfiguration(long projId, string projName = null, string teamId = null)
         {
@@ -1353,7 +1352,6 @@ namespace Checkmarx.API
 
             return result;
         }
-
 
         public cxPortalWebService93.CxWSResponceResultPath GetPathCommentsHistory(long scanId, long pathId)
         {
@@ -2345,6 +2343,8 @@ namespace Checkmarx.API
         }
 
         #endregion
+        
+        #region Projects
 
         /// <summary>
         /// Gets the projects.
@@ -2401,6 +2401,8 @@ namespace Checkmarx.API
             }
         }
 
+        #endregion
+       
         #region Users and Teams
 
         private IEnumerable<UserViewModel> _users { get; set; }
@@ -3369,10 +3371,15 @@ namespace Checkmarx.API
             var results = result.Results;
 
             if (!includeInfoSeverityResults)
+            {
                 results = results.Where(x => x.Severity != (int)Severity.Info).ToArray();
+            }
 
             if (!includeNonExploitables)
-                results = results.Where(x => x.State != (int)ResultState.NonExploitable && x.State != (int)ResultState.ProposedNotExploitable).ToArray();
+            {
+                results = results.Where(x => x.State != (int)ResultState.NonExploitable &&
+                                             x.State != (int)ResultState.ProposedNotExploitable).ToArray();
+            }
 
             return results;
         }
@@ -4003,12 +4010,8 @@ namespace Checkmarx.API
 
         #endregion
 
-        public void Dispose()
-        {
+        public void Dispose() {
             // There is logoff...
-
         }
-
-
     }
 }

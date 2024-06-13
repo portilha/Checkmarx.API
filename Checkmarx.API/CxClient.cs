@@ -2071,8 +2071,7 @@ namespace Checkmarx.API
             return _oDataScans.Count();
         }
 
-        public IEnumerable<Scan> GetScans(long projectId, bool finished,
-            ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTime? maxScanDate = null)
+        public IEnumerable<Scan> GetScans(long projectId, bool finished, ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTime? minScanDate = null, DateTime? maxScanDate = null, bool includeGhostScans = true)
         {
             checkConnection();
 
@@ -2084,8 +2083,14 @@ namespace Checkmarx.API
             if (version != null)
                 scans = scans.Where(x => version.StartsWith(x.ProductVersion));
 
+            if (minScanDate != null)
+                scans = scans.Where(x => x.ScanRequestedOn >= new DateTimeOffset(minScanDate.Value));
+
             if (maxScanDate != null)
                 scans = scans.Where(x => x.ScanRequestedOn <= new DateTimeOffset(maxScanDate.Value));
+
+            if (!includeGhostScans)
+                scans = scans.Where(x => !(x.ScanType == 1 && x.EngineFinishedOn == null));
 
             switch (scanKind)
             {

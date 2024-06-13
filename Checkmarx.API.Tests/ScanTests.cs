@@ -772,6 +772,35 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void GetAllGhostScansFromProject()
+        {
+            foreach (var item in clientV9.ODataV95.Scans.Where(x => x.ProjectId == 38097 && x.ScanType == 1 && x.EngineFinishedOn == null))
+            {
+                Trace.WriteLine(item.Comment);
+            }
+        }
+
+        [TestMethod]
+        public void GetScansExcludingGhostScansTest()
+        {
+            var scans = clientV9.GetScans(38097, true, includeGhostScans: false);
+
+            foreach (var scan in scans)
+            {
+                Trace.WriteLine($"{scan.Id} - ScanType {scan.ScanType.Id} and EngineFinishedOn {scan.DateAndTime.EngineFinishedOn}");
+            }
+        }
+
+        [TestMethod]
+        public void GetScanResultsGroupedByPresetIdTest()
+        {
+            var res = clientV9.GetResultsForScan(18263);
+
+            var resByQueryId = res.GroupBy(x => x.QueryId).ToDictionary(x => x.Key, y => y.Count());
+            var resByPresetId = res.GroupBy(x => clientV9.GetPresetQueryId(x.QueryId)).ToDictionary(x => x.Key, y => y.Count());
+        }
+
+        [TestMethod]
         public void ConflictIdInODataQueryTest()
         {
             for (int i = 0; i < 10; i++)

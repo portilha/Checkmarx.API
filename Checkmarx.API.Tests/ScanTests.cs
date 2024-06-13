@@ -752,7 +752,6 @@ namespace Checkmarx.API.Tests
 
         #endregion
 
-
         long ghostScan = 2020992;
         long unfinishedScan = 2022041;
         long incrementalScan = 2022063;
@@ -760,16 +759,64 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetGhostScanTest()
         {
-            var scan = clientV93.GetScanById(incrementalScan);
+            var scan = clientV93.GetScanById(ghostScan);
 
             if (scan.DateAndTime.EngineStartedOn == null)
             {
                 Trace.WriteLine(scan.Id);
             }
 
-            var scanOData = clientV93.ODataV95.Scans.Where(x => x.Id == incrementalScan).Single();
+            var scanOData = clientV93.ODataV95.Scans.Where(x => x.Id == ghostScan).Single();
 
             Assert.IsNotNull(scanOData.EngineStartedOn);
+        }
+
+        [TestMethod]
+        public void ConflictIdInODataQueryTest()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                List<SAST.OData.Project> projects = clientV93.ODataV95.Projects
+                         .Expand(x => x.LastScan)
+                         .Expand(y => y.LastScan.ScannedLanguages)
+                         .Expand(x => x.Preset)
+                         .Expand(x => x.CustomFields)
+                         .Where(y => y.IsPublic && y.OwningTeamId != -1)
+                         .ToList();
+
+                Trace.WriteLine(i + " - " + projects.Count);
+
+                Dictionary<long, SAST.OData.Project> result = [];
+                foreach (var x in projects)
+                {
+                    if (!result.ContainsKey(x.Id))
+                        result.Add(x.Id, x);
+                    else
+                        Trace.WriteLine(x.Id);
+                }
+
+            }
+        }
+
+        [TestMethod]
+        public void GetXSSResultsTest()
+        {
+            var odataResults = clientV93.GetODataV95Results(2013975); // OData
+            
+            Trace.WriteLine("ODATA Count: " + odataResults.Count());
+
+            foreach (var odataResult in odataResults)
+            {
+                Trace.WriteLine(odataResult.QueryId + ";" + odataResult.QueryVersionId + ";" + odataResult.Query.Name);
+            }
+
+            var results = clientV93.GetResultsForScan(2013975); // SOAP ...
+
+            Trace.WriteLine("Count: " + results.Count());
+            foreach (var result in results)
+            {
+                Trace.WriteLine(result.QueryId + ";" + result.QueryVersionCode);
+            }
         }
     }
 }

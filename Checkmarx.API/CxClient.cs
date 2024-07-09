@@ -38,6 +38,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel.Security;
 using System.Runtime;
 using System.IO.Compression;
+using cxPriorityWebService;
 
 namespace Checkmarx.API
 {
@@ -125,6 +126,8 @@ namespace Checkmarx.API
         private PortalSoap.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClient;
 
         private cxPortalWebService93.CxPortalWebServiceSoapClient _cxPortalWebServiceSoapClientV9;
+
+        private cxPriorityWebService.CxPriorityServiceSoapClient _cxPriorityServiceSoapClient;
 
 
         public cxPortalWebService93.CxPortalWebServiceSoapClient PortalSOAP
@@ -682,7 +685,7 @@ namespace Checkmarx.API
 
                     if (_isV9)
                     {
-                        #region V8
+                        #region V8 SOAP
 
                         _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(360), userName, password);
 
@@ -707,7 +710,7 @@ namespace Checkmarx.API
 
                         #endregion
 
-                        #region V9
+                        #region V9 SOAP
 
                         _cxPortalWebServiceSoapClientV9 = new cxPortalWebService93.CxPortalWebServiceSoapClient(baseServer, TimeSpan.FromSeconds(360), userName, password);
 
@@ -722,6 +725,30 @@ namespace Checkmarx.API
 
                         var portalChannelFactoryV9 = _cxPortalWebServiceSoapClientV9.ChannelFactory;
                         portalChannelFactoryV9.UseMessageInspector(async (request, channel, next) =>
+                        {
+                            HttpRequestMessageProperty reqProps = new HttpRequestMessageProperty();
+                            reqProps.Headers.Add("Authorization", $"Bearer {authToken}");
+                            request.Properties.Add(HttpRequestMessageProperty.Name, reqProps);
+                            var response = await next(request);
+                            return response;
+                        });
+
+                        #endregion
+
+                        #region V9 Priority SOAP
+
+                        _cxPriorityServiceSoapClient = new cxPriorityWebService.CxPriorityServiceSoapClient(baseServer, TimeSpan.FromSeconds(360), userName, password);
+
+                        if (ignoreCertificate)
+                        {
+                            _cxPriorityServiceSoapClient.ClientCredentials.ServiceCertificate.SslCertificateAuthentication = new System.ServiceModel.Security.X509ServiceCertificateAuthentication()
+                            {
+                                CertificateValidationMode = X509CertificateValidationMode.None,
+                                RevocationMode = X509RevocationMode.NoCheck
+                            };
+                        }
+
+                        _cxPriorityServiceSoapClient.ChannelFactory.UseMessageInspector(async (request, channel, next) =>
                         {
                             HttpRequestMessageProperty reqProps = new HttpRequestMessageProperty();
                             reqProps.Headers.Add("Authorization", $"Bearer {authToken}");
@@ -3364,7 +3391,7 @@ namespace Checkmarx.API
             return GetResultsForScan(scanId, includeInfoSeverityResults).Where(x => x.State == (int)state);
         }
 
-        public CxWSSingleResultData[] GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true)
+        public IEnumerable<CxWSSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true)
         {
             checkConnection();
 
@@ -3386,7 +3413,7 @@ namespace Checkmarx.API
                                              x.State != (int)ResultState.ProposedNotExploitable).ToArray();
             }
 
-            return results;
+            return results.Cast<CxWSSingleResultData>();
         }
 
         public CxWSSingleResultData[] GetResultsForScanNeitherConfirmedNorNonExploitable(long scanId, bool includeInfoSeverityResults = true)

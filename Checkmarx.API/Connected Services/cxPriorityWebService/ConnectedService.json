@@ -1,0 +1,60 @@
+{
+  "ExtendedData": {
+    "inputs": [
+      "https://server.checkmarx.net/CxWebInterface/Priority/CxPriorityService.asmx"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, cxPriorityWebService"
+    ],
+    "references": [
+      "Capri, {Capri, 0.0.1}",
+      "Checkmarx.API.AccessControl, {Checkmarx.API.AccessControl, 3.0.0}",
+      "Checkmarx.API.SCA, {Checkmarx.API.SCA, 4.0.0}",
+      "Microsoft.Bcl.AsyncInterfaces, {Microsoft.Bcl.AsyncInterfaces, 8.0.0}",
+      "Microsoft.Data.Edm, {Microsoft.Data.Edm, 5.8.5}",
+      "Microsoft.Data.OData, {Microsoft.Data.OData, 5.8.5}",
+      "Microsoft.Extensions.Configuration, {Microsoft.Extensions.Configuration, 8.0.0}",
+      "Microsoft.Extensions.Configuration.Abstractions, {Microsoft.Extensions.Configuration.Abstractions, 8.0.0}",
+      "Microsoft.Extensions.Configuration.FileExtensions, {Microsoft.Extensions.Configuration.FileExtensions, 8.0.0}",
+      "Microsoft.Extensions.Configuration.Json, {Microsoft.Extensions.Configuration.Json, 8.0.0}",
+      "Microsoft.Extensions.Configuration.UserSecrets, {Microsoft.Extensions.Configuration.UserSecrets, 8.0.0}",
+      "Microsoft.Extensions.FileProviders.Abstractions, {Microsoft.Extensions.FileProviders.Abstractions, 8.0.0}",
+      "Microsoft.Extensions.FileProviders.Physical, {Microsoft.Extensions.FileProviders.Physical, 8.0.0}",
+      "Microsoft.Extensions.FileSystemGlobbing, {Microsoft.Extensions.FileSystemGlobbing, 8.0.0}",
+      "Microsoft.Extensions.ObjectPool, {Microsoft.Extensions.ObjectPool, 6.0.16}",
+      "Microsoft.Extensions.Primitives, {Microsoft.Extensions.Primitives, 8.0.0}",
+      "Microsoft.IdentityModel.Abstractions, {Microsoft.IdentityModel.Abstractions, 7.6.0}",
+      "Microsoft.IdentityModel.JsonWebTokens, {Microsoft.IdentityModel.JsonWebTokens, 7.6.0}",
+      "Microsoft.IdentityModel.Logging, {Microsoft.IdentityModel.Logging, 7.6.0}",
+      "Microsoft.IdentityModel.Tokens, {Microsoft.IdentityModel.Tokens, 7.6.0}",
+      "Microsoft.OData.Client, {Microsoft.OData.Client, 7.21.2}",
+      "Microsoft.OData.Core, {Microsoft.OData.Core, 7.21.2}",
+      "Microsoft.OData.Edm, {Microsoft.OData.Edm, 7.21.2}",
+      "Microsoft.Spatial, {Microsoft.Spatial, 7.21.2}",
+      "Newtonsoft.Json, {Newtonsoft.Json, 13.0.3}",
+      "System.ComponentModel.Annotations, {System.ComponentModel.Annotations, 5.0.0}",
+      "System.Formats.Asn1, {System.Formats.Asn1, 6.0.0}",
+      "System.IdentityModel.Tokens.Jwt, {System.IdentityModel.Tokens.Jwt, 7.6.0}",
+      "System.Runtime.CompilerServices.Unsafe, {System.Runtime.CompilerServices.Unsafe, 4.6.0}",
+      "System.Security.AccessControl, {System.Security.AccessControl, 6.0.0}",
+      "System.Security.Cryptography.Pkcs, {System.Security.Cryptography.Pkcs, 6.0.1}",
+      "System.Security.Cryptography.Xml, {System.Security.Cryptography.Xml, 6.0.1}",
+      "System.ServiceModel.Duplex, {System.ServiceModel.Duplex, 6.0.0}",
+      "System.ServiceModel.Http, {System.ServiceModel.Http, 8.0.0}",
+      "System.ServiceModel.NetFramingBase, {System.ServiceModel.NetFramingBase, 8.0.0}",
+      "System.ServiceModel.NetTcp, {System.ServiceModel.NetTcp, 8.0.0}",
+      "System.ServiceModel.Primitives, {System.ServiceModel.Primitives, 8.0.0}",
+      "System.ServiceModel.Security, {System.ServiceModel.Security, 6.0.0}",
+      "System.Spatial, {System.Spatial, 5.8.5}",
+      "System.Text.Encodings.Web, {System.Text.Encodings.Web, 8.0.0}",
+      "System.Text.Json, {System.Text.Json, 8.0.3}"
+    ],
+    "sync": true,
+    "targetFramework": "net8.0",
+    "typeReuseMode": "All"
+  }
+}

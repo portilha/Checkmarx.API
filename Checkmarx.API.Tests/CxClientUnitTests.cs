@@ -89,6 +89,13 @@ namespace Checkmarx.API.Tests
             }
         }
 
+
+        [TestMethod]
+        public void GetAuthenticationBearTokenTest()
+        {
+            Trace.WriteLine(clientV93.AuthenticationToken);
+        }
+
         [TestMethod]
         public void Connectv93Test()
         {

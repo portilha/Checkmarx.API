@@ -17,6 +17,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Checkmarx.API;
 using Checkmarx.API.Exceptions;
+using cxPriorityWebService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OData.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -830,6 +831,15 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetXSSResultsTest()
         {
+            var results = clientV93.GetResultsForScan(2013975); // SOAP ...
+
+            Trace.WriteLine("Count: " + results.Count());
+            foreach (var result in results)
+            {
+                Trace.WriteLine(result.QueryId + ";" + result.QueryVersionCode);
+            }
+
+
             var odataResults = clientV93.GetODataV95Results(2013975); // OData
             
             Trace.WriteLine("ODATA Count: " + odataResults.Count());
@@ -839,13 +849,26 @@ namespace Checkmarx.API.Tests
                 Trace.WriteLine(odataResult.QueryId + ";" + odataResult.QueryVersionId + ";" + odataResult.Query.Name);
             }
 
+           
+            Assert.AreEqual(odataResults.Count(), results.Count(), "The results from OData and SOAP should be equal");
+        }
+
+
+        [TestMethod]
+        public void PriorityAPIGetScanResultsTest()
+        {
             var results = clientV93.GetResultsForScan(2013975); // SOAP ...
 
-            Trace.WriteLine("Count: " + results.Count());
-            foreach (var result in results)
+            var resultProperties = typeof(CxWSResponseScanResultsPriority).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty);
+
+            foreach (var result in results.Take(1))
             {
-                Trace.WriteLine(result.QueryId + ";" + result.QueryVersionCode);
+                foreach (var property in resultProperties)
+                {
+                    Trace.WriteLine(property.Name + ": " + property.GetValue(result));
+                }
             }
+
         }
     }
 }

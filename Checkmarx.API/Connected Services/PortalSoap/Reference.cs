@@ -14102,8 +14102,6 @@ namespace PortalSoap
 
         private int stateField;
 
-        private long SimilarityIDField;
-
         private int severityField;
 
         private string assignedUserField;
@@ -14247,19 +14245,6 @@ namespace PortalSoap
             set
             {
                 this.destLineField = value;
-            }
-        }
-
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = false, Order = 9)]
-        public long SimilarityID
-        {
-            get
-            {
-                return this.SimilarityIDField;
-            }
-            set
-            {
-                this.SimilarityIDField = value;
             }
         }
 

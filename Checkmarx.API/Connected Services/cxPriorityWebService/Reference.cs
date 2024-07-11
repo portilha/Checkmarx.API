@@ -142,7 +142,7 @@ namespace cxPriorityWebService
 
         //private long DestLineField;
 
-        //private long SimilarityIDField;
+        private long SimilarityIDField;
 
         //private int NumberOfNodesField;
 
@@ -289,18 +289,18 @@ namespace cxPriorityWebService
         //    }
         //}
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = false, Order = 9)]
-        //public long SimilarityID
-        //{
-        //    get
-        //    {
-        //        return this.SimilarityIDField;
-        //    }
-        //    set
-        //    {
-        //        this.SimilarityIDField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = false, Order = 9)]
+        public long SimilarityID
+        {
+            get
+            {
+                return this.SimilarityIDField;
+            }
+            set
+            {
+                this.SimilarityIDField = value;
+            }
+        }
 
         //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 10)]
         //public int NumberOfNodes
@@ -431,6 +431,7 @@ namespace cxPriorityWebService
         //        this.QueryVersionCodeField = value;
         //    }
         //}
+
 
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 20)]
         public System.Nullable<double> CxRank

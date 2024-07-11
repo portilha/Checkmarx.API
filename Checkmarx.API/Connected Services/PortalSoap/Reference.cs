@@ -14250,6 +14250,7 @@ namespace PortalSoap
             }
         }
 
+        [System.Xml.Serialization.XmlElementAttribute(Order = 9)]
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = false, Order = 9)]
         public long SimilarityID
         {
@@ -14264,7 +14265,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order = 9)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 10)]
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 10)]
         public int NumberOfNodes
         {
@@ -14279,7 +14280,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order = 10)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 11)]
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 11)]
         public string DestObject
         {
@@ -14294,7 +14295,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order = 11)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 12)]
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 12)]
         public string Comment
         {
@@ -14309,7 +14310,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order = 12)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 13)]
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 13)]
         public int State
         {
@@ -14324,7 +14325,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order = 13)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 14)]
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 14)]
         public int Severity
         {
@@ -14339,7 +14340,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order = 14)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 15)]
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 15)]
         public string AssignedUser
         {
@@ -14354,7 +14355,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable = true, Order = 15)]
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable = true, Order = 16)]
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 16)]
         public System.Nullable<int> ConfidenceLevel
         {
@@ -14369,7 +14370,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order = 16)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 17)]
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 17)]
         public CompareStatusType ResultStatus
         {
@@ -14384,7 +14385,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order = 17)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 18)]
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 18)]
         public string IssueTicketID
         {
@@ -14399,7 +14400,7 @@ namespace PortalSoap
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order = 18)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 19)]
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 19)]
         public long QueryVersionCode
         {

@@ -9,9 +9,9 @@
 
 namespace cxPriorityWebService
 {
-    using cxPortalWebService93;
+    using Checkmarx.API;
     using System;
-    using System.Runtime.Serialization;
+    using System.Linq;
     using System.ServiceModel;
 
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -63,7 +63,7 @@ namespace cxPriorityWebService
         
         private bool CxMnoInstalledField;
         
-        private int TotalResultsCountField;
+        private int? TotalResultsCountField;
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false)]
         public cxPriorityWebService.CxWSSingleResultDataPriority[] Results
@@ -103,9 +103,10 @@ namespace cxPriorityWebService
                 this.CxMnoInstalledField = value;
             }
         }
-        
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true, Order=3)]
-        public int TotalResultsCount
+
+        // It should stay as IsRequired=false -> Bellow version 9.4 the response does not contain total results count
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=false, Order=3)]
+        public int? TotalResultsCount
         {
             get
             {
@@ -121,48 +122,48 @@ namespace cxPriorityWebService
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="CxWSSingleResultDataPriority", Namespace="http://Checkmarx.com")]
-    public partial class CxWSSingleResultDataPriority : PortalSoap.CxWSSingleResultData
+    public partial class CxWSSingleResultDataPriority
     {
 
-        //private long QueryIdField;
+        private long QueryIdField;
 
-        //private long PathIdField;
+        private long PathIdField;
 
-        //private string SourceFolderField;
+        private string SourceFolderField;
 
-        //private string SourceFileField;
+        private string SourceFileField;
 
-        //private long SourceLineField;
+        private long SourceLineField;
 
-        //private string SourceObjectField;
+        private string SourceObjectField;
 
-        //private string DestFolderField;
+        private string DestFolderField;
 
-        //private string DestFileField;
+        private string DestFileField;
 
-        //private long DestLineField;
+        private long DestLineField;
 
         private long SimilarityIDField;
 
-        //private int NumberOfNodesField;
+        private int NumberOfNodesField;
 
-        //private string DestObjectField;
+        private string DestObjectField;
 
-        //private string CommentField;
+        private string CommentField;
 
-        //private int StateField;
+        private int StateField;
 
-        //private int SeverityField;
+        private int SeverityField;
 
-        //private string AssignedUserField;
+        private string AssignedUserField;
 
-        //private System.Nullable<int> ConfidenceLevelField;
+        private System.Nullable<int> ConfidenceLevelField;
 
-        //private CompareStatusType ResultStatusField;
+        private CompareStatusType ResultStatusField;
 
-        //private string IssueTicketIDField;
+        private string IssueTicketIDField;
 
-        //private long QueryVersionCodeField;
+        private long QueryVersionCodeField;
 
         private System.Nullable<double> CxRankField;
 
@@ -172,122 +173,122 @@ namespace cxPriorityWebService
 
         private System.Nullable<System.DateTime> DateField;
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true)]
-        //public long QueryId
-        //{
-        //    get
-        //    {
-        //        return this.QueryIdField;
-        //    }
-        //    set
-        //    {
-        //        this.QueryIdField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true)]
+        public long QueryId
+        {
+            get
+            {
+                return this.QueryIdField;
+            }
+            set
+            {
+                this.QueryIdField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 1)]
-        //public long PathId
-        //{
-        //    get
-        //    {
-        //        return this.PathIdField;
-        //    }
-        //    set
-        //    {
-        //        this.PathIdField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 1)]
+        public long PathId
+        {
+            get
+            {
+                return this.PathIdField;
+            }
+            set
+            {
+                this.PathIdField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 2)]
-        //public string SourceFolder
-        //{
-        //    get
-        //    {
-        //        return this.SourceFolderField;
-        //    }
-        //    set
-        //    {
-        //        this.SourceFolderField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 2)]
+        public string SourceFolder
+        {
+            get
+            {
+                return this.SourceFolderField;
+            }
+            set
+            {
+                this.SourceFolderField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 3)]
-        //public string SourceFile
-        //{
-        //    get
-        //    {
-        //        return this.SourceFileField;
-        //    }
-        //    set
-        //    {
-        //        this.SourceFileField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 3)]
+        public string SourceFile
+        {
+            get
+            {
+                return this.SourceFileField;
+            }
+            set
+            {
+                this.SourceFileField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 4)]
-        //public long SourceLine
-        //{
-        //    get
-        //    {
-        //        return this.SourceLineField;
-        //    }
-        //    set
-        //    {
-        //        this.SourceLineField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 4)]
+        public long SourceLine
+        {
+            get
+            {
+                return this.SourceLineField;
+            }
+            set
+            {
+                this.SourceLineField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 5)]
-        //public string SourceObject
-        //{
-        //    get
-        //    {
-        //        return this.SourceObjectField;
-        //    }
-        //    set
-        //    {
-        //        this.SourceObjectField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 5)]
+        public string SourceObject
+        {
+            get
+            {
+                return this.SourceObjectField;
+            }
+            set
+            {
+                this.SourceObjectField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 6)]
-        //public string DestFolder
-        //{
-        //    get
-        //    {
-        //        return this.DestFolderField;
-        //    }
-        //    set
-        //    {
-        //        this.DestFolderField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 6)]
+        public string DestFolder
+        {
+            get
+            {
+                return this.DestFolderField;
+            }
+            set
+            {
+                this.DestFolderField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 7)]
-        //public string DestFile
-        //{
-        //    get
-        //    {
-        //        return this.DestFileField;
-        //    }
-        //    set
-        //    {
-        //        this.DestFileField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 7)]
+        public string DestFile
+        {
+            get
+            {
+                return this.DestFileField;
+            }
+            set
+            {
+                this.DestFileField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 8)]
-        //public long DestLine
-        //{
-        //    get
-        //    {
-        //        return this.DestLineField;
-        //    }
-        //    set
-        //    {
-        //        this.DestLineField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 8)]
+        public long DestLine
+        {
+            get
+            {
+                return this.DestLineField;
+            }
+            set
+            {
+                this.DestLineField = value;
+            }
+        }
 
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = false, Order = 9)]
         public long SimilarityID
@@ -302,135 +303,135 @@ namespace cxPriorityWebService
             }
         }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 10)]
-        //public int NumberOfNodes
-        //{
-        //    get
-        //    {
-        //        return this.NumberOfNodesField;
-        //    }
-        //    set
-        //    {
-        //        this.NumberOfNodesField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 10)]
+        public int NumberOfNodes
+        {
+            get
+            {
+                return this.NumberOfNodesField;
+            }
+            set
+            {
+                this.NumberOfNodesField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 11)]
-        //public string DestObject
-        //{
-        //    get
-        //    {
-        //        return this.DestObjectField;
-        //    }
-        //    set
-        //    {
-        //        this.DestObjectField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 11)]
+        public string DestObject
+        {
+            get
+            {
+                return this.DestObjectField;
+            }
+            set
+            {
+                this.DestObjectField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 12)]
-        //public string Comment
-        //{
-        //    get
-        //    {
-        //        return this.CommentField;
-        //    }
-        //    set
-        //    {
-        //        this.CommentField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 12)]
+        public string Comment
+        {
+            get
+            {
+                return this.CommentField;
+            }
+            set
+            {
+                this.CommentField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 13)]
-        //public int State
-        //{
-        //    get
-        //    {
-        //        return this.StateField;
-        //    }
-        //    set
-        //    {
-        //        this.StateField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 13)]
+        public int State
+        {
+            get
+            {
+                return this.StateField;
+            }
+            set
+            {
+                this.StateField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 14)]
-        //public int Severity
-        //{
-        //    get
-        //    {
-        //        return this.SeverityField;
-        //    }
-        //    set
-        //    {
-        //        this.SeverityField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 14)]
+        public int Severity
+        {
+            get
+            {
+                return this.SeverityField;
+            }
+            set
+            {
+                this.SeverityField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 15)]
-        //public string AssignedUser
-        //{
-        //    get
-        //    {
-        //        return this.AssignedUserField;
-        //    }
-        //    set
-        //    {
-        //        this.AssignedUserField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 15)]
+        public string AssignedUser
+        {
+            get
+            {
+                return this.AssignedUserField;
+            }
+            set
+            {
+                this.AssignedUserField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 16)]
-        //public System.Nullable<int> ConfidenceLevel
-        //{
-        //    get
-        //    {
-        //        return this.ConfidenceLevelField;
-        //    }
-        //    set
-        //    {
-        //        this.ConfidenceLevelField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 16)]
+        public System.Nullable<int> ConfidenceLevel
+        {
+            get
+            {
+                return this.ConfidenceLevelField;
+            }
+            set
+            {
+                this.ConfidenceLevelField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 17)]
-        //public ServiceReference1.CompareStatusType ResultStatus
-        //{
-        //    get
-        //    {
-        //        return this.ResultStatusField;
-        //    }
-        //    set
-        //    {
-        //        this.ResultStatusField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 17)]
+        public CompareStatusType ResultStatus
+        {
+            get
+            {
+                return this.ResultStatusField;
+            }
+            set
+            {
+                this.ResultStatusField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 18)]
-        //public string IssueTicketID
-        //{
-        //    get
-        //    {
-        //        return this.IssueTicketIDField;
-        //    }
-        //    set
-        //    {
-        //        this.IssueTicketIDField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 18)]
+        public string IssueTicketID
+        {
+            get
+            {
+                return this.IssueTicketIDField;
+            }
+            set
+            {
+                this.IssueTicketIDField = value;
+            }
+        }
 
-        //[System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 19)]
-        //public long QueryVersionCode
-        //{
-        //    get
-        //    {
-        //        return this.QueryVersionCodeField;
-        //    }
-        //    set
-        //    {
-        //        this.QueryVersionCodeField = value;
-        //    }
-        //}
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 19)]
+        public long QueryVersionCode
+        {
+            get
+            {
+                return this.QueryVersionCodeField;
+            }
+            set
+            {
+                this.QueryVersionCodeField = value;
+            }
+        }
 
 
         [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true, Order = 20)]
@@ -1648,7 +1649,12 @@ namespace cxPriorityWebService
         {
             return base.Channel.GetResultsForScan(request);
         }
-        
+
+        internal PortalSoap.CxWSResponceScanResults GetMappedResultsForScan(string sessionID, long scanId)
+        {
+            return MapPriorityResultsToSoapResults(GetResultsForScan(sessionID, scanId));
+        }
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScan(string sessionID, long scanId)
         {
             cxPriorityWebService.GetResultsForScanRequest inValue = new cxPriorityWebService.GetResultsForScanRequest();
@@ -1956,5 +1962,42 @@ namespace cxPriorityWebService
             
             CxPriorityServiceSoap12,
         }
+
+        #region Mapping
+
+        private PortalSoap.CxWSResponceScanResults MapPriorityResultsToSoapResults(cxPriorityWebService.CxWSResponseScanResultsPriority response)
+        {
+            var mappedResponse = Utils.Map<PortalSoap.CxWSResponceScanResults>(response);
+            mappedResponse.Results = response.Results?.Select(x => MapPriorityResultToSoapResult(x)).ToArray();
+
+            return mappedResponse;
+        }
+
+        private PortalSoap.CxWSSingleResultData MapPriorityResultToSoapResult(CxWSSingleResultDataPriority result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+
+            var mappedResult = Utils.Map<PortalSoap.CxWSSingleResultData>(result);
+
+            switch (result.ResultStatus)
+            {
+                case CompareStatusType.New:
+                    mappedResult.ResultStatus = PortalSoap.CompareStatusType.New;
+                    break;
+                case CompareStatusType.Reoccured:
+                    mappedResult.ResultStatus = PortalSoap.CompareStatusType.Reoccured;
+                    break;
+                case CompareStatusType.Fixed:
+                    mappedResult.ResultStatus = PortalSoap.CompareStatusType.Fixed;
+                    break;
+                default:
+                    throw new NotSupportedException($"Priority API result status \"{result.ResultStatus.ToString()}\" not supported.");
+            }
+
+            return mappedResult;
+        }
+
+        #endregion
     }
 }

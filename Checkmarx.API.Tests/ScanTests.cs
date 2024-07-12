@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -832,24 +833,15 @@ namespace Checkmarx.API.Tests
         public void GetXSSResultsTest()
         {
             var results = clientV93.GetResultsForScan(2013975); // SOAP ...
-
             Trace.WriteLine("Count: " + results.Count());
             foreach (var result in results)
-            {
                 Trace.WriteLine(result.QueryId + ";" + result.QueryVersionCode);
-            }
-
 
             var odataResults = clientV93.GetODataV95Results(2013975); // OData
-            
             Trace.WriteLine("ODATA Count: " + odataResults.Count());
-
             foreach (var odataResult in odataResults)
-            {
                 Trace.WriteLine(odataResult.QueryId + ";" + odataResult.QueryVersionId + ";" + odataResult.Query.Name);
-            }
 
-           
             Assert.AreEqual(odataResults.Count(), results.Count(), "The results from OData and SOAP should be equal");
         }
 
@@ -857,18 +849,31 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void PriorityAPIGetScanResultsTest()
         {
-            var results = clientV93.GetResultsForScan(2013975); // SOAP ...
-
-            var resultProperties = typeof(CxWSResponseScanResultsPriority).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty);
-
-            foreach (var result in results.Take(1))
+            try
             {
-                foreach (var property in resultProperties)
-                {
-                    Trace.WriteLine(property.Name + ": " + property.GetValue(result));
-                }
-            }
+                var resultProperties = typeof(PortalSoap.CxWSSingleResultData).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty);
 
+                Trace.WriteLine("Property values using PortalSoap");
+                var results = clientV9.GetResultsForScan(2013131); // Portal SOAP 
+                foreach (var result in results)
+                {
+                    foreach (var property in resultProperties)
+                        Trace.WriteLine(property.Name + ": " + property.GetValue(result));
+                }
+
+                //Trace.WriteLine("");
+                //Trace.WriteLine("Property values using Priority");
+                //var resultsPriority = clientV9.GetResultsForScan(2013131, usePriority: true); // Priority
+                //foreach (var result in resultsPriority)
+                //{
+                //    foreach (var property in resultProperties)
+                //        Trace.WriteLine(property.Name + ": " + property.GetValue(result));
+                //}
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.Message);
+            }
         }
     }
 }

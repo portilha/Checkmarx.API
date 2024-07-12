@@ -3395,7 +3395,11 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            var result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+            CxWSResponceScanResults result = null;
+            if(_isV95)
+                result = _cxPriorityServiceSoapClient.GetMappedResultsForScan(_soapSessionId, scanId);
+            else
+                result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
 
             if (!result.IsSuccesfull)
                 throw new ApplicationException(result.ErrorMessage);
@@ -3413,7 +3417,7 @@ namespace Checkmarx.API
                                              x.State != (int)ResultState.ProposedNotExploitable).ToArray();
             }
 
-            return results.Cast<CxWSSingleResultData>();
+            return results;
         }
 
         public CxWSSingleResultData[] GetResultsForScanNeitherConfirmedNorNonExploitable(long scanId, bool includeInfoSeverityResults = true)

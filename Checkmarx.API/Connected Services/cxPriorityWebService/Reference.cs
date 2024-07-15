@@ -1650,11 +1650,6 @@ namespace cxPriorityWebService
             return base.Channel.GetResultsForScan(request);
         }
 
-        internal PortalSoap.CxWSResponceScanResults GetMappedResultsForScan(string sessionID, long scanId)
-        {
-            return MapPriorityResultsToSoapResults(GetResultsForScan(sessionID, scanId));
-        }
-
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScan(string sessionID, long scanId)
         {
             cxPriorityWebService.GetResultsForScanRequest inValue = new cxPriorityWebService.GetResultsForScanRequest();
@@ -1962,42 +1957,5 @@ namespace cxPriorityWebService
             
             CxPriorityServiceSoap12,
         }
-
-        #region Mapping
-
-        private PortalSoap.CxWSResponceScanResults MapPriorityResultsToSoapResults(cxPriorityWebService.CxWSResponseScanResultsPriority response)
-        {
-            var mappedResponse = Utils.Map<PortalSoap.CxWSResponceScanResults>(response);
-            mappedResponse.Results = response.Results?.Select(x => MapPriorityResultToSoapResult(x)).ToArray();
-
-            return mappedResponse;
-        }
-
-        private PortalSoap.CxWSSingleResultData MapPriorityResultToSoapResult(CxWSSingleResultDataPriority result)
-        {
-            if (result == null)
-                throw new ArgumentNullException(nameof(result));
-
-            var mappedResult = Utils.Map<PortalSoap.CxWSSingleResultData>(result);
-
-            switch (result.ResultStatus)
-            {
-                case CompareStatusType.New:
-                    mappedResult.ResultStatus = PortalSoap.CompareStatusType.New;
-                    break;
-                case CompareStatusType.Reoccured:
-                    mappedResult.ResultStatus = PortalSoap.CompareStatusType.Reoccured;
-                    break;
-                case CompareStatusType.Fixed:
-                    mappedResult.ResultStatus = PortalSoap.CompareStatusType.Fixed;
-                    break;
-                default:
-                    throw new NotSupportedException($"Priority API result status \"{result.ResultStatus.ToString()}\" not supported.");
-            }
-
-            return mappedResult;
-        }
-
-        #endregion
     }
 }

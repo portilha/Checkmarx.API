@@ -18,6 +18,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Checkmarx.API;
 using Checkmarx.API.Exceptions;
+using Checkmarx.API.Models;
 using cxPriorityWebService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OData.Client;
@@ -395,9 +396,9 @@ namespace Checkmarx.API.Tests
                     // New, Fixed, Recorrence
                     var resultByType = severity.GroupBy(x => x.ResultStatus).ToDictionary(x => x.Key);
 
-                    csvFields.Add(!resultByType.ContainsKey(PortalSoap.CompareStatusType.New) ? 0 : resultByType[PortalSoap.CompareStatusType.New].Count());
-                    csvFields.Add(!resultByType.ContainsKey(PortalSoap.CompareStatusType.Fixed) ? 0 : resultByType[PortalSoap.CompareStatusType.Fixed].Count());
-                    csvFields.Add(!resultByType.ContainsKey(PortalSoap.CompareStatusType.Reoccured) ? 0 : resultByType[PortalSoap.CompareStatusType.Reoccured].Count());
+                    csvFields.Add(!resultByType.ContainsKey(ResultStatus.New) ? 0 : resultByType[ResultStatus.New].Count());
+                    csvFields.Add(!resultByType.ContainsKey(ResultStatus.Fixed) ? 0 : resultByType[ResultStatus.Fixed].Count());
+                    csvFields.Add(!resultByType.ContainsKey(ResultStatus.Reoccured) ? 0 : resultByType[ResultStatus.Reoccured].Count());
 
                     csvFields.Add(query.Status.ToString());
 
@@ -527,7 +528,7 @@ namespace Checkmarx.API.Tests
                             {
                                 var pathhistory = clientV93.GetPathCommentsHistory(scan.Id, result.PathId);
 
-                                var uri = Utils.GetLink(result, clientV93, 1, scan.Id);
+                                var uri = result.GetLink(clientV93, 1, scan.Id);
 
                                 stringBuilder.AppendLine($"<a href=\"{uri.AbsoluteUri}\">{uri.AbsoluteUri}</a>");
 
@@ -851,24 +852,24 @@ namespace Checkmarx.API.Tests
         {
             try
             {
-                var resultProperties = typeof(PortalSoap.CxWSSingleResultData).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty);
+                var resultProperties = typeof(SoapSingleResultData).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty);
 
                 Trace.WriteLine("Property values using PortalSoap");
-                var results = clientV9.GetResultsForScan(2013131); // Portal SOAP 
+                var results = clientV93.GetResultsForScan(1893801); // Portal SOAP 
                 foreach (var result in results)
                 {
                     foreach (var property in resultProperties)
                         Trace.WriteLine(property.Name + ": " + property.GetValue(result));
                 }
 
-                //Trace.WriteLine("");
-                //Trace.WriteLine("Property values using Priority");
-                //var resultsPriority = clientV9.GetResultsForScan(2013131, usePriority: true); // Priority
-                //foreach (var result in resultsPriority)
-                //{
-                //    foreach (var property in resultProperties)
-                //        Trace.WriteLine(property.Name + ": " + property.GetValue(result));
-                //}
+                Trace.WriteLine("");
+                Trace.WriteLine("Property values using Priority");
+                var resultsPriority = clientV93.GetResultsForScan(1893801, usePriority: true); // Priority
+                foreach (var result in resultsPriority)
+                {
+                    foreach (var property in resultProperties)
+                        Trace.WriteLine(property.Name + ": " + property.GetValue(result));
+                }
             }
             catch (Exception ex)
             {

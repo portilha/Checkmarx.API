@@ -39,6 +39,7 @@ using System.ServiceModel.Security;
 using System.Runtime;
 using System.IO.Compression;
 using cxPriorityWebService;
+using Checkmarx.API.Models;
 
 namespace Checkmarx.API
 {
@@ -3386,25 +3387,35 @@ namespace Checkmarx.API
             return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
         }
 
-        public IEnumerable<CxWSSingleResultData> GetResultsForScanByStateId(long scanId, ResultState state, bool includeInfoSeverityResults = true)
+        public IEnumerable<SoapSingleResultData> GetResultsForScanByStateId(long scanId, ResultState state, bool includeInfoSeverityResults = true)
         {
             return GetResultsForScan(scanId, includeInfoSeverityResults).Where(x => x.State == (int)state);
         }
 
-        public IEnumerable<CxWSSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true)
+        public IEnumerable<SoapSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true, bool usePriority = false)
         {
             checkConnection();
 
-            CxWSResponceScanResults result = null;
-            if(_isV95)
-                result = _cxPriorityServiceSoapClient.GetMappedResultsForScan(_soapSessionId, scanId);
+            IEnumerable<SoapSingleResultData> results = null;
+            //if (_isV95)
+            if (usePriority)
+            {
+                var response = _cxPriorityServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+
+                if (!response.IsSuccesfull)
+                    throw new ApplicationException(response.ErrorMessage);
+
+                results = response.Results.Select(x => Mapper.MapPrioritySingleResultData(x));
+            }
             else
-                result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+            {
+                var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
 
-            if (!result.IsSuccesfull)
-                throw new ApplicationException(result.ErrorMessage);
+                if (!response.IsSuccesfull)
+                    throw new ApplicationException(response.ErrorMessage);
 
-            var results = result.Results;
+                results = response.Results.Select(x => Mapper.MapSoapSingleResultData(x));
+            }
 
             if (!includeInfoSeverityResults)
             {
@@ -3416,25 +3427,6 @@ namespace Checkmarx.API
                 results = results.Where(x => x.State != (int)ResultState.NonExploitable &&
                                              x.State != (int)ResultState.ProposedNotExploitable).ToArray();
             }
-
-            return results;
-        }
-
-        public CxWSSingleResultData[] GetResultsForScanNeitherConfirmedNorNonExploitable(long scanId, bool includeInfoSeverityResults = true)
-        {
-            checkConnection();
-
-            var result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
-
-            if (!result.IsSuccesfull)
-                throw new ApplicationException(result.ErrorMessage);
-
-            var results = result.Results;
-
-            if (!includeInfoSeverityResults)
-                results = results.Where(x => x.Severity != (int)Severity.Info).ToArray();
-
-            results = results.Where(x => x.State != (int)ResultState.Confirmed && x.State != (int)ResultState.NonExploitable).ToArray();
 
             return results;
         }
@@ -3538,11 +3530,9 @@ namespace Checkmarx.API
         /// <returns></returns>
         public List<Tuple<List<string>, long>> GetAllCommentRemarksForScan(long scanId)
         {
-            checkConnection();
-
-            var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+            var results = GetResultsForScan(scanId);
             var commentList = new List<Tuple<List<string>, long>>();
-            foreach (var item in response.Results)
+            foreach (var item in results)
             {
                 var pathCommentList = new List<string>();
                 if (!string.IsNullOrEmpty(item.Comment) && !string.IsNullOrWhiteSpace(item.Comment))
@@ -3587,7 +3577,7 @@ namespace Checkmarx.API
             return false;
         }
 
-        public IEnumerable<CxWSSingleResultData> GetScanResultsWithStateExclusions(long scanId, List<long> customStatesToExclude)
+        public IEnumerable<SoapSingleResultData> GetScanResultsWithStateExclusions(long scanId, List<long> customStatesToExclude)
         {
             var results = GetResultsForScan(scanId);
             foreach (var result in results)

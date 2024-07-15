@@ -1650,7 +1650,7 @@ namespace cxPriorityWebService
             return base.Channel.GetResultsForScan(request);
         }
 
-        public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScan(string sessionID, long scanId)
+        internal cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScan(string sessionID, long scanId)
         {
             cxPriorityWebService.GetResultsForScanRequest inValue = new cxPriorityWebService.GetResultsForScanRequest();
             inValue.Body = new cxPriorityWebService.GetResultsForScanRequestBody();

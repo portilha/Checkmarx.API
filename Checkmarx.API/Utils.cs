@@ -1,14 +1,18 @@
-﻿using CxDataRepository;
+﻿using Checkmarx.API.Models;
+using CxDataRepository;
 using cxPortalWebService93;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace Checkmarx.API
 {
     public static class Utils
     {
-        public static Uri GetLink(this CxWSSingleResultData result)
+        public static Uri GetLink(this SoapSingleResultData result)
         {
             return new Uri(result.PathId.ToString());
         }
@@ -19,7 +23,7 @@ namespace Checkmarx.API
         /// <param name="result"></param>
         /// <param name="clientV93"></param>
         /// <returns></returns>
-        public static Uri GetLink(this PortalSoap.CxWSSingleResultData result, CxClient clientV93, long projectId, long scanId)
+        public static Uri GetLink(this SoapSingleResultData result, CxClient clientV93, long projectId, long scanId)
         {
             return new Uri(clientV93.SASTServerURL, $"cxwebclient/ViewerMain.aspx?scanid={scanId}&projectid={projectId}&pathid={result.PathId}");
         }

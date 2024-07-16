@@ -39,6 +39,7 @@ using System.ServiceModel.Security;
 using System.Runtime;
 using System.IO.Compression;
 using cxPriorityWebService;
+using Checkmarx.API.Models;
 
 namespace Checkmarx.API
 {
@@ -553,8 +554,10 @@ namespace Checkmarx.API
         }
 
         private bool _isV9 = false;
+        private bool _isV94 = false;
         private bool _isV95 = false;
 
+        public bool IsV94 { get { return _isV94; } }
         public bool IsV95 { get { return _isV95; } }
 
         #region Access Control 
@@ -633,7 +636,10 @@ namespace Checkmarx.API
             _isV9 = _version.Major >= 9;
 
             if (_isV9)
+            {
+                _isV94 = _version.Minor >= 4;
                 _isV95 = _version.Minor >= 5;
+            }
 
             Console.WriteLine("Checkmarx " + _version.ToString());
 
@@ -2743,7 +2749,7 @@ namespace Checkmarx.API
         }
 
         private cxPortalWebService93.CxWSQueryGroup[] _queryGroupCache = null;
-        public Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup> GetQueriesByLanguageAndOrName(string language, string queryName)
+        public Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup> GetQueriesByLanguageAndOrName(string language, string queryName, bool onlyExecutable = false)
         {
             if (string.IsNullOrWhiteSpace(language) && string.IsNullOrWhiteSpace(queryName))
                 throw new NullReferenceException("Between language and query name, at least one must have a value.");
@@ -2762,7 +2768,7 @@ namespace Checkmarx.API
                     {
                         foreach (var g in selectedGroups)
                         {
-                            foreach (var q in g.Queries)
+                            foreach (var q in g.Queries.Where(x => !onlyExecutable || x.IsExecutable))
                             {
                                 if (q.Name.ToLower() == queryName.Trim().ToLower())
                                     foundQueries.Add(q, g);
@@ -2773,7 +2779,7 @@ namespace Checkmarx.API
                     {
                         foreach (var g in selectedGroups)
                         {
-                            foreach (var q in g.Queries)
+                            foreach (var q in g.Queries.Where(x => !onlyExecutable || x.IsExecutable))
                                 foundQueries.Add(q, g);
                         }
                     }
@@ -2785,7 +2791,7 @@ namespace Checkmarx.API
                 {
                     foreach (var g in _queryGroupCache)
                     {
-                        foreach (var q in g.Queries)
+                        foreach (var q in g.Queries.Where(x => !onlyExecutable || x.IsExecutable))
                         {
                             if (q.Name.ToLower() == queryName.Trim().ToLower())
                                 foundQueries.Add(q, g);
@@ -3386,21 +3392,34 @@ namespace Checkmarx.API
             return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
         }
 
-        public IEnumerable<CxWSSingleResultData> GetResultsForScanByStateId(long scanId, ResultState state, bool includeInfoSeverityResults = true)
+        public IEnumerable<SoapSingleResultData> GetResultsForScanByStateId(long scanId, ResultState state, bool includeInfoSeverityResults = true)
         {
             return GetResultsForScan(scanId, includeInfoSeverityResults).Where(x => x.State == (int)state);
         }
 
-        public IEnumerable<CxWSSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true)
+        public IEnumerable<SoapSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true)
         {
             checkConnection();
 
-            var result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+            IEnumerable<SoapSingleResultData> results = null;
+            if (_isV94)
+            {
+                var response = _cxPriorityServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
 
-            if (!result.IsSuccesfull)
-                throw new ApplicationException(result.ErrorMessage);
+                if (!response.IsSuccesfull)
+                    throw new ApplicationException(response.ErrorMessage);
 
-            var results = result.Results;
+                results = response.Results?.Select(x => Mapper.MapPrioritySingleResultData(x));
+            }
+            else
+            {
+                var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+
+                if (!response.IsSuccesfull)
+                    throw new ApplicationException(response.ErrorMessage);
+
+                results = response.Results?.Select(x => Mapper.MapSoapSingleResultData(x));
+            }
 
             if (!includeInfoSeverityResults)
             {
@@ -3412,25 +3431,6 @@ namespace Checkmarx.API
                 results = results.Where(x => x.State != (int)ResultState.NonExploitable &&
                                              x.State != (int)ResultState.ProposedNotExploitable).ToArray();
             }
-
-            return results.Cast<CxWSSingleResultData>();
-        }
-
-        public CxWSSingleResultData[] GetResultsForScanNeitherConfirmedNorNonExploitable(long scanId, bool includeInfoSeverityResults = true)
-        {
-            checkConnection();
-
-            var result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
-
-            if (!result.IsSuccesfull)
-                throw new ApplicationException(result.ErrorMessage);
-
-            var results = result.Results;
-
-            if (!includeInfoSeverityResults)
-                results = results.Where(x => x.Severity != (int)Severity.Info).ToArray();
-
-            results = results.Where(x => x.State != (int)ResultState.Confirmed && x.State != (int)ResultState.NonExploitable).ToArray();
 
             return results;
         }
@@ -3534,11 +3534,9 @@ namespace Checkmarx.API
         /// <returns></returns>
         public List<Tuple<List<string>, long>> GetAllCommentRemarksForScan(long scanId)
         {
-            checkConnection();
-
-            var response = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+            var results = GetResultsForScan(scanId);
             var commentList = new List<Tuple<List<string>, long>>();
-            foreach (var item in response.Results)
+            foreach (var item in results)
             {
                 var pathCommentList = new List<string>();
                 if (!string.IsNullOrEmpty(item.Comment) && !string.IsNullOrWhiteSpace(item.Comment))
@@ -3583,7 +3581,7 @@ namespace Checkmarx.API
             return false;
         }
 
-        public IEnumerable<CxWSSingleResultData> GetScanResultsWithStateExclusions(long scanId, List<long> customStatesToExclude)
+        public IEnumerable<SoapSingleResultData> GetScanResultsWithStateExclusions(long scanId, List<long> customStatesToExclude)
         {
             var results = GetResultsForScan(scanId);
             foreach (var result in results)

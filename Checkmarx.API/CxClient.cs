@@ -3397,7 +3397,7 @@ namespace Checkmarx.API
             return GetResultsForScan(scanId, includeInfoSeverityResults).Where(x => x.State == (int)state);
         }
 
-        public IEnumerable<SoapSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true)
+        public IEnumerable<SoapSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true, bool includeProposedNonExploitables = true, bool includeConfirmedResults = true)
         {
             checkConnection();
 
@@ -3428,9 +3428,37 @@ namespace Checkmarx.API
 
             if (!includeNonExploitables)
             {
-                results = results.Where(x => x.State != (int)ResultState.NonExploitable &&
-                                             x.State != (int)ResultState.ProposedNotExploitable).ToArray();
+                results = results.Where(x => x.State != (int)ResultState.NonExploitable).ToArray();
             }
+
+            if (!includeProposedNonExploitables)
+            {
+                results = results.Where(x => x.State != (int)ResultState.ProposedNotExploitable).ToArray();
+            }
+
+            if (!includeConfirmedResults)
+            {
+                results = results.Where(x => x.State != (int)ResultState.Confirmed).ToArray();
+            }
+
+            return results;
+        }
+
+        public CxWSSingleResultData[] GetResultsForScanNeitherConfirmedNorNonExploitable(long scanId, bool includeInfoSeverityResults = true)
+        {
+            checkConnection();
+
+            var result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
+
+            if (!result.IsSuccesfull)
+                throw new ApplicationException(result.ErrorMessage);
+
+            var results = result.Results;
+
+            if (!includeInfoSeverityResults)
+                results = results.Where(x => x.Severity != (int)Severity.Info).ToArray();
+
+            results = results.Where(x => x.State != (int)ResultState.Confirmed && x.State != (int)ResultState.NonExploitable).ToArray();
 
             return results;
         }

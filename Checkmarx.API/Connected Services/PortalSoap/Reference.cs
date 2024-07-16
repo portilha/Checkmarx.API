@@ -22181,7 +22181,7 @@ namespace PortalSoap
             return base.Channel.GetResultsForScanByLanguageAsync(sessionID, scanId, Language);
         }
 
-        internal PortalSoap.CxWSResponceScanResults GetResultsForScan(string sessionID, long scanId)
+        public PortalSoap.CxWSResponceScanResults GetResultsForScan(string sessionID, long scanId)
         {
             return base.Channel.GetResultsForScan(sessionID, scanId);
         }

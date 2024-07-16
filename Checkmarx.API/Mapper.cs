@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Checkmarx.API
 {
-    public static class Mapper
+    internal static class Mapper
     {
-        public static T Map<T>(object oldObject) where T : new()
+        internal static T Map<T>(object oldObject) where T : new()
         {
             if (oldObject == null)
                 throw new ArgumentNullException(nameof(oldObject));
@@ -72,7 +72,7 @@ namespace Checkmarx.API
             return newObject;
         }
 
-        public static SoapSingleResultData MapSoapSingleResultData(PortalSoap.CxWSSingleResultData data)
+        internal static SoapSingleResultData MapSoapSingleResultData(PortalSoap.CxWSSingleResultData data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -82,13 +82,13 @@ namespace Checkmarx.API
             switch (data.ResultStatus)
             {
                 case PortalSoap.CompareStatusType.New:
-                    result.ResultStatus = ResultStatus.New;
+                    result.ResultStatus = PortalSoap.CompareStatusType.New;
                     break;
                 case PortalSoap.CompareStatusType.Reoccured:
-                    result.ResultStatus = ResultStatus.Reoccured;
+                    result.ResultStatus = PortalSoap.CompareStatusType.Reoccured;
                     break;
                 case PortalSoap.CompareStatusType.Fixed:
-                    result.ResultStatus = ResultStatus.Fixed;
+                    result.ResultStatus = PortalSoap.CompareStatusType.Fixed;
                     break;
                 default:
                     throw new NotSupportedException($"Priority API result status \"{data.ResultStatus.ToString()}\" not supported.");
@@ -97,7 +97,7 @@ namespace Checkmarx.API
             return result;
         }
 
-        public static PrioritySingleResultData MapPrioritySingleResultData(cxPriorityWebService.CxWSSingleResultDataPriority data)
+        internal static PrioritySingleResultData MapPrioritySingleResultData(cxPriorityWebService.CxWSSingleResultDataPriority data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -107,13 +107,13 @@ namespace Checkmarx.API
             switch (data.ResultStatus)
             {
                 case cxPriorityWebService.CompareStatusType.New:
-                    result.ResultStatus = ResultStatus.New;
+                    result.ResultStatus = PortalSoap.CompareStatusType.New;
                     break;
                 case cxPriorityWebService.CompareStatusType.Reoccured:
-                    result.ResultStatus = ResultStatus.Reoccured;
+                    result.ResultStatus = PortalSoap.CompareStatusType.Reoccured;
                     break;
                 case cxPriorityWebService.CompareStatusType.Fixed:
-                    result.ResultStatus = ResultStatus.Fixed;
+                    result.ResultStatus = PortalSoap.CompareStatusType.Fixed;
                     break;
                 default:
                     throw new NotSupportedException($"Priority API result status \"{data.ResultStatus.ToString()}\" not supported.");

@@ -396,9 +396,9 @@ namespace Checkmarx.API.Tests
                     // New, Fixed, Recorrence
                     var resultByType = severity.GroupBy(x => x.ResultStatus).ToDictionary(x => x.Key);
 
-                    csvFields.Add(!resultByType.ContainsKey(ResultStatus.New) ? 0 : resultByType[ResultStatus.New].Count());
-                    csvFields.Add(!resultByType.ContainsKey(ResultStatus.Fixed) ? 0 : resultByType[ResultStatus.Fixed].Count());
-                    csvFields.Add(!resultByType.ContainsKey(ResultStatus.Reoccured) ? 0 : resultByType[ResultStatus.Reoccured].Count());
+                    csvFields.Add(!resultByType.ContainsKey(PortalSoap.CompareStatusType.New) ? 0 : resultByType[PortalSoap.CompareStatusType.New].Count());
+                    csvFields.Add(!resultByType.ContainsKey(PortalSoap.CompareStatusType.Fixed) ? 0 : resultByType[PortalSoap.CompareStatusType.Fixed].Count());
+                    csvFields.Add(!resultByType.ContainsKey(PortalSoap.CompareStatusType.Reoccured) ? 0 : resultByType[PortalSoap.CompareStatusType.Reoccured].Count());
 
                     csvFields.Add(query.Status.ToString());
 

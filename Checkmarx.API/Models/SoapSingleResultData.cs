@@ -44,17 +44,10 @@ namespace Checkmarx.API.Models
 
         public System.Nullable<int> ConfidenceLevel { get; set; }
 
-        public ResultStatus ResultStatus { get; set; }
+        public PortalSoap.CompareStatusType ResultStatus { get; set; }
 
         public string IssueTicketID { get; set; }
 
         public long QueryVersionCode { get; set; }
-    }
-
-    public enum ResultStatus
-    {
-        Fixed,
-        Reoccured,
-        New,
     }
 }

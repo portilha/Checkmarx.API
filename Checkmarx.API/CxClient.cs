@@ -2744,7 +2744,7 @@ namespace Checkmarx.API
         }
 
         private cxPortalWebService93.CxWSQueryGroup[] _queryGroupCache = null;
-        public Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup> GetQueriesByLanguageAndOrName(string language, string queryName)
+        public Dictionary<cxPortalWebService93.CxWSQuery, cxPortalWebService93.CxWSQueryGroup> GetQueriesByLanguageAndOrName(string language, string queryName, bool onlyExecutable = false)
         {
             if (string.IsNullOrWhiteSpace(language) && string.IsNullOrWhiteSpace(queryName))
                 throw new NullReferenceException("Between language and query name, at least one must have a value.");
@@ -2763,7 +2763,7 @@ namespace Checkmarx.API
                     {
                         foreach (var g in selectedGroups)
                         {
-                            foreach (var q in g.Queries)
+                            foreach (var q in g.Queries.Where(x => !onlyExecutable || x.IsExecutable))
                             {
                                 if (q.Name.ToLower() == queryName.Trim().ToLower())
                                     foundQueries.Add(q, g);
@@ -2774,7 +2774,7 @@ namespace Checkmarx.API
                     {
                         foreach (var g in selectedGroups)
                         {
-                            foreach (var q in g.Queries)
+                            foreach (var q in g.Queries.Where(x => !onlyExecutable || x.IsExecutable))
                                 foundQueries.Add(q, g);
                         }
                     }
@@ -2786,7 +2786,7 @@ namespace Checkmarx.API
                 {
                     foreach (var g in _queryGroupCache)
                     {
-                        foreach (var q in g.Queries)
+                        foreach (var q in g.Queries.Where(x => !onlyExecutable || x.IsExecutable))
                         {
                             if (q.Name.ToLower() == queryName.Trim().ToLower())
                                 foundQueries.Add(q, g);

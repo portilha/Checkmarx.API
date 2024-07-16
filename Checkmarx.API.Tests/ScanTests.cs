@@ -855,25 +855,63 @@ namespace Checkmarx.API.Tests
                 var resultProperties = typeof(SoapSingleResultData).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty);
 
                 Trace.WriteLine("Property values using PortalSoap");
-                var results = clientV93.GetResultsForScan(1893801); // Portal SOAP 
+                var results = clientV9.GetResultsForScan(1705892); // Portal SOAP 
                 foreach (var result in results)
                 {
                     foreach (var property in resultProperties)
                         Trace.WriteLine(property.Name + ": " + property.GetValue(result));
                 }
 
-                Trace.WriteLine("");
-                Trace.WriteLine("Property values using Priority");
-                var resultsPriority = clientV93.GetResultsForScan(1893801, usePriority: true); // Priority
-                foreach (var result in resultsPriority)
-                {
-                    foreach (var property in resultProperties)
-                        Trace.WriteLine(property.Name + ": " + property.GetValue(result));
-                }
+                //Trace.WriteLine("");
+                //Trace.WriteLine("Property values using Priority");
+                //var resultsPriority = clientV9.GetResultsForScan(1705892, usePriority: true); // Priority
+                //foreach (var result in resultsPriority)
+                //{
+                //    foreach (var property in resultProperties)
+                //        Trace.WriteLine(property.Name + ": " + property.GetValue(result));
+                //}
             }
             catch (Exception ex)
             {
                 Trace.WriteLine(ex.Message);
+            }
+        }
+
+        [TestMethod]
+        public void CompareSoapVsOdataScanResultsTest()
+        {
+            var projects = clientV93.GetAllProjectsDetails();
+            foreach (var project in projects)
+            {
+                try
+                {
+                    var scanInfo = clientV93.GetLastScan(project.Id);
+                    if (scanInfo != null)
+                    {
+                        var odataResults = clientV93.GetODataV95Results(scanInfo.Id); // OData
+                        var results = clientV93.GetResultsForScan(scanInfo.Id); // SOAP
+                        if (odataResults.Count() != results.Count())
+                        {
+                            var odataQueryIds = odataResults.Where(x => x.QueryId.HasValue).Select(x => x.QueryId.Value).Distinct();
+                            var queryIds = results.Select(x => x.QueryId).Distinct();
+
+                            // Find queries in odata that are not in soap
+                            var difference1 = odataQueryIds.Except(queryIds).ToList();
+
+                            // Find queries in soap that are not in odata
+                            var difference2 = queryIds.Except(odataQueryIds).ToList();
+
+                            // Total diff
+                            var totalDiff = difference1.Union(difference2);
+
+                            Trace.WriteLine($"Project {project.Id} - Scan {scanInfo.Id} - Query Difference: {string.Join(";", totalDiff)}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error for project {project.Id}: {ex.Message}");
+                }
             }
         }
     }

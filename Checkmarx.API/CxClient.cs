@@ -554,8 +554,10 @@ namespace Checkmarx.API
         }
 
         private bool _isV9 = false;
+        private bool _isV94 = false;
         private bool _isV95 = false;
 
+        public bool IsV94 { get { return _isV94; } }
         public bool IsV95 { get { return _isV95; } }
 
         #region Access Control 
@@ -634,7 +636,10 @@ namespace Checkmarx.API
             _isV9 = _version.Major >= 9;
 
             if (_isV9)
+            {
+                _isV94 = _version.Minor >= 4;
                 _isV95 = _version.Minor >= 5;
+            }
 
             Console.WriteLine("Checkmarx " + _version.ToString());
 
@@ -3392,20 +3397,19 @@ namespace Checkmarx.API
             return GetResultsForScan(scanId, includeInfoSeverityResults).Where(x => x.State == (int)state);
         }
 
-        public IEnumerable<SoapSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true, bool usePriority = false)
+        public IEnumerable<SoapSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true)
         {
             checkConnection();
 
             IEnumerable<SoapSingleResultData> results = null;
-            //if (_isV95)
-            if (usePriority)
+            if (_isV94)
             {
                 var response = _cxPriorityServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
 
                 if (!response.IsSuccesfull)
                     throw new ApplicationException(response.ErrorMessage);
 
-                results = response.Results.Select(x => Mapper.MapPrioritySingleResultData(x));
+                results = response.Results?.Select(x => Mapper.MapPrioritySingleResultData(x));
             }
             else
             {
@@ -3414,7 +3418,7 @@ namespace Checkmarx.API
                 if (!response.IsSuccesfull)
                     throw new ApplicationException(response.ErrorMessage);
 
-                results = response.Results.Select(x => Mapper.MapSoapSingleResultData(x));
+                results = response.Results?.Select(x => Mapper.MapSoapSingleResultData(x));
             }
 
             if (!includeInfoSeverityResults)

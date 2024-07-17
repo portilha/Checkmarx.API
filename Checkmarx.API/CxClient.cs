@@ -3496,17 +3496,20 @@ namespace Checkmarx.API
         /// Get the all query groups of the CxSAST server.
         /// </summary>
         /// <returns></returns>
-        public cxPortalWebService93.CxWSQueryGroup[] GetQueries()
+        public cxPortalWebService93.CxWSQueryGroup[] GetQueries(bool includeAllQueryVersions = false)
         {
             checkConnection();
 
-            var result = _cxPortalWebServiceSoapClientV9.GetQueryCollectionAsync(_soapSessionId).Result;
+            cxPortalWebService93.CxQueryCollectionResponse result = null;
+            if (includeAllQueryVersions)
+                result = _cxPortalWebServiceSoapClientV9.GetQueryCollectionWithInactiveAsync(_soapSessionId).Result;
+            else
+                result = _cxPortalWebServiceSoapClientV9.GetQueryCollectionAsync(_soapSessionId).Result;
 
             if (!result.IsSuccesfull)
                 throw new ApplicationException(result.ErrorMessage);
 
             return result.QueryGroups;
-
         }
 
         public CxAuditWebServiceV9.CxWSQueryGroup[] GetAuditQueries()

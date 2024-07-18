@@ -61,7 +61,7 @@ namespace cxPriorityWebService
         
         private bool SastRemediationEnabledField;
         
-        private bool CxMnoInstalledField;
+        private bool? CxMnoInstalledField;
         
         private int? TotalResultsCountField;
         
@@ -91,8 +91,8 @@ namespace cxPriorityWebService
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true, Order=2)]
-        public bool CxMnoInstalled
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=false, Order=2)]
+        public bool? CxMnoInstalled
         {
             get
             {

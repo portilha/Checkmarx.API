@@ -914,5 +914,19 @@ namespace Checkmarx.API.Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void FetchScansByDateTest()
+        {
+            var filterDate = new DateTime(2024, 6, 23, 0, 3, 0);
+
+            var scanBefore = clientV93.GetScans(18096, true, scanKind: CxClient.ScanRetrieveKind.Last, maxScanDate: filterDate, includeGhostScans: false).SingleOrDefault();
+
+            Trace.WriteLine($"Scan Before: {scanBefore.Id}");
+
+            var scanAfter = clientV93.GetScans(18096, true, scanKind: CxClient.ScanRetrieveKind.First, minScanDate: filterDate, includeGhostScans: false).SingleOrDefault();
+
+            Trace.WriteLine($"Scan After: {scanAfter.Id}");
+        }
     }
 }

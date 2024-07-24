@@ -2106,24 +2106,7 @@ namespace Checkmarx.API
 
         public IEnumerable<Scan> GetScans(long projectId, bool finished, ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTime? minScanDate = null, DateTime? maxScanDate = null, bool includeGhostScans = true)
         {
-            checkConnection();
-
-            IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
-
-            if (onlyPublic)
-                scans = scans.Where(x => x.IsPublic);
-
-            if (version != null)
-                scans = scans.Where(x => version.StartsWith(x.ProductVersion));
-
-            if (minScanDate != null)
-                scans = scans.Where(x => x.ScanRequestedOn >= new DateTimeOffset(minScanDate.Value));
-
-            if (maxScanDate != null)
-                scans = scans.Where(x => x.ScanRequestedOn <= new DateTimeOffset(maxScanDate.Value));
-
-            if (!includeGhostScans)
-                scans = scans.Where(x => !(x.ScanType == 1 && x.EngineFinishedOn == null));
+            var scans = GetScansFromOdata(projectId, finished, version, onlyPublic, minScanDate, maxScanDate, includeGhostScans);
 
             switch (scanKind)
             {
@@ -2142,11 +2125,36 @@ namespace Checkmarx.API
             }
 
             foreach (var scan in scans)
+                yield return ConvertScanFromOData(scan);
+        }
+
+        private IEnumerable<CxDataRepository.Scan> GetScansFromOdata(long projectId, bool finished, string version = null, bool onlyPublic = false, DateTime? minScanDate = null, DateTime? maxScanDate = null, bool includeGhostScans = true)
+        {
+            checkConnection();
+
+            IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
+
+            if (onlyPublic)
+                scans = scans.Where(x => x.IsPublic);
+
+            if (version != null)
+                scans = scans.Where(x => version.StartsWith(x.ProductVersion));
+
+            if (!includeGhostScans)
+                scans = scans.Where(x => !(x.ScanType == 1 && x.EngineFinishedOn == null));
+
+            foreach (var scan in scans)
             {
                 if (finished && scan.ScanType == 3)
                     continue;
 
-                yield return ConvertScanFromOData(scan);
+                if (minScanDate != null && scan.ScanRequestedOn?.DateTime < minScanDate.Value)
+                    continue;
+
+                if (maxScanDate != null && scan.ScanRequestedOn?.DateTime > maxScanDate.Value)
+                    continue;
+
+                yield return scan;
             }
         }
 
@@ -2727,24 +2735,30 @@ namespace Checkmarx.API
             return query.QueryId;
         }
 
-        private Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>> _queryCache = null;
-
+        private Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>> _queryVersionCache = null;
         public long GetPresetQueryId(long overrideQueryId)
         {
-            if (_queryCache == null)
+            if (_queryVersionCache == null)
             {
-                _queryCache = new Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>>();
-
-                foreach (var queryGroup in QueryGroups)
+                _queryVersionCache = new Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>>();
+                foreach (var queryGroup in QueryGroupsByVersion)
                 {
                     foreach (var query in queryGroup.Queries)
                     {
-                        _queryCache.Add(query.QueryId, new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query));
+                        if (_queryVersionCache.ContainsKey(query.QueryId))
+                        {
+                            if (_queryVersionCache[query.QueryId].Item2.QueryVersionCode < query.QueryVersionCode)
+                                _queryVersionCache[query.QueryId] = new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query);
+                        }
+                        else
+                        {
+                            _queryVersionCache.Add(query.QueryId, new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query));
+                        }
                     }
                 }
             }
 
-            var pair = _queryCache[overrideQueryId];
+            var pair = _queryVersionCache[overrideQueryId];
             return GetPresetQueryId(pair.Item1, pair.Item2);
         }
 
@@ -3011,7 +3025,6 @@ namespace Checkmarx.API
         }
 
         private IEnumerable<dynamic> _queryGroupsCache = null;
-
         public IEnumerable<dynamic> QueryGroups
         {
             get
@@ -3035,6 +3048,33 @@ namespace Checkmarx.API
                     _queryGroupsCache = response.QueryGroups;
                 }
                 return _queryGroupsCache;
+            }
+        }
+
+        private IEnumerable<dynamic> _queryGroupsByVersionCache = null;
+        public IEnumerable<dynamic> QueryGroupsByVersion
+        {
+            get
+            {
+                if (_queryGroupsByVersionCache == null)
+                {
+                    checkConnection();
+                    dynamic response = null;
+                    if (_isV9)
+                    {
+                        response = _cxPortalWebServiceSoapClientV9
+                              .GetQueryCollectionWithInactiveAsync(_soapSessionId).Result;
+                    }
+                    else
+                    {
+                        response = _cxPortalWebServiceSoapClient
+                              .GetQueryCollectionWithInactiveAsync(_soapSessionId).Result;
+
+                    }
+                    checkSoapResponse(response);
+                    _queryGroupsByVersionCache = response.QueryGroups;
+                }
+                return _queryGroupsByVersionCache;
             }
         }
 

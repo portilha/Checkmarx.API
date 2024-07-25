@@ -800,7 +800,7 @@ namespace Checkmarx.API.Tests
             var res = clientV9.GetResultsForScan(18263);
 
             var resByQueryId = res.GroupBy(x => x.QueryId).ToDictionary(x => x.Key, y => y.Count());
-            var resByPresetId = res.GroupBy(x => clientV9.GetPresetQueryId(x.QueryId)).ToDictionary(x => x.Key, y => y.Count());
+            var resByPresetId = res.GroupBy(x => clientV9.GetPresetQueryId(x.QueryVersionCode)).ToDictionary(x => x.Key, y => y.Count());
         }
 
         [TestMethod]

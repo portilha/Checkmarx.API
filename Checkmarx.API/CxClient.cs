@@ -97,6 +97,26 @@ namespace Checkmarx.API
             }
         }
 
+        private TimeSpan? _serverDateTimeOffSet;
+        public TimeSpan ServerDateTimeOffSet
+        {
+            get
+            {
+                if (_serverDateTimeOffSet == null)
+                {
+                    checkConnection();
+
+                    var project = _oDataProjects.FirstOrDefault();
+                    if (project == null)
+                        throw new Exception("There are no conditions to get client DateTime Offset.");
+
+                    _serverDateTimeOffSet = project.CreatedDate.Offset;
+                }
+
+                return _serverDateTimeOffSet.Value;
+            }
+        }
+
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> _oDataScans => _isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages) : _oData.Scans.Expand(x => x.ScannedLanguages);
 
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
@@ -2049,9 +2069,9 @@ namespace Checkmarx.API
             return GetScans(projectId, true).FirstOrDefault();
         }
 
-        public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true)
+        public Scan GetLastScan(long projectId, bool fullScanOnly = false, bool onlyPublic = false, DateTime? maxScanDate = null, bool finished = true, bool useServerTime = true)
         {
-            var scans = GetScans(projectId, finished, onlyPublic: onlyPublic, maxScanDate: maxScanDate);
+            var scans = GetScans(projectId, finished, onlyPublic: onlyPublic, maxScanDate: maxScanDate, useServerTime: useServerTime);
 
             // if there is no scans
             if (!scans.Any())
@@ -2065,13 +2085,17 @@ namespace Checkmarx.API
                 if (!finished)
                     return scans.OrderByDescending(x => x.DateAndTime.StartedOn).FirstOrDefault();
 
+                DateTimeOffset? filterMaxDate = null;
+                if (maxScanDate.HasValue)
+                    filterMaxDate = useServerTime ? new DateTimeOffset(maxScanDate.Value, ServerDateTimeOffSet) : new DateTimeOffset(maxScanDate.Value);
+
                 // Prevent cases where the Id's counters of the scans where reinitiated.
                 long? scanId = _oDataV95.Projects.Expand(x => x.Scans)
                     .Where(p => p.Id == projectId).FirstOrDefault()?.Scans
                     .Where(x => (!fullScanOnly || !x.IsIncremental.Value)
                              && (!onlyPublic || x.IsPublic)
                              && (!finished || x.ScanType == 1)
-                             && (maxScanDate == null || x.ScanCompletedOn <= new DateTimeOffset(maxScanDate.Value))
+                             && (filterMaxDate == null || x.ScanCompletedOn <= filterMaxDate)
                           )
                     .OrderByDescending(x => x.ScanRequestedOn)
                     .FirstOrDefault()?.Id;
@@ -2083,9 +2107,9 @@ namespace Checkmarx.API
             return scans.LastOrDefault();
         }
 
-        public Scan GetLastScanByVersion(long projectId, string version, bool onlyPublic = false, DateTime? maxScanDate = null)
+        public Scan GetLastScanByVersion(long projectId, string version, bool onlyPublic = false, DateTime? maxScanDate = null, bool useServerTime = true)
         {
-            return GetScans(projectId, true, version: version, onlyPublic: onlyPublic, maxScanDate: maxScanDate).LastOrDefault();
+            return GetScans(projectId, true, version: version, onlyPublic: onlyPublic, maxScanDate: maxScanDate, useServerTime: useServerTime).LastOrDefault();
         }
 
         public Scan GetLastScanFinishOrFailed(long projectId)
@@ -2104,9 +2128,39 @@ namespace Checkmarx.API
             return _oDataScans.Count();
         }
 
-        public IEnumerable<Scan> GetScans(long projectId, bool finished, ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTime? minScanDate = null, DateTime? maxScanDate = null, bool includeGhostScans = true)
+        public IEnumerable<Scan> GetScans(long projectId, bool finished, ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTime? minScanDate = null, DateTime? maxScanDate = null, bool includeGhostScans = true, bool useServerTime = true)
         {
-            var scans = GetScansFromOdata(projectId, finished, version, onlyPublic, minScanDate, maxScanDate, includeGhostScans);
+            DateTimeOffset? filterMaxDate = null;
+            if (maxScanDate.HasValue)
+                filterMaxDate = useServerTime ? new DateTimeOffset(maxScanDate.Value, ServerDateTimeOffSet) : new DateTimeOffset(maxScanDate.Value);
+
+            DateTimeOffset? filterMinDate = null;
+            if (minScanDate.HasValue)
+                filterMinDate = useServerTime ? new DateTimeOffset(minScanDate.Value, ServerDateTimeOffSet) : new DateTimeOffset(minScanDate.Value);
+
+            return GetODataScans(projectId, finished, scanKind, version, onlyPublic, filterMinDate, filterMaxDate, includeGhostScans);
+        }
+
+        public IEnumerable<Scan> GetODataScans(long projectId, bool finished, ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTimeOffset? minScanDateOffset = null, DateTimeOffset? maxScanDateOffset = null, bool includeGhostScans = true)
+        {
+            checkConnection();
+
+            IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
+
+            if (onlyPublic)
+                scans = scans.Where(x => x.IsPublic);
+
+            if (version != null)
+                scans = scans.Where(x => version.StartsWith(x.ProductVersion));
+
+            if (minScanDateOffset != null)
+                scans = scans.Where(x => x.ScanRequestedOn >= minScanDateOffset);
+
+            if (maxScanDateOffset != null)
+                scans = scans.Where(x => x.ScanRequestedOn <= maxScanDateOffset);
+
+            if (!includeGhostScans)
+                scans = scans.Where(x => !(x.ScanType == 1 && x.EngineFinishedOn == null));
 
             switch (scanKind)
             {
@@ -2125,36 +2179,11 @@ namespace Checkmarx.API
             }
 
             foreach (var scan in scans)
-                yield return ConvertScanFromOData(scan);
-        }
-
-        private IEnumerable<CxDataRepository.Scan> GetScansFromOdata(long projectId, bool finished, string version = null, bool onlyPublic = false, DateTime? minScanDate = null, DateTime? maxScanDate = null, bool includeGhostScans = true)
-        {
-            checkConnection();
-
-            IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
-
-            if (onlyPublic)
-                scans = scans.Where(x => x.IsPublic);
-
-            if (version != null)
-                scans = scans.Where(x => version.StartsWith(x.ProductVersion));
-
-            if (!includeGhostScans)
-                scans = scans.Where(x => !(x.ScanType == 1 && x.EngineFinishedOn == null));
-
-            foreach (var scan in scans)
             {
                 if (finished && scan.ScanType == 3)
                     continue;
 
-                if (minScanDate != null && scan.ScanRequestedOn?.DateTime < minScanDate.Value)
-                    continue;
-
-                if (maxScanDate != null && scan.ScanRequestedOn?.DateTime > maxScanDate.Value)
-                    continue;
-
-                yield return scan;
+                yield return ConvertScanFromOData(scan);
             }
         }
 
@@ -2736,7 +2765,7 @@ namespace Checkmarx.API
         }
 
         private Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>> _queryVersionCache = null;
-        public long GetPresetQueryId(long overrideQueryId)
+        public long GetPresetQueryId(long queryVersionCode)
         {
             if (_queryVersionCache == null)
             {
@@ -2745,20 +2774,12 @@ namespace Checkmarx.API
                 {
                     foreach (var query in queryGroup.Queries)
                     {
-                        if (_queryVersionCache.ContainsKey(query.QueryId))
-                        {
-                            if (_queryVersionCache[query.QueryId].Item2.QueryVersionCode < query.QueryVersionCode)
-                                _queryVersionCache[query.QueryId] = new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query);
-                        }
-                        else
-                        {
-                            _queryVersionCache.Add(query.QueryId, new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query));
-                        }
+                        _queryVersionCache.Add(query.QueryVersionCode, new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query));
                     }
                 }
             }
 
-            var pair = _queryVersionCache[overrideQueryId];
+            var pair = _queryVersionCache[queryVersionCode];
             return GetPresetQueryId(pair.Item1, pair.Item2);
         }
 

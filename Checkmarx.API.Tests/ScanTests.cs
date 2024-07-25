@@ -800,7 +800,7 @@ namespace Checkmarx.API.Tests
             var res = clientV9.GetResultsForScan(18263);
 
             var resByQueryId = res.GroupBy(x => x.QueryId).ToDictionary(x => x.Key, y => y.Count());
-            var resByPresetId = res.GroupBy(x => clientV9.GetPresetQueryId(x.QueryId)).ToDictionary(x => x.Key, y => y.Count());
+            var resByPresetId = res.GroupBy(x => clientV9.GetPresetQueryId(x.QueryVersionCode)).ToDictionary(x => x.Key, y => y.Count());
         }
 
         [TestMethod]
@@ -913,6 +913,20 @@ namespace Checkmarx.API.Tests
                     Trace.WriteLine($"Error for project {project.Id}: {ex.Message}");
                 }
             }
+        }
+
+        [TestMethod]
+        public void FetchScansByDateTest()
+        {
+            var filterDate = new DateTime(2024, 6, 23, 0, 3, 0);
+
+            var scanBefore = clientV93.GetScans(18096, true, scanKind: CxClient.ScanRetrieveKind.Last, maxScanDate: filterDate, includeGhostScans: false).SingleOrDefault();
+
+            Trace.WriteLine($"Scan Before: {scanBefore.Id}");
+
+            var scanAfter = clientV93.GetScans(18096, true, scanKind: CxClient.ScanRetrieveKind.First, minScanDate: filterDate, includeGhostScans: false).SingleOrDefault();
+
+            Trace.WriteLine($"Scan After: {scanAfter.Id}");
         }
     }
 }

@@ -2330,7 +2330,7 @@ namespace Checkmarx.API
 
         public bool ProjectHasScanRunning(long projectId)
         {
-            return GetScansQueue(projectId).Any();
+            return GetScansQueue(projectId).Any(x => !x.CompletedOn.HasValue);
         }
 
         public ICollection<ScanQueue> GetScansQueue(long? projectId = null)
@@ -3184,11 +3184,10 @@ namespace Checkmarx.API
             foreach (Match m in mc)
             {
                 GroupCollection groups = m.Groups;
-                double.TryParse(groups["pc"].Value.Replace(".", ","), out firstFinalScanAccuracy);
+                double.TryParse(groups["pc"].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out firstFinalScanAccuracy);
             }
 
             return firstFinalScanAccuracy;
-
         }
 
         /// <summary>

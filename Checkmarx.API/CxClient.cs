@@ -663,7 +663,11 @@ namespace Checkmarx.API
 
             Console.WriteLine("Checkmarx " + _version.ToString());
 
-            HttpClientHandler httpClientHandler = new();
+            HttpClientHandler httpClientHandler = new HttpClientHandler
+            {
+                AllowAutoRedirect = true,
+                MaxConnectionsPerServer = 10
+            };
 
             // Ignore certificate for http client
             if (ignoreCertificate)
@@ -1201,7 +1205,7 @@ namespace Checkmarx.API
                     throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
                 }
             }
-        } 
+        }
         #endregion
 
         public void SetProjectConfiguration(long projId, string projName = null, string teamId = null)
@@ -2418,7 +2422,7 @@ namespace Checkmarx.API
         }
 
         #endregion
-        
+
         #region Projects
 
         /// <summary>
@@ -2477,7 +2481,7 @@ namespace Checkmarx.API
         }
 
         #endregion
-       
+
         #region Users and Teams
 
         private IEnumerable<UserViewModel> _users { get; set; }
@@ -4131,7 +4135,8 @@ namespace Checkmarx.API
 
         #endregion
 
-        public void Dispose() {
+        public void Dispose()
+        {
             // There is logoff...
         }
     }

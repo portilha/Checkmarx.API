@@ -678,7 +678,7 @@ namespace Checkmarx.API
             httpClient = new HttpClient(httpClientHandler)
             {
                 BaseAddress = webServer,
-                Timeout = TimeSpan.FromMinutes(20)
+                Timeout = TimeSpan.FromMinutes(60)
             };
 
             if (httpClient.BaseAddress.LocalPath != "cxrestapi")
@@ -2458,7 +2458,6 @@ namespace Checkmarx.API
                     projects.Headers.Add("Connection", "keep-alive");
 
                     Task<HttpResponseMessage> projectListTask = httpClient.SendAsync(projects);
-
 
                     var projectListResponse = projectListTask.GetAwaiter().GetResult();
 

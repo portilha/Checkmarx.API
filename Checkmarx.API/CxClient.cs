@@ -1322,6 +1322,18 @@ namespace Checkmarx.API
             }
         }
 
+        public void DeleteProjects(params long[] ids)
+        {
+            var result = PortalSOAP.DeleteProjectsAsync(new cxPortalWebService93.CxWSRequestDeleteProjects
+            {
+                ProjectIDs = ids,
+                Flags = cxPortalWebService93.DeleteFlags.RunningScans,
+                SessionID = _soapSessionId
+            }).Result;
+
+            checkSoapResponse(result);
+        }
+
         /// <summary>
         /// Returns true if the SAST version supports a given version.s
         /// </summary>

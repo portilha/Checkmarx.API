@@ -52,6 +52,15 @@ It also provides access to the Access Control API.</Description>
     <WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <DebugType>None</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ExcludeFromPackageFiles Include="**\*.pdb" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="AST\**" />
     <EmbeddedResource Remove="AST\**" />

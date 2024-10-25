@@ -1,118 +1,121 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Version>6.1</Version>
-    <Authors>Pedro Portilha</Authors>
-    <Company>Checkmarx</Company>
-    <Description>Checkmarx API (Unofficial)
-This SDK provides an API wrapper for accessing REST, SOAP and OData API for the Checkmarx SAST and OSA products.
-It also provides access to the Access Control API.</Description>
-    <Copyright>Copyright ©2021</Copyright>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageIcon>CxIcon.png</PackageIcon>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <UserSecretsId>9629655e-7523-42f3-b285-1cf568d14b45</UserSecretsId>
-    <RepositoryUrl>https://github.com/portilha/Checkmarx.API</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Configurations>Debug;Release;Publish</Configurations>
-    <Platforms>AnyCPU;x64</Platforms>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Version>6.1</Version>
+		<Authors>Pedro Portilha</Authors>
+		<Company>Checkmarx</Company>
+		<Description>
+			Checkmarx API (Unofficial)
+			This SDK provides an API wrapper for accessing REST, SOAP and OData API for the Checkmarx SAST and OSA products.
+			It also provides access to the Access Control API.
+		</Description>
+		<Copyright>Copyright ©2021</Copyright>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>CxIcon.png</PackageIcon>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<UserSecretsId>9629655e-7523-42f3-b285-1cf568d14b45</UserSecretsId>
+		<RepositoryUrl>https://github.com/portilha/Checkmarx.API</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Configurations>Debug;Release;Publish</Configurations>
+		<Platforms>AnyCPU;x64</Platforms>
 
-  </PropertyGroup>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Publish|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Publish|AnyCPU'">
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Publish|x64'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Publish|x64'">
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="AST\**" />
-    <EmbeddedResource Remove="AST\**" />
-    <None Remove="AST\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="AST\**" />
+		<EmbeddedResource Remove="AST\**" />
+		<None Remove="AST\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="output.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="output.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Connected Services\CxSAST OData Service V94\CxSAST OData Service V94Csdl.xml" />
-    <None Remove="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
-    <None Remove="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Assets\exclusions.json" />
+		<None Remove="Connected Services\CxSAST OData Service V94\CxSAST OData Service V94Csdl.xml" />
+		<None Remove="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
+		<None Remove="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Connected Services\CxSAST OData Service V94\CxSAST OData Service V94Csdl.xml" />
-    <EmbeddedResource Include="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
-    <EmbeddedResource Include="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Assets\exclusions.json">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Connected Services\CxSAST OData Service V94\CxSAST OData Service V94Csdl.xml" />
+		<EmbeddedResource Include="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
+		<EmbeddedResource Include="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Capri" Version="0.0.1" />
-    <PackageReference Include="Checkmarx.API.AccessControl" Version="3.0.0" />
-    <PackageReference Include="Checkmarx.API.SCA" Version="4.0.0" />
-    <PackageReference Include="Microsoft.Data.OData" Version="5.8.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
-    <PackageReference Include="Microsoft.OData.Client" Version="7.21.3" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.21.3" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="7.21.3" />
-    <PackageReference Include="Microsoft.Spatial" Version="7.21.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.3" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
-    <PackageReference Include="System.ServiceModel.Federation" Version="8.0.0" />
-    <PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="8.0.0" />
-    <PackageReference Include="System.ServiceModel.Security" Version="6.0.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Capri" Version="0.0.1" />
+		<PackageReference Include="Checkmarx.API.AccessControl" Version="3.0.0" />
+		<PackageReference Include="Checkmarx.API.SCA" Version="4.0.0" />
+		<PackageReference Include="Microsoft.Data.OData" Version="5.8.5" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+		<PackageReference Include="Microsoft.OData.Client" Version="7.21.3" />
+		<PackageReference Include="Microsoft.OData.Core" Version="7.21.3" />
+		<PackageReference Include="Microsoft.OData.Edm" Version="7.21.3" />
+		<PackageReference Include="Microsoft.Spatial" Version="7.21.3" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.3" />
+		<PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
+		<PackageReference Include="System.ServiceModel.Federation" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.NetTcp" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.Security" Version="6.0.0" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Assets\CxIcon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Update="Assets\exclusions.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Assets\CxIcon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="Assets\CxIcon.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Assets\CxIcon.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</EmbeddedResource>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-    <WCFMetadata Include="Connected Services" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Properties\" />
+		<WCFMetadata Include="Connected Services" />
+	</ItemGroup>
 
 </Project>

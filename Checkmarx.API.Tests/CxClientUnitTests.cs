@@ -14,6 +14,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Checkmarx.API;
 using Checkmarx.API.Exceptions;
+using Checkmarx.API.Tests.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OData.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -225,7 +226,7 @@ namespace Checkmarx.API.Tests
             // unzip
             ZipFile.ExtractToDirectory(zipPath, extractPath);
 
-            var exclusions = Exclusions.FromJson("exclusions.json");
+            var exclusions = Exclusions.FromJson(TestUtils.ReadEmbeddedFile("exclusions.json"));
 
             Regex[] filesRegex = exclusions.Files.Select(x => new Regex(x, RegexOptions.Compiled)).ToArray();
             Regex[] foldersRegex = exclusions.Folders.Select(x => new Regex(x, RegexOptions.Compiled)).ToArray();

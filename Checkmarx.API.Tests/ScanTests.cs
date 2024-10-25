@@ -614,7 +614,7 @@ namespace Checkmarx.API.Tests
 
                                     similarityIdResult.Add(resultPath.SimilarityId);
 
-                                    var uri = Utils.GetLink(resultPath, clientV93, project.Key, scan.Id);
+                                    var uri = Checkmarx.API.Utils.GetLink(resultPath, clientV93, project.Key, scan.Id);
 
                                     stringBuilder.AppendLine("<li>");
                                     stringBuilder.AppendLine($"<a href=\"{uri.AbsoluteUri}\">Result [{toResultStateToString((ResultState)resultPath.State)}]</a>");
@@ -651,7 +651,7 @@ namespace Checkmarx.API.Tests
         {
             foreach (var item in clientV93.GetODataResults(1031805).Where(x => x.PathId == 38))
             {
-                var uri = Utils.GetLink(item, clientV93, item.Scan.ProjectId, item.ScanId);
+                var uri = Checkmarx.API.Utils.GetLink(item, clientV93, item.Scan.ProjectId, item.ScanId);
 
                 Trace.WriteLine($"{uri.AbsoluteUri}");
 

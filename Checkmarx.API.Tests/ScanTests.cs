@@ -9,6 +9,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -27,6 +28,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static Checkmarx.API.CxClient;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.OData.Client;
+using System.Diagnostics;
 
 namespace Checkmarx.API.Tests
 {
@@ -804,6 +811,188 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void GetProjectsTest()
+        {
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
+
+            var newProjects = fetchProjectsViaOData().Result;
+
+            Trace.WriteLine("ODATA Paging: " +  newProjects.Count + " took " + watch.Elapsed.TotalSeconds.ToString());
+
+            watch.Restart();
+
+            var projDetails = clientV93.GetAllProjectsDetails()
+                     .Where(x => x.TeamId != "-1")
+                     .ToList();
+
+            Trace.WriteLine("REST: " +  projDetails.Count + " took " + watch.Elapsed.TotalSeconds.ToString());
+
+            watch.Restart();
+
+            List<SAST.OData.Project> oldQueryProjects = clientV93.ODataV95.Projects
+                     .Expand(x => x.LastScan)
+                     .Expand(y => y.LastScan.ScannedLanguages)
+                     .Expand(x => x.Preset)
+                     .Expand(x => x.CustomFields)
+                     .Where(y => y.OwningTeamId != -1)
+                     .ToList();
+
+            Trace.WriteLine("ODATA Single Request: " +  oldQueryProjects.Count + " took " + watch.Elapsed.TotalSeconds.ToString());
+
+            var newIds = newProjects.Select(x => x.Id).ToHashSet();
+
+            List<long> newProjectsIDs = new List<long>();
+            foreach (var item in newProjects)
+            {
+                if (!newProjectsIDs.Contains(item.Id))
+                    newProjectsIDs.Add(item.Id);
+                else
+                    Trace.Write("Duplicated:" + item.Id);
+            }
+
+            foreach (var item in oldQueryProjects.Where(x => !newIds.Contains(x.Id)))
+            {
+                Trace.Write(item.Id);
+            }
+
+            Assert.AreEqual(projDetails.Count, oldQueryProjects.Count, "The REST and the OData call should return the same number of projects");
+
+            Assert.AreEqual(oldQueryProjects.Count, newProjects.Count, "The OData with and without paging should return the same number of projects");
+        }
+
+        private ICollection<API.SAST.OData.Project> getProjectsViaOData()
+        {
+            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+
+            var allProjects = new List<API.SAST.OData.Project>();
+            int pageSize = 500;
+            int skip = 0;
+            bool hasMoreResults = true;
+
+            while (hasMoreResults)
+            {
+
+#if DEBUG
+                watch.Restart();
+                try
+                {
+#endif
+
+                    var projectsQuery = clientV93.ODataV95.Projects
+                                    .Expand(x => x.LastScan)
+                                    .Expand(y => y.LastScan.ScannedLanguages)
+                                    .Expand(x => x.Preset)
+                                    .Expand(x => x.CustomFields)
+                                    .Where(y => y.OwningTeamId != -1)
+                                    .OrderBy(p => p.Id) // Ensure consistent ordering across pages
+                                    .Skip(skip)
+                                    .Take(pageSize);
+
+                    var projects = projectsQuery.ToList();
+
+                    allProjects.AddRange(projects);
+
+                    Trace.WriteLine($"Fetched {projects.Count} projects. Total: {allProjects.Count}");
+
+                    if (projects.Count < pageSize)
+                    {
+                        hasMoreResults = false;
+                    }
+                    else
+                    {
+                        skip += pageSize;
+                    }
+#if DEBUG
+                }
+                finally
+                {
+                    watch.Stop();
+                    Trace.WriteLine("Fetch Time-ms: " + watch.Elapsed.TotalSeconds.ToString());
+                }
+#endif
+            }
+
+            return allProjects;
+        }
+
+
+        private static readonly int MaxRetries = 10;
+        private static readonly int MinPageSize = 10;
+
+        public static async Task<ICollection<API.SAST.OData.Project>> fetchProjectsViaOData()
+        {
+            var allProjects = new List<SAST.OData.Project>();
+            int currentPageSize = 10000;
+            int skip = 0;
+            bool hasMoreResults = true;
+            int attempt = 0;
+
+            while (hasMoreResults)
+            {
+                try
+                {
+                    var projects = await ExecuteQuery(skip, currentPageSize);
+
+                    if (projects.Count == 0)
+                    {
+                        hasMoreResults = false;
+                    }
+                    else
+                    {
+                        attempt = 0;
+
+                        allProjects.AddRange(projects);
+                        skip += projects.Count;
+                        Trace.WriteLine($"Successfully fetched {projects.Count} projects. Total: {allProjects.Count}");
+
+                        if (projects.Count < currentPageSize)
+                            hasMoreResults = false;
+
+                        // Optionally increase page size on success
+                        // currentPageSize = Math.Min(currentPageSize * 2, InitialPageSize);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error occurred: {ex.Message}");
+
+                    attempt++;
+                    if (attempt == MaxRetries)
+                    {
+                        throw; // Rethrow if all retries failed
+                    }
+
+                    // Reduce page size on failure
+                    currentPageSize = Math.Max(currentPageSize / 2, MinPageSize);
+                    Trace.WriteLine($"Reduced page size to {currentPageSize}");
+
+                    // Delay the next request
+                    var delay = TimeSpan.FromSeconds(Math.Pow(2, attempt));
+                    Trace.WriteLine($"Attempt {attempt} failed. Retrying in {delay.TotalSeconds} seconds...");
+                    Thread.Sleep(delay);
+                }
+            }
+
+            return allProjects;
+        }
+
+
+        private static Task<List<SAST.OData.Project>> ExecuteQuery(int skip, int pageSize)
+        {
+            return Task.Run(() => clientV93.ODataV95.Projects
+                .Expand(x => x.LastScan)
+                .Expand(y => y.LastScan.ScannedLanguages)
+                .Expand(x => x.Preset)
+                .Expand(x => x.CustomFields)
+                .Where(y => y.OwningTeamId != -1)
+                // .OrderBy(p => p.Id) // Ensure consistent ordering
+                .Skip(skip)
+                .Take(pageSize)
+                .ToList());
+        }
+
+        [TestMethod]
         public void ConflictIdInODataQueryTest()
         {
             for (int i = 0; i < 10; i++)
@@ -826,7 +1015,6 @@ namespace Checkmarx.API.Tests
                     else
                         Trace.WriteLine(x.Id);
                 }
-
             }
         }
 
@@ -928,5 +1116,9 @@ namespace Checkmarx.API.Tests
 
             Trace.WriteLine($"Scan After: {scanAfter.Id}");
         }
+
+
+
+
     }
 }

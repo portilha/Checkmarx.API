@@ -3818,7 +3818,8 @@ namespace Checkmarx.API
             Info = 0,
             Low = 1,
             Medium = 2,
-            High = 3
+            High = 3,
+            Critical = 4
         }
 
 
@@ -3876,6 +3877,8 @@ namespace Checkmarx.API
                     return "Medium";
                 case 3:
                     return "High";
+                case 4:
+                    return "Critical";
                 default:
                     throw new NotImplementedException();
             }
@@ -3955,6 +3958,9 @@ namespace Checkmarx.API
             }
 
             Dictionary<CxDataRepository.Severity, int> dic = queryDic.GroupBy(x => x.Value).ToDictionary(x => x.Key, y => y.Count());
+
+            if (!dic.ContainsKey(CxDataRepository.Severity.Critical))
+                dic.Add(CxDataRepository.Severity.Critical, 0);
 
             if (!dic.ContainsKey(CxDataRepository.Severity.High))
                 dic.Add(CxDataRepository.Severity.High, 0);

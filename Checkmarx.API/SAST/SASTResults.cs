@@ -14,6 +14,8 @@ namespace Checkmarx.API.SAST
 
         public int Loc { get; set; }
 
+        public uint Critical { get; set; }
+
         public uint High { get; set; }
 
         public uint Medium { get; set; }
@@ -21,6 +23,8 @@ namespace Checkmarx.API.SAST
         public uint Low { get; set; }
 
         public uint Info { get; set; }
+
+        public uint CriticalToVerify { get; set; }
 
         public uint HighToVerify { get; set; }
 

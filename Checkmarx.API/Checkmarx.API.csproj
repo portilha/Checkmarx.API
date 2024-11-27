@@ -86,20 +86,20 @@
 		<PackageReference Include="Checkmarx.API.AccessControl" Version="3.0.0" />
 		<PackageReference Include="Checkmarx.API.SCA" Version="4.0.0" />
 		<PackageReference Include="Microsoft.Data.OData" Version="5.8.5" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
-		<PackageReference Include="Microsoft.OData.Client" Version="7.21.3" />
-		<PackageReference Include="Microsoft.OData.Core" Version="7.21.3" />
-		<PackageReference Include="Microsoft.OData.Edm" Version="7.21.3" />
-		<PackageReference Include="Microsoft.Spatial" Version="7.21.3" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
+		<PackageReference Include="Microsoft.OData.Client" Version="8.2.2" />
+		<PackageReference Include="Microsoft.OData.Core" Version="8.2.2" />
+		<PackageReference Include="Microsoft.OData.Edm" Version="8.2.2" />
+		<PackageReference Include="Microsoft.Spatial" Version="8.2.2" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.3" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
 		<PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
-		<PackageReference Include="System.ServiceModel.Federation" Version="8.0.0" />
-		<PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
-		<PackageReference Include="System.ServiceModel.NetTcp" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.Federation" Version="8.1.0" />
+		<PackageReference Include="System.ServiceModel.Http" Version="8.1.0" />
+		<PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.0" />
 		<PackageReference Include="System.ServiceModel.Security" Version="6.0.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+		<PackageReference Include="System.Text.Json" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

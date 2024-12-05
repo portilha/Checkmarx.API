@@ -415,6 +415,11 @@ namespace Checkmarx.API
             return PortalSOAP.GetScanCompareSummaryAsync(_soapSessionId, previousScanId, newScanId).Result;
         }
 
+        public cxPortalWebService93.CxWSResponceResultPath GetScanResultPath(long scanId, long pathId)
+        {
+            return PortalSOAP.GetResultPathAsync(_soapSessionId, scanId, pathId).Result;
+        }
+
         /// <summary>
         /// GET Generic Request... ODATA/REST/SOAP
         /// </summary>

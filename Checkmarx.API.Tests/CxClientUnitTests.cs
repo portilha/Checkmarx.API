@@ -90,6 +90,29 @@ namespace Checkmarx.API.Tests
             }
         }
 
+        [TestMethod]
+        public void ProjectExclusionsTest()
+        {
+            var projects = clientV93.ODataV95.Projects.Expand(x => x.Preset)
+                                                      .Expand(x => x.CustomFields)
+                                                      .Where(y => y.IsPublic && y.OwningTeamId != -1)
+                                                      .ToList();
+            int inError = 0;
+            foreach (var project in projects)
+            {
+                try
+                {
+                    var exclusions = clientV93.GetExcludedSettings(project.Id);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error for project {project.Id}. Reason: {ex.Message}");
+                    inError++;
+                }
+            }
+
+            Trace.WriteLine($"Error fetching project exclusions for {inError} projects in {projects.Count()}");
+        }
 
         [TestMethod]
         public void GetAuthenticationBearTokenTest()

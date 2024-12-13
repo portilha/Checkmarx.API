@@ -1057,19 +1057,40 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}/sourceCode/excludeSettings"))
+            if (Version.Major > 9 || (Version.Major == 9 && Version.Minor >= 6))
             {
-                request.Headers.Add("Accept", "application/json;v=1.0");
-
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
-
-                if (response.StatusCode == HttpStatusCode.OK)
+                using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}/sourceCode/pathFilter"))
                 {
-                    JObject excludeSettings = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
+                    request.Headers.Add("Accept", "application/json");
 
-                    return new Tuple<string, string>(
-                       (string)excludeSettings.SelectToken("excludeFoldersPattern"),
-                       (string)excludeSettings.SelectToken("excludeFilesPattern"));
+                    HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        JObject excludeSettings = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
+
+                        return new Tuple<string, string>(
+                           (string)excludeSettings.SelectToken("pathFilter"),
+                           (string)excludeSettings.SelectToken("pathFilter"));
+                    }
+                }
+            }
+            else
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Get, $"projects/{projectId}/sourceCode/excludeSettings"))
+                {
+                    request.Headers.Add("Accept", "application/json");
+
+                    HttpResponseMessage response = httpClient.SendAsync(request).Result;
+
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        JObject excludeSettings = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
+
+                        return new Tuple<string, string>(
+                           (string)excludeSettings.SelectToken("excludeFoldersPattern"),
+                           (string)excludeSettings.SelectToken("excludeFilesPattern"));
+                    }
                 }
             }
 

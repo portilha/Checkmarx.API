@@ -155,8 +155,8 @@ namespace Checkmarx.API.Tests
             var previousScanNEResultList = clientV89.GetNotExploitableFromScan(1003127).ToList();
             var scanNEResultList = clientV89.GetNotExploitableFromScan(1009757).ToList();
 
-            var results = clientV89.GetResultsForScanByStateId(1009757, ResultState.NonExploitable);
-            var previousResults = clientV89.GetResultsForScanByStateId(1003127, ResultState.NonExploitable);
+            var results = clientV89.GetResultsForScanByState(1009757, ResultState.NonExploitable);
+            var previousResults = clientV89.GetResultsForScanByState(1003127, ResultState.NonExploitable);
 
             //// < 9.5
             //var results1 = clientV9.GetResultsForScan(1661644).ToList();

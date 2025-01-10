@@ -7,249 +7,250 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using Checkmarx.API.Models;
 using System;
 using System.ServiceModel;
 
 namespace CxAuditWebServiceV9
 {
-    
-    
+
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.ServiceModel.ServiceContractAttribute(Namespace="http://Checkmarx.com/v7", ConfigurationName="CxAuditWebServiceV9.CxAuditWebServiceSoap")]
+    [System.ServiceModel.ServiceContractAttribute(Namespace = "http://Checkmarx.com/v7", ConfigurationName = "CxAuditWebServiceV9.CxAuditWebServiceSoap")]
     public interface CxAuditWebServiceSoap
     {
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/Login", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/Login", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseLoginData> LoginAsync(CxAuditWebServiceV9.Credentials applicationCredentials, int lcid);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/SaveScanResultsToProject", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/SaveScanResultsToProject", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseBasicScanData> SaveScanResultsToProjectAsync(string sessionId, long projectId, string sourceId, CxAuditWebServiceV9.AuditResultsCollection resultsCollection, string comment, string version);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/AddScanResultsToProject", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/AddScanResultsToProject", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseBasicScanData> AddScanResultsToProjectAsync(string sessionId, long projectId, string sourceId, CxAuditWebServiceV9.AuditResultsCollection resultsCollection, string comment);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetAncestryGroupTree", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetAncestryGroupTree", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseHierarchyGroupNodes> GetAncestryGroupTreeAsync(string sessionID, int pTeamID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetCache", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetCache", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseCache> GetCacheAsync(string sessionId, long scanId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetHierarchyGroupTree", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetHierarchyGroupTree", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseHierarchyGroupNodes> GetHierarchyGroupTreeAsync(string sessionID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetPresetDetails", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetPresetDetails", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponsePresetDetails> GetPresetDetailsAsync(string sessionId, long id);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetPresetList", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetPresetList", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponsePresetList> GetPresetListAsync(string SessionID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetProjectConfiguration", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetProjectConfiguration", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseProjectConfig> GetProjectConfigurationAsync(string sessionID, long projectID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetFilesExtensions", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetFilesExtensions", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseFileExtensionsSetList> GetFilesExtensionsAsync(string sessionId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetEngineConfiguration", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetEngineConfiguration", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWsResponseEngineItemsConfiguration> GetEngineConfigurationAsync(string sessionID, long configurationId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetProjectsWithScans", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetProjectsWithScans", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseProjectsScansList> GetProjectsWithScansAsync(string sessionId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetQueryCollectionForLanguage", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetQueryCollectionForLanguage", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxQueryCollectionResponse> GetQueryCollectionForLanguageAsync(string sessionId, int projectType, long projectId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetQueryCollectionForLanguageByTeamId", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetQueryCollectionForLanguageByTeamId", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxQueryCollectionResponse> GetQueryCollectionForLanguageByTeamIdAsync(string sessionId, int projectType, int teamId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetQueryDescription", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetQueryDescription", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseQueryDescription> GetQueryDescriptionAsync(string sessionId, int cweId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetQueryDescriptionByQueryId", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetQueryDescriptionByQueryId", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseQueryDescription> GetQueryDescriptionByQueryIdAsync(string sessionId, int queryId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetResults", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetResults", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseResultCollection> GetResultsAsync(string sessionId, long scanId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetResultStateList", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetResultStateList", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseResultStateList> GetResultStateListAsync(string sessionID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetResultSummary", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetResultSummary", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CXWSResponseResultSummary> GetResultSummaryAsync(string sessionId, long scanId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetPathCommentsHistory", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetPathCommentsHistory", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponceResultPath> GetPathCommentsHistoryAsync(string sessionId, long scanId, long pathId, CxAuditWebServiceV9.ResultLabelTypeEnum labelType);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetSourceCodeForScan", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetSourceCodeForScan", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseSourceContainer> GetSourceCodeForScanAsync(string sessionID, long scanId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/Logout", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/Logout", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> LogoutAsync(string sessionID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/UpdateResultState", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/UpdateResultState", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> UpdateResultStateAsync(string sessionID, long scanId, long PathId, long projectId, string Remarks, int ResultLabelType, string data);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/UpdateScanComment", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/UpdateScanComment", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> UpdateScanCommentAsync(string sessionID, long ScanID, string Comment);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/UploadProjectWithDefaultSettings", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/UploadProjectWithDefaultSettings", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseSourceID> UploadProjectWithDefaultSettingsAsync(string sessionId, CxAuditWebServiceV9.ProjectBasicSettings projectSettings, CxAuditWebServiceV9.LocalCodeContainer localCodeContainer);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/UploadQueries", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/UploadQueries", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> UploadQueriesAsync(string sessionId, CxAuditWebServiceV9.CxWSQueryGroup[] queries);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetQueriesCategories", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetQueriesCategories", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseQueriesCategories> GetQueriesCategoriesAsync(string sessionId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetQueryCollection", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetQueryCollection", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxQueryCollectionResponse> GetQueryCollectionAsync(string sessionId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/ImportQueries", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/ImportQueries", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.ImportQueriesResponse> ImportQueriesAsync(CxAuditWebServiceV9.ImportQueriesRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/GetLicenseDetails", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/GetLicenseDetails", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseLicenseOfLicenseDTO> GetLicenseDetailsAsync(string sessionId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/v7/KeepAlive", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/v7/KeepAlive", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PrivilegedData))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Group))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(CxWSIssueTrackingParam[]))]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseKeepAlive> KeepAliveAsync(string sessionId);
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class Credentials
     {
-        
+
         private string userField;
-        
+
         private string passField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string User
         {
             get
@@ -261,9 +262,9 @@ namespace CxAuditWebServiceV9
                 this.userField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string Pass
         {
             get
@@ -276,26 +277,26 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class LicenseDTO
     {
-        
+
         private bool isLicensedField;
-        
+
         private bool isAllowedToEditQueriesField;
-        
+
         private string hIDField;
-        
+
         private System.DateTime experationField;
-        
+
         private string licensedToField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public bool IsLicensed
         {
             get
@@ -307,9 +308,9 @@ namespace CxAuditWebServiceV9
                 this.isLicensedField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public bool IsAllowedToEditQueries
         {
             get
@@ -321,9 +322,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToEditQueriesField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string HID
         {
             get
@@ -335,9 +336,9 @@ namespace CxAuditWebServiceV9
                 this.hIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public System.DateTime Experation
         {
             get
@@ -349,9 +350,9 @@ namespace CxAuditWebServiceV9
                 this.experationField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public string LicensedTo
         {
             get
@@ -364,20 +365,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class ProjectBasicSettings
     {
-        
+
         private string projectNameField;
-        
+
         private int associatedGroupIDField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string ProjectName
         {
             get
@@ -389,9 +390,9 @@ namespace CxAuditWebServiceV9
                 this.projectNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public int AssociatedGroupID
         {
             get
@@ -404,28 +405,28 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResultSummary
     {
-        
+
         private long queryIdField;
-        
+
         private string queryNameField;
-        
+
         private string queryGroupNameField;
-        
+
         private long countField;
-        
+
         private int severityField;
-        
+
         private long cweField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long QueryId
         {
             get
@@ -437,9 +438,9 @@ namespace CxAuditWebServiceV9
                 this.queryIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string QueryName
         {
             get
@@ -451,9 +452,9 @@ namespace CxAuditWebServiceV9
                 this.queryNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string QueryGroupName
         {
             get
@@ -465,9 +466,9 @@ namespace CxAuditWebServiceV9
                 this.queryGroupNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public long Count
         {
             get
@@ -479,9 +480,9 @@ namespace CxAuditWebServiceV9
                 this.countField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public int Severity
         {
             get
@@ -493,9 +494,9 @@ namespace CxAuditWebServiceV9
                 this.severityField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public long Cwe
         {
             get
@@ -508,20 +509,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class ResultState
     {
-        
+
         private string resultNameField;
-        
+
         private long resultIDField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string ResultName
         {
             get
@@ -533,9 +534,9 @@ namespace CxAuditWebServiceV9
                 this.resultNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public long ResultID
         {
             get
@@ -548,22 +549,22 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxCategoryType
     {
-        
+
         private long idField;
-        
+
         private string nameField;
-        
+
         private int orderField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long Id
         {
             get
@@ -575,9 +576,9 @@ namespace CxAuditWebServiceV9
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string Name
         {
             get
@@ -589,9 +590,9 @@ namespace CxAuditWebServiceV9
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public int Order
         {
             get
@@ -604,22 +605,22 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxQueryCategory
     {
-        
+
         private long idField;
-        
+
         private string categoryNameField;
-        
+
         private CxCategoryType categoryTypeField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long Id
         {
             get
@@ -631,9 +632,9 @@ namespace CxAuditWebServiceV9
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string CategoryName
         {
             get
@@ -645,9 +646,9 @@ namespace CxAuditWebServiceV9
                 this.categoryNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public CxCategoryType CategoryType
         {
             get
@@ -660,44 +661,44 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSQuery
     {
-        
+
         private string nameField;
-        
+
         private long queryIdField;
-        
+
         private string sourceField;
-        
+
         private long cweField;
-        
+
         private bool isExecutableField;
-        
+
         private bool isEncryptedField;
-        
+
         private int severityField;
-        
+
         private long packageIdField;
-        
+
         private QueryStatus statusField;
-        
+
         private CxWSQueryType typeField;
-        
+
         private CxQueryCategory[] categoriesField;
-        
+
         private int cxDescriptionIDField;
-        
+
         private long queryVersionCodeField;
-        
+
         private string engineMetadataField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Name
         {
             get
@@ -709,9 +710,9 @@ namespace CxAuditWebServiceV9
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public long QueryId
         {
             get
@@ -723,9 +724,9 @@ namespace CxAuditWebServiceV9
                 this.queryIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string Source
         {
             get
@@ -737,9 +738,9 @@ namespace CxAuditWebServiceV9
                 this.sourceField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public long Cwe
         {
             get
@@ -751,9 +752,9 @@ namespace CxAuditWebServiceV9
                 this.cweField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public bool IsExecutable
         {
             get
@@ -765,9 +766,9 @@ namespace CxAuditWebServiceV9
                 this.isExecutableField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public bool IsEncrypted
         {
             get
@@ -779,9 +780,9 @@ namespace CxAuditWebServiceV9
                 this.isEncryptedField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public int Severity
         {
             get
@@ -793,9 +794,9 @@ namespace CxAuditWebServiceV9
                 this.severityField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 7)]
         public long PackageId
         {
             get
@@ -807,9 +808,9 @@ namespace CxAuditWebServiceV9
                 this.packageIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=8)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 8)]
         public QueryStatus Status
         {
             get
@@ -821,9 +822,9 @@ namespace CxAuditWebServiceV9
                 this.statusField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=9)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 9)]
         public CxWSQueryType Type
         {
             get
@@ -835,9 +836,9 @@ namespace CxAuditWebServiceV9
                 this.typeField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=10)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 10)]
         public CxQueryCategory[] Categories
         {
             get
@@ -849,9 +850,9 @@ namespace CxAuditWebServiceV9
                 this.categoriesField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=11)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 11)]
         public int CxDescriptionID
         {
             get
@@ -863,9 +864,9 @@ namespace CxAuditWebServiceV9
                 this.cxDescriptionIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=12)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 12)]
         public long QueryVersionCode
         {
             get
@@ -877,9 +878,9 @@ namespace CxAuditWebServiceV9
                 this.queryVersionCodeField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=13)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 13)]
         public string EngineMetadata
         {
             get
@@ -892,82 +893,82 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum QueryStatus
     {
-        
+
         /// <remarks/>
         Original,
-        
+
         /// <remarks/>
         New,
-        
+
         /// <remarks/>
         Edited,
-        
+
         /// <remarks/>
         Deleted,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum CxWSQueryType
     {
-        
+
         /// <remarks/>
         Draft,
-        
+
         /// <remarks/>
         Regular,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSQueryGroup
     {
-        
+
         private string nameField;
-        
+
         private int[] impactsField;
-        
+
         private long packageIdField;
-        
+
         private CxWSQuery[] queriesField;
-        
+
         private bool isReadOnlyField;
-        
+
         private bool isEncryptedField;
-        
+
         private string descriptionField;
-        
+
         private int languageField;
-        
+
         private string languageNameField;
-        
+
         private string packageTypeNameField;
-        
+
         private long projectIdField;
-        
+
         private CxWSPackageTypeEnum packageTypeField;
-        
+
         private string packageFullNameField;
-        
+
         private int owningTeamField;
-        
+
         private QueryStatus statusField;
-        
+
         private string languageStateHashField;
-        
+
         private System.DateTime languageStateDateField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Name
         {
             get
@@ -979,9 +980,9 @@ namespace CxAuditWebServiceV9
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=1)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 1)]
         public int[] Impacts
         {
             get
@@ -993,9 +994,9 @@ namespace CxAuditWebServiceV9
                 this.impactsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public long PackageId
         {
             get
@@ -1007,9 +1008,9 @@ namespace CxAuditWebServiceV9
                 this.packageIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=3)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 3)]
         public CxWSQuery[] Queries
         {
             get
@@ -1021,9 +1022,9 @@ namespace CxAuditWebServiceV9
                 this.queriesField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public bool IsReadOnly
         {
             get
@@ -1035,9 +1036,9 @@ namespace CxAuditWebServiceV9
                 this.isReadOnlyField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public bool IsEncrypted
         {
             get
@@ -1049,9 +1050,9 @@ namespace CxAuditWebServiceV9
                 this.isEncryptedField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public string Description
         {
             get
@@ -1063,9 +1064,9 @@ namespace CxAuditWebServiceV9
                 this.descriptionField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 7)]
         public int Language
         {
             get
@@ -1077,9 +1078,9 @@ namespace CxAuditWebServiceV9
                 this.languageField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=8)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 8)]
         public string LanguageName
         {
             get
@@ -1091,9 +1092,9 @@ namespace CxAuditWebServiceV9
                 this.languageNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=9)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 9)]
         public string PackageTypeName
         {
             get
@@ -1105,9 +1106,9 @@ namespace CxAuditWebServiceV9
                 this.packageTypeNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=10)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 10)]
         public long ProjectId
         {
             get
@@ -1119,9 +1120,9 @@ namespace CxAuditWebServiceV9
                 this.projectIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=11)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 11)]
         public CxWSPackageTypeEnum PackageType
         {
             get
@@ -1133,9 +1134,9 @@ namespace CxAuditWebServiceV9
                 this.packageTypeField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=12)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 12)]
         public string PackageFullName
         {
             get
@@ -1147,9 +1148,9 @@ namespace CxAuditWebServiceV9
                 this.packageFullNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=13)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 13)]
         public int OwningTeam
         {
             get
@@ -1161,9 +1162,9 @@ namespace CxAuditWebServiceV9
                 this.owningTeamField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=14)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 14)]
         public QueryStatus Status
         {
             get
@@ -1175,9 +1176,9 @@ namespace CxAuditWebServiceV9
                 this.statusField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=15)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 15)]
         public string LanguageStateHash
         {
             get
@@ -1189,9 +1190,9 @@ namespace CxAuditWebServiceV9
                 this.languageStateHashField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=16)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 16)]
         public System.DateTime LanguageStateDate
         {
             get
@@ -1204,41 +1205,41 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum CxWSPackageTypeEnum
     {
-        
+
         /// <remarks/>
         Cx,
-        
+
         /// <remarks/>
         Corporate,
-        
+
         /// <remarks/>
         Project,
-        
+
         /// <remarks/>
         Team,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseBasicProjectData
     {
-        
+
         private string nameField;
-        
+
         private long idField;
-        
+
         private CxWSResponseBasicScanData[] scansField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Name
         {
             get
@@ -1250,9 +1251,9 @@ namespace CxAuditWebServiceV9
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public long ID
         {
             get
@@ -1264,9 +1265,9 @@ namespace CxAuditWebServiceV9
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=2)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 2)]
         public CxWSResponseBasicScanData[] scans
         {
             get
@@ -1279,26 +1280,26 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseBasicScanData : CxWSBasicRepsonse
     {
-        
+
         private string nameField;
-        
+
         private long idField;
-        
+
         private string sourceIdField;
-        
+
         private string commentField;
-        
+
         private long resultIdField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Name
         {
             get
@@ -1310,9 +1311,9 @@ namespace CxAuditWebServiceV9
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public long ID
         {
             get
@@ -1324,9 +1325,9 @@ namespace CxAuditWebServiceV9
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string SourceId
         {
             get
@@ -1338,9 +1339,9 @@ namespace CxAuditWebServiceV9
                 this.sourceIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public string Comment
         {
             get
@@ -1352,9 +1353,9 @@ namespace CxAuditWebServiceV9
                 this.commentField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public long ResultId
         {
             get
@@ -1367,7 +1368,7 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CxWSResponseKeepAlive))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CxWSResponseLicenseOfLicenseDTO))]
@@ -1394,16 +1395,16 @@ namespace CxAuditWebServiceV9
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CxWSResponseLoginData))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSBasicRepsonse
     {
-        
+
         private bool isSuccesfullField;
-        
+
         private string errorMessageField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public bool IsSuccesfull
         {
             get
@@ -1415,9 +1416,9 @@ namespace CxAuditWebServiceV9
                 this.isSuccesfullField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string ErrorMessage
         {
             get
@@ -1430,18 +1431,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseKeepAlive : CxWSBasicRepsonse
     {
-        
+
         private long keepAliveIntervalInSecondsField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long KeepAliveIntervalInSeconds
         {
             get
@@ -1454,18 +1455,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseLicenseOfLicenseDTO : CxWSBasicRepsonse
     {
-        
+
         private LicenseDTO dataField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public LicenseDTO Data
         {
             get
@@ -1478,20 +1479,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSImportQueriesRepsonse : CxWSBasicRepsonse
     {
-        
+
         private long requestIdField;
-        
+
         private ImportQueryStatus importQueryStatusField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long requestId
         {
             get
@@ -1503,9 +1504,9 @@ namespace CxAuditWebServiceV9
                 this.requestIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public ImportQueryStatus importQueryStatus
         {
             get
@@ -1518,37 +1519,37 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum ImportQueryStatus
     {
-        
+
         /// <remarks/>
         New,
-        
+
         /// <remarks/>
         OnProgress,
-        
+
         /// <remarks/>
         Failed,
-        
+
         /// <remarks/>
         Succeeded,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseQueriesCategories : CxWSBasicRepsonse
     {
-        
+
         private CxQueryCategory[] queriesCategoriesField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public CxQueryCategory[] QueriesCategories
         {
             get
@@ -1561,20 +1562,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseSourceID : CxWSBasicRepsonse
     {
-        
+
         private long projectIDField;
-        
+
         private string sourceIDField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long ProjectID
         {
             get
@@ -1586,9 +1587,9 @@ namespace CxAuditWebServiceV9
                 this.projectIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string SourceID
         {
             get
@@ -1601,18 +1602,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseSourceContainer : CxWSBasicRepsonse
     {
-        
+
         private LocalCodeContainer sourceCodeContainerField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public LocalCodeContainer sourceCodeContainer
         {
             get
@@ -1625,20 +1626,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class LocalCodeContainer
     {
-        
+
         private byte[] zippedFileField;
-        
+
         private string fileNameField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(DataType="base64Binary", Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(DataType = "base64Binary", Order = 0)]
         public byte[] ZippedFile
         {
             get
@@ -1650,9 +1651,9 @@ namespace CxAuditWebServiceV9
                 this.zippedFileField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string FileName
         {
             get
@@ -1665,18 +1666,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponceResultPath : CxWSBasicRepsonse
     {
-        
+
         private CxWSResultPath pathField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public CxWSResultPath Path
         {
             get
@@ -1689,30 +1690,30 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResultPath
     {
-        
+
         private long similarityIdField;
-        
+
         private long pathIdField;
-        
+
         private string commentField;
-        
+
         private int stateField;
-        
+
         private int severityField;
-        
+
         private string assignedUserField;
-        
+
         private CxWSPathNode[] nodesField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long SimilarityId
         {
             get
@@ -1724,9 +1725,9 @@ namespace CxAuditWebServiceV9
                 this.similarityIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public long PathId
         {
             get
@@ -1738,9 +1739,9 @@ namespace CxAuditWebServiceV9
                 this.pathIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string Comment
         {
             get
@@ -1752,9 +1753,9 @@ namespace CxAuditWebServiceV9
                 this.commentField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public int State
         {
             get
@@ -1766,9 +1767,9 @@ namespace CxAuditWebServiceV9
                 this.stateField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public int Severity
         {
             get
@@ -1780,9 +1781,9 @@ namespace CxAuditWebServiceV9
                 this.severityField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public string AssignedUser
         {
             get
@@ -1794,9 +1795,9 @@ namespace CxAuditWebServiceV9
                 this.assignedUserField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=6)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 6)]
         public CxWSPathNode[] Nodes
         {
             get
@@ -1809,34 +1810,34 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSPathNode
     {
-        
+
         private int columnField;
-        
+
         private string fullNameField;
-        
+
         private string fileNameField;
-        
+
         private int lengthField;
-        
+
         private int lineField;
-        
+
         private string nameField;
-        
+
         private int dOM_IdField;
-        
+
         private int methodLineField;
-        
+
         private int pathNodeIdField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public int Column
         {
             get
@@ -1848,9 +1849,9 @@ namespace CxAuditWebServiceV9
                 this.columnField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string FullName
         {
             get
@@ -1862,9 +1863,9 @@ namespace CxAuditWebServiceV9
                 this.fullNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string FileName
         {
             get
@@ -1876,9 +1877,9 @@ namespace CxAuditWebServiceV9
                 this.fileNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public int Length
         {
             get
@@ -1890,9 +1891,9 @@ namespace CxAuditWebServiceV9
                 this.lengthField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public int Line
         {
             get
@@ -1904,9 +1905,9 @@ namespace CxAuditWebServiceV9
                 this.lineField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public string Name
         {
             get
@@ -1918,9 +1919,9 @@ namespace CxAuditWebServiceV9
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public int DOM_Id
         {
             get
@@ -1932,9 +1933,9 @@ namespace CxAuditWebServiceV9
                 this.dOM_IdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 7)]
         public int MethodLine
         {
             get
@@ -1946,9 +1947,9 @@ namespace CxAuditWebServiceV9
                 this.methodLineField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=8)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 8)]
         public int PathNodeId
         {
             get
@@ -1961,18 +1962,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CXWSResponseResultSummary : CxWSBasicRepsonse
     {
-        
+
         private CxWSResultSummary[] summaryListField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public CxWSResultSummary[] SummaryList
         {
             get
@@ -1985,18 +1986,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseResultStateList : CxWSBasicRepsonse
     {
-        
+
         private ResultState[] resultStateListField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public ResultState[] ResultStateList
         {
             get
@@ -2009,18 +2010,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseResultCollection : CxWSBasicRepsonse
     {
-        
+
         private AuditResultsCollection resultCollectionField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public AuditResultsCollection ResultCollection
         {
             get
@@ -2033,20 +2034,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class AuditResultsCollection
     {
-        
+
         private AuditScanResult[] resultsField;
-        
+
         private long failedLOCField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public AuditScanResult[] Results
         {
             get
@@ -2058,9 +2059,9 @@ namespace CxAuditWebServiceV9
                 this.resultsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public long FailedLOC
         {
             get
@@ -2073,36 +2074,36 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class AuditScanResult
     {
-        
+
         private long queryIdField;
-        
+
         private string queryNameField;
-        
+
         private string querySourceField;
-        
+
         private int severityField;
-        
+
         private string queryGroupNameField;
-        
+
         private long cWEField;
-        
+
         private long queryVersionCodeField;
-        
+
         private string[] debugMessagesField;
-        
+
         private string[] compilationMessagesField;
-        
+
         private CxWSResultPath[] pathPerResultField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long QueryId
         {
             get
@@ -2114,9 +2115,9 @@ namespace CxAuditWebServiceV9
                 this.queryIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string QueryName
         {
             get
@@ -2128,9 +2129,9 @@ namespace CxAuditWebServiceV9
                 this.queryNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string QuerySource
         {
             get
@@ -2142,9 +2143,9 @@ namespace CxAuditWebServiceV9
                 this.querySourceField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public int Severity
         {
             get
@@ -2156,9 +2157,9 @@ namespace CxAuditWebServiceV9
                 this.severityField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public string QueryGroupName
         {
             get
@@ -2170,9 +2171,9 @@ namespace CxAuditWebServiceV9
                 this.queryGroupNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public long CWE
         {
             get
@@ -2184,9 +2185,9 @@ namespace CxAuditWebServiceV9
                 this.cWEField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public long QueryVersionCode
         {
             get
@@ -2198,9 +2199,9 @@ namespace CxAuditWebServiceV9
                 this.queryVersionCodeField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=7)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 7)]
         public string[] DebugMessages
         {
             get
@@ -2212,9 +2213,9 @@ namespace CxAuditWebServiceV9
                 this.debugMessagesField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=8)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 8)]
         public string[] CompilationMessages
         {
             get
@@ -2226,9 +2227,9 @@ namespace CxAuditWebServiceV9
                 this.compilationMessagesField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=9)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 9)]
         public CxWSResultPath[] PathPerResult
         {
             get
@@ -2241,18 +2242,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseQueryDescription : CxWSBasicRepsonse
     {
-        
+
         private string queryDescriptionField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string QueryDescription
         {
             get
@@ -2265,18 +2266,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxQueryCollectionResponse : CxWSBasicRepsonse
     {
-        
+
         private CxWSQueryGroup[] queryGroupsField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public CxWSQueryGroup[] QueryGroups
         {
             get
@@ -2289,18 +2290,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseProjectsScansList : CxWSBasicRepsonse
     {
-        
+
         private CxWSResponseBasicProjectData[] projectsField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public CxWSResponseBasicProjectData[] projects
         {
             get
@@ -2313,18 +2314,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWsResponseEngineItemsConfiguration : CxWSBasicRepsonse
     {
-        
+
         private EngineConfigurationItem[] engineConfigurationItemsField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public EngineConfigurationItem[] EngineConfigurationItems
         {
             get
@@ -2337,22 +2338,22 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://DT")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://DT")]
     public partial class EngineConfigurationItem : GeneralData
     {
-        
+
         private string nameField;
-        
+
         private string valueField;
-        
+
         private bool isDefaultField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Name
         {
             get
@@ -2364,9 +2365,9 @@ namespace CxAuditWebServiceV9
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string Value
         {
             get
@@ -2378,9 +2379,9 @@ namespace CxAuditWebServiceV9
                 this.valueField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public bool IsDefault
         {
             get
@@ -2393,28 +2394,28 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EngineConfigurationItem))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(FileExtension))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://DT")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://DT")]
     public abstract partial class GeneralData : PrivilegedData
     {
-        
+
         private DataStatus statusField;
-        
+
         private bool isPublicField;
-        
+
         private string owningUserField;
-        
+
         private int owningTeamIdField;
-        
+
         private string owningTeamNameField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public DataStatus Status
         {
             get
@@ -2426,9 +2427,9 @@ namespace CxAuditWebServiceV9
                 this.statusField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public bool IsPublic
         {
             get
@@ -2440,9 +2441,9 @@ namespace CxAuditWebServiceV9
                 this.isPublicField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string OwningUser
         {
             get
@@ -2454,9 +2455,9 @@ namespace CxAuditWebServiceV9
                 this.owningUserField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public int OwningTeamId
         {
             get
@@ -2468,9 +2469,9 @@ namespace CxAuditWebServiceV9
                 this.owningTeamIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public string OwningTeamName
         {
             get
@@ -2483,60 +2484,60 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://DT")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://DT")]
     public enum DataStatus
     {
-        
+
         /// <remarks/>
         Original,
-        
+
         /// <remarks/>
         New,
-        
+
         /// <remarks/>
         Updated,
-        
+
         /// <remarks/>
         Deleted,
-        
+
         /// <remarks/>
         Deprecated,
-        
+
         /// <remarks/>
         Canceled,
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(GeneralData))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EngineConfigurationItem))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(FileExtension))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://DT")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://DT")]
     public abstract partial class PrivilegedData
     {
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class FileExtension : GeneralData
     {
-        
+
         private string symbolField;
-        
+
         private string valueField;
-        
+
         private string languageField;
-        
+
         private string groupField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Symbol
         {
             get
@@ -2548,9 +2549,9 @@ namespace CxAuditWebServiceV9
                 this.symbolField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string Value
         {
             get
@@ -2562,9 +2563,9 @@ namespace CxAuditWebServiceV9
                 this.valueField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string Language
         {
             get
@@ -2576,9 +2577,9 @@ namespace CxAuditWebServiceV9
                 this.languageField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public string Group
         {
             get
@@ -2591,18 +2592,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseFileExtensionsSetList : CxWSBasicRepsonse
     {
-        
+
         private FileExtension[] fileExtensionsSetListField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public FileExtension[] fileExtensionsSetList
         {
             get
@@ -2615,20 +2616,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseProjectConfig : CxWSBasicRepsonse
     {
-        
+
         private ProjectConfiguration projectConfigField;
-        
+
         private UserPermission permissionField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public ProjectConfiguration ProjectConfig
         {
             get
@@ -2640,9 +2641,9 @@ namespace CxAuditWebServiceV9
                 this.projectConfigField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public UserPermission Permission
         {
             get
@@ -2655,30 +2656,30 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class ProjectConfiguration
     {
-        
+
         private ProjectSettings projectSettingsField;
-        
+
         private SourceCodeSettings sourceCodeSettingsField;
-        
+
         private ScheduleSettings scheduleSettingsField;
-        
+
         private ScanActionSettings scanActionSettingsField;
-        
+
         private CxWSProjectIssueTrackingSettings projectIssueTrackingSettingsField;
-        
+
         private CxWSProjectCustomField[] customFieldsField;
-        
+
         private DataRetentionSettings dataRetentionSettingsField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public ProjectSettings ProjectSettings
         {
             get
@@ -2690,9 +2691,9 @@ namespace CxAuditWebServiceV9
                 this.projectSettingsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public SourceCodeSettings SourceCodeSettings
         {
             get
@@ -2704,9 +2705,9 @@ namespace CxAuditWebServiceV9
                 this.sourceCodeSettingsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public ScheduleSettings ScheduleSettings
         {
             get
@@ -2718,9 +2719,9 @@ namespace CxAuditWebServiceV9
                 this.scheduleSettingsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public ScanActionSettings ScanActionSettings
         {
             get
@@ -2732,9 +2733,9 @@ namespace CxAuditWebServiceV9
                 this.scanActionSettingsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public CxWSProjectIssueTrackingSettings ProjectIssueTrackingSettings
         {
             get
@@ -2746,9 +2747,9 @@ namespace CxAuditWebServiceV9
                 this.projectIssueTrackingSettingsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=5)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 5)]
         public CxWSProjectCustomField[] CustomFields
         {
             get
@@ -2760,9 +2761,9 @@ namespace CxAuditWebServiceV9
                 this.customFieldsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public DataRetentionSettings DataRetentionSettings
         {
             get
@@ -2775,38 +2776,38 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class ProjectSettings
     {
-        
+
         private long projectIDField;
-        
+
         private string projectNameField;
-        
+
         private long presetIDField;
-        
+
         private long taskIdField;
-        
+
         private string associatedGroupIDField;
-        
+
         private long scanConfigurationIDField;
-        
+
         private string descriptionField;
-        
+
         private string ownerField;
-        
+
         private bool isPublicField;
-        
+
         private ProjectSharedLocation openSourceSettingsField;
-        
+
         private ProjectOrigin openSourceAnalysisOriginField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long projectID
         {
             get
@@ -2818,9 +2819,9 @@ namespace CxAuditWebServiceV9
                 this.projectIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string ProjectName
         {
             get
@@ -2832,9 +2833,9 @@ namespace CxAuditWebServiceV9
                 this.projectNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public long PresetID
         {
             get
@@ -2846,9 +2847,9 @@ namespace CxAuditWebServiceV9
                 this.presetIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public long TaskId
         {
             get
@@ -2860,9 +2861,9 @@ namespace CxAuditWebServiceV9
                 this.taskIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public string AssociatedGroupID
         {
             get
@@ -2874,9 +2875,9 @@ namespace CxAuditWebServiceV9
                 this.associatedGroupIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public long ScanConfigurationID
         {
             get
@@ -2888,9 +2889,9 @@ namespace CxAuditWebServiceV9
                 this.scanConfigurationIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public string Description
         {
             get
@@ -2902,9 +2903,9 @@ namespace CxAuditWebServiceV9
                 this.descriptionField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 7)]
         public string Owner
         {
             get
@@ -2916,9 +2917,9 @@ namespace CxAuditWebServiceV9
                 this.ownerField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=8)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 8)]
         public bool IsPublic
         {
             get
@@ -2930,9 +2931,9 @@ namespace CxAuditWebServiceV9
                 this.isPublicField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=9)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 9)]
         public ProjectSharedLocation OpenSourceSettings
         {
             get
@@ -2944,9 +2945,9 @@ namespace CxAuditWebServiceV9
                 this.openSourceSettingsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=10)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 10)]
         public ProjectOrigin OpenSourceAnalysisOrigin
         {
             get
@@ -2959,20 +2960,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class ProjectSharedLocation
     {
-        
+
         private string[] pathField;
-        
+
         private Credentials credentialsField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public string[] Path
         {
             get
@@ -2984,9 +2985,9 @@ namespace CxAuditWebServiceV9
                 this.pathField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public Credentials Credentials
         {
             get
@@ -2999,63 +3000,63 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum ProjectOrigin
     {
-        
+
         /// <remarks/>
         LocalPath,
-        
+
         /// <remarks/>
         SharedPath,
-        
+
         /// <remarks/>
         TFS,
-        
+
         /// <remarks/>
         External,
-        
+
         /// <remarks/>
         SVN,
-        
+
         /// <remarks/>
         CVS,
-        
+
         /// <remarks/>
         GIT,
-        
+
         /// <remarks/>
         Perforce,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class SourceCodeSettings
     {
-        
+
         private SourceLocationType sourceOriginField;
-        
+
         private Credentials userCredentialsField;
-        
+
         private ScanPath[] pathListField;
-        
+
         private SourceControlSettings sourceControlSettingField;
-        
+
         private LocalCodeContainer packagedCodeField;
-        
+
         private string sourcePullingActionField;
-        
+
         private long sourceControlCommandIdField;
-        
+
         private SourceFilterPatterns sourceFilterListsField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public SourceLocationType SourceOrigin
         {
             get
@@ -3067,9 +3068,9 @@ namespace CxAuditWebServiceV9
                 this.sourceOriginField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public Credentials UserCredentials
         {
             get
@@ -3081,9 +3082,9 @@ namespace CxAuditWebServiceV9
                 this.userCredentialsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=2)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 2)]
         public ScanPath[] PathList
         {
             get
@@ -3095,9 +3096,9 @@ namespace CxAuditWebServiceV9
                 this.pathListField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public SourceControlSettings SourceControlSetting
         {
             get
@@ -3109,9 +3110,9 @@ namespace CxAuditWebServiceV9
                 this.sourceControlSettingField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public LocalCodeContainer PackagedCode
         {
             get
@@ -3123,9 +3124,9 @@ namespace CxAuditWebServiceV9
                 this.packagedCodeField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public string SourcePullingAction
         {
             get
@@ -3137,9 +3138,9 @@ namespace CxAuditWebServiceV9
                 this.sourcePullingActionField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public long SourceControlCommandId
         {
             get
@@ -3151,9 +3152,9 @@ namespace CxAuditWebServiceV9
                 this.sourceControlCommandIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 7)]
         public SourceFilterPatterns SourceFilterLists
         {
             get
@@ -3166,39 +3167,39 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum SourceLocationType
     {
-        
+
         /// <remarks/>
         Local,
-        
+
         /// <remarks/>
         Shared,
-        
+
         /// <remarks/>
         SourceControl,
-        
+
         /// <remarks/>
         SourcePulling,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class ScanPath
     {
-        
+
         private string pathField;
-        
+
         private bool includeSubTreeField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Path
         {
             get
@@ -3210,9 +3211,9 @@ namespace CxAuditWebServiceV9
                 this.pathField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public bool IncludeSubTree
         {
             get
@@ -3225,50 +3226,50 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class SourceControlSettings
     {
-        
+
         private int portField;
-        
+
         private bool useSSLField;
-        
+
         private bool useSSHField;
-        
+
         private string serverNameField;
-        
+
         private RepositoryType repositoryField;
-        
+
         private Credentials userCredentialsField;
-        
+
         private SourceControlProtocolType protocolField;
-        
+
         private string repositoryNameField;
-        
+
         private string protocolParametersField;
-        
+
         private string gITBranchField;
-        
+
         private GitAuthenticationOptions gITAuthenticationField;
-        
+
         private GitLsRemoteViewType gitLsViewTypeField;
-        
+
         private string sSHPublicKeyField;
-        
+
         private string sSHPrivateKeyField;
-        
+
         private GitHubIntegrationSettings gitHubSettingsField;
-        
+
         private CxWSPerforceBrowsingMode perforceBrowsingModeField;
-        
+
         private long projectIdField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public int Port
         {
             get
@@ -3280,9 +3281,9 @@ namespace CxAuditWebServiceV9
                 this.portField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public bool UseSSL
         {
             get
@@ -3294,9 +3295,9 @@ namespace CxAuditWebServiceV9
                 this.useSSLField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public bool UseSSH
         {
             get
@@ -3308,9 +3309,9 @@ namespace CxAuditWebServiceV9
                 this.useSSHField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public string ServerName
         {
             get
@@ -3322,9 +3323,9 @@ namespace CxAuditWebServiceV9
                 this.serverNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public RepositoryType Repository
         {
             get
@@ -3336,9 +3337,9 @@ namespace CxAuditWebServiceV9
                 this.repositoryField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public Credentials UserCredentials
         {
             get
@@ -3350,9 +3351,9 @@ namespace CxAuditWebServiceV9
                 this.userCredentialsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public SourceControlProtocolType Protocol
         {
             get
@@ -3364,9 +3365,9 @@ namespace CxAuditWebServiceV9
                 this.protocolField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 7)]
         public string RepositoryName
         {
             get
@@ -3378,9 +3379,9 @@ namespace CxAuditWebServiceV9
                 this.repositoryNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=8)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 8)]
         public string ProtocolParameters
         {
             get
@@ -3392,9 +3393,9 @@ namespace CxAuditWebServiceV9
                 this.protocolParametersField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=9)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 9)]
         public string GITBranch
         {
             get
@@ -3406,9 +3407,9 @@ namespace CxAuditWebServiceV9
                 this.gITBranchField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=10)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 10)]
         public GitAuthenticationOptions GITAuthentication
         {
             get
@@ -3420,9 +3421,9 @@ namespace CxAuditWebServiceV9
                 this.gITAuthenticationField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=11)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 11)]
         public GitLsRemoteViewType GitLsViewType
         {
             get
@@ -3434,9 +3435,9 @@ namespace CxAuditWebServiceV9
                 this.gitLsViewTypeField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=12)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 12)]
         public string SSHPublicKey
         {
             get
@@ -3448,9 +3449,9 @@ namespace CxAuditWebServiceV9
                 this.sSHPublicKeyField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=13)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 13)]
         public string SSHPrivateKey
         {
             get
@@ -3462,9 +3463,9 @@ namespace CxAuditWebServiceV9
                 this.sSHPrivateKeyField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=14)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 14)]
         public GitHubIntegrationSettings GitHubSettings
         {
             get
@@ -3476,9 +3477,9 @@ namespace CxAuditWebServiceV9
                 this.gitHubSettingsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=15)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 15)]
         public CxWSPerforceBrowsingMode PerforceBrowsingMode
         {
             get
@@ -3490,9 +3491,9 @@ namespace CxAuditWebServiceV9
                 this.perforceBrowsingModeField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=16)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 16)]
         public long ProjectId
         {
             get
@@ -3505,112 +3506,112 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum RepositoryType
     {
-        
+
         /// <remarks/>
         TFS,
-        
+
         /// <remarks/>
         SVN,
-        
+
         /// <remarks/>
         CVS,
-        
+
         /// <remarks/>
         GIT,
-        
+
         /// <remarks/>
         Perforce,
-        
+
         /// <remarks/>
         NONE,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum SourceControlProtocolType
     {
-        
+
         /// <remarks/>
         WindowsAuthentication,
-        
+
         /// <remarks/>
         SSL,
-        
+
         /// <remarks/>
         SSH,
-        
+
         /// <remarks/>
         PasswordServer,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum GitAuthenticationOptions
     {
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlEnumAttribute("")]
         Item,
-        
+
         /// <remarks/>
         None,
-        
+
         /// <remarks/>
         Credentials,
-        
+
         /// <remarks/>
         PAT,
-        
+
         /// <remarks/>
         SSH,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum GitLsRemoteViewType
     {
-        
+
         /// <remarks/>
         TAGS,
-        
+
         /// <remarks/>
         HEADS,
-        
+
         /// <remarks/>
         TAGS_AND_HEADS,
-        
+
         /// <remarks/>
         ALL,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class GitHubIntegrationSettings
     {
-        
+
         private GithubSettings contributorSettingsField;
-        
+
         private GithubSettings ownerSettingsField;
-        
+
         private int eventsThresholdField;
-        
+
         private string pingUrlField;
-        
+
         private System.Nullable<long> webhookIdField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public GithubSettings ContributorSettings
         {
             get
@@ -3622,9 +3623,9 @@ namespace CxAuditWebServiceV9
                 this.contributorSettingsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public GithubSettings OwnerSettings
         {
             get
@@ -3636,9 +3637,9 @@ namespace CxAuditWebServiceV9
                 this.ownerSettingsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public int EventsThreshold
         {
             get
@@ -3650,9 +3651,9 @@ namespace CxAuditWebServiceV9
                 this.eventsThresholdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public string PingUrl
         {
             get
@@ -3664,9 +3665,9 @@ namespace CxAuditWebServiceV9
                 this.pingUrlField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true, Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable = true, Order = 4)]
         public System.Nullable<long> WebhookId
         {
             get
@@ -3679,26 +3680,26 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class GithubSettings
     {
-        
+
         private string repositoryField;
-        
+
         private GithubAuthenticationMethod authenticationMethodField;
-        
+
         private string userNameField;
-        
+
         private string tokenField;
-        
+
         private string pingUrlField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Repository
         {
             get
@@ -3710,9 +3711,9 @@ namespace CxAuditWebServiceV9
                 this.repositoryField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public GithubAuthenticationMethod AuthenticationMethod
         {
             get
@@ -3724,9 +3725,9 @@ namespace CxAuditWebServiceV9
                 this.authenticationMethodField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string UserName
         {
             get
@@ -3738,9 +3739,9 @@ namespace CxAuditWebServiceV9
                 this.userNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public string Token
         {
             get
@@ -3752,9 +3753,9 @@ namespace CxAuditWebServiceV9
                 this.tokenField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public string PingUrl
         {
             get
@@ -3767,52 +3768,52 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum GithubAuthenticationMethod
     {
-        
+
         /// <remarks/>
         Password,
-        
+
         /// <remarks/>
         PAT,
-        
+
         /// <remarks/>
         OAuth,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum CxWSPerforceBrowsingMode
     {
-        
+
         /// <remarks/>
         None,
-        
+
         /// <remarks/>
         Depot,
-        
+
         /// <remarks/>
         Workspace,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class SourceFilterPatterns
     {
-        
+
         private string excludeFilesPatternsField;
-        
+
         private string excludeFoldersPatternsField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string ExcludeFilesPatterns
         {
             get
@@ -3824,9 +3825,9 @@ namespace CxAuditWebServiceV9
                 this.excludeFilesPatternsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string ExcludeFoldersPatterns
         {
             get
@@ -3839,28 +3840,28 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class ScheduleSettings
     {
-        
+
         private ScheduleType scheduleField;
-        
+
         private DayOfWeek[] scheduledDaysField;
-        
+
         private CxDateTime timeField;
-        
+
         private CxDateTime startSchedulingPeriodField;
-        
+
         private CxDateTime endSchedulingPeriodField;
-        
+
         private int schedulingFrequencyField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public ScheduleType Schedule
         {
             get
@@ -3872,9 +3873,9 @@ namespace CxAuditWebServiceV9
                 this.scheduleField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=1)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 1)]
         public DayOfWeek[] ScheduledDays
         {
             get
@@ -3886,9 +3887,9 @@ namespace CxAuditWebServiceV9
                 this.scheduledDaysField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public CxDateTime Time
         {
             get
@@ -3900,9 +3901,9 @@ namespace CxAuditWebServiceV9
                 this.timeField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public CxDateTime StartSchedulingPeriod
         {
             get
@@ -3914,9 +3915,9 @@ namespace CxAuditWebServiceV9
                 this.startSchedulingPeriodField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public CxDateTime EndSchedulingPeriod
         {
             get
@@ -3928,9 +3929,9 @@ namespace CxAuditWebServiceV9
                 this.endSchedulingPeriodField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public int SchedulingFrequency
         {
             get
@@ -3943,72 +3944,72 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum ScheduleType
     {
-        
+
         /// <remarks/>
         None,
-        
+
         /// <remarks/>
         Now,
-        
+
         /// <remarks/>
         Weekly,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum DayOfWeek
     {
-        
+
         /// <remarks/>
         Sunday,
-        
+
         /// <remarks/>
         Monday,
-        
+
         /// <remarks/>
         Tuesday,
-        
+
         /// <remarks/>
         Wednesday,
-        
+
         /// <remarks/>
         Thursday,
-        
+
         /// <remarks/>
         Friday,
-        
+
         /// <remarks/>
         Saturday,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxDateTime
     {
-        
+
         private int hourField;
-        
+
         private int minuteField;
-        
+
         private int secondField;
-        
+
         private int dayField;
-        
+
         private int monthField;
-        
+
         private int yearField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public int Hour
         {
             get
@@ -4020,9 +4021,9 @@ namespace CxAuditWebServiceV9
                 this.hourField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public int Minute
         {
             get
@@ -4034,9 +4035,9 @@ namespace CxAuditWebServiceV9
                 this.minuteField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public int Second
         {
             get
@@ -4048,9 +4049,9 @@ namespace CxAuditWebServiceV9
                 this.secondField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public int Day
         {
             get
@@ -4062,9 +4063,9 @@ namespace CxAuditWebServiceV9
                 this.dayField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public int Month
         {
             get
@@ -4076,9 +4077,9 @@ namespace CxAuditWebServiceV9
                 this.monthField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public int Year
         {
             get
@@ -4091,18 +4092,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class ScanActionSettings
     {
-        
+
         private ScanAction[] scanActionListField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public ScanAction[] ScanActionList
         {
             get
@@ -4115,22 +4116,22 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class ScanAction
     {
-        
+
         private string[] parametersField;
-        
+
         private ScanEventType triggerField;
-        
+
         private ScanActionType actionField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public string[] Parameters
         {
             get
@@ -4142,9 +4143,9 @@ namespace CxAuditWebServiceV9
                 this.parametersField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public ScanEventType Trigger
         {
             get
@@ -4156,9 +4157,9 @@ namespace CxAuditWebServiceV9
                 this.triggerField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public ScanActionType Action
         {
             get
@@ -4171,49 +4172,49 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum ScanEventType
     {
-        
+
         /// <remarks/>
         BeforeScanStarts,
-        
+
         /// <remarks/>
         AfterScanSucceeds,
-        
+
         /// <remarks/>
         OnScanFailure,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum ScanActionType
     {
-        
+
         /// <remarks/>
         EmailNotification,
-        
+
         /// <remarks/>
         PostScanAction,
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSProjectIssueTrackingSettings
     {
-        
+
         private long trackingSystemIDField;
-        
+
         private CxWSIssueTrackingParam[] paramsField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long TrackingSystemID
         {
             get
@@ -4225,9 +4226,9 @@ namespace CxAuditWebServiceV9
                 this.trackingSystemIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=1)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 1)]
         public CxWSIssueTrackingParam[] Params
         {
             get
@@ -4240,22 +4241,22 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSIssueTrackingParam
     {
-        
+
         private string nameField;
-        
+
         private object valueField;
-        
+
         private string typeField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Name
         {
             get
@@ -4267,9 +4268,9 @@ namespace CxAuditWebServiceV9
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public object Value
         {
             get
@@ -4281,9 +4282,9 @@ namespace CxAuditWebServiceV9
                 this.valueField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string Type
         {
             get
@@ -4296,20 +4297,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSProjectCustomField
     {
-        
+
         private long customFieldIdField;
-        
+
         private string valueField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public long CustomFieldId
         {
             get
@@ -4321,9 +4322,9 @@ namespace CxAuditWebServiceV9
                 this.customFieldIdField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string Value
         {
             get
@@ -4336,18 +4337,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class DataRetentionSettings
     {
-        
+
         private int numOfScansToKeepField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public int NumOfScansToKeep
         {
             get
@@ -4360,24 +4361,24 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class UserPermission
     {
-        
+
         private bool isAllowedToDeleteField;
-        
+
         private bool isAllowedToDuplicateField;
-        
+
         private bool isAllowedToRunField;
-        
+
         private bool isAllowedToUpdateField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public bool IsAllowedToDelete
         {
             get
@@ -4389,9 +4390,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToDeleteField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public bool IsAllowedToDuplicate
         {
             get
@@ -4403,9 +4404,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToDuplicateField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public bool IsAllowedToRun
         {
             get
@@ -4417,9 +4418,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToRunField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public bool IsAllowedToUpdate
         {
             get
@@ -4432,18 +4433,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponsePresetList : CxWSBasicRepsonse
     {
-        
+
         private Preset[] presetListField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public Preset[] PresetList
         {
             get
@@ -4456,26 +4457,26 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class Preset
     {
-        
+
         private string presetNameField;
-        
+
         private long idField;
-        
+
         private string owningUserField;
-        
+
         private bool isUserAllowToUpdateField;
-        
+
         private bool isUserAllowToDeleteField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string PresetName
         {
             get
@@ -4487,9 +4488,9 @@ namespace CxAuditWebServiceV9
                 this.presetNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public long ID
         {
             get
@@ -4501,9 +4502,9 @@ namespace CxAuditWebServiceV9
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string owningUser
         {
             get
@@ -4515,9 +4516,9 @@ namespace CxAuditWebServiceV9
                 this.owningUserField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public bool isUserAllowToUpdate
         {
             get
@@ -4529,9 +4530,9 @@ namespace CxAuditWebServiceV9
                 this.isUserAllowToUpdateField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public bool isUserAllowToDelete
         {
             get
@@ -4544,18 +4545,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponsePresetDetails : CxWSBasicRepsonse
     {
-        
+
         private CxPresetDetails presetField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public CxPresetDetails preset
         {
             get
@@ -4568,34 +4569,34 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxPresetDetails
     {
-        
+
         private long[] queryIdsField;
-        
+
         private long idField;
-        
+
         private string nameField;
-        
+
         private int owningteamField;
-        
+
         private bool isPublicField;
-        
+
         private string ownerField;
-        
+
         private bool isUserAllowToUpdateField;
-        
+
         private bool isUserAllowToDeleteField;
-        
+
         private bool isDuplicateField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public long[] queryIds
         {
             get
@@ -4607,9 +4608,9 @@ namespace CxAuditWebServiceV9
                 this.queryIdsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public long id
         {
             get
@@ -4621,9 +4622,9 @@ namespace CxAuditWebServiceV9
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string name
         {
             get
@@ -4635,9 +4636,9 @@ namespace CxAuditWebServiceV9
                 this.nameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public int owningteam
         {
             get
@@ -4649,9 +4650,9 @@ namespace CxAuditWebServiceV9
                 this.owningteamField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public bool isPublic
         {
             get
@@ -4663,9 +4664,9 @@ namespace CxAuditWebServiceV9
                 this.isPublicField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public string owner
         {
             get
@@ -4677,9 +4678,9 @@ namespace CxAuditWebServiceV9
                 this.ownerField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public bool isUserAllowToUpdate
         {
             get
@@ -4691,9 +4692,9 @@ namespace CxAuditWebServiceV9
                 this.isUserAllowToUpdateField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 7)]
         public bool isUserAllowToDelete
         {
             get
@@ -4705,9 +4706,9 @@ namespace CxAuditWebServiceV9
                 this.isUserAllowToDeleteField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=8)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 8)]
         public bool IsDuplicate
         {
             get
@@ -4720,18 +4721,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseCache : CxWSBasicRepsonse
     {
-        
+
         private byte[] cacheField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(DataType="base64Binary", Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(DataType = "base64Binary", Order = 0)]
         public byte[] Cache
         {
             get
@@ -4744,18 +4745,18 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseHierarchyGroupNodes : CxWSBasicRepsonse
     {
-        
+
         private HierarchyGroupNode[] hierarchyGroupNodesField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public HierarchyGroupNode[] HierarchyGroupNodes
         {
             get
@@ -4768,20 +4769,20 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class HierarchyGroupNode : Group
     {
-        
+
         private HierarchyGroupNode[] childsField;
-        
+
         private bool membershipField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayAttribute(Order=0)]
+        [System.Xml.Serialization.XmlArrayAttribute(Order = 0)]
         public HierarchyGroupNode[] Childs
         {
             get
@@ -4793,9 +4794,9 @@ namespace CxAuditWebServiceV9
                 this.childsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public bool Membership
         {
             get
@@ -4808,29 +4809,29 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(HierarchyGroupNode))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class Group
     {
-        
+
         private string groupNameField;
-        
+
         private string idField;
-        
+
         private GroupType typeField;
-        
+
         private string guidField;
-        
+
         private string fullPathField;
-        
+
         private string pathField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string GroupName
         {
             get
@@ -4842,9 +4843,9 @@ namespace CxAuditWebServiceV9
                 this.groupNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string ID
         {
             get
@@ -4856,9 +4857,9 @@ namespace CxAuditWebServiceV9
                 this.idField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public GroupType Type
         {
             get
@@ -4870,9 +4871,9 @@ namespace CxAuditWebServiceV9
                 this.typeField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public string Guid
         {
             get
@@ -4884,9 +4885,9 @@ namespace CxAuditWebServiceV9
                 this.guidField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public string FullPath
         {
             get
@@ -4898,9 +4899,9 @@ namespace CxAuditWebServiceV9
                 this.fullPathField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public string Path
         {
             get
@@ -4913,32 +4914,32 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum GroupType
     {
-        
+
         /// <remarks/>
         Team,
-        
+
         /// <remarks/>
         Server,
     }
-    
+
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CxWSResponseLoginData))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseSessionID : CxWSBasicRepsonse
     {
-        
+
         private string sessionIdField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string SessionId
         {
             get
@@ -4951,72 +4952,72 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public partial class CxWSResponseLoginData : CxWSResponseSessionID
     {
-        
+
         private string familyNameField;
-        
+
         private string firstNameField;
-        
+
         private string userNameField;
-        
+
         private string emailField;
-        
+
         private long userIDField;
-        
+
         private int userPreferedLanguageLCIDField;
-        
+
         private bool isAllowedToCreateProjectField;
-        
+
         private bool isAllowedToChangeProjectField;
-        
+
         private bool isAllowedToManageUsersField;
-        
+
         private bool isAllowedToViewCompaniesField;
-        
+
         private bool isAllowedToManageCompaniesField;
-        
+
         private bool isAllowedToManageServerField;
-        
+
         private bool isAllowedToViewInstallationDataField;
-        
+
         private bool isAllowedToViewSpField;
-        
+
         private bool isAllowedToManageSpField;
-        
+
         private bool isScannerField;
-        
+
         private bool isAuditorField;
-        
+
         private bool isAllowedToManagePresetsField;
-        
+
         private bool isAllowedToManagePredefinedCommandField;
-        
+
         private bool isAllowedToManagePostScanActionField;
-        
+
         private bool isAllowedToModifyResultDetailsField;
-        
+
         private bool enableIncrementalScanField;
-        
+
         private bool showSaaSPackageNotificationAndErrorsField;
-        
+
         private bool showSaaSPackageDetailsField;
-        
+
         private bool isAdviseChangePasswordField;
-        
+
         private bool isAllowedToManageITSServersField;
-        
+
         private bool allowedToChangeNotExploitableField;
-        
+
         private bool isAllowedToDeleteScansField;
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string FamilyName
         {
             get
@@ -5028,9 +5029,9 @@ namespace CxAuditWebServiceV9
                 this.familyNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=1)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 1)]
         public string FirstName
         {
             get
@@ -5042,9 +5043,9 @@ namespace CxAuditWebServiceV9
                 this.firstNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 2)]
         public string UserName
         {
             get
@@ -5056,9 +5057,9 @@ namespace CxAuditWebServiceV9
                 this.userNameField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 3)]
         public string Email
         {
             get
@@ -5070,9 +5071,9 @@ namespace CxAuditWebServiceV9
                 this.emailField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 4)]
         public long UserID
         {
             get
@@ -5084,9 +5085,9 @@ namespace CxAuditWebServiceV9
                 this.userIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 5)]
         public int UserPreferedLanguageLCID
         {
             get
@@ -5098,9 +5099,9 @@ namespace CxAuditWebServiceV9
                 this.userPreferedLanguageLCIDField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 6)]
         public bool IsAllowedToCreateProject
         {
             get
@@ -5112,9 +5113,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToCreateProjectField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 7)]
         public bool IsAllowedToChangeProject
         {
             get
@@ -5126,9 +5127,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToChangeProjectField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=8)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 8)]
         public bool IsAllowedToManageUsers
         {
             get
@@ -5140,9 +5141,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToManageUsersField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=9)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 9)]
         public bool IsAllowedToViewCompanies
         {
             get
@@ -5154,9 +5155,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToViewCompaniesField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=10)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 10)]
         public bool IsAllowedToManageCompanies
         {
             get
@@ -5168,9 +5169,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToManageCompaniesField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=11)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 11)]
         public bool IsAllowedToManageServer
         {
             get
@@ -5182,9 +5183,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToManageServerField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=12)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 12)]
         public bool IsAllowedToViewInstallationData
         {
             get
@@ -5196,9 +5197,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToViewInstallationDataField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=13)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 13)]
         public bool IsAllowedToViewSp
         {
             get
@@ -5210,9 +5211,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToViewSpField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=14)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 14)]
         public bool IsAllowedToManageSp
         {
             get
@@ -5224,9 +5225,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToManageSpField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=15)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 15)]
         public bool IsScanner
         {
             get
@@ -5238,9 +5239,9 @@ namespace CxAuditWebServiceV9
                 this.isScannerField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=16)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 16)]
         public bool IsAuditor
         {
             get
@@ -5252,9 +5253,9 @@ namespace CxAuditWebServiceV9
                 this.isAuditorField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=17)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 17)]
         public bool IsAllowedToManagePresets
         {
             get
@@ -5266,9 +5267,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToManagePresetsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=18)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 18)]
         public bool isAllowedToManagePredefinedCommand
         {
             get
@@ -5280,9 +5281,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToManagePredefinedCommandField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=19)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 19)]
         public bool IsAllowedToManagePostScanAction
         {
             get
@@ -5294,9 +5295,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToManagePostScanActionField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=20)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 20)]
         public bool IsAllowedToModifyResultDetails
         {
             get
@@ -5308,9 +5309,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToModifyResultDetailsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=21)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 21)]
         public bool EnableIncrementalScan
         {
             get
@@ -5322,9 +5323,9 @@ namespace CxAuditWebServiceV9
                 this.enableIncrementalScanField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=22)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 22)]
         public bool ShowSaaSPackageNotificationAndErrors
         {
             get
@@ -5336,9 +5337,9 @@ namespace CxAuditWebServiceV9
                 this.showSaaSPackageNotificationAndErrorsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=23)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 23)]
         public bool ShowSaaSPackageDetails
         {
             get
@@ -5350,9 +5351,9 @@ namespace CxAuditWebServiceV9
                 this.showSaaSPackageDetailsField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=24)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 24)]
         public bool IsAdviseChangePassword
         {
             get
@@ -5364,9 +5365,9 @@ namespace CxAuditWebServiceV9
                 this.isAdviseChangePasswordField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=25)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 25)]
         public bool IsAllowedToManageITSServers
         {
             get
@@ -5378,9 +5379,9 @@ namespace CxAuditWebServiceV9
                 this.isAllowedToManageITSServersField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=26)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 26)]
         public bool AllowedToChangeNotExploitable
         {
             get
@@ -5392,9 +5393,9 @@ namespace CxAuditWebServiceV9
                 this.allowedToChangeNotExploitableField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Order=27)]
+        [System.Xml.Serialization.XmlElementAttribute(Order = 27)]
         public bool IsAllowedToDeleteScans
         {
             get
@@ -5407,87 +5408,87 @@ namespace CxAuditWebServiceV9
             }
         }
     }
-    
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Checkmarx.com/v7")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://Checkmarx.com/v7")]
     public enum ResultLabelTypeEnum
     {
-        
+
         /// <remarks/>
         IgnorePath,
-        
+
         /// <remarks/>
         Remark,
-        
+
         /// <remarks/>
         Severity,
-        
+
         /// <remarks/>
         State,
-        
+
         /// <remarks/>
         Assign,
-        
+
         /// <remarks/>
         IssueTracking,
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="ImportQueries", WrapperNamespace="http://Checkmarx.com/v7", IsWrapped=true)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName = "ImportQueries", WrapperNamespace = "http://Checkmarx.com/v7", IsWrapped = true)]
     public partial class ImportQueriesRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://Checkmarx.com/v7", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://Checkmarx.com/v7", Order = 0)]
         public string sessionId;
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://Checkmarx.com/v7", Order=1)]
-        [System.Xml.Serialization.XmlElementAttribute(DataType="base64Binary")]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://Checkmarx.com/v7", Order = 1)]
+        [System.Xml.Serialization.XmlElementAttribute(DataType = "base64Binary")]
         public byte[] importedFile;
-        
+
         public ImportQueriesRequest()
         {
         }
-        
+
         public ImportQueriesRequest(string sessionId, byte[] importedFile)
         {
             this.sessionId = sessionId;
             this.importedFile = importedFile;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(WrapperName="ImportQueriesResponse", WrapperNamespace="http://Checkmarx.com/v7", IsWrapped=true)]
+    [System.ServiceModel.MessageContractAttribute(WrapperName = "ImportQueriesResponse", WrapperNamespace = "http://Checkmarx.com/v7", IsWrapped = true)]
     public partial class ImportQueriesResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Namespace="http://Checkmarx.com/v7", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://Checkmarx.com/v7", Order = 0)]
         public CxAuditWebServiceV9.CxWSImportQueriesRepsonse ImportQueriesResult;
-        
+
         public ImportQueriesResponse()
         {
         }
-        
+
         public ImportQueriesResponse(CxAuditWebServiceV9.CxWSImportQueriesRepsonse ImportQueriesResult)
         {
             this.ImportQueriesResult = ImportQueriesResult;
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     internal interface CxAuditWebServiceSoapChannel : CxAuditWebServiceV9.CxAuditWebServiceSoap, System.ServiceModel.IClientChannel
     {
     }
-    
-    
+
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     public partial class CxAuditWebServiceSoapClient : System.ServiceModel.ClientBase<CxAuditWebServiceV9.CxAuditWebServiceSoap>, CxAuditWebServiceV9.CxAuditWebServiceSoap
     {
-        
+
         /// <summary>
         /// Implement this partial method to configure the service endpoint.
         /// </summary>
@@ -5503,183 +5504,183 @@ namespace CxAuditWebServiceV9
             this.ChannelFactory.Credentials.UserName.Password = password;
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
-        public CxAuditWebServiceSoapClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+        public CxAuditWebServiceSoapClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
                 base(binding, remoteAddress)
         {
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseLoginData> LoginAsync(CxAuditWebServiceV9.Credentials applicationCredentials, int lcid)
         {
-            return base.Channel.LoginAsync(applicationCredentials, lcid);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LoginAsync(applicationCredentials, lcid));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseBasicScanData> SaveScanResultsToProjectAsync(string sessionId, long projectId, string sourceId, CxAuditWebServiceV9.AuditResultsCollection resultsCollection, string comment, string version)
         {
-            return base.Channel.SaveScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment, version);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaveScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment, version));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseBasicScanData> AddScanResultsToProjectAsync(string sessionId, long projectId, string sourceId, CxAuditWebServiceV9.AuditResultsCollection resultsCollection, string comment)
         {
-            return base.Channel.AddScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.AddScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseHierarchyGroupNodes> GetAncestryGroupTreeAsync(string sessionID, int pTeamID)
         {
-            return base.Channel.GetAncestryGroupTreeAsync(sessionID, pTeamID);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAncestryGroupTreeAsync(sessionID, pTeamID));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseCache> GetCacheAsync(string sessionId, long scanId)
         {
-            return base.Channel.GetCacheAsync(sessionId, scanId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCacheAsync(sessionId, scanId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseHierarchyGroupNodes> GetHierarchyGroupTreeAsync(string sessionID)
         {
-            return base.Channel.GetHierarchyGroupTreeAsync(sessionID);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetHierarchyGroupTreeAsync(sessionID));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponsePresetDetails> GetPresetDetailsAsync(string sessionId, long id)
         {
-            return base.Channel.GetPresetDetailsAsync(sessionId, id);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetDetailsAsync(sessionId, id));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponsePresetList> GetPresetListAsync(string SessionID)
         {
-            return base.Channel.GetPresetListAsync(SessionID);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetListAsync(SessionID));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseProjectConfig> GetProjectConfigurationAsync(string sessionID, long projectID)
         {
-            return base.Channel.GetProjectConfigurationAsync(sessionID, projectID);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectConfigurationAsync(sessionID, projectID));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseFileExtensionsSetList> GetFilesExtensionsAsync(string sessionId)
         {
-            return base.Channel.GetFilesExtensionsAsync(sessionId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetFilesExtensionsAsync(sessionId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWsResponseEngineItemsConfiguration> GetEngineConfigurationAsync(string sessionID, long configurationId)
         {
-            return base.Channel.GetEngineConfigurationAsync(sessionID, configurationId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetEngineConfigurationAsync(sessionID, configurationId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseProjectsScansList> GetProjectsWithScansAsync(string sessionId)
         {
-            return base.Channel.GetProjectsWithScansAsync(sessionId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsWithScansAsync(sessionId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxQueryCollectionResponse> GetQueryCollectionForLanguageAsync(string sessionId, int projectType, long projectId)
         {
-            return base.Channel.GetQueryCollectionForLanguageAsync(sessionId, projectType, projectId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageAsync(sessionId, projectType, projectId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxQueryCollectionResponse> GetQueryCollectionForLanguageByTeamIdAsync(string sessionId, int projectType, int teamId)
         {
-            return base.Channel.GetQueryCollectionForLanguageByTeamIdAsync(sessionId, projectType, teamId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageByTeamIdAsync(sessionId, projectType, teamId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseQueryDescription> GetQueryDescriptionAsync(string sessionId, int cweId)
         {
-            return base.Channel.GetQueryDescriptionAsync(sessionId, cweId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionAsync(sessionId, cweId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseQueryDescription> GetQueryDescriptionByQueryIdAsync(string sessionId, int queryId)
         {
-            return base.Channel.GetQueryDescriptionByQueryIdAsync(sessionId, queryId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionByQueryIdAsync(sessionId, queryId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseResultCollection> GetResultsAsync(string sessionId, long scanId)
         {
-            return base.Channel.GetResultsAsync(sessionId, scanId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsAsync(sessionId, scanId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseResultStateList> GetResultStateListAsync(string sessionID)
         {
-            return base.Channel.GetResultStateListAsync(sessionID);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultStateListAsync(sessionID));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CXWSResponseResultSummary> GetResultSummaryAsync(string sessionId, long scanId)
         {
-            return base.Channel.GetResultSummaryAsync(sessionId, scanId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultSummaryAsync(sessionId, scanId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponceResultPath> GetPathCommentsHistoryAsync(string sessionId, long scanId, long pathId, CxAuditWebServiceV9.ResultLabelTypeEnum labelType)
         {
-            return base.Channel.GetPathCommentsHistoryAsync(sessionId, scanId, pathId, labelType);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPathCommentsHistoryAsync(sessionId, scanId, pathId, labelType));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseSourceContainer> GetSourceCodeForScanAsync(string sessionID, long scanId)
         {
-            return base.Channel.GetSourceCodeForScanAsync(sessionID, scanId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourceCodeForScanAsync(sessionID, scanId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> LogoutAsync(string sessionID)
         {
-            return base.Channel.LogoutAsync(sessionID);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LogoutAsync(sessionID));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> UpdateResultStateAsync(string sessionID, long scanId, long PathId, long projectId, string Remarks, int ResultLabelType, string data)
         {
-            return base.Channel.UpdateResultStateAsync(sessionID, scanId, PathId, projectId, Remarks, ResultLabelType, data);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateResultStateAsync(sessionID, scanId, PathId, projectId, Remarks, ResultLabelType, data));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> UpdateScanCommentAsync(string sessionID, long ScanID, string Comment)
         {
-            return base.Channel.UpdateScanCommentAsync(sessionID, ScanID, Comment);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateScanCommentAsync(sessionID, ScanID, Comment));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseSourceID> UploadProjectWithDefaultSettingsAsync(string sessionId, CxAuditWebServiceV9.ProjectBasicSettings projectSettings, CxAuditWebServiceV9.LocalCodeContainer localCodeContainer)
         {
-            return base.Channel.UploadProjectWithDefaultSettingsAsync(sessionId, projectSettings, localCodeContainer);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadProjectWithDefaultSettingsAsync(sessionId, projectSettings, localCodeContainer));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> UploadQueriesAsync(string sessionId, CxAuditWebServiceV9.CxWSQueryGroup[] queries)
         {
-            return base.Channel.UploadQueriesAsync(sessionId, queries);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadQueriesAsync(sessionId, queries));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseQueriesCategories> GetQueriesCategoriesAsync(string sessionId)
         {
-            return base.Channel.GetQueriesCategoriesAsync(sessionId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueriesCategoriesAsync(sessionId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxQueryCollectionResponse> GetQueryCollectionAsync(string sessionId)
         {
-            return base.Channel.GetQueryCollectionAsync(sessionId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionAsync(sessionId));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.ImportQueriesResponse> CxAuditWebServiceV9.CxAuditWebServiceSoap.ImportQueriesAsync(CxAuditWebServiceV9.ImportQueriesRequest request)
         {
-            return base.Channel.ImportQueriesAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ImportQueriesAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.ImportQueriesResponse> ImportQueriesAsync(string sessionId, byte[] importedFile)
         {
             CxAuditWebServiceV9.ImportQueriesRequest inValue = new CxAuditWebServiceV9.ImportQueriesRequest();
             inValue.sessionId = sessionId;
             inValue.importedFile = importedFile;
-            return ((CxAuditWebServiceV9.CxAuditWebServiceSoap)(this)).ImportQueriesAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((CxAuditWebServiceV9.CxAuditWebServiceSoap)(this)).ImportQueriesAsync(inValue));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseLicenseOfLicenseDTO> GetLicenseDetailsAsync(string sessionId)
         {
-            return base.Channel.GetLicenseDetailsAsync(sessionId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetLicenseDetailsAsync(sessionId));
         }
-        
+
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseKeepAlive> KeepAliveAsync(string sessionId)
         {
-            return base.Channel.KeepAliveAsync(sessionId);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.KeepAliveAsync(sessionId));
         }
-        
+
         public virtual System.Threading.Tasks.Task OpenAsync()
         {
-            return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen));
+            return RetryPolicyProvider.ExecuteWithRetry(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen)));
         }
-        
+
         //public virtual System.Threading.Tasks.Task CloseAsync()
         //{
-        //    return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose));
+        //    return RetryPolicyProvider.ExecuteWithRetryAsync(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose)));
         //}
 
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(Uri url, TimeSpan timeout)
@@ -5698,7 +5699,7 @@ namespace CxAuditWebServiceV9
                 result.ReaderQuotas = System.Xml.XmlDictionaryReaderQuotas.Max;
                 result.MaxReceivedMessageSize = int.MaxValue;
                 result.AllowCookies = true;
-                return result;
+                return RetryPolicyProvider.ExecuteWithRetry(() => result);
             }
 
             var integerMaxValue = int.MaxValue;
@@ -5724,9 +5725,9 @@ namespace CxAuditWebServiceV9
 
         public enum EndpointConfiguration
         {
-            
+
             CxAuditWebServiceSoap,
-            
+
             CxAuditWebServiceSoap12,
         }
     }

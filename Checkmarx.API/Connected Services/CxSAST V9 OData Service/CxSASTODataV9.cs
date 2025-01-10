@@ -9,30 +9,32 @@
 //------------------------------------------------------------------------------
 
 // Generation date: 11/4/2020 5:26:04 PM
+using Checkmarx.API.Models;
+
 namespace CxDataRepositoryV9
 {
-        /// <summary>
-        /// There are no comments for ProjectSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ProjectSingle in the schema.
+    /// </summary>
     public partial class ProjectSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<Project>
     {
         /// <summary>
         /// Initialize a new ProjectSingle object.
         /// </summary>
         public ProjectSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new ProjectSingle object.
         /// </summary>
         public ProjectSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new ProjectSingle object.
         /// </summary>
         public ProjectSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<Project> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for Scans in the schema.
@@ -203,9 +205,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::CxDataRepository.ScanSingle _LastScan;
     }
-        /// <summary>
-        /// There are no comments for Project in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for Project in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -778,28 +780,28 @@ namespace CxDataRepositoryV9
         partial void OnLastScanChanging(global::CxDataRepository.Scan value);
         partial void OnLastScanChanged();
     }
-        /// <summary>
-        /// There are no comments for ScanSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ScanSingle in the schema.
+    /// </summary>
     public partial class ScanSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<Scan>
     {
         /// <summary>
         /// Initialize a new ScanSingle object.
         /// </summary>
         public ScanSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new ScanSingle object.
         /// </summary>
         public ScanSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new ScanSingle object.
         /// </summary>
         public ScanSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<Scan> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for Results in the schema.
@@ -991,9 +993,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::CxDataRepository.ScanResultSummaryDataSingle _ResultSummary;
     }
-        /// <summary>
-        /// There are no comments for Scan in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for Scan in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -1018,19 +1020,19 @@ namespace CxDataRepositoryV9
         /// <param name="isPublic">Initial value of IsPublic.</param>
         /// <param name="isLocked">Initial value of IsLocked.</param>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public static Scan CreateScan(long ID, 
-                    int scanType, 
-                    int owningTeamId, 
-                    global::System.DateTimeOffset engineStartedOn, 
-                    global::System.DateTimeOffset scanCompletedOn, 
-                    int high, 
-                    int medium, 
-                    int low, 
-                    int info, 
-                    int riskScore, 
-                    int quantityLevel, 
-                    int statisticsUpToDate, 
-                    bool isPublic, 
+        public static Scan CreateScan(long ID,
+                    int scanType,
+                    int owningTeamId,
+                    global::System.DateTimeOffset engineStartedOn,
+                    global::System.DateTimeOffset scanCompletedOn,
+                    int high,
+                    int medium,
+                    int low,
+                    int info,
+                    int riskScore,
+                    int quantityLevel,
+                    int statisticsUpToDate,
+                    bool isPublic,
                     bool isLocked)
         {
             Scan scan = new Scan();
@@ -2080,28 +2082,28 @@ namespace CxDataRepositoryV9
         partial void OnResultSummaryChanging(global::CxDataRepository.ScanResultSummaryData value);
         partial void OnResultSummaryChanged();
     }
-        /// <summary>
-        /// There are no comments for ProjectCustomFieldSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ProjectCustomFieldSingle in the schema.
+    /// </summary>
     public partial class ProjectCustomFieldSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<ProjectCustomField>
     {
         /// <summary>
         /// Initialize a new ProjectCustomFieldSingle object.
         /// </summary>
         public ProjectCustomFieldSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new ProjectCustomFieldSingle object.
         /// </summary>
         public ProjectCustomFieldSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new ProjectCustomFieldSingle object.
         /// </summary>
         public ProjectCustomFieldSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<ProjectCustomField> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for Project in the schema.
@@ -2125,9 +2127,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::CxDataRepository.ProjectSingle _Project;
     }
-        /// <summary>
-        /// There are no comments for ProjectCustomField in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ProjectCustomField in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// ProjectId
     /// FieldName
@@ -2231,33 +2233,33 @@ namespace CxDataRepositoryV9
         partial void OnProjectChanging(global::CxDataRepository.Project value);
         partial void OnProjectChanged();
     }
-        /// <summary>
-        /// There are no comments for EngineConfigurationSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for EngineConfigurationSingle in the schema.
+    /// </summary>
     public partial class EngineConfigurationSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<EngineConfiguration>
     {
         /// <summary>
         /// Initialize a new EngineConfigurationSingle object.
         /// </summary>
         public EngineConfigurationSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new EngineConfigurationSingle object.
         /// </summary>
         public EngineConfigurationSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new EngineConfigurationSingle object.
         /// </summary>
         public EngineConfigurationSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<EngineConfiguration> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for EngineConfiguration in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for EngineConfiguration in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -2318,33 +2320,33 @@ namespace CxDataRepositoryV9
         partial void OnNameChanging(string value);
         partial void OnNameChanged();
     }
-        /// <summary>
-        /// There are no comments for ClientTypeSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ClientTypeSingle in the schema.
+    /// </summary>
     public partial class ClientTypeSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<ClientType>
     {
         /// <summary>
         /// Initialize a new ClientTypeSingle object.
         /// </summary>
         public ClientTypeSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new ClientTypeSingle object.
         /// </summary>
         public ClientTypeSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new ClientTypeSingle object.
         /// </summary>
         public ClientTypeSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<ClientType> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for ClientType in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ClientType in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -2405,28 +2407,28 @@ namespace CxDataRepositoryV9
         partial void OnNameChanging(string value);
         partial void OnNameChanged();
     }
-        /// <summary>
-        /// There are no comments for UserSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for UserSingle in the schema.
+    /// </summary>
     public partial class UserSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<User>
     {
         /// <summary>
         /// Initialize a new UserSingle object.
         /// </summary>
         public UserSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new UserSingle object.
         /// </summary>
         public UserSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new UserSingle object.
         /// </summary>
         public UserSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<User> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for Team in the schema.
@@ -2450,9 +2452,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::CxDataRepository.TeamSingle _Team;
     }
-        /// <summary>
-        /// There are no comments for User in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for User in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -2641,28 +2643,28 @@ namespace CxDataRepositoryV9
         partial void OnTeamChanging(global::CxDataRepository.Team value);
         partial void OnTeamChanged();
     }
-        /// <summary>
-        /// There are no comments for TeamSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for TeamSingle in the schema.
+    /// </summary>
     public partial class TeamSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<Team>
     {
         /// <summary>
         /// Initialize a new TeamSingle object.
         /// </summary>
         public TeamSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new TeamSingle object.
         /// </summary>
         public TeamSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new TeamSingle object.
         /// </summary>
         public TeamSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<Team> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for Users in the schema.
@@ -2686,9 +2688,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.User> _Users;
     }
-        /// <summary>
-        /// There are no comments for Team in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for Team in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -2812,33 +2814,33 @@ namespace CxDataRepositoryV9
         partial void OnUsersChanging(global::System.Collections.ObjectModel.Collection<global::CxDataRepository.User> value);
         partial void OnUsersChanged();
     }
-        /// <summary>
-        /// There are no comments for PresetSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for PresetSingle in the schema.
+    /// </summary>
     public partial class PresetSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<Preset>
     {
         /// <summary>
         /// Initialize a new PresetSingle object.
         /// </summary>
         public PresetSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new PresetSingle object.
         /// </summary>
         public PresetSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new PresetSingle object.
         /// </summary>
         public PresetSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<Preset> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for Preset in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for Preset in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -2922,28 +2924,28 @@ namespace CxDataRepositoryV9
         partial void OnIsSystemPresetChanging(bool value);
         partial void OnIsSystemPresetChanged();
     }
-        /// <summary>
-        /// There are no comments for ResultSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ResultSingle in the schema.
+    /// </summary>
     public partial class ResultSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<Result>
     {
         /// <summary>
         /// Initialize a new ResultSingle object.
         /// </summary>
         public ResultSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new ResultSingle object.
         /// </summary>
         public ResultSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new ResultSingle object.
         /// </summary>
         public ResultSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<Result> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for Query in the schema.
@@ -3030,9 +3032,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::CxDataRepository.ResultStateSingle _State;
     }
-        /// <summary>
-        /// There are no comments for Result in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for Result in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// ScanId
@@ -3051,12 +3053,12 @@ namespace CxDataRepositoryV9
         /// <param name="stateId">Initial value of StateId.</param>
         /// <param name="queryVersionId">Initial value of QueryVersionId.</param>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public static Result CreateResult(int ID, 
-                    long similarityId, 
-                    long pathId, 
-                    global::System.DateTimeOffset date, 
-                    global::CxDataRepository.Severity severity, 
-                    int stateId, 
+        public static Result CreateResult(int ID,
+                    long similarityId,
+                    long pathId,
+                    global::System.DateTimeOffset date,
+                    global::CxDataRepository.Severity severity,
+                    int stateId,
                     long queryVersionId)
         {
             Result result = new Result();
@@ -3469,33 +3471,33 @@ namespace CxDataRepositoryV9
         partial void OnStateChanging(global::CxDataRepository.ResultState value);
         partial void OnStateChanged();
     }
-        /// <summary>
-        /// There are no comments for TopScanVulnerabilitySingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for TopScanVulnerabilitySingle in the schema.
+    /// </summary>
     public partial class TopScanVulnerabilitySingle : global::Microsoft.OData.Client.DataServiceQuerySingle<TopScanVulnerability>
     {
         /// <summary>
         /// Initialize a new TopScanVulnerabilitySingle object.
         /// </summary>
         public TopScanVulnerabilitySingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new TopScanVulnerabilitySingle object.
         /// </summary>
         public TopScanVulnerabilitySingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new TopScanVulnerabilitySingle object.
         /// </summary>
         public TopScanVulnerabilitySingle(global::Microsoft.OData.Client.DataServiceQuerySingle<TopScanVulnerability> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for TopScanVulnerability in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for TopScanVulnerability in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// ScanId
     /// Rank
@@ -3670,33 +3672,33 @@ namespace CxDataRepositoryV9
         partial void OnStatisticsUpToDateChanging(int value);
         partial void OnStatisticsUpToDateChanged();
     }
-        /// <summary>
-        /// There are no comments for QueryLanguageSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryLanguageSingle in the schema.
+    /// </summary>
     public partial class QueryLanguageSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<QueryLanguage>
     {
         /// <summary>
         /// Initialize a new QueryLanguageSingle object.
         /// </summary>
         public QueryLanguageSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new QueryLanguageSingle object.
         /// </summary>
         public QueryLanguageSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new QueryLanguageSingle object.
         /// </summary>
         public QueryLanguageSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<QueryLanguage> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for QueryLanguage in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryLanguage in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// VersionId
     /// LanguageId
@@ -3825,33 +3827,33 @@ namespace CxDataRepositoryV9
         partial void OnVersionDateChanging(global::System.DateTimeOffset value);
         partial void OnVersionDateChanged();
     }
-        /// <summary>
-        /// There are no comments for EngineServerSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for EngineServerSingle in the schema.
+    /// </summary>
     public partial class EngineServerSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<EngineServer>
     {
         /// <summary>
         /// Initialize a new EngineServerSingle object.
         /// </summary>
         public EngineServerSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new EngineServerSingle object.
         /// </summary>
         public EngineServerSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new EngineServerSingle object.
         /// </summary>
         public EngineServerSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<EngineServer> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for EngineServer in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for EngineServer in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -3868,11 +3870,11 @@ namespace CxDataRepositoryV9
         /// <param name="scanMinLOC">Initial value of ScanMinLOC.</param>
         /// <param name="scanMaxLOC">Initial value of ScanMaxLOC.</param>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public static EngineServer CreateEngineServer(long ID, 
-                    bool isEnabled, 
-                    bool isAlive, 
-                    int maxConcurrentScans, 
-                    int scanMinLOC, 
+        public static EngineServer CreateEngineServer(long ID,
+                    bool isEnabled,
+                    bool isAlive,
+                    int maxConcurrentScans,
+                    int scanMinLOC,
                     int scanMaxLOC)
         {
             EngineServer engineServer = new EngineServer();
@@ -4053,28 +4055,28 @@ namespace CxDataRepositoryV9
         partial void OnScanMaxLOCChanging(int value);
         partial void OnScanMaxLOCChanged();
     }
-        /// <summary>
-        /// There are no comments for ScanResultSummaryDataSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ScanResultSummaryDataSingle in the schema.
+    /// </summary>
     public partial class ScanResultSummaryDataSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<ScanResultSummaryData>
     {
         /// <summary>
         /// Initialize a new ScanResultSummaryDataSingle object.
         /// </summary>
         public ScanResultSummaryDataSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new ScanResultSummaryDataSingle object.
         /// </summary>
         public ScanResultSummaryDataSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new ScanResultSummaryDataSingle object.
         /// </summary>
         public ScanResultSummaryDataSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<ScanResultSummaryData> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for Scan in the schema.
@@ -4119,9 +4121,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::CxDataRepository.ScanSingle _PreviousScan;
     }
-        /// <summary>
-        /// There are no comments for ScanResultSummaryData in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ScanResultSummaryData in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// ScanId
     /// </KeyProperties>
@@ -4291,28 +4293,28 @@ namespace CxDataRepositoryV9
         partial void OnPreviousScanChanging(global::CxDataRepository.Scan value);
         partial void OnPreviousScanChanged();
     }
-        /// <summary>
-        /// There are no comments for QuerySingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QuerySingle in the schema.
+    /// </summary>
     public partial class QuerySingle : global::Microsoft.OData.Client.DataServiceQuerySingle<Query>
     {
         /// <summary>
         /// Initialize a new QuerySingle object.
         /// </summary>
         public QuerySingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new QuerySingle object.
         /// </summary>
         public QuerySingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new QuerySingle object.
         /// </summary>
         public QuerySingle(global::Microsoft.OData.Client.DataServiceQuerySingle<Query> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for QueryCxDescription in the schema.
@@ -4420,9 +4422,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.QueryCategory> _QueryCategories;
     }
-        /// <summary>
-        /// There are no comments for Query in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for Query in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -4741,33 +4743,33 @@ namespace CxDataRepositoryV9
         partial void OnQueryCategoriesChanging(global::System.Collections.ObjectModel.Collection<global::CxDataRepository.QueryCategory> value);
         partial void OnQueryCategoriesChanged();
     }
-        /// <summary>
-        /// There are no comments for ResultStateSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ResultStateSingle in the schema.
+    /// </summary>
     public partial class ResultStateSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<ResultState>
     {
         /// <summary>
         /// Initialize a new ResultStateSingle object.
         /// </summary>
         public ResultStateSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new ResultStateSingle object.
         /// </summary>
         public ResultStateSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new ResultStateSingle object.
         /// </summary>
         public ResultStateSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<ResultState> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for ResultState in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for ResultState in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -4828,33 +4830,33 @@ namespace CxDataRepositoryV9
         partial void OnNameChanging(string value);
         partial void OnNameChanged();
     }
-        /// <summary>
-        /// There are no comments for QueryCxDescriptionSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryCxDescriptionSingle in the schema.
+    /// </summary>
     public partial class QueryCxDescriptionSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<QueryCxDescription>
     {
         /// <summary>
         /// Initialize a new QueryCxDescriptionSingle object.
         /// </summary>
         public QueryCxDescriptionSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new QueryCxDescriptionSingle object.
         /// </summary>
         public QueryCxDescriptionSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new QueryCxDescriptionSingle object.
         /// </summary>
         public QueryCxDescriptionSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<QueryCxDescription> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for QueryCxDescription in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryCxDescription in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -5022,33 +5024,33 @@ namespace CxDataRepositoryV9
         partial void OnGeneralRecommendationsChanging(string value);
         partial void OnGeneralRecommendationsChanged();
     }
-        /// <summary>
-        /// There are no comments for QueryCweDescriptionSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryCweDescriptionSingle in the schema.
+    /// </summary>
     public partial class QueryCweDescriptionSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<QueryCweDescription>
     {
         /// <summary>
         /// Initialize a new QueryCweDescriptionSingle object.
         /// </summary>
         public QueryCweDescriptionSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new QueryCweDescriptionSingle object.
         /// </summary>
         public QueryCweDescriptionSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new QueryCweDescriptionSingle object.
         /// </summary>
         public QueryCweDescriptionSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<QueryCweDescription> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for QueryCweDescription in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryCweDescription in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -5132,33 +5134,33 @@ namespace CxDataRepositoryV9
         partial void OnHtmlDescriptionChanging(string value);
         partial void OnHtmlDescriptionChanged();
     }
-        /// <summary>
-        /// There are no comments for QuerySourceSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QuerySourceSingle in the schema.
+    /// </summary>
     public partial class QuerySourceSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<QuerySource>
     {
         /// <summary>
         /// Initialize a new QuerySourceSingle object.
         /// </summary>
         public QuerySourceSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new QuerySourceSingle object.
         /// </summary>
         public QuerySourceSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new QuerySourceSingle object.
         /// </summary>
         public QuerySourceSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<QuerySource> query)
-            : base(query) {}
+            : base(query) { }
 
     }
-        /// <summary>
-        /// There are no comments for QuerySource in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QuerySource in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -5219,28 +5221,28 @@ namespace CxDataRepositoryV9
         partial void OnSourceChanging(string value);
         partial void OnSourceChanged();
     }
-        /// <summary>
-        /// There are no comments for QueryGroupSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryGroupSingle in the schema.
+    /// </summary>
     public partial class QueryGroupSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<QueryGroup>
     {
         /// <summary>
         /// Initialize a new QueryGroupSingle object.
         /// </summary>
         public QueryGroupSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new QueryGroupSingle object.
         /// </summary>
         public QueryGroupSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new QueryGroupSingle object.
         /// </summary>
         public QueryGroupSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<QueryGroup> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for Project in the schema.
@@ -5327,9 +5329,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Query> _Queries;
     }
-        /// <summary>
-        /// There are no comments for QueryGroup in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryGroup in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -5602,28 +5604,28 @@ namespace CxDataRepositoryV9
         partial void OnQueriesChanging(global::System.Collections.ObjectModel.Collection<global::CxDataRepository.Query> value);
         partial void OnQueriesChanged();
     }
-        /// <summary>
-        /// There are no comments for QueryGroupTypeSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryGroupTypeSingle in the schema.
+    /// </summary>
     public partial class QueryGroupTypeSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<QueryGroupType>
     {
         /// <summary>
         /// Initialize a new QueryGroupTypeSingle object.
         /// </summary>
         public QueryGroupTypeSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new QueryGroupTypeSingle object.
         /// </summary>
         public QueryGroupTypeSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new QueryGroupTypeSingle object.
         /// </summary>
         public QueryGroupTypeSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<QueryGroupType> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for QueryGroups in the schema.
@@ -5647,9 +5649,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.QueryGroup> _QueryGroups;
     }
-        /// <summary>
-        /// There are no comments for QueryGroupType in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryGroupType in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -5731,28 +5733,28 @@ namespace CxDataRepositoryV9
         partial void OnQueryGroupsChanging(global::System.Collections.ObjectModel.Collection<global::CxDataRepository.QueryGroup> value);
         partial void OnQueryGroupsChanged();
     }
-        /// <summary>
-        /// There are no comments for QueryCategorySingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryCategorySingle in the schema.
+    /// </summary>
     public partial class QueryCategorySingle : global::Microsoft.OData.Client.DataServiceQuerySingle<QueryCategory>
     {
         /// <summary>
         /// Initialize a new QueryCategorySingle object.
         /// </summary>
         public QueryCategorySingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new QueryCategorySingle object.
         /// </summary>
         public QueryCategorySingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new QueryCategorySingle object.
         /// </summary>
         public QueryCategorySingle(global::Microsoft.OData.Client.DataServiceQuerySingle<QueryCategory> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for QueryCategoryType in the schema.
@@ -5797,9 +5799,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Query> _Queries;
     }
-        /// <summary>
-        /// There are no comments for QueryCategory in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryCategory in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -5925,28 +5927,28 @@ namespace CxDataRepositoryV9
         partial void OnQueriesChanging(global::System.Collections.ObjectModel.Collection<global::CxDataRepository.Query> value);
         partial void OnQueriesChanged();
     }
-        /// <summary>
-        /// There are no comments for QueryCategoryTypeSingle in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryCategoryTypeSingle in the schema.
+    /// </summary>
     public partial class QueryCategoryTypeSingle : global::Microsoft.OData.Client.DataServiceQuerySingle<QueryCategoryType>
     {
         /// <summary>
         /// Initialize a new QueryCategoryTypeSingle object.
         /// </summary>
         public QueryCategoryTypeSingle(global::Microsoft.OData.Client.DataServiceContext context, string path)
-            : base(context, path) {}
+            : base(context, path) { }
 
         /// <summary>
         /// Initialize a new QueryCategoryTypeSingle object.
         /// </summary>
         public QueryCategoryTypeSingle(global::Microsoft.OData.Client.DataServiceContext context, string path, bool isComposable)
-            : base(context, path, isComposable) {}
+            : base(context, path, isComposable) { }
 
         /// <summary>
         /// Initialize a new QueryCategoryTypeSingle object.
         /// </summary>
         public QueryCategoryTypeSingle(global::Microsoft.OData.Client.DataServiceQuerySingle<QueryCategoryType> query)
-            : base(query) {}
+            : base(query) { }
 
         /// <summary>
         /// There are no comments for QueryCategories in the schema.
@@ -5970,9 +5972,9 @@ namespace CxDataRepositoryV9
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.QueryCategory> _QueryCategories;
     }
-        /// <summary>
-        /// There are no comments for QueryCategoryType in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for QueryCategoryType in the schema.
+    /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
@@ -6054,9 +6056,9 @@ namespace CxDataRepositoryV9
         partial void OnQueryCategoriesChanging(global::System.Collections.ObjectModel.Collection<global::CxDataRepository.QueryCategory> value);
         partial void OnQueryCategoriesChanged();
     }
-        /// <summary>
-        /// There are no comments for Severity in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for Severity in the schema.
+    /// </summary>
     public enum Severity
     {
         Info = 0,
@@ -6131,12 +6133,12 @@ namespace CxDataRepositoryV9
         /// <param name="projectId">The value of projectId</param>
         /// <param name="fieldName">The value of fieldName</param>
         public static global::CxDataRepository.ProjectCustomFieldSingle ByKey(this global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.ProjectCustomField> _source,
-            global::System.Nullable<long> projectId, 
+            global::System.Nullable<long> projectId,
             string fieldName)
         {
             global::System.Collections.Generic.IDictionary<string, object> _keys = new global::System.Collections.Generic.Dictionary<string, object>
             {
-                { "ProjectId", projectId }, 
+                { "ProjectId", projectId },
                 { "FieldName", fieldName }
             };
             return new global::CxDataRepository.ProjectCustomFieldSingle(_source.Context, _source.GetKeyPath(global::Microsoft.OData.Client.Serializer.GetKeyString(_source.Context, _keys)));
@@ -6272,12 +6274,12 @@ namespace CxDataRepositoryV9
         /// <param name="id">The value of id</param>
         /// <param name="scanId">The value of scanId</param>
         public static global::CxDataRepository.ResultSingle ByKey(this global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _source,
-            int id, 
+            int id,
             global::System.Nullable<long> scanId)
         {
             global::System.Collections.Generic.IDictionary<string, object> _keys = new global::System.Collections.Generic.Dictionary<string, object>
             {
-                { "Id", id }, 
+                { "Id", id },
                 { "ScanId", scanId }
             };
             return new global::CxDataRepository.ResultSingle(_source.Context, _source.GetKeyPath(global::Microsoft.OData.Client.Serializer.GetKeyString(_source.Context, _keys)));
@@ -6298,12 +6300,12 @@ namespace CxDataRepositoryV9
         /// <param name="scanId">The value of scanId</param>
         /// <param name="rank">The value of rank</param>
         public static global::CxDataRepository.TopScanVulnerabilitySingle ByKey(this global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.TopScanVulnerability> _source,
-            long scanId, 
+            long scanId,
             int rank)
         {
             global::System.Collections.Generic.IDictionary<string, object> _keys = new global::System.Collections.Generic.Dictionary<string, object>
             {
-                { "ScanId", scanId }, 
+                { "ScanId", scanId },
                 { "Rank", rank }
             };
             return new global::CxDataRepository.TopScanVulnerabilitySingle(_source.Context, _source.GetKeyPath(global::Microsoft.OData.Client.Serializer.GetKeyString(_source.Context, _keys)));
@@ -6324,12 +6326,12 @@ namespace CxDataRepositoryV9
         /// <param name="versionId">The value of versionId</param>
         /// <param name="languageId">The value of languageId</param>
         public static global::CxDataRepository.QueryLanguageSingle ByKey(this global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.QueryLanguage> _source,
-            int versionId, 
+            int versionId,
             int languageId)
         {
             global::System.Collections.Generic.IDictionary<string, object> _keys = new global::System.Collections.Generic.Dictionary<string, object>
             {
-                { "VersionId", versionId }, 
+                { "VersionId", versionId },
                 { "LanguageId", languageId }
             };
             return new global::CxDataRepository.QueryLanguageSingle(_source.Context, _source.GetKeyPath(global::Microsoft.OData.Client.Serializer.GetKeyString(_source.Context, _keys)));
@@ -6591,9 +6593,9 @@ namespace CxDataRepositoryV9
 }
 namespace DefaultV9
 {
-        /// <summary>
-        /// There are no comments for Container in the schema.
-        /// </summary>
+    /// <summary>
+    /// There are no comments for Container in the schema.
+    /// </summary>
     public partial class Container : global::Microsoft.OData.Client.DataServiceContext
     {
         /// <summary>
@@ -6621,7 +6623,7 @@ namespace DefaultV9
                 {
                     this._Projects = base.CreateQuery<global::CxDataRepository.Project>("Projects");
                 }
-                return this._Projects;
+                return new RetryableDataServiceQuery<global::CxDataRepository.Project>(this._Projects);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -6638,7 +6640,7 @@ namespace DefaultV9
                 {
                     this._Scans = base.CreateQuery<global::CxDataRepository.Scan>("Scans");
                 }
-                return this._Scans;
+                return new RetryableDataServiceQuery<global::CxDataRepository.Scan>(this._Scans);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -6655,7 +6657,7 @@ namespace DefaultV9
                 {
                     this._Results = base.CreateQuery<global::CxDataRepository.Result>("Results");
                 }
-                return this._Results;
+                return new RetryableDataServiceQuery<global::CxDataRepository.Result>(this._Results);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -6709,13 +6711,13 @@ namespace DefaultV9
 
                     if (!global::Microsoft.OData.Edm.Csdl.CsdlReader.TryParse(reader, false, out edmModel, out errors))
                     {
-	                    global::System.Text.StringBuilder errorMessages = new System.Text.StringBuilder();
-	                    foreach (var error in errors)
-	                    {
-		                    errorMessages.Append(error.ErrorMessage);
-		                    errorMessages.Append("; ");
-	                    }
-	                    throw new global::System.InvalidOperationException(errorMessages.ToString());
+                        global::System.Text.StringBuilder errorMessages = new System.Text.StringBuilder();
+                        foreach (var error in errors)
+                        {
+                            errorMessages.Append(error.ErrorMessage);
+                            errorMessages.Append("; ");
+                        }
+                        throw new global::System.InvalidOperationException(errorMessages.ToString());
                     }
 
                     return edmModel;
@@ -6741,7 +6743,7 @@ namespace DefaultV9
                     global::System.IO.Stream stream = assembly.GetManifestResourceStream(resourcePath);
                     return global::System.Xml.XmlReader.Create(new global::System.IO.StreamReader(stream));
                 }
-                catch(global::System.Xml.XmlException e)
+                catch (global::System.Xml.XmlException e)
                 {
                     throw new global::System.Xml.XmlException("Failed to create an XmlReader from the stream. Check if the resource exists.", e);
                 }

@@ -16,29 +16,21 @@ using System.Threading;
 using Checkmarx.API.OSA;
 using Checkmarx.API.SAST;
 using System.Xml.Linq;
-using CxDataRepository;
 using PortalSoap;
 using Scan = Checkmarx.API.SAST.Scan;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Globalization;
 using Checkmarx.API.SASTV2_1;
 using Checkmarx.API.SASTV2;
 using Checkmarx.API.SAST.OData;
 using Result = CxDataRepository.Result;
 using System.Text.RegularExpressions;
-using System.Linq.Expressions;
 using Checkmarx.API.SASTV4;
-using CxDataRepositoryV9;
 using Checkmarx.API.SASTV3;
 using Checkmarx.API.Exceptions;
-using Microsoft.OData.Client;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel.Security;
-using System.Runtime;
 using System.IO.Compression;
-using cxPriorityWebService;
 using Checkmarx.API.Models;
 
 namespace Checkmarx.API
@@ -138,8 +130,6 @@ namespace Checkmarx.API
 
             return _oDataV95Results.Expand(x => x.Query).Expand(x => x.Scan).Where(x => x.ScanId == scanId);
         }
-
-
 
         /// <summary>
         /// SOAP client
@@ -441,7 +431,7 @@ namespace Checkmarx.API
 
                 using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
                 {
-                    HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                    HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
@@ -988,7 +978,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     _teamsCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -1063,7 +1053,7 @@ namespace Checkmarx.API
                 {
                     request.Headers.Add("Accept", "application/json");
 
-                    HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                    HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
@@ -1081,7 +1071,7 @@ namespace Checkmarx.API
                 {
                     request.Headers.Add("Accept", "application/json");
 
-                    HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                    HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
@@ -1116,7 +1106,7 @@ namespace Checkmarx.API
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode != HttpStatusCode.OK)
                     throw new Exception($"Error updating excluded settings for project {projectId} ({response.StatusCode})");
@@ -1154,7 +1144,7 @@ namespace Checkmarx.API
 
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1224,7 +1214,7 @@ namespace Checkmarx.API
 
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
@@ -1271,7 +1261,7 @@ namespace Checkmarx.API
 
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
@@ -1295,7 +1285,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1339,7 +1329,7 @@ namespace Checkmarx.API
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode != HttpStatusCode.Accepted)
                 {
@@ -1491,7 +1481,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 Dictionary<string, int> customFields = new Dictionary<string, int>();
 
@@ -1534,7 +1524,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 var result = new List<Guid>();
 
@@ -1577,7 +1567,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1623,7 +1613,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1645,7 +1635,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1968,7 +1958,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2008,7 +1998,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2043,7 +2033,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2180,10 +2170,10 @@ namespace Checkmarx.API
             if (minScanDate.HasValue)
                 filterMinDate = useServerTime ? new DateTimeOffset(minScanDate.Value, ServerDateTimeOffSet) : new DateTimeOffset(minScanDate.Value);
 
-            return GetODataScans(projectId, finished, scanKind, version, onlyPublic, filterMinDate, filterMaxDate, includeGhostScans);
+            return getODataScans(projectId, finished, scanKind, version, onlyPublic, filterMinDate, filterMaxDate, includeGhostScans);
         }
 
-        public IEnumerable<Scan> GetODataScans(long projectId, bool finished, ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTimeOffset? minScanDateOffset = null, DateTimeOffset? maxScanDateOffset = null, bool includeGhostScans = true)
+        private IEnumerable<Scan> getODataScans(long projectId, bool finished, ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTimeOffset? minScanDateOffset = null, DateTimeOffset? maxScanDateOffset = null, bool includeGhostScans = true)
         {
             checkConnection();
 
@@ -2358,7 +2348,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2394,7 +2384,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2418,7 +2408,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2448,7 +2438,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2495,7 +2485,7 @@ namespace Checkmarx.API
                     projects.Headers.Add("Accept", $"application/json;v={version}");
                     projects.Headers.Add("Connection", "keep-alive");
 
-                    Task<HttpResponseMessage> projectListTask = httpClient.SendAsync(projects);
+                    Task<HttpResponseMessage> projectListTask = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(projects));
 
                     var projectListResponse = projectListTask.GetAwaiter().GetResult();
 
@@ -2613,7 +2603,7 @@ namespace Checkmarx.API
             {
                 presets.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage presetResponse = httpClient.SendAsync(presets).Result;
+                HttpResponseMessage presetResponse = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(presets).Result);
 
                 if (presetResponse.StatusCode == HttpStatusCode.OK)
                 {
@@ -3373,7 +3363,7 @@ namespace Checkmarx.API
 
                 request.Content = new FormUrlEncodedContent(values);
 
-                HttpResponseMessage response = httpClient.SendAsync(request).Result;
+                HttpResponseMessage response = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(request).Result);
 
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
@@ -3392,7 +3382,7 @@ namespace Checkmarx.API
                     {
                         getReport.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue($"application/{reportTypeString}"));
 
-                        HttpResponseMessage getReportResponse = httpClient.SendAsync(getReport).Result;
+                        HttpResponseMessage getReportResponse = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(getReport).Result);
 
                         if (getReportResponse.StatusCode == HttpStatusCode.OK)
                         {
@@ -3471,7 +3461,7 @@ namespace Checkmarx.API
 
             using (var getReportStatus = new HttpRequestMessage(HttpMethod.Get, $"reports/sastScan/{reportId}/status"))
             {
-                HttpResponseMessage getReportResponse = httpClient.SendAsync(getReportStatus).Result;
+                HttpResponseMessage getReportResponse = RetryPolicyProvider.ExecuteWithRetry(() => httpClient.SendAsync(getReportStatus).Result);
 
                 if (getReportResponse.StatusCode == HttpStatusCode.OK)
                 {
@@ -3493,12 +3483,17 @@ namespace Checkmarx.API
             return CxAuditV9.GetResultsAsync(_soapSessionId, scanId).Result.ResultCollection.Results;
         }
 
-        public IEnumerable<SoapSingleResultData> GetResultsForScanByStateId(long scanId, ResultState state, bool includeInfoSeverityResults = true)
+        public IEnumerable<SoapSingleResultData> GetResultsForScanByState(long scanId, ResultState state, bool includeInfoSeverityResults = true)
         {
             return GetResultsForScan(scanId, includeInfoSeverityResults).Where(x => x.State == (int)state);
         }
 
         public IEnumerable<SoapSingleResultData> GetResultsForScan(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true, bool includeProposedNonExploitables = true, bool includeConfirmedResults = true)
+        {
+            return getScanResults(scanId, includeInfoSeverityResults, includeNonExploitables, includeProposedNonExploitables, includeConfirmedResults);
+        }
+
+        private IEnumerable<SoapSingleResultData> getScanResults(long scanId, bool includeInfoSeverityResults = true, bool includeNonExploitables = true, bool includeProposedNonExploitables = true, bool includeConfirmedResults = true)
         {
             checkConnection();
 
@@ -3541,25 +3536,6 @@ namespace Checkmarx.API
             {
                 results = results.Where(x => x.State != (int)ResultState.Confirmed).ToArray();
             }
-
-            return results;
-        }
-
-        public CxWSSingleResultData[] GetResultsForScanNeitherConfirmedNorNonExploitable(long scanId, bool includeInfoSeverityResults = true)
-        {
-            checkConnection();
-
-            var result = _cxPortalWebServiceSoapClient.GetResultsForScan(_soapSessionId, scanId);
-
-            if (!result.IsSuccesfull)
-                throw new ApplicationException(result.ErrorMessage);
-
-            var results = result.Results;
-
-            if (!includeInfoSeverityResults)
-                results = results.Where(x => x.Severity != (int)Severity.Info).ToArray();
-
-            results = results.Where(x => x.State != (int)ResultState.Confirmed && x.State != (int)ResultState.NonExploitable).ToArray();
 
             return results;
         }
@@ -3730,12 +3706,7 @@ namespace Checkmarx.API
 
         public IEnumerable<Result> GetNotExploitableFromScan(long scanId)
         {
-            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.NonExploitable);
-        }
-
-        public IEnumerable<Result> GetToVerifyResultsFromScan(long scanId)
-        {
-            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify);
+            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.NonExploitable).ToList();
         }
 
         /// <summary>

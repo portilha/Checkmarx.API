@@ -10,6 +10,8 @@
 
 // Generation date: 6/15/2020 2:29:08 PM
 
+using Checkmarx.API.Models;
+
 namespace Default
 {
     /// <summary>
@@ -42,7 +44,7 @@ namespace Default
                 {
                     this._Projects = base.CreateQuery<global::CxDataRepository.Project>("Projects");
                 }
-                return this._Projects;
+                return new RetryableDataServiceQuery<global::CxDataRepository.Project>(this._Projects);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -59,7 +61,7 @@ namespace Default
                 {
                     this._Scans = base.CreateQuery<global::CxDataRepository.Scan>("Scans");
                 }
-                return this._Scans;
+                return new RetryableDataServiceQuery<global::CxDataRepository.Scan>(this._Scans);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -76,7 +78,7 @@ namespace Default
                 {
                     this._Results = base.CreateQuery<global::CxDataRepository.Result>("Results");
                 }
-                return this._Results;
+                return new RetryableDataServiceQuery<global::CxDataRepository.Result>(this._Results);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]

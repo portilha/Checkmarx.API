@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 
 // Generation date: 10/5/2022 1:06:25 PM
+using Checkmarx.API.Models;
+
 namespace Checkmarx.API.SAST.OData
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace Checkmarx.API.SAST.OData
         public ODataClient95(global::System.Uri serviceRoot) :
                 this(serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion.V4)
         {
-    
+
         }
 
         /// <summary>
@@ -102,7 +104,7 @@ namespace Checkmarx.API.SAST.OData
                 {
                     this._Projects = base.CreateQuery<Checkmarx.API.SAST.OData.Project>("Projects");
                 }
-                return this._Projects;
+                return new RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Project>(this._Projects);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -120,7 +122,7 @@ namespace Checkmarx.API.SAST.OData
                 {
                     this._Scans = base.CreateQuery<Checkmarx.API.SAST.OData.Scan>("Scans");
                 }
-                return this._Scans;
+                return new RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Scan>(this._Scans);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -136,9 +138,9 @@ namespace Checkmarx.API.SAST.OData
             {
                 if ((this._Results == null))
                 {
-                    this._Results = base.CreateQuery< Checkmarx.API.SAST.OData.Result >("Results");
+                    this._Results = base.CreateQuery<Checkmarx.API.SAST.OData.Result>("Results");
                 }
-                return this._Results;
+                return new RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Result>(this._Results);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -192,13 +194,13 @@ namespace Checkmarx.API.SAST.OData
 
                     if (!global::Microsoft.OData.Edm.Csdl.CsdlReader.TryParse(reader, true, out edmModel, out errors))
                     {
-	                    global::System.Text.StringBuilder errorMessages = new global::System.Text.StringBuilder();
-	                    foreach (var error in errors)
-	                    {
-		                    errorMessages.Append(error.ErrorMessage);
-		                    errorMessages.Append("; ");
-	                    }
-	                    throw new global::System.InvalidOperationException(errorMessages.ToString());
+                        global::System.Text.StringBuilder errorMessages = new global::System.Text.StringBuilder();
+                        foreach (var error in errors)
+                        {
+                            errorMessages.Append(error.ErrorMessage);
+                            errorMessages.Append("; ");
+                        }
+                        throw new global::System.InvalidOperationException(errorMessages.ToString());
                     }
 
                     return edmModel;
@@ -224,7 +226,7 @@ namespace Checkmarx.API.SAST.OData
                     global::System.IO.Stream stream = assembly.GetManifestResourceStream(resourcePath);
                     return global::System.Xml.XmlReader.Create(new global::System.IO.StreamReader(stream));
                 }
-                catch(global::System.Xml.XmlException e)
+                catch (global::System.Xml.XmlException e)
                 {
                     throw new global::System.Xml.XmlException("Failed to create an XmlReader from the stream. Check if the resource exists.", e);
                 }

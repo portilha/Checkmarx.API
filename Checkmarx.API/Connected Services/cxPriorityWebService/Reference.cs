@@ -10,21 +10,22 @@
 namespace cxPriorityWebService
 {
     using Checkmarx.API;
+    using Checkmarx.API.Models;
     using System;
     using System.Linq;
     using System.ServiceModel;
 
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="CxWSBasicRepsonse", Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Name = "CxWSBasicRepsonse", Namespace = "http://Checkmarx.com")]
     public partial class CxWSBasicResponse : object
     {
-        
+
         private bool IsSuccesfullField;
-        
+
         private string ErrorMessageField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true)]
         public bool IsSuccesfull
         {
             get
@@ -36,8 +37,8 @@ namespace cxPriorityWebService
                 this.IsSuccesfullField = value;
             }
         }
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 1)]
         public string ErrorMessage
         {
             get
@@ -50,22 +51,22 @@ namespace cxPriorityWebService
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="CxWSResponceScanResultsPriority", Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Name = "CxWSResponceScanResultsPriority", Namespace = "http://Checkmarx.com")]
     public partial class CxWSResponseScanResultsPriority : cxPriorityWebService.CxWSBasicResponse
     {
-        
+
         private cxPriorityWebService.CxWSSingleResultDataPriority[] ResultsField;
-        
+
         private bool SastRemediationEnabledField;
-        
+
         private bool? CxMnoInstalledField;
-        
+
         private int? TotalResultsCountField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false)]
         public cxPriorityWebService.CxWSSingleResultDataPriority[] Results
         {
             get
@@ -77,8 +78,8 @@ namespace cxPriorityWebService
                 this.ResultsField = value;
             }
         }
-        
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = true)]
         public bool SastRemediationEnabled
         {
             get
@@ -90,8 +91,8 @@ namespace cxPriorityWebService
                 this.SastRemediationEnabledField = value;
             }
         }
-        
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=false, Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = false, Order = 2)]
         public bool? CxMnoInstalled
         {
             get
@@ -105,7 +106,7 @@ namespace cxPriorityWebService
         }
 
         // It should stay as IsRequired=false -> Bellow version 9.4 the response does not contain total results count
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=false, Order=3)]
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = false, Order = 3)]
         public int? TotalResultsCount
         {
             get
@@ -118,10 +119,10 @@ namespace cxPriorityWebService
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="CxWSSingleResultDataPriority", Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Name = "CxWSSingleResultDataPriority", Namespace = "http://Checkmarx.com")]
     public partial class CxWSSingleResultDataPriority
     {
 
@@ -488,136 +489,136 @@ namespace cxPriorityWebService
     }
 
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="CompareStatusType", Namespace="CxDataTypes.xsd")]
+    [System.Runtime.Serialization.DataContractAttribute(Name = "CompareStatusType", Namespace = "CxDataTypes.xsd")]
     public enum CompareStatusType : int
     {
-        
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Fixed = 0,
-        
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Reoccured = 1,
-        
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         New = 2,
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ServiceModel.ServiceContractAttribute(Namespace="http://Checkmarx.com", ConfigurationName="cxPriorityWebService.CxPriorityServiceSoap")]
+    [System.ServiceModel.ServiceContractAttribute(Namespace = "http://Checkmarx.com", ConfigurationName = "cxPriorityWebService.CxPriorityServiceSoap")]
     public interface CxPriorityServiceSoap
     {
-        
+
         // CODEGEN: Generating message contract since element name sessionID from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForQuery", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForQuery", ReplyAction = "*")]
         cxPriorityWebService.GetResultsForQueryResponse GetResultsForQuery(cxPriorityWebService.GetResultsForQueryRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForQuery", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForQuery", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryResponse> GetResultsForQueryAsync(cxPriorityWebService.GetResultsForQueryRequest request);
-        
+
         // CODEGEN: Generating message contract since element name sessionID from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForQueryQroup", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForQueryQroup", ReplyAction = "*")]
         cxPriorityWebService.GetResultsForQueryQroupResponse GetResultsForQueryQroup(cxPriorityWebService.GetResultsForQueryQroupRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForQueryQroup", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForQueryQroup", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupResponse> GetResultsForQueryQroupAsync(cxPriorityWebService.GetResultsForQueryQroupRequest request);
-        
+
         // CODEGEN: Generating message contract since element name sessionID from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForScanByLanguage", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForScanByLanguage", ReplyAction = "*")]
         cxPriorityWebService.GetResultsForScanByLanguageResponse GetResultsForScanByLanguage(cxPriorityWebService.GetResultsForScanByLanguageRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForScanByLanguage", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForScanByLanguage", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageResponse> GetResultsForScanByLanguageAsync(cxPriorityWebService.GetResultsForScanByLanguageRequest request);
-        
+
         // CODEGEN: Generating message contract since element name sessionID from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForScan", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForScan", ReplyAction = "*")]
         cxPriorityWebService.GetResultsForScanResponse GetResultsForScan(cxPriorityWebService.GetResultsForScanRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForScan", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForScan", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanResponse> GetResultsForScanAsync(cxPriorityWebService.GetResultsForScanRequest request);
-        
+
         // CODEGEN: Generating message contract since element name sessionId from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsBySeverity", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsBySeverity", ReplyAction = "*")]
         cxPriorityWebService.GetResultsBySeverityResponse GetResultsBySeverity(cxPriorityWebService.GetResultsBySeverityRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsBySeverity", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsBySeverity", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityResponse> GetResultsBySeverityAsync(cxPriorityWebService.GetResultsBySeverityRequest request);
-        
+
         // CODEGEN: Generating message contract since element name sessionID from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForQueryWithPaging", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForQueryWithPaging", ReplyAction = "*")]
         cxPriorityWebService.GetResultsForQueryWithPagingResponse GetResultsForQueryWithPaging(cxPriorityWebService.GetResultsForQueryWithPagingRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForQueryWithPaging", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForQueryWithPaging", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryWithPagingResponse> GetResultsForQueryWithPagingAsync(cxPriorityWebService.GetResultsForQueryWithPagingRequest request);
-        
+
         // CODEGEN: Generating message contract since element name sessionID from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForScanByLanguageWithPaging", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForScanByLanguageWithPaging", ReplyAction = "*")]
         cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse GetResultsForScanByLanguageWithPaging(cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForScanByLanguageWithPaging", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForScanByLanguageWithPaging", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse> GetResultsForScanByLanguageWithPagingAsync(cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest request);
-        
+
         // CODEGEN: Generating message contract since element name sessionID from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForScanWithPaging", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForScanWithPaging", ReplyAction = "*")]
         cxPriorityWebService.GetResultsForScanWithPagingResponse GetResultsForScanWithPaging(cxPriorityWebService.GetResultsForScanWithPagingRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForScanWithPaging", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForScanWithPaging", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanWithPagingResponse> GetResultsForScanWithPagingAsync(cxPriorityWebService.GetResultsForScanWithPagingRequest request);
-        
+
         // CODEGEN: Generating message contract since element name sessionId from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsBySeverityWithPaging", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsBySeverityWithPaging", ReplyAction = "*")]
         cxPriorityWebService.GetResultsBySeverityWithPagingResponse GetResultsBySeverityWithPaging(cxPriorityWebService.GetResultsBySeverityWithPagingRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsBySeverityWithPaging", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsBySeverityWithPaging", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityWithPagingResponse> GetResultsBySeverityWithPagingAsync(cxPriorityWebService.GetResultsBySeverityWithPagingRequest request);
-        
+
         // CODEGEN: Generating message contract since element name sessionID from namespace http://Checkmarx.com is not marked nillable
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForQueryQroupWithPaging", ReplyAction="*")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForQueryQroupWithPaging", ReplyAction = "*")]
         cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse GetResultsForQueryQroupWithPaging(cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://Checkmarx.com/GetResultsForQueryQroupWithPaging", ReplyAction="*")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://Checkmarx.com/GetResultsForQueryQroupWithPaging", ReplyAction = "*")]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse> GetResultsForQueryQroupWithPagingAsync(cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest request);
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForQueryRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForQuery", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForQuery", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForQueryRequestBody Body;
-        
+
         public GetResultsForQueryRequest()
         {
         }
-        
+
         public GetResultsForQueryRequest(cxPriorityWebService.GetResultsForQueryRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForQueryRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 2)]
         public long queryId;
-        
+
         public GetResultsForQueryRequestBody()
         {
         }
-        
+
         public GetResultsForQueryRequestBody(string sessionID, long scanId, long queryId)
         {
             this.sessionID = sessionID;
@@ -625,87 +626,87 @@ namespace cxPriorityWebService
             this.queryId = queryId;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForQueryResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForQueryResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForQueryResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForQueryResponseBody Body;
-        
+
         public GetResultsForQueryResponse()
         {
         }
-        
+
         public GetResultsForQueryResponse(cxPriorityWebService.GetResultsForQueryResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForQueryResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryResult;
-        
+
         public GetResultsForQueryResponseBody()
         {
         }
-        
+
         public GetResultsForQueryResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryResult)
         {
             this.GetResultsForQueryResult = GetResultsForQueryResult;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForQueryQroupRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForQueryQroup", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForQueryQroup", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForQueryQroupRequestBody Body;
-        
+
         public GetResultsForQueryQroupRequest()
         {
         }
-        
+
         public GetResultsForQueryQroupRequest(cxPriorityWebService.GetResultsForQueryQroupRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForQueryQroupRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 2)]
         public long queryGroupId;
-        
+
         public GetResultsForQueryQroupRequestBody()
         {
         }
-        
+
         public GetResultsForQueryQroupRequestBody(string sessionID, long scanId, long queryGroupId)
         {
             this.sessionID = sessionID;
@@ -713,87 +714,87 @@ namespace cxPriorityWebService
             this.queryGroupId = queryGroupId;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForQueryQroupResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForQueryQroupResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForQueryQroupResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForQueryQroupResponseBody Body;
-        
+
         public GetResultsForQueryQroupResponse()
         {
         }
-        
+
         public GetResultsForQueryQroupResponse(cxPriorityWebService.GetResultsForQueryQroupResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForQueryQroupResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryQroupResult;
-        
+
         public GetResultsForQueryQroupResponseBody()
         {
         }
-        
+
         public GetResultsForQueryQroupResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryQroupResult)
         {
             this.GetResultsForQueryQroupResult = GetResultsForQueryQroupResult;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForScanByLanguageRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForScanByLanguage", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForScanByLanguage", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForScanByLanguageRequestBody Body;
-        
+
         public GetResultsForScanByLanguageRequest()
         {
         }
-        
+
         public GetResultsForScanByLanguageRequest(cxPriorityWebService.GetResultsForScanByLanguageRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForScanByLanguageRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 2)]
         public string Language;
-        
+
         public GetResultsForScanByLanguageRequestBody()
         {
         }
-        
+
         public GetResultsForScanByLanguageRequestBody(string sessionID, long scanId, string Language)
         {
             this.sessionID = sessionID;
@@ -801,174 +802,174 @@ namespace cxPriorityWebService
             this.Language = Language;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForScanByLanguageResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForScanByLanguageResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForScanByLanguageResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForScanByLanguageResponseBody Body;
-        
+
         public GetResultsForScanByLanguageResponse()
         {
         }
-        
+
         public GetResultsForScanByLanguageResponse(cxPriorityWebService.GetResultsForScanByLanguageResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForScanByLanguageResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanByLanguageResult;
-        
+
         public GetResultsForScanByLanguageResponseBody()
         {
         }
-        
+
         public GetResultsForScanByLanguageResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanByLanguageResult)
         {
             this.GetResultsForScanByLanguageResult = GetResultsForScanByLanguageResult;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForScanRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForScan", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForScan", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForScanRequestBody Body;
-        
+
         public GetResultsForScanRequest()
         {
         }
-        
+
         public GetResultsForScanRequest(cxPriorityWebService.GetResultsForScanRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForScanRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
+
         public GetResultsForScanRequestBody()
         {
         }
-        
+
         public GetResultsForScanRequestBody(string sessionID, long scanId)
         {
             this.sessionID = sessionID;
             this.scanId = scanId;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForScanResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForScanResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForScanResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForScanResponseBody Body;
-        
+
         public GetResultsForScanResponse()
         {
         }
-        
+
         public GetResultsForScanResponse(cxPriorityWebService.GetResultsForScanResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForScanResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanResult;
-        
+
         public GetResultsForScanResponseBody()
         {
         }
-        
+
         public GetResultsForScanResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanResult)
         {
             this.GetResultsForScanResult = GetResultsForScanResult;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsBySeverityRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsBySeverity", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsBySeverity", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsBySeverityRequestBody Body;
-        
+
         public GetResultsBySeverityRequest()
         {
         }
-        
+
         public GetResultsBySeverityRequest(cxPriorityWebService.GetResultsBySeverityRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsBySeverityRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 2)]
         public int Severity;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=3)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 3)]
         public string Language;
-        
+
         public GetResultsBySeverityRequestBody()
         {
         }
-        
+
         public GetResultsBySeverityRequestBody(string sessionId, long scanId, int Severity, string Language)
         {
             this.sessionId = sessionId;
@@ -977,96 +978,96 @@ namespace cxPriorityWebService
             this.Language = Language;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsBySeverityResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsBySeverityResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsBySeverityResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsBySeverityResponseBody Body;
-        
+
         public GetResultsBySeverityResponse()
         {
         }
-        
+
         public GetResultsBySeverityResponse(cxPriorityWebService.GetResultsBySeverityResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsBySeverityResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsBySeverityResult;
-        
+
         public GetResultsBySeverityResponseBody()
         {
         }
-        
+
         public GetResultsBySeverityResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsBySeverityResult)
         {
             this.GetResultsBySeverityResult = GetResultsBySeverityResult;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForQueryWithPagingRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForQueryWithPaging", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForQueryWithPaging", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForQueryWithPagingRequestBody Body;
-        
+
         public GetResultsForQueryWithPagingRequest()
         {
         }
-        
+
         public GetResultsForQueryWithPagingRequest(cxPriorityWebService.GetResultsForQueryWithPagingRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForQueryWithPagingRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 2)]
         public int skip;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=3)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 3)]
         public int take;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=4)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 4)]
         public bool calculateTotalResultsCount;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=5)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 5)]
         public long queryId;
-        
+
         public GetResultsForQueryWithPagingRequestBody()
         {
         }
-        
+
         public GetResultsForQueryWithPagingRequestBody(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryId)
         {
             this.sessionID = sessionID;
@@ -1077,96 +1078,96 @@ namespace cxPriorityWebService
             this.queryId = queryId;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForQueryWithPagingResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForQueryWithPagingResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForQueryWithPagingResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForQueryWithPagingResponseBody Body;
-        
+
         public GetResultsForQueryWithPagingResponse()
         {
         }
-        
+
         public GetResultsForQueryWithPagingResponse(cxPriorityWebService.GetResultsForQueryWithPagingResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForQueryWithPagingResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryWithPagingResult;
-        
+
         public GetResultsForQueryWithPagingResponseBody()
         {
         }
-        
+
         public GetResultsForQueryWithPagingResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryWithPagingResult)
         {
             this.GetResultsForQueryWithPagingResult = GetResultsForQueryWithPagingResult;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForScanByLanguageWithPagingRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForScanByLanguageWithPaging", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForScanByLanguageWithPaging", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequestBody Body;
-        
+
         public GetResultsForScanByLanguageWithPagingRequest()
         {
         }
-        
+
         public GetResultsForScanByLanguageWithPagingRequest(cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForScanByLanguageWithPagingRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 2)]
         public int skip;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=3)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 3)]
         public int take;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=4)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 4)]
         public bool calculateTotalResultsCount;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=5)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 5)]
         public string Language;
-        
+
         public GetResultsForScanByLanguageWithPagingRequestBody()
         {
         }
-        
+
         public GetResultsForScanByLanguageWithPagingRequestBody(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, string Language)
         {
             this.sessionID = sessionID;
@@ -1177,93 +1178,93 @@ namespace cxPriorityWebService
             this.Language = Language;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForScanByLanguageWithPagingResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForScanByLanguageWithPagingResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForScanByLanguageWithPagingResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponseBody Body;
-        
+
         public GetResultsForScanByLanguageWithPagingResponse()
         {
         }
-        
+
         public GetResultsForScanByLanguageWithPagingResponse(cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForScanByLanguageWithPagingResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanByLanguageWithPagingResult;
-        
+
         public GetResultsForScanByLanguageWithPagingResponseBody()
         {
         }
-        
+
         public GetResultsForScanByLanguageWithPagingResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanByLanguageWithPagingResult)
         {
             this.GetResultsForScanByLanguageWithPagingResult = GetResultsForScanByLanguageWithPagingResult;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForScanWithPagingRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForScanWithPaging", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForScanWithPaging", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForScanWithPagingRequestBody Body;
-        
+
         public GetResultsForScanWithPagingRequest()
         {
         }
-        
+
         public GetResultsForScanWithPagingRequest(cxPriorityWebService.GetResultsForScanWithPagingRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForScanWithPagingRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 2)]
         public int skip;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=3)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 3)]
         public int take;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=4)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 4)]
         public bool calculateTotalResultsCount;
-        
+
         public GetResultsForScanWithPagingRequestBody()
         {
         }
-        
+
         public GetResultsForScanWithPagingRequestBody(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount)
         {
             this.sessionID = sessionID;
@@ -1273,99 +1274,99 @@ namespace cxPriorityWebService
             this.calculateTotalResultsCount = calculateTotalResultsCount;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForScanWithPagingResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForScanWithPagingResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForScanWithPagingResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForScanWithPagingResponseBody Body;
-        
+
         public GetResultsForScanWithPagingResponse()
         {
         }
-        
+
         public GetResultsForScanWithPagingResponse(cxPriorityWebService.GetResultsForScanWithPagingResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForScanWithPagingResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanWithPagingResult;
-        
+
         public GetResultsForScanWithPagingResponseBody()
         {
         }
-        
+
         public GetResultsForScanWithPagingResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanWithPagingResult)
         {
             this.GetResultsForScanWithPagingResult = GetResultsForScanWithPagingResult;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsBySeverityWithPagingRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsBySeverityWithPaging", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsBySeverityWithPaging", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsBySeverityWithPagingRequestBody Body;
-        
+
         public GetResultsBySeverityWithPagingRequest()
         {
         }
-        
+
         public GetResultsBySeverityWithPagingRequest(cxPriorityWebService.GetResultsBySeverityWithPagingRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsBySeverityWithPagingRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 2)]
         public int skip;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=3)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 3)]
         public int take;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=4)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 4)]
         public bool calculateTotalResultsCount;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=5)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 5)]
         public int Severity;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=6)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 6)]
         public string Language;
-        
+
         public GetResultsBySeverityWithPagingRequestBody()
         {
         }
-        
+
         public GetResultsBySeverityWithPagingRequestBody(string sessionId, long scanId, int skip, int take, bool calculateTotalResultsCount, int Severity, string Language)
         {
             this.sessionId = sessionId;
@@ -1377,96 +1378,96 @@ namespace cxPriorityWebService
             this.Language = Language;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsBySeverityWithPagingResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsBySeverityWithPagingResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsBySeverityWithPagingResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsBySeverityWithPagingResponseBody Body;
-        
+
         public GetResultsBySeverityWithPagingResponse()
         {
         }
-        
+
         public GetResultsBySeverityWithPagingResponse(cxPriorityWebService.GetResultsBySeverityWithPagingResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsBySeverityWithPagingResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsBySeverityWithPagingResult;
-        
+
         public GetResultsBySeverityWithPagingResponseBody()
         {
         }
-        
+
         public GetResultsBySeverityWithPagingResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsBySeverityWithPagingResult)
         {
             this.GetResultsBySeverityWithPagingResult = GetResultsBySeverityWithPagingResult;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForQueryQroupWithPagingRequest
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForQueryQroupWithPaging", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForQueryQroupWithPaging", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForQueryQroupWithPagingRequestBody Body;
-        
+
         public GetResultsForQueryQroupWithPagingRequest()
         {
         }
-        
+
         public GetResultsForQueryQroupWithPagingRequest(cxPriorityWebService.GetResultsForQueryQroupWithPagingRequestBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForQueryQroupWithPagingRequestBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public string sessionID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 1)]
         public long scanId;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 2)]
         public int skip;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=3)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 3)]
         public int take;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=4)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 4)]
         public bool calculateTotalResultsCount;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(Order=5)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(Order = 5)]
         public long queryGroupId;
-        
+
         public GetResultsForQueryQroupWithPagingRequestBody()
         {
         }
-        
+
         public GetResultsForQueryQroupWithPagingRequestBody(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryGroupId)
         {
             this.sessionID = sessionID;
@@ -1477,57 +1478,57 @@ namespace cxPriorityWebService
             this.queryGroupId = queryGroupId;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped = false)]
     public partial class GetResultsForQueryQroupWithPagingResponse
     {
-        
-        [System.ServiceModel.MessageBodyMemberAttribute(Name="GetResultsForQueryQroupWithPagingResponse", Namespace="http://Checkmarx.com", Order=0)]
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Name = "GetResultsForQueryQroupWithPagingResponse", Namespace = "http://Checkmarx.com", Order = 0)]
         public cxPriorityWebService.GetResultsForQueryQroupWithPagingResponseBody Body;
-        
+
         public GetResultsForQueryQroupWithPagingResponse()
         {
         }
-        
+
         public GetResultsForQueryQroupWithPagingResponse(cxPriorityWebService.GetResultsForQueryQroupWithPagingResponseBody Body)
         {
             this.Body = Body;
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://Checkmarx.com")]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace = "http://Checkmarx.com")]
     public partial class GetResultsForQueryQroupWithPagingResponseBody
     {
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue = false, Order = 0)]
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryQroupWithPagingResult;
-        
+
         public GetResultsForQueryQroupWithPagingResponseBody()
         {
         }
-        
+
         public GetResultsForQueryQroupWithPagingResponseBody(cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryQroupWithPagingResult)
         {
             this.GetResultsForQueryQroupWithPagingResult = GetResultsForQueryQroupWithPagingResult;
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     public interface CxPriorityServiceSoapChannel : cxPriorityWebService.CxPriorityServiceSoap, System.ServiceModel.IClientChannel
     {
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     public partial class CxPriorityServiceSoapClient : System.ServiceModel.ClientBase<cxPriorityWebService.CxPriorityServiceSoap>, cxPriorityWebService.CxPriorityServiceSoap
     {
-        
+
         /// <summary>
         /// Implement this partial method to configure the service endpoint.
         /// </summary>
@@ -1544,13 +1545,13 @@ namespace cxPriorityWebService
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
 
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForQueryResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQuery(cxPriorityWebService.GetResultsForQueryRequest request)
         {
-            return base.Channel.GetResultsForQuery(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQuery(request));
         }
-        
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQuery(string sessionID, long scanId, long queryId)
         {
             cxPriorityWebService.GetResultsForQueryRequest inValue = new cxPriorityWebService.GetResultsForQueryRequest();
@@ -1559,15 +1560,15 @@ namespace cxPriorityWebService
             inValue.Body.scanId = scanId;
             inValue.Body.queryId = queryId;
             cxPriorityWebService.GetResultsForQueryResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQuery(inValue);
-            return retVal.Body.GetResultsForQueryResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryAsync(cxPriorityWebService.GetResultsForQueryRequest request)
         {
-            return base.Channel.GetResultsForQueryAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryResponse> GetResultsForQueryAsync(string sessionID, long scanId, long queryId)
         {
             cxPriorityWebService.GetResultsForQueryRequest inValue = new cxPriorityWebService.GetResultsForQueryRequest();
@@ -1575,15 +1576,15 @@ namespace cxPriorityWebService
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
             inValue.Body.queryId = queryId;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryAsync(inValue));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForQueryQroupResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryQroup(cxPriorityWebService.GetResultsForQueryQroupRequest request)
         {
-            return base.Channel.GetResultsForQueryQroup(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQueryQroup(request));
         }
-        
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryQroup(string sessionID, long scanId, long queryGroupId)
         {
             cxPriorityWebService.GetResultsForQueryQroupRequest inValue = new cxPriorityWebService.GetResultsForQueryQroupRequest();
@@ -1592,15 +1593,15 @@ namespace cxPriorityWebService
             inValue.Body.scanId = scanId;
             inValue.Body.queryGroupId = queryGroupId;
             cxPriorityWebService.GetResultsForQueryQroupResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroup(inValue);
-            return retVal.Body.GetResultsForQueryQroupResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryQroupResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryQroupAsync(cxPriorityWebService.GetResultsForQueryQroupRequest request)
         {
-            return base.Channel.GetResultsForQueryQroupAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryQroupAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupResponse> GetResultsForQueryQroupAsync(string sessionID, long scanId, long queryGroupId)
         {
             cxPriorityWebService.GetResultsForQueryQroupRequest inValue = new cxPriorityWebService.GetResultsForQueryQroupRequest();
@@ -1608,15 +1609,15 @@ namespace cxPriorityWebService
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
             inValue.Body.queryGroupId = queryGroupId;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupAsync(inValue));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForScanByLanguageResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanByLanguage(cxPriorityWebService.GetResultsForScanByLanguageRequest request)
         {
-            return base.Channel.GetResultsForScanByLanguage(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScanByLanguage(request));
         }
-        
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanByLanguage(string sessionID, long scanId, string Language)
         {
             cxPriorityWebService.GetResultsForScanByLanguageRequest inValue = new cxPriorityWebService.GetResultsForScanByLanguageRequest();
@@ -1625,15 +1626,15 @@ namespace cxPriorityWebService
             inValue.Body.scanId = scanId;
             inValue.Body.Language = Language;
             cxPriorityWebService.GetResultsForScanByLanguageResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguage(inValue);
-            return retVal.Body.GetResultsForScanByLanguageResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanByLanguageResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanByLanguageAsync(cxPriorityWebService.GetResultsForScanByLanguageRequest request)
         {
-            return base.Channel.GetResultsForScanByLanguageAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanByLanguageAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageResponse> GetResultsForScanByLanguageAsync(string sessionID, long scanId, string Language)
         {
             cxPriorityWebService.GetResultsForScanByLanguageRequest inValue = new cxPriorityWebService.GetResultsForScanByLanguageRequest();
@@ -1641,13 +1642,13 @@ namespace cxPriorityWebService
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
             inValue.Body.Language = Language;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageAsync(inValue));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForScanResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScan(cxPriorityWebService.GetResultsForScanRequest request)
         {
-            return base.Channel.GetResultsForScan(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScan(request));
         }
 
         internal cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScan(string sessionID, long scanId)
@@ -1657,30 +1658,30 @@ namespace cxPriorityWebService
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
             cxPriorityWebService.GetResultsForScanResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScan(inValue);
-            return retVal.Body.GetResultsForScanResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanAsync(cxPriorityWebService.GetResultsForScanRequest request)
         {
-            return base.Channel.GetResultsForScanAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanResponse> GetResultsForScanAsync(string sessionID, long scanId)
         {
             cxPriorityWebService.GetResultsForScanRequest inValue = new cxPriorityWebService.GetResultsForScanRequest();
             inValue.Body = new cxPriorityWebService.GetResultsForScanRequestBody();
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanAsync(inValue));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsBySeverityResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsBySeverity(cxPriorityWebService.GetResultsBySeverityRequest request)
         {
-            return base.Channel.GetResultsBySeverity(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsBySeverity(request));
         }
-        
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsBySeverity(string sessionId, long scanId, int Severity, string Language)
         {
             cxPriorityWebService.GetResultsBySeverityRequest inValue = new cxPriorityWebService.GetResultsBySeverityRequest();
@@ -1690,15 +1691,15 @@ namespace cxPriorityWebService
             inValue.Body.Severity = Severity;
             inValue.Body.Language = Language;
             cxPriorityWebService.GetResultsBySeverityResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverity(inValue);
-            return retVal.Body.GetResultsBySeverityResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsBySeverityResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsBySeverityAsync(cxPriorityWebService.GetResultsBySeverityRequest request)
         {
-            return base.Channel.GetResultsBySeverityAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsBySeverityAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityResponse> GetResultsBySeverityAsync(string sessionId, long scanId, int Severity, string Language)
         {
             cxPriorityWebService.GetResultsBySeverityRequest inValue = new cxPriorityWebService.GetResultsBySeverityRequest();
@@ -1707,15 +1708,15 @@ namespace cxPriorityWebService
             inValue.Body.scanId = scanId;
             inValue.Body.Severity = Severity;
             inValue.Body.Language = Language;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityAsync(inValue));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForQueryWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryWithPaging(cxPriorityWebService.GetResultsForQueryWithPagingRequest request)
         {
-            return base.Channel.GetResultsForQueryWithPaging(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQueryWithPaging(request));
         }
-        
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryWithPaging(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryId)
         {
             cxPriorityWebService.GetResultsForQueryWithPagingRequest inValue = new cxPriorityWebService.GetResultsForQueryWithPagingRequest();
@@ -1727,15 +1728,15 @@ namespace cxPriorityWebService
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.queryId = queryId;
             cxPriorityWebService.GetResultsForQueryWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryWithPaging(inValue);
-            return retVal.Body.GetResultsForQueryWithPagingResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryWithPagingResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryWithPagingAsync(cxPriorityWebService.GetResultsForQueryWithPagingRequest request)
         {
-            return base.Channel.GetResultsForQueryWithPagingAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryWithPagingAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryWithPagingResponse> GetResultsForQueryWithPagingAsync(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryId)
         {
             cxPriorityWebService.GetResultsForQueryWithPagingRequest inValue = new cxPriorityWebService.GetResultsForQueryWithPagingRequest();
@@ -1746,15 +1747,15 @@ namespace cxPriorityWebService
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.queryId = queryId;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryWithPagingAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryWithPagingAsync(inValue));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanByLanguageWithPaging(cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest request)
         {
-            return base.Channel.GetResultsForScanByLanguageWithPaging(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScanByLanguageWithPaging(request));
         }
-        
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanByLanguageWithPaging(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, string Language)
         {
             cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest inValue = new cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest();
@@ -1766,15 +1767,15 @@ namespace cxPriorityWebService
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.Language = Language;
             cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageWithPaging(inValue);
-            return retVal.Body.GetResultsForScanByLanguageWithPagingResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanByLanguageWithPagingResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanByLanguageWithPagingAsync(cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest request)
         {
-            return base.Channel.GetResultsForScanByLanguageWithPagingAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanByLanguageWithPagingAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse> GetResultsForScanByLanguageWithPagingAsync(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, string Language)
         {
             cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest inValue = new cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest();
@@ -1785,15 +1786,15 @@ namespace cxPriorityWebService
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.Language = Language;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageWithPagingAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageWithPagingAsync(inValue));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForScanWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanWithPaging(cxPriorityWebService.GetResultsForScanWithPagingRequest request)
         {
-            return base.Channel.GetResultsForScanWithPaging(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScanWithPaging(request));
         }
-        
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanWithPaging(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount)
         {
             cxPriorityWebService.GetResultsForScanWithPagingRequest inValue = new cxPriorityWebService.GetResultsForScanWithPagingRequest();
@@ -1804,15 +1805,15 @@ namespace cxPriorityWebService
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             cxPriorityWebService.GetResultsForScanWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanWithPaging(inValue);
-            return retVal.Body.GetResultsForScanWithPagingResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanWithPagingResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanWithPagingAsync(cxPriorityWebService.GetResultsForScanWithPagingRequest request)
         {
-            return base.Channel.GetResultsForScanWithPagingAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanWithPagingAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanWithPagingResponse> GetResultsForScanWithPagingAsync(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount)
         {
             cxPriorityWebService.GetResultsForScanWithPagingRequest inValue = new cxPriorityWebService.GetResultsForScanWithPagingRequest();
@@ -1822,15 +1823,15 @@ namespace cxPriorityWebService
             inValue.Body.skip = skip;
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanWithPagingAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanWithPagingAsync(inValue));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsBySeverityWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsBySeverityWithPaging(cxPriorityWebService.GetResultsBySeverityWithPagingRequest request)
         {
-            return base.Channel.GetResultsBySeverityWithPaging(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsBySeverityWithPaging(request));
         }
-        
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsBySeverityWithPaging(string sessionId, long scanId, int skip, int take, bool calculateTotalResultsCount, int Severity, string Language)
         {
             cxPriorityWebService.GetResultsBySeverityWithPagingRequest inValue = new cxPriorityWebService.GetResultsBySeverityWithPagingRequest();
@@ -1843,15 +1844,15 @@ namespace cxPriorityWebService
             inValue.Body.Severity = Severity;
             inValue.Body.Language = Language;
             cxPriorityWebService.GetResultsBySeverityWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityWithPaging(inValue);
-            return retVal.Body.GetResultsBySeverityWithPagingResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsBySeverityWithPagingResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsBySeverityWithPagingAsync(cxPriorityWebService.GetResultsBySeverityWithPagingRequest request)
         {
-            return base.Channel.GetResultsBySeverityWithPagingAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsBySeverityWithPagingAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityWithPagingResponse> GetResultsBySeverityWithPagingAsync(string sessionId, long scanId, int skip, int take, bool calculateTotalResultsCount, int Severity, string Language)
         {
             cxPriorityWebService.GetResultsBySeverityWithPagingRequest inValue = new cxPriorityWebService.GetResultsBySeverityWithPagingRequest();
@@ -1863,15 +1864,15 @@ namespace cxPriorityWebService
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.Severity = Severity;
             inValue.Body.Language = Language;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityWithPagingAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityWithPagingAsync(inValue));
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryQroupWithPaging(cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest request)
         {
-            return base.Channel.GetResultsForQueryQroupWithPaging(request);
+            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQueryQroupWithPaging(request));
         }
-        
+
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryQroupWithPaging(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryGroupId)
         {
             cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest inValue = new cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest();
@@ -1883,15 +1884,15 @@ namespace cxPriorityWebService
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.queryGroupId = queryGroupId;
             cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupWithPaging(inValue);
-            return retVal.Body.GetResultsForQueryQroupWithPagingResult;
+            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryQroupWithPagingResult);
         }
-        
+
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryQroupWithPagingAsync(cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest request)
         {
-            return base.Channel.GetResultsForQueryQroupWithPagingAsync(request);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryQroupWithPagingAsync(request));
         }
-        
+
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse> GetResultsForQueryQroupWithPagingAsync(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryGroupId)
         {
             cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest inValue = new cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest();
@@ -1902,14 +1903,14 @@ namespace cxPriorityWebService
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.queryGroupId = queryGroupId;
-            return ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupWithPagingAsync(inValue);
+            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupWithPagingAsync(inValue));
         }
-        
+
         public virtual System.Threading.Tasks.Task OpenAsync()
         {
-            return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen));
+            return RetryPolicyProvider.ExecuteWithRetry(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen)));
         }
-        
+
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(Uri url, TimeSpan timeout)
         {
             HttpBindingBase httpBinding = null;
@@ -1942,7 +1943,7 @@ namespace cxPriorityWebService
 
             return httpBinding;
         }
-        
+
         private static System.ServiceModel.EndpointAddress GetEndpointAddress(string endpointUrl)
         {
             endpointUrl += "CxWebInterface/Priority/CxPriorityService.asmx";
@@ -1952,9 +1953,9 @@ namespace cxPriorityWebService
 
         public enum EndpointConfiguration
         {
-            
+
             CxPriorityServiceSoap,
-            
+
             CxPriorityServiceSoap12,
         }
     }

@@ -22760,12 +22760,12 @@ namespace PortalSoap
 
         public PortalSoap.CxWSCxVersionResponse GetVersionNumber()
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetVersionNumber());
+            return base.Channel.GetVersionNumber();
         }
 
         public System.Threading.Tasks.Task<PortalSoap.CxWSCxVersionResponse> GetVersionNumberAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetVersionNumberAsync());
+            return base.Channel.GetVersionNumberAsync();
         }
 
         public PortalSoap.CxWSCxMoveTeamResponse MoveTeam(string sessionID, string sourceID, string destenationID)

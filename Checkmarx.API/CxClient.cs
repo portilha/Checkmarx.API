@@ -2362,7 +2362,9 @@ namespace Checkmarx.API
 
         public bool ProjectHasScanRunning(long projectId)
         {
-            return GetScansQueue(projectId).Any(x => !x.CompletedOn.HasValue);
+            return GetScansQueue(projectId).Any(x => x.Stage.Value != "Finished" && 
+                                                     x.Stage.Value != "Failed" && 
+                                                     x.Stage.Value != "Canceled");
         }
 
         public ICollection<ScanQueue> GetScansQueue(long? projectId = null)

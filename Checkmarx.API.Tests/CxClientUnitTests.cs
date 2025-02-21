@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -8,16 +7,14 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Web;
-using System.Xml;
 using System.Xml.Linq;
-using Checkmarx.API;
 using Checkmarx.API.Exceptions;
+using Checkmarx.API.Models;
 using Checkmarx.API.Tests.Utils;
 using Microsoft.Extensions.Configuration;
-using Microsoft.OData.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static Checkmarx.API.CxClient;
@@ -88,6 +85,32 @@ namespace Checkmarx.API.Tests
                      Configuration["V95:Username"],
                      new NetworkCredential("", Configuration["V95:Password"]).Password);
             }
+        }
+
+        [TestMethod]
+        public void RetryPolicyTest()
+        {
+            RetryPolicyProvider retryPolicyProvider = new RetryPolicyProvider(2);
+
+            var mockResponse = new Mock<HttpWebResponse>();
+            mockResponse.Setup(r => r.StatusCode).Returns(HttpStatusCode.InternalServerError); // Change to HttpStatusCode.RequestTimeout for 408
+            //mockResponse.Setup(r => r.StatusCode).Returns(HttpStatusCode.RequestTimeout);
+            //mockResponse.Setup(r => r.StatusCode).Returns(HttpStatusCode.BadRequest);
+
+            var webException = new WebException(
+                "Test exception",
+                null,
+                WebExceptionStatus.ProtocolError,
+                mockResponse.Object
+            );
+
+            Assert.ThrowsException<WebException>(() =>
+                retryPolicyProvider.ExecuteWithRetry(() =>
+                {
+                    throw webException;
+                    return 0;
+                })
+            );
         }
 
         [TestMethod]

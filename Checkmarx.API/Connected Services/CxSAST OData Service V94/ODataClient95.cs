@@ -19,12 +19,14 @@ namespace Checkmarx.API.SAST.OData
     [global::Microsoft.OData.Client.OriginalNameAttribute("Container")]
     public partial class ODataClient95 : global::Microsoft.OData.Client.DataServiceContext
     {
+        private readonly int _defaultRetries = 10;
+
         /// <summary>
         /// Initialize a new Container object.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public ODataClient95(global::System.Uri serviceRoot) :
-                this(serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion.V4)
+        public ODataClient95(global::System.Uri serviceRoot, int defaultRetries = 10) :
+                this(serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion.V4, defaultRetries)
         {
 
         }
@@ -33,7 +35,7 @@ namespace Checkmarx.API.SAST.OData
         /// Initialize a new Container object.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public ODataClient95(global::System.Uri serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion protocolVersion) :
+        public ODataClient95(global::System.Uri serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion protocolVersion, int defaultRetries = 10) :
                 base(serviceRoot, protocolVersion)
         {
             this.ResolveName = new global::System.Func<global::System.Type, string>(this.ResolveNameFromType);
@@ -42,6 +44,8 @@ namespace Checkmarx.API.SAST.OData
             MergeOption = Microsoft.OData.Client.MergeOption.NoTracking;
             this.Format.LoadServiceModel = GeneratedEdmModel.GetInstance;
             this.Format.UseJson();
+
+            if (defaultRetries > 0) _defaultRetries = defaultRetries;
         }
         partial void OnContextCreated();
         /// <summary>
@@ -104,7 +108,7 @@ namespace Checkmarx.API.SAST.OData
                 {
                     this._Projects = base.CreateQuery<Checkmarx.API.SAST.OData.Project>("Projects");
                 }
-                return new RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Project>(this._Projects);
+                return new RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Project>(this._Projects, _defaultRetries);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -122,7 +126,7 @@ namespace Checkmarx.API.SAST.OData
                 {
                     this._Scans = base.CreateQuery<Checkmarx.API.SAST.OData.Scan>("Scans");
                 }
-                return new RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Scan>(this._Scans);
+                return new RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Scan>(this._Scans, _defaultRetries);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -140,7 +144,7 @@ namespace Checkmarx.API.SAST.OData
                 {
                     this._Results = base.CreateQuery<Checkmarx.API.SAST.OData.Result>("Results");
                 }
-                return new RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Result>(this._Results);
+                return new RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Result>(this._Results, _defaultRetries);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]

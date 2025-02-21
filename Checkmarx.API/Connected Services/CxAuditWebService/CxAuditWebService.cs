@@ -7,9 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using Checkmarx.API;
 using Checkmarx.API.Models;
 using System;
 using System.ServiceModel;
+using static Checkmarx.API.CxClient;
 
 namespace CxAuditWebServiceV9
 {
@@ -5511,148 +5513,148 @@ namespace CxAuditWebServiceV9
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseLoginData> LoginAsync(CxAuditWebServiceV9.Credentials applicationCredentials, int lcid)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LoginAsync(applicationCredentials, lcid));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LoginAsync(applicationCredentials, lcid));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseBasicScanData> SaveScanResultsToProjectAsync(string sessionId, long projectId, string sourceId, CxAuditWebServiceV9.AuditResultsCollection resultsCollection, string comment, string version)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaveScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment, version));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaveScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment, version));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseBasicScanData> AddScanResultsToProjectAsync(string sessionId, long projectId, string sourceId, CxAuditWebServiceV9.AuditResultsCollection resultsCollection, string comment)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.AddScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.AddScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseHierarchyGroupNodes> GetAncestryGroupTreeAsync(string sessionID, int pTeamID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAncestryGroupTreeAsync(sessionID, pTeamID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAncestryGroupTreeAsync(sessionID, pTeamID));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseCache> GetCacheAsync(string sessionId, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCacheAsync(sessionId, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCacheAsync(sessionId, scanId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseHierarchyGroupNodes> GetHierarchyGroupTreeAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetHierarchyGroupTreeAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetHierarchyGroupTreeAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponsePresetDetails> GetPresetDetailsAsync(string sessionId, long id)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetDetailsAsync(sessionId, id));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetDetailsAsync(sessionId, id));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponsePresetList> GetPresetListAsync(string SessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetListAsync(SessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetListAsync(SessionID));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseProjectConfig> GetProjectConfigurationAsync(string sessionID, long projectID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectConfigurationAsync(sessionID, projectID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectConfigurationAsync(sessionID, projectID));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseFileExtensionsSetList> GetFilesExtensionsAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetFilesExtensionsAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetFilesExtensionsAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWsResponseEngineItemsConfiguration> GetEngineConfigurationAsync(string sessionID, long configurationId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetEngineConfigurationAsync(sessionID, configurationId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetEngineConfigurationAsync(sessionID, configurationId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseProjectsScansList> GetProjectsWithScansAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsWithScansAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsWithScansAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxQueryCollectionResponse> GetQueryCollectionForLanguageAsync(string sessionId, int projectType, long projectId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageAsync(sessionId, projectType, projectId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageAsync(sessionId, projectType, projectId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxQueryCollectionResponse> GetQueryCollectionForLanguageByTeamIdAsync(string sessionId, int projectType, int teamId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageByTeamIdAsync(sessionId, projectType, teamId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageByTeamIdAsync(sessionId, projectType, teamId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseQueryDescription> GetQueryDescriptionAsync(string sessionId, int cweId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionAsync(sessionId, cweId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionAsync(sessionId, cweId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseQueryDescription> GetQueryDescriptionByQueryIdAsync(string sessionId, int queryId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionByQueryIdAsync(sessionId, queryId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionByQueryIdAsync(sessionId, queryId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseResultCollection> GetResultsAsync(string sessionId, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsAsync(sessionId, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsAsync(sessionId, scanId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseResultStateList> GetResultStateListAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultStateListAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultStateListAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CXWSResponseResultSummary> GetResultSummaryAsync(string sessionId, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultSummaryAsync(sessionId, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultSummaryAsync(sessionId, scanId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponceResultPath> GetPathCommentsHistoryAsync(string sessionId, long scanId, long pathId, CxAuditWebServiceV9.ResultLabelTypeEnum labelType)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPathCommentsHistoryAsync(sessionId, scanId, pathId, labelType));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPathCommentsHistoryAsync(sessionId, scanId, pathId, labelType));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseSourceContainer> GetSourceCodeForScanAsync(string sessionID, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourceCodeForScanAsync(sessionID, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourceCodeForScanAsync(sessionID, scanId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> LogoutAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LogoutAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LogoutAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> UpdateResultStateAsync(string sessionID, long scanId, long PathId, long projectId, string Remarks, int ResultLabelType, string data)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateResultStateAsync(sessionID, scanId, PathId, projectId, Remarks, ResultLabelType, data));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateResultStateAsync(sessionID, scanId, PathId, projectId, Remarks, ResultLabelType, data));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> UpdateScanCommentAsync(string sessionID, long ScanID, string Comment)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateScanCommentAsync(sessionID, ScanID, Comment));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateScanCommentAsync(sessionID, ScanID, Comment));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseSourceID> UploadProjectWithDefaultSettingsAsync(string sessionId, CxAuditWebServiceV9.ProjectBasicSettings projectSettings, CxAuditWebServiceV9.LocalCodeContainer localCodeContainer)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadProjectWithDefaultSettingsAsync(sessionId, projectSettings, localCodeContainer));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadProjectWithDefaultSettingsAsync(sessionId, projectSettings, localCodeContainer));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSBasicRepsonse> UploadQueriesAsync(string sessionId, CxAuditWebServiceV9.CxWSQueryGroup[] queries)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadQueriesAsync(sessionId, queries));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadQueriesAsync(sessionId, queries));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseQueriesCategories> GetQueriesCategoriesAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueriesCategoriesAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueriesCategoriesAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxQueryCollectionResponse> GetQueryCollectionAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionAsync(sessionId));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<CxAuditWebServiceV9.ImportQueriesResponse> CxAuditWebServiceV9.CxAuditWebServiceSoap.ImportQueriesAsync(CxAuditWebServiceV9.ImportQueriesRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ImportQueriesAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ImportQueriesAsync(request));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.ImportQueriesResponse> ImportQueriesAsync(string sessionId, byte[] importedFile)
@@ -5660,27 +5662,27 @@ namespace CxAuditWebServiceV9
             CxAuditWebServiceV9.ImportQueriesRequest inValue = new CxAuditWebServiceV9.ImportQueriesRequest();
             inValue.sessionId = sessionId;
             inValue.importedFile = importedFile;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((CxAuditWebServiceV9.CxAuditWebServiceSoap)(this)).ImportQueriesAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((CxAuditWebServiceV9.CxAuditWebServiceSoap)(this)).ImportQueriesAsync(inValue));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseLicenseOfLicenseDTO> GetLicenseDetailsAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetLicenseDetailsAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetLicenseDetailsAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<CxAuditWebServiceV9.CxWSResponseKeepAlive> KeepAliveAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.KeepAliveAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.KeepAliveAsync(sessionId));
         }
 
         public virtual System.Threading.Tasks.Task OpenAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen)));
+            return _retryPolicyProvider.ExecuteWithRetry(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen)));
         }
 
         //public virtual System.Threading.Tasks.Task CloseAsync()
         //{
-        //    return RetryPolicyProvider.ExecuteWithRetryAsync(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose)));
+        //    return _retryPolicyProvider.ExecuteWithRetryAsync(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose)));
         //}
 
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(Uri url, TimeSpan timeout)
@@ -5699,7 +5701,7 @@ namespace CxAuditWebServiceV9
                 result.ReaderQuotas = System.Xml.XmlDictionaryReaderQuotas.Max;
                 result.MaxReceivedMessageSize = int.MaxValue;
                 result.AllowCookies = true;
-                return RetryPolicyProvider.ExecuteWithRetry(() => result);
+                return _retryPolicyProvider.ExecuteWithRetry(() => result);
             }
 
             var integerMaxValue = int.MaxValue;

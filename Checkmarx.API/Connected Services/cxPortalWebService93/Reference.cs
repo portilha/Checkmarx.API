@@ -10,6 +10,7 @@
 using Checkmarx.API.Models;
 using System;
 using System.ServiceModel;
+using static Checkmarx.API.CxClient;
 
 namespace cxPortalWebService93
 {
@@ -19923,228 +19924,228 @@ namespace cxPortalWebService93
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePresetProjectsList> HasProjectsPresetAsync(string sessionID, long presetId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.HasProjectsPresetAsync(sessionID, presetId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.HasProjectsPresetAsync(sessionID, presetId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseQueriesCategories> GetQueriesCategoriesAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueriesCategoriesAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueriesCategoriesAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSQueryVersionDetailsResponse> GetDetailsForQueryVersionCodeAsync(string sessionId, long queryVersionCode)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetDetailsForQueryVersionCodeAsync(sessionId, queryVersionCode));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetDetailsForQueryVersionCodeAsync(sessionId, queryVersionCode));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceQuerisForScan> GetQueriesForScanAsync(string sessionID, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueriesForScanAsync(sessionID, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueriesForScanAsync(sessionID, scanId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseStateFlags> GetResultStateFlagsAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultStateFlagsAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultStateFlagsAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceScanResults> GetResultsForQueryAsync(string sessionID, long scanId, long queryId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryAsync(sessionID, scanId, queryId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryAsync(sessionID, scanId, queryId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceScanResults> GetResultsForQueryQroupAsync(string sessionID, long scanId, long queryGroupId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryQroupAsync(sessionID, scanId, queryGroupId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryQroupAsync(sessionID, scanId, queryGroupId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceScanResults> GetResultsForScanByLanguageAsync(string sessionID, long scanId, string Language)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanByLanguageAsync(sessionID, scanId, Language));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanByLanguageAsync(sessionID, scanId, Language));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceScanResults> GetResultsForScanAsync(string sessionID, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanAsync(sessionID, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanAsync(sessionID, scanId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceResultPath> GetResultPathAsync(string sessionId, long scanId, long pathId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultPathAsync(sessionId, scanId, pathId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultPathAsync(sessionId, scanId, pathId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceResultPath> GetPathCommentsHistoryAsync(string sessionId, long scanId, long pathId, cxPortalWebService93.ResultLabelTypeEnum labelType)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPathCommentsHistoryAsync(sessionId, scanId, pathId, labelType));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPathCommentsHistoryAsync(sessionId, scanId, pathId, labelType));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceFileNames> GetFileNamesForPathAsync(string sessionId, long scanId, long pathId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetFileNamesForPathAsync(sessionId, scanId, pathId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetFileNamesForPathAsync(sessionId, scanId, pathId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseResultPaths> GetResultPathsForQueryAsync(string sessionId, long scanId, long queryId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultPathsForQueryAsync(sessionId, scanId, queryId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultPathsForQueryAsync(sessionId, scanId, queryId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseResultGraph> GetResultGraphForQueryAsync(string sessionId, long scanId, long queryId, int maxNodes, cxPortalWebService93.CxWSGraphTypeEnum graphType, bool includeNotExploitable)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultGraphForQueryAsync(sessionId, scanId, queryId, maxNodes, graphType, includeNotExploitable));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultGraphForQueryAsync(sessionId, scanId, queryId, maxNodes, graphType, includeNotExploitable));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceScanResults> GetResultsBySeverityAsync(string sessionId, long scanId, int Severity, string Language)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsBySeverityAsync(sessionId, scanId, Severity, Language));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsBySeverityAsync(sessionId, scanId, Severity, Language));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseCustomFields> GetCustomFieldsAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCustomFieldsAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCustomFieldsAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> SaveCustomFieldsAsync(string sessionID, cxPortalWebService93.CxWSCustomField[] customFields)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaveCustomFieldsAsync(sessionID, customFields));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaveCustomFieldsAsync(sessionID, customFields));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> DeleteCustomFieldAsync(string sessionID, long customFieldId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteCustomFieldAsync(sessionID, customFieldId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteCustomFieldAsync(sessionID, customFieldId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseCustomFieldValues> GetCustomFieldValuesAsync(string sessionID, long customFieldId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCustomFieldValuesAsync(sessionID, customFieldId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCustomFieldValuesAsync(sessionID, customFieldId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> SavePredefinedCommandsAsync(string sessionID, cxPortalWebService93.CxPredefinedCommand[] predefinedCommands)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SavePredefinedCommandsAsync(sessionID, predefinedCommands));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SavePredefinedCommandsAsync(sessionID, predefinedCommands));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePredefinedCommands> GetPredefinedCommandsAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPredefinedCommandsAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPredefinedCommandsAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseNameList> GetExecutableListAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetExecutableListAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetExecutableListAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseUserData> GetProjectAssignUsersAsync(string sessionID, long projectId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectAssignUsersAsync(sessionID, projectId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectAssignUsersAsync(sessionID, projectId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseAssignUsers> GetProjectAssignUsersListAsync(string sessionID, long projectId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectAssignUsersListAsync(sessionID, projectId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectAssignUsersListAsync(sessionID, projectId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseBool> IsAllowAutoSignInAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsAllowAutoSignInAsync());
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsAllowAutoSignInAsync());
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> SaveSubsetResultsAsync(string sessionId, long projectId, long ScanId, long[] pathIds, string comments)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaveSubsetResultsAsync(sessionId, projectId, ScanId, pathIds, comments));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaveSubsetResultsAsync(sessionId, projectId, ScanId, pathIds, comments));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePivotTable> GetPivotDataAsync(string SessionID, cxPortalWebService93.CxPivotDataRequest PivotParams)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPivotDataAsync(SessionID, PivotParams));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPivotDataAsync(SessionID, PivotParams));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePivotLayouts> GetPivotLayoutsAsync(string SessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPivotLayoutsAsync(SessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPivotLayoutsAsync(SessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> SavePivotLayoutAsync(string SessionID, cxPortalWebService93.CxPivotLayout layout)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SavePivotLayoutAsync(SessionID, layout));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SavePivotLayoutAsync(SessionID, layout));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> DeletePivotLayoutAsync(string SessionID, long LayoutID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeletePivotLayoutAsync(SessionID, LayoutID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeletePivotLayoutAsync(SessionID, LayoutID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseShortQueryDescription> GetQueryShortDescriptionAsync(string sessionId, long queryId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryShortDescriptionAsync(sessionId, queryId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryShortDescriptionAsync(sessionId, queryId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> RegisterSaasPendingUserAsync(cxPortalWebService93.SaasPendingUser pendingUser, string activationPageUrl)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RegisterSaasPendingUserAsync(pendingUser, activationPageUrl));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RegisterSaasPendingUserAsync(pendingUser, activationPageUrl));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSaasLoginData> ActivateSaasUserAsync(string userToken)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ActivateSaasUserAsync(userToken));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ActivateSaasUserAsync(userToken));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSaasPackage> GetSaasPackagesAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSaasPackagesAsync());
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSaasPackagesAsync());
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSaasPackage> GetTeamSaaSPackageAsync(string teamId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetTeamSaaSPackageAsync(teamId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetTeamSaaSPackageAsync(teamId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSaasLoginData> SaasLoginAsync(cxPortalWebService93.Credentials applicationCredentials, int lcid)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaasLoginAsync(applicationCredentials, lcid));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaasLoginAsync(applicationCredentials, lcid));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> SendEmailForSalesAsync(string sessionID, cxPortalWebService93.EmailForSalesData emailData)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SendEmailForSalesAsync(sessionID, emailData));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SendEmailForSalesAsync(sessionID, emailData));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseEngineServers> GetEngineServersAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetEngineServersAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetEngineServersAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseEngineServerId> UpdateEngineServerAsync(string sessionID, cxPortalWebService93.CxEngineServer engine)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateEngineServerAsync(sessionID, engine));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateEngineServerAsync(sessionID, engine));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseEngineServerId> CreateEngineServerAsync(string sessionID, cxPortalWebService93.CxEngineServer engine)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateEngineServerAsync(sessionID, engine));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateEngineServerAsync(sessionID, engine));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseEngineServerId> DeleteEngineServerAsync(string sessionID, long id)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteEngineServerAsync(sessionID, id));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteEngineServerAsync(sessionID, id));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseRunID> ScanAsync(string sessionId, cxPortalWebService93.CliScanArgs args)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ScanAsync(sessionId, args));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ScanAsync(sessionId, args));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseQueries> ExportQueriesAsync(string sessionId, long[] queryIds)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ExportQueriesAsync(sessionId, queryIds));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ExportQueriesAsync(sessionId, queryIds));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePreset> ExportPresetAsync(string sessionId, long presetId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ExportPresetAsync(sessionId, presetId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ExportPresetAsync(sessionId, presetId));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPortalWebService93.ImportQueriesResponse> cxPortalWebService93.CxPortalWebServiceSoap.ImportQueriesAsync(cxPortalWebService93.ImportQueriesRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ImportQueriesAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ImportQueriesAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.ImportQueriesResponse> ImportQueriesAsync(string sessionId, byte[] importedFile)
@@ -20152,18 +20153,18 @@ namespace cxPortalWebService93
             cxPortalWebService93.ImportQueriesRequest inValue = new cxPortalWebService93.ImportQueriesRequest();
             inValue.sessionId = sessionId;
             inValue.importedFile = importedFile;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPortalWebService93.CxPortalWebServiceSoap)(this)).ImportQueriesAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPortalWebService93.CxPortalWebServiceSoap)(this)).ImportQueriesAsync(inValue));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSImportQueriesRepsonse> GetImportQueriesStatusAsync(string sessionId, long requestId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetImportQueriesStatusAsync(sessionId, requestId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetImportQueriesStatusAsync(sessionId, requestId));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPortalWebService93.GetExistingQueriesResponse> cxPortalWebService93.CxPortalWebServiceSoap.GetExistingQueriesAsync(cxPortalWebService93.GetExistingQueriesRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetExistingQueriesAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetExistingQueriesAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.GetExistingQueriesResponse> GetExistingQueriesAsync(string sessionId, byte[] importedFile)
@@ -20171,13 +20172,13 @@ namespace cxPortalWebService93
             cxPortalWebService93.GetExistingQueriesRequest inValue = new cxPortalWebService93.GetExistingQueriesRequest();
             inValue.sessionId = sessionId;
             inValue.importedFile = importedFile;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPortalWebService93.CxPortalWebServiceSoap)(this)).GetExistingQueriesAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPortalWebService93.CxPortalWebServiceSoap)(this)).GetExistingQueriesAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPortalWebService93.GetExistingPresetQueriesResponse> cxPortalWebService93.CxPortalWebServiceSoap.GetExistingPresetQueriesAsync(cxPortalWebService93.GetExistingPresetQueriesRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetExistingPresetQueriesAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetExistingPresetQueriesAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.GetExistingPresetQueriesResponse> GetExistingPresetQueriesAsync(string sessionId, byte[] importedFile)
@@ -20185,13 +20186,13 @@ namespace cxPortalWebService93
             cxPortalWebService93.GetExistingPresetQueriesRequest inValue = new cxPortalWebService93.GetExistingPresetQueriesRequest();
             inValue.sessionId = sessionId;
             inValue.importedFile = importedFile;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPortalWebService93.CxPortalWebServiceSoap)(this)).GetExistingPresetQueriesAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPortalWebService93.CxPortalWebServiceSoap)(this)).GetExistingPresetQueriesAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPortalWebService93.ImportPresetResponse> cxPortalWebService93.CxPortalWebServiceSoap.ImportPresetAsync(cxPortalWebService93.ImportPresetRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ImportPresetAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ImportPresetAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.ImportPresetResponse> ImportPresetAsync(string sessionId, byte[] importedFile)
@@ -20199,782 +20200,782 @@ namespace cxPortalWebService93
             cxPortalWebService93.ImportPresetRequest inValue = new cxPortalWebService93.ImportPresetRequest();
             inValue.sessionId = sessionId;
             inValue.importedFile = importedFile;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPortalWebService93.CxPortalWebServiceSoap)(this)).ImportPresetAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPortalWebService93.CxPortalWebServiceSoap)(this)).ImportPresetAsync(inValue));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSCreateReportResponse> CreateScanReportAsync(string SessionID, cxPortalWebService93.CxWSFilteredReportRequest Report)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateScanReportAsync(SessionID, Report));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateScanReportAsync(SessionID, Report));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSReportStatusResponse> GetScanReportStatusAsync(string SessionID, long ReportID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanReportStatusAsync(SessionID, ReportID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanReportStatusAsync(SessionID, ReportID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseScanResults> GetScanReportAsync(string SessionID, long ReportID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanReportAsync(SessionID, ReportID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanReportAsync(SessionID, ReportID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseScanResults> CompressAndShowScanReportAsync(string SessionID, long ReportID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CompressAndShowScanReportAsync(SessionID, ReportID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CompressAndShowScanReportAsync(SessionID, ReportID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> CancelScanReportAsync(string SessionID, long ReportID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CancelScanReportAsync(SessionID, ReportID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CancelScanReportAsync(SessionID, ReportID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> SaveUserPreferencesAsync(string SessionID, cxPortalWebService93.CxUserPreferences[] Preferences)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaveUserPreferencesAsync(SessionID, Preferences));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SaveUserPreferencesAsync(SessionID, Preferences));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSUserPreferencesResponse> GetUserPreferencesAsync(string SessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetUserPreferencesAsync(SessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetUserPreferencesAsync(SessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSIssueTrackingSystemResponse> IssueTrackingSystemsAPIAsync(cxPortalWebService93.CxWSIssueTrackingSystemRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IssueTrackingSystemsAPIAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IssueTrackingSystemsAPIAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSCxVersionResponse> GetVersionNumberAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetVersionNumberAsync());
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetVersionNumberAsync());
         }
 
         public System.Threading.Tasks.Task<bool> IsLicenseExistsAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsLicenseExistsAsync());
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsLicenseExistsAsync());
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSCxMoveTeamResponse> MoveTeamAsync(string sessionID, string sourceID, string destenationID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.MoveTeamAsync(sessionID, sourceID, destenationID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.MoveTeamAsync(sessionID, sourceID, destenationID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxTeamPathsResponseResponse> GetTeamFullPathsAsync(string sessionID, string sourceTeamID, string destinationTeamID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetTeamFullPathsAsync(sessionID, sourceTeamID, destinationTeamID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetTeamFullPathsAsync(sessionID, sourceTeamID, destinationTeamID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseProjectScannedDisplayData> GetProjectScannedDisplayDataAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectScannedDisplayDataAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectScannedDisplayDataAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseProjectScannedDisplayDataWithPaging> GetProjectScannedDisplayDataParamsAsync(string sessionID, cxPortalWebService93.CxWSSelectionCriteria selectionCriteria)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectScannedDisplayDataParamsAsync(sessionID, selectionCriteria));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectScannedDisplayDataParamsAsync(sessionID, selectionCriteria));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseFailedScansDisplayData> GetFailedScansDisplayDataAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetFailedScansDisplayDataAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetFailedScansDisplayDataAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseJSONData> GetTabWidgetsAsync(string sessionId, int tabId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetTabWidgetsAsync(sessionId, tabId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetTabWidgetsAsync(sessionId, tabId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseJSONData> GetWidgetFiltersAsync(string sessionId, int[] widgetIds)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetWidgetFiltersAsync(sessionId, widgetIds));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetWidgetFiltersAsync(sessionId, widgetIds));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseJSONData> GetWidgetDataAsync(string sessionId, int widgetId, string parametersAsJSON)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetWidgetDataAsync(sessionId, widgetId, parametersAsJSON));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetWidgetDataAsync(sessionId, widgetId, parametersAsJSON));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> ExecuteDataRetentionAsync(string SessionID, cxPortalWebService93.CxDataRetentionConfiguration dataRetentionConfiguration)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ExecuteDataRetentionAsync(SessionID, dataRetentionConfiguration));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ExecuteDataRetentionAsync(SessionID, dataRetentionConfiguration));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSDataRetentionStatusResponse> GetDataRetentionStatusAsync(string SessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetDataRetentionStatusAsync(SessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetDataRetentionStatusAsync(SessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSDataRetentionRequestResponse> GetLatestFinishedDataRetentionRequestAsync(string SessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetLatestFinishedDataRetentionRequestAsync(SessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetLatestFinishedDataRetentionRequestAsync(SessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> StopDataRetentionAsync(string SessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.StopDataRetentionAsync(SessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.StopDataRetentionAsync(SessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseLicenseExpirationDateDetails> GetLicenseExpirationDateForAdminAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetLicenseExpirationDateForAdminAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetLicenseExpirationDateForAdminAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> AddLicenseExpirationNotificationAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.AddLicenseExpirationNotificationAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.AddLicenseExpirationNotificationAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> CancelLicenseExpirationNotificationAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CancelLicenseExpirationNotificationAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CancelLicenseExpirationNotificationAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> WarmupAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.WarmupAsync());
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.WarmupAsync());
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseProjectsScansList> GetProjectsWithScansAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsWithScansAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsWithScansAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSourceID> UploadProjectWithDefaultSettingsAsync(string sessionId, cxPortalWebService93.ProjectBasicSettings projectSettings, cxPortalWebService93.LocalCodeContainer localCodeContainer)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadProjectWithDefaultSettingsAsync(sessionId, projectSettings, localCodeContainer));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadProjectWithDefaultSettingsAsync(sessionId, projectSettings, localCodeContainer));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSourceContainer> GetSourceCodeForScanAsync(string sessionID, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourceCodeForScanAsync(sessionID, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourceCodeForScanAsync(sessionID, scanId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxQueryCollectionResponse> GetQueryCollectionForLanguageAsync(string sessionId, int projectType, long projectId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageAsync(sessionId, projectType, projectId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageAsync(sessionId, projectType, projectId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxQueryCollectionResponse> GetQueryCollectionForLanguageByTeamIdAsync(string sessionId, int projectType, string teamId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageByTeamIdAsync(sessionId, projectType, teamId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionForLanguageByTeamIdAsync(sessionId, projectType, teamId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> UploadQueriesAsync(string sessionId, cxPortalWebService93.CxWSQueryGroup[] queries)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadQueriesAsync(sessionId, queries));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UploadQueriesAsync(sessionId, queries));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseBasicScanData> AddScanResultsToProjectAsync(string sessionId, long projectId, string sourceId, cxPortalWebService93.AuditResultsCollection resultsCollection, string comment)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.AddScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.AddScanResultsToProjectAsync(sessionId, projectId, sourceId, resultsCollection, comment));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseResultCollection> GetResultsAsync(string sessionId, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsAsync(sessionId, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsAsync(sessionId, scanId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CXWSResponseResultSummary> GetResultSummaryAsync(string sessionId, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultSummaryAsync(sessionId, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultSummaryAsync(sessionId, scanId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseCache> GetCacheAsync(string sessionId, long scanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCacheAsync(sessionId, scanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCacheAsync(sessionId, scanId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseLoginData> LoginAsync(cxPortalWebService93.Credentials applicationCredentials, int lcid)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LoginAsync(applicationCredentials, lcid));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LoginAsync(applicationCredentials, lcid));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseLoginData> SamlLoginAsync(string token, int lcid)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SamlLoginAsync(token, lcid));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SamlLoginAsync(token, lcid));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseLoginData> LoginV2Async(cxPortalWebService93.Credentials applicationCredentials, int lcid, bool useExistingSession)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LoginV2Async(applicationCredentials, lcid, useExistingSession));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LoginV2Async(applicationCredentials, lcid, useExistingSession));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseLoginData> SsoLoginAsync(cxPortalWebService93.Credentials encryptedCredentials, int lcid)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SsoLoginAsync(encryptedCredentials, lcid));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SsoLoginAsync(encryptedCredentials, lcid));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseLoginData> SsoLoginV2Async(cxPortalWebService93.Credentials encryptedCredentials, int lcid, bool useExistingSession)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SsoLoginV2Async(encryptedCredentials, lcid, useExistingSession));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SsoLoginV2Async(encryptedCredentials, lcid, useExistingSession));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> LogoutAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LogoutAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LogoutAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseLoginData> LoginBySIDAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LoginBySIDAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LoginBySIDAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseBool> IsFirstLoginAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsFirstLoginAsync());
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsFirstLoginAsync());
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> FirstLoginAsync(string newUsername, string newPassword)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.FirstLoginAsync(newUsername, newPassword));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.FirstLoginAsync(newUsername, newPassword));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseGroupList> GetAssociatedGroupsListAsync(string SessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAssociatedGroupsListAsync(SessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAssociatedGroupsListAsync(SessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseConfigSetList> GetConfigurationSetListAsync(string SessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetConfigurationSetListAsync(SessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetConfigurationSetListAsync(SessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> IsValidProjectNameAsync(string SessionID, string ProjectName, string GroupId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsValidProjectNameAsync(SessionID, ProjectName, GroupId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsValidProjectNameAsync(SessionID, ProjectName, GroupId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseFileSystemLayer> GetSharedFileSystemLayerAsync(string SessionID, string Path, cxPortalWebService93.Credentials UserCredentials)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSharedFileSystemLayerAsync(SessionID, Path, UserCredentials));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSharedFileSystemLayerAsync(SessionID, Path, UserCredentials));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseFileSystemLayer> GetRepositoryFileSystemLayerAsync(string SessionID, string Path, cxPortalWebService93.SourceControlSettings SourceControlSettings)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetRepositoryFileSystemLayerAsync(SessionID, Path, SourceControlSettings));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetRepositoryFileSystemLayerAsync(SessionID, Path, SourceControlSettings));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSourceActionList> GetSourceControlActionListAsync(string SessionID, int teamId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourceControlActionListAsync(SessionID, teamId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourceControlActionListAsync(SessionID, teamId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSourceActionList> GetPostScanActionListAsync(string SessionID, int teamId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPostScanActionListAsync(SessionID, teamId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPostScanActionListAsync(SessionID, teamId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseRunID> CreateNewProjectAsync(string SessionID, cxPortalWebService93.ProjectConfiguration Project)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateNewProjectAsync(SessionID, Project));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateNewProjectAsync(SessionID, Project));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseRunID> CreateAndRunProjectAsync(string SessionID, cxPortalWebService93.ProjectSettings ProjectSettings, cxPortalWebService93.LocalCodeContainer LocalCodeContainer, bool visibleToOtherUsers)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateAndRunProjectAsync(SessionID, ProjectSettings, LocalCodeContainer, visibleToOtherUsers));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateAndRunProjectAsync(SessionID, ProjectSettings, LocalCodeContainer, visibleToOtherUsers));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseRunID> RunScanAndAddToProjectAsync(string sessionId, cxPortalWebService93.ProjectSettings projectSettings, cxPortalWebService93.LocalCodeContainer localCodeContainer, bool visibleToUtherUsers)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RunScanAndAddToProjectAsync(sessionId, projectSettings, localCodeContainer, visibleToUtherUsers));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RunScanAndAddToProjectAsync(sessionId, projectSettings, localCodeContainer, visibleToUtherUsers));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseCountLines> CountLinesAsync(string sessionId, cxPortalWebService93.LocalCodeContainer localCodeContainer)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CountLinesAsync(sessionId, localCodeContainer));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CountLinesAsync(sessionId, localCodeContainer));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseExtendedScanStatusArray> GetScansStatusesAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScansStatusesAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScansStatusesAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseExtendedScanStatus> GetStatusOfSingleScanAsync(string sessionID, string runId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetStatusOfSingleScanAsync(sessionID, runId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetStatusOfSingleScanAsync(sessionID, runId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseQueueRunID> PostponeScanAsync(string sessionID, string RunId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.PostponeScanAsync(sessionID, RunId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.PostponeScanAsync(sessionID, RunId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> CancelScanAsync(string sessionID, string RunId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CancelScanAsync(sessionID, RunId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CancelScanAsync(sessionID, RunId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> UpdateProjectUserCredentialsAsync(string sessionID, long projectID, cxPortalWebService93.Credentials credentials)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateProjectUserCredentialsAsync(sessionID, projectID, credentials));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateProjectUserCredentialsAsync(sessionID, projectID, credentials));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseProjectsData> GetProjectsWithUserCredentialsAsync(string sessionID, string username)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsWithUserCredentialsAsync(sessionID, username));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsWithUserCredentialsAsync(sessionID, username));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseNameList> GetProjectsCredentialUsersAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsCredentialUsersAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsCredentialUsersAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseProjectsDisplayData> GetProjectsDisplayDataAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsDisplayDataAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsDisplayDataAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseProjectsDisplayDataWithPaging> GetProjectsDisplayDataParamsAsync(string sessionID, cxPortalWebService93.CxWSSelectionCriteria selectionCriteria)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsDisplayDataParamsAsync(sessionID, selectionCriteria));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectsDisplayDataParamsAsync(sessionID, selectionCriteria));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> RunProjectImmediatelyAsync(string sessionID, long projectID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RunProjectImmediatelyAsync(sessionID, projectID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RunProjectImmediatelyAsync(sessionID, projectID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> RunProjectIncrementallyAsync(string sessionID, long projectID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RunProjectIncrementallyAsync(sessionID, projectID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RunProjectIncrementallyAsync(sessionID, projectID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> DeleteProjectAsync(string sessionID, long projectID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteProjectAsync(sessionID, projectID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteProjectAsync(sessionID, projectID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseProjectConfig> GetProjectConfigurationAsync(string sessionID, long projectID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectConfigurationAsync(sessionID, projectID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectConfigurationAsync(sessionID, projectID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsProjectProperties> GetProjectPropertiesAsync(string sessionID, long projectID, cxPortalWebService93.ScanType scanType)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectPropertiesAsync(sessionID, projectID, scanType));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectPropertiesAsync(sessionID, projectID, scanType));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> UpdateProjectConfigurationAsync(string sessionID, long projectID, cxPortalWebService93.ProjectConfiguration projectConfiguration)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateProjectConfigurationAsync(sessionID, projectID, projectConfiguration));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateProjectConfigurationAsync(sessionID, projectID, projectConfiguration));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> UpdateProjectIncrementalConfigurationAsync(string sessionID, long projectID, cxPortalWebService93.ProjectConfiguration projectConfiguration)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateProjectIncrementalConfigurationAsync(sessionID, projectID, projectConfiguration));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateProjectIncrementalConfigurationAsync(sessionID, projectID, projectConfiguration));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsProjectChartData> GetProjectChartsAsync(string sessionID, long projectID, cxPortalWebService93.ScanType scanType)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectChartsAsync(sessionID, projectID, scanType));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectChartsAsync(sessionID, projectID, scanType));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> SetFalsePositiveFlagAsync(string sessionID, long ResultId, long PathId, long projectId, bool falsePositiveFlag)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SetFalsePositiveFlagAsync(sessionID, ResultId, PathId, projectId, falsePositiveFlag));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SetFalsePositiveFlagAsync(sessionID, ResultId, PathId, projectId, falsePositiveFlag));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> UpdateResultCommentAsync(string sessionID, long ResultId, long PathId, long projectId, string comment)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateResultCommentAsync(sessionID, ResultId, PathId, projectId, comment));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateResultCommentAsync(sessionID, ResultId, PathId, projectId, comment));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> UpdateResultStateAsync(string sessionID, long scanId, long PathId, long projectId, string Remarks, int ResultLabelType, string data)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateResultStateAsync(sessionID, scanId, PathId, projectId, Remarks, ResultLabelType, data));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateResultStateAsync(sessionID, scanId, PathId, projectId, Remarks, ResultLabelType, data));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> UpdateSetOfResultStateAsync(string sessionID, cxPortalWebService93.ResultStateData[] resultsStates)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateSetOfResultStateAsync(sessionID, resultsStates));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateSetOfResultStateAsync(sessionID, resultsStates));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseResultStateUpdate> UpdateSetOfResultStateInfluenceCheckAsync(string sessionID, cxPortalWebService93.ResultStateData[] resultsStates, bool checkPathInfluence)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateSetOfResultStateInfluenceCheckAsync(sessionID, resultsStates, checkPathInfluence));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateSetOfResultStateInfluenceCheckAsync(sessionID, resultsStates, checkPathInfluence));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseRunID> BranchProjectAsync(string SessionID, cxPortalWebService93.ProjectConfiguration Project, long originalProjectId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.BranchProjectAsync(SessionID, Project, originalProjectId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.BranchProjectAsync(SessionID, Project, originalProjectId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSProjectBranchingStatusResponse> GetProjectBranchingStatusAsync(string SessionID, long BranchedProjectID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectBranchingStatusAsync(SessionID, BranchedProjectID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetProjectBranchingStatusAsync(SessionID, BranchedProjectID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseDeleteProjects> DeleteProjectsAsync(cxPortalWebService93.CxWSRequestDeleteProjects request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteProjectsAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteProjectsAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseRunID> RunScanWithExistingProjectAsync(string sessionId, string projectName)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RunScanWithExistingProjectAsync(sessionId, projectName));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RunScanWithExistingProjectAsync(sessionId, projectName));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseScansDisplayData> GetScansDisplayDataAsync(string sessionID, long projectID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScansDisplayDataAsync(sessionID, projectID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScansDisplayDataAsync(sessionID, projectID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> DeleteScanAsync(string sessionID, long ScanID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteScanAsync(sessionID, ScanID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteScanAsync(sessionID, ScanID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseScanProperties> GetScanPropertiesAsync(string sessionID, long ScanID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanPropertiesAsync(sessionID, ScanID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanPropertiesAsync(sessionID, ScanID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> UpdateScanCommentAsync(string sessionID, long ScanID, string Comment)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateScanCommentAsync(sessionID, ScanID, Comment));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdateScanCommentAsync(sessionID, ScanID, Comment));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseScansDisplayExtendedData> GetScansDisplayDataForAllProjectsAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScansDisplayDataForAllProjectsAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScansDisplayDataForAllProjectsAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWsResultListMessageOfScanDisplayDataExtendedWithTeam> GetScansDisplayDataForAllProjectsParamsAsync(string sessionID, cxPortalWebService93.CxWSSelectionCriteria selectionCriteria)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScansDisplayDataForAllProjectsParamsAsync(sessionID, selectionCriteria));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScansDisplayDataForAllProjectsParamsAsync(sessionID, selectionCriteria));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseScanSummaryExtended> GetScanSummaryAsync(string i_SessionID, long i_ScanID, bool auditEvent)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanSummaryAsync(i_SessionID, i_ScanID, auditEvent));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanSummaryAsync(i_SessionID, i_ScanID, auditEvent));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseScanCompareSummary> GetScanCompareSummaryAsync(string sessionId, long oldScanId, long newScanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanCompareSummaryAsync(sessionId, oldScanId, newScanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanCompareSummaryAsync(sessionId, oldScanId, newScanId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponceScanCompareResults> GetCompareScanResultsAsync(string sessionId, long oldScanId, long newScanId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCompareScanResultsAsync(sessionId, oldScanId, newScanId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCompareScanResultsAsync(sessionId, oldScanId, newScanId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseScanLog> GetScanLogsAsync(cxPortalWebService93.CxWSRequestScanLog cxWSRequestScanLog)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanLogsAsync(cxWSRequestScanLog));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetScanLogsAsync(cxWSRequestScanLog));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseDeleteScans> DeleteScansAsync(cxPortalWebService93.CxWSRequestDeleteScans request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteScansAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteScansAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> LockScanAsync(string i_SessionID, long i_ScanID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LockScanAsync(i_SessionID, i_ScanID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.LockScanAsync(i_SessionID, i_ScanID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> UnlockScanAsync(string i_SessionID, long i_ScanID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UnlockScanAsync(i_SessionID, i_ScanID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UnlockScanAsync(i_SessionID, i_ScanID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseQueryDescription> GetQueryDescriptionByQueryIdAsync(string sessionId, int queryId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionByQueryIdAsync(sessionId, queryId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionByQueryIdAsync(sessionId, queryId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseQueryDescription> GetQueryDescriptionAsync(string sessionId, int cweID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionAsync(sessionId, cweID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryDescriptionAsync(sessionId, cweID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseResultDescription> GetResultDescriptionAsync(string sessionID, long scanID, long pathID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultDescriptionAsync(sessionID, scanID, pathID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultDescriptionAsync(sessionID, scanID, pathID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseQueryDescription> GetCWEDescriptionAsync(string sessionId, int cweID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCWEDescriptionAsync(sessionId, cweID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCWEDescriptionAsync(sessionId, cweID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSourceContent> GetSourceByScanIDAsync(string sessionID, long scanID, string fileToRetreive)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourceByScanIDAsync(sessionID, scanID, fileToRetreive));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourceByScanIDAsync(sessionID, scanID, fileToRetreive));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSourcesContent> GetSourcesByScanIDAsync(string sessionID, long scanID, string[] filesToRetreive)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourcesByScanIDAsync(sessionID, scanID, filesToRetreive));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSourcesByScanIDAsync(sessionID, scanID, filesToRetreive));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseResultStateList> GetResultStateListAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultStateListAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultStateListAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseBool> IsSMTPHostConfiguredAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsSMTPHostConfiguredAsync());
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsSMTPHostConfiguredAsync());
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseBool> IsPrivateCloudAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsPrivateCloudAsync());
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsPrivateCloudAsync());
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> IsAdminAllowedToChangeUserPasswordAsync(string sessionID, long userID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsAdminAllowedToChangeUserPasswordAsync(sessionID, userID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsAdminAllowedToChangeUserPasswordAsync(sessionID, userID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> ForgotPasswordAsync(string passwordChangePageUrl, string userName, string email)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ForgotPasswordAsync(passwordChangePageUrl, userName, email));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ForgotPasswordAsync(passwordChangePageUrl, userName, email));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> ResetPasswordAsync(string sessionID, string loginUrl, long userID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ResetPasswordAsync(sessionID, loginUrl, userID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ResetPasswordAsync(sessionID, loginUrl, userID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> CheckChangePasswordTokenAsync(string token)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CheckChangePasswordTokenAsync(token));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CheckChangePasswordTokenAsync(token));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> ChangePasswordWithTokenAsync(string token, string password)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ChangePasswordWithTokenAsync(token, password));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ChangePasswordWithTokenAsync(token, password));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> ChangePasswordAsync(string sessionID, string oldPsw, string newPsw)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ChangePasswordAsync(sessionID, oldPsw, newPsw));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ChangePasswordAsync(sessionID, oldPsw, newPsw));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> ChangePasswordAdminToUserAsync(string sessionID, long userID, string newPassword, string adminPassword)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ChangePasswordAdminToUserAsync(sessionID, userID, newPassword, adminPassword));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ChangePasswordAdminToUserAsync(sessionID, userID, newPassword, adminPassword));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> RegisterPendingUserAsync(cxPortalWebService93.WebClientPendingUser pendingUser, string pendingUsersTableUrl)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RegisterPendingUserAsync(pendingUser, pendingUsersTableUrl));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RegisterPendingUserAsync(pendingUser, pendingUsersTableUrl));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePendingUsersList> GetPendingUsersListAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPendingUsersListAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPendingUsersListAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> DeletePendingUsersAsync(string sessionID, int[] userIdList)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeletePendingUsersAsync(sessionID, userIdList));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeletePendingUsersAsync(sessionID, userIdList));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> ApprovePendingUsersAsync(string sessionID, cxPortalWebService93.WebClientApprovedUser[] userList)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ApprovePendingUsersAsync(sessionID, userList));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.ApprovePendingUsersAsync(sessionID, userList));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseProfileData> GetUserProfileDataAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetUserProfileDataAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetUserProfileDataAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSingleUserData> GetUserByIdAsync(string sessionID, long userId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetUserByIdAsync(sessionID, userId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetUserByIdAsync(sessionID, userId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseUserData> GetAllUsersAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAllUsersAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAllUsersAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseUserData> GetAllUsersInGroupAsync(string sessionID, string groupID, bool isRecursive)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAllUsersInGroupAsync(sessionID, groupID, isRecursive));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAllUsersInGroupAsync(sessionID, groupID, isRecursive));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> DeleteUserAsync(string sessionID, int userID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteUserAsync(sessionID, userID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteUserAsync(sessionID, userID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseHierarchyGroupNodes> GetHierarchyGroupTreeAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetHierarchyGroupTreeAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetHierarchyGroupTreeAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseHierarchyGroupNodes> GetChildNodesAsync(string sessionID, string pTeamId, int pLevel, string pTeamPath)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetChildNodesAsync(sessionID, pTeamId, pLevel, pTeamPath));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetChildNodesAsync(sessionID, pTeamId, pLevel, pTeamPath));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseHierarchyGroupNodes> GetAncestryGroupTreeAsync(string sessionID, int pTeamID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAncestryGroupTreeAsync(sessionID, pTeamID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAncestryGroupTreeAsync(sessionID, pTeamID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> AddNewUserAsync(string sessionID, cxPortalWebService93.UserData userData, cxPortalWebService93.CxUserTypes userType)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.AddNewUserAsync(sessionID, userData, userType));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.AddNewUserAsync(sessionID, userData, userType));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseServerLicenseData> GetServerLicenseSummaryAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetServerLicenseSummaryAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetServerLicenseSummaryAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseServerLicenseData> GetServerLicenseDataAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetServerLicenseDataAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetServerLicenseDataAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseUsersLicenseData> GetUsersLicenseDataAsync(string sessionID, string groupID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetUsersLicenseDataAsync(sessionID, groupID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetUsersLicenseDataAsync(sessionID, groupID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseCompaniesLicenseData> GetCompaniesLicenseDataAsync(string sessionID, string groupID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCompaniesLicenseDataAsync(sessionID, groupID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetCompaniesLicenseDataAsync(sessionID, groupID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSPLicenseData> GetSPLicenseDataAsync(string sessionID, string groupID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSPLicenseDataAsync(sessionID, groupID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSPLicenseDataAsync(sessionID, groupID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> IsValidUserNameAsync(string sessionID, string username)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsValidUserNameAsync(sessionID, username));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsValidUserNameAsync(sessionID, username));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> IsValidEmailAsync(string sessionID, string email)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsValidEmailAsync(sessionID, email));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsValidEmailAsync(sessionID, email));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseNameList> GetAvailbleDomainNamesAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAvailbleDomainNamesAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAvailbleDomainNamesAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseNameList> GetAvailbleUserDirectoriesNamesAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAvailbleUserDirectoriesNamesAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAvailbleUserDirectoriesNamesAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseUserDirectories> GetAvailbleUserDirectoriesAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAvailbleUserDirectoriesAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAvailbleUserDirectoriesAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> RenameTeamAsync(string sessionID, string teamID, string newTeamName)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RenameTeamAsync(sessionID, teamID, newTeamName));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.RenameTeamAsync(sessionID, teamID, newTeamName));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseTeamData> GetAllTeamsAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAllTeamsAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAllTeamsAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseTeamData> GetAllUserDirecTeamsAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAllUserDirecTeamsAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAllUserDirecTeamsAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> DeleteTeamAsync(string sessionID, string teamID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteTeamAsync(sessionID, teamID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeleteTeamAsync(sessionID, teamID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> SetSystemSettingsAsync(string sessionID, cxPortalWebService93.SystemSettings settings)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SetSystemSettingsAsync(sessionID, settings));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.SetSystemSettingsAsync(sessionID, settings));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSystemLanguages> GetServerLanguageListAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetServerLanguageListAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetServerLanguageListAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWsResponseSystemSettings> GetSystemSettingsAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSystemSettingsAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSystemSettingsAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseAuthorityAccessConfiguration> GetAuthorityAccessConfigurationAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAuthorityAccessConfigurationAsync());
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetAuthorityAccessConfigurationAsync());
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> VerifySupportedVersionAsync(cxPortalWebService93.CxClientType clientType, string clientVersion, string APIVersion)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.VerifySupportedVersionAsync(clientType, clientVersion, APIVersion));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.VerifySupportedVersionAsync(clientType, clientVersion, APIVersion));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseInstallationSettings> GetInstallationSettingsAsync(string sessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetInstallationSettingsAsync(sessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetInstallationSettingsAsync(sessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponseSystemLogs> GetSystemLogsAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSystemLogsAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetSystemLogsAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePresetList> GetPresetListAsync(string SessionID)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetListAsync(SessionID));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetListAsync(SessionID));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxQueryCollectionResponse> GetQueryCollectionAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxQueryCollectionResponse> GetQueryCollectionWithInactiveAsync(string sessionId)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionWithInactiveAsync(sessionId));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetQueryCollectionWithInactiveAsync(sessionId));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePresetDetails> GetPresetDetailsAsync(string sessionId, long id)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetDetailsAsync(sessionId, id));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetPresetDetailsAsync(sessionId, id));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePresetDetails> CreateNewPresetAsync(string sessionId, cxPortalWebService93.CxPresetDetails presrt)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateNewPresetAsync(sessionId, presrt));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.CreateNewPresetAsync(sessionId, presrt));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSResponsePresetDetails> UpdatePresetAsync(string sessionId, cxPortalWebService93.CxPresetDetails presrt)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdatePresetAsync(sessionId, presrt));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.UpdatePresetAsync(sessionId, presrt));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> DeletePresetAsync(string sessionId, long id)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeletePresetAsync(sessionId, id));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.DeletePresetAsync(sessionId, id));
         }
 
         public System.Threading.Tasks.Task<cxPortalWebService93.CxWSBasicRepsonse> IsValidPresetNameAsync(string sessionID, string presetName)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsValidPresetNameAsync(sessionID, presetName));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.IsValidPresetNameAsync(sessionID, presetName));
         }
 
         public virtual System.Threading.Tasks.Task OpenAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen)));
+            return _retryPolicyProvider.ExecuteWithRetry(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen)));
         }
 
         //public virtual System.Threading.Tasks.Task CloseAsync()
         //{
-        //    return RetryPolicyProvider.ExecuteWithRetryAsync(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose)));
+        //    return _retryPolicyProvider.ExecuteWithRetryAsync(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose)));
         //}
 
         //private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(EndpointConfiguration endpointConfiguration)
@@ -20987,7 +20988,7 @@ namespace cxPortalWebService93
         //        result.MaxReceivedMessageSize = int.MaxValue;
         //        result.AllowCookies = true;
         //        result.Security.Mode = System.ServiceModel.BasicHttpSecurityMode.Transport;
-        //        return RetryPolicyProvider.ExecuteWithRetryAsync(() => result);
+        //        return _retryPolicyProvider.ExecuteWithRetryAsync(() => result);
         //    }
         //    if ((endpointConfiguration == EndpointConfiguration.CxPortalWebServiceSoap12))
         //    {
@@ -21000,7 +21001,7 @@ namespace cxPortalWebService93
         //        httpsBindingElement.MaxBufferSize = int.MaxValue;
         //        httpsBindingElement.MaxReceivedMessageSize = int.MaxValue;
         //        result.Elements.Add(httpsBindingElement);
-        //        return RetryPolicyProvider.ExecuteWithRetryAsync(() => result);
+        //        return _retryPolicyProvider.ExecuteWithRetryAsync(() => result);
         //    }
         //    throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         //}

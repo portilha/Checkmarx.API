@@ -13,12 +13,12 @@ namespace Checkmarx.API
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns>Container from CxSASTOData</returns>
-        internal static Default.ODataClient8 ConnectToOData(Uri webserverAddress, string username, string password)
+        internal static Default.ODataClient8 ConnectToOData(Uri webserverAddress, string username, string password, int defaultRetries = 10)
         {
             Console.WriteLine($"Connecting to OData ({webserverAddress.AbsoluteUri}CxWebInterface/odata/v1/)");
 
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
-            Default.ODataClient8 context = new Default.ODataClient8(serviceUri)
+            Default.ODataClient8 context = new Default.ODataClient8(serviceUri, defaultRetries)
             {
                 Timeout = 7200,
                 MergeOption = Microsoft.OData.Client.MergeOption.NoTracking
@@ -45,12 +45,12 @@ namespace Checkmarx.API
         /// <param name="webserverAddress"></param>
         /// <param name="bearerToken"></param>
         /// <returns>Container from CxSASTODataV9</returns>
-        internal static DefaultV9.Container ConnectToODataV9(Uri webserverAddress, string bearerToken)
+        internal static DefaultV9.Container ConnectToODataV9(Uri webserverAddress, string bearerToken, int defaultRetries = 10)
         {
             Console.WriteLine($"Connecting to OData V9 ({webserverAddress.AbsoluteUri}CxWebInterface/odata/v1/)");
 
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
-            DefaultV9.Container context = new DefaultV9.Container(serviceUri)
+            DefaultV9.Container context = new DefaultV9.Container(serviceUri, defaultRetries)
             {
                 Timeout = 7200,
                 MergeOption = Microsoft.OData.Client.MergeOption.NoTracking,
@@ -71,12 +71,12 @@ namespace Checkmarx.API
             return context;
         }
 
-        internal static ODataClient95 ConnectToODataV95(Uri webserverAddress, string bearerToken)
+        internal static ODataClient95 ConnectToODataV95(Uri webserverAddress, string bearerToken, int defaultRetries = 10)
         {
             Console.WriteLine($"Connecting to OData V95 ({webserverAddress.AbsoluteUri}CxWebInterface/odata/v1/)");
 
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
-            var context = new ODataClient95(serviceUri)
+            var context = new ODataClient95(serviceUri, defaultRetries)
             {
                 Timeout = 7200,
                 MergeOption = Microsoft.OData.Client.MergeOption.NoTracking

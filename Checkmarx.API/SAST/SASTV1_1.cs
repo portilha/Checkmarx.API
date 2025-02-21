@@ -17,6 +17,7 @@ namespace Checkmarx.API.SAST
 {
     using Checkmarx.API.Models;
     using System = global::System;
+    using static Checkmarx.API.CxClient;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.15.10.0 (NJsonSchema v10.6.10.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class SASTV1_1
@@ -96,7 +97,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -180,7 +181,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -266,7 +267,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -351,7 +352,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -438,7 +439,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -532,7 +533,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -626,7 +627,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -731,7 +732,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -893,7 +894,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -986,7 +987,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1074,7 +1075,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1162,7 +1163,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1854,11 +1855,6 @@ namespace Checkmarx.API.SAST
 
         public string ContentType { get; private set; }
     }
-
-
-
-   
-
 }
 
 #pragma warning restore 1591

@@ -6598,17 +6598,21 @@ namespace DefaultV9
     /// </summary>
     public partial class Container : global::Microsoft.OData.Client.DataServiceContext
     {
+        private readonly int _defaultRetries = 10;
+
         /// <summary>
         /// Initialize a new Container object.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public Container(global::System.Uri serviceRoot) :
+        public Container(global::System.Uri serviceRoot, int defaultRetries = 10) :
                 base(serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion.V4)
         {
             this.OnContextCreated();
             this.Format.LoadServiceModel = GeneratedEdmModel.GetInstance;
             MergeOption = Microsoft.OData.Client.MergeOption.NoTracking;
             this.Format.UseJson();
+
+            if (defaultRetries > 0) _defaultRetries = defaultRetries;
         }
         partial void OnContextCreated();
         /// <summary>
@@ -6623,7 +6627,7 @@ namespace DefaultV9
                 {
                     this._Projects = base.CreateQuery<global::CxDataRepository.Project>("Projects");
                 }
-                return new RetryableDataServiceQuery<global::CxDataRepository.Project>(this._Projects);
+                return new RetryableDataServiceQuery<global::CxDataRepository.Project>(this._Projects, _defaultRetries);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -6640,7 +6644,7 @@ namespace DefaultV9
                 {
                     this._Scans = base.CreateQuery<global::CxDataRepository.Scan>("Scans");
                 }
-                return new RetryableDataServiceQuery<global::CxDataRepository.Scan>(this._Scans);
+                return new RetryableDataServiceQuery<global::CxDataRepository.Scan>(this._Scans, _defaultRetries);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
@@ -6657,7 +6661,7 @@ namespace DefaultV9
                 {
                     this._Results = base.CreateQuery<global::CxDataRepository.Result>("Results");
                 }
-                return new RetryableDataServiceQuery<global::CxDataRepository.Result>(this._Results);
+                return new RetryableDataServiceQuery<global::CxDataRepository.Result>(this._Results, _defaultRetries);
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]

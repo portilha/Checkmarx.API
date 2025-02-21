@@ -14,6 +14,7 @@ namespace cxPriorityWebService
     using System;
     using System.Linq;
     using System.ServiceModel;
+    using static Checkmarx.API.CxClient;
 
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
@@ -1549,7 +1550,7 @@ namespace cxPriorityWebService
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForQueryResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQuery(cxPriorityWebService.GetResultsForQueryRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQuery(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQuery(request));
         }
 
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQuery(string sessionID, long scanId, long queryId)
@@ -1560,13 +1561,13 @@ namespace cxPriorityWebService
             inValue.Body.scanId = scanId;
             inValue.Body.queryId = queryId;
             cxPriorityWebService.GetResultsForQueryResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQuery(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryAsync(cxPriorityWebService.GetResultsForQueryRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryResponse> GetResultsForQueryAsync(string sessionID, long scanId, long queryId)
@@ -1576,13 +1577,13 @@ namespace cxPriorityWebService
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
             inValue.Body.queryId = queryId;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForQueryQroupResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryQroup(cxPriorityWebService.GetResultsForQueryQroupRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQueryQroup(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQueryQroup(request));
         }
 
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryQroup(string sessionID, long scanId, long queryGroupId)
@@ -1593,13 +1594,13 @@ namespace cxPriorityWebService
             inValue.Body.scanId = scanId;
             inValue.Body.queryGroupId = queryGroupId;
             cxPriorityWebService.GetResultsForQueryQroupResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroup(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryQroupResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryQroupResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryQroupAsync(cxPriorityWebService.GetResultsForQueryQroupRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryQroupAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryQroupAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupResponse> GetResultsForQueryQroupAsync(string sessionID, long scanId, long queryGroupId)
@@ -1609,13 +1610,13 @@ namespace cxPriorityWebService
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
             inValue.Body.queryGroupId = queryGroupId;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForScanByLanguageResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanByLanguage(cxPriorityWebService.GetResultsForScanByLanguageRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScanByLanguage(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScanByLanguage(request));
         }
 
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanByLanguage(string sessionID, long scanId, string Language)
@@ -1626,13 +1627,13 @@ namespace cxPriorityWebService
             inValue.Body.scanId = scanId;
             inValue.Body.Language = Language;
             cxPriorityWebService.GetResultsForScanByLanguageResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguage(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanByLanguageResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanByLanguageResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanByLanguageAsync(cxPriorityWebService.GetResultsForScanByLanguageRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanByLanguageAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanByLanguageAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageResponse> GetResultsForScanByLanguageAsync(string sessionID, long scanId, string Language)
@@ -1642,13 +1643,13 @@ namespace cxPriorityWebService
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
             inValue.Body.Language = Language;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForScanResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScan(cxPriorityWebService.GetResultsForScanRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScan(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScan(request));
         }
 
         internal cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScan(string sessionID, long scanId)
@@ -1658,13 +1659,13 @@ namespace cxPriorityWebService
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
             cxPriorityWebService.GetResultsForScanResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScan(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanAsync(cxPriorityWebService.GetResultsForScanRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanResponse> GetResultsForScanAsync(string sessionID, long scanId)
@@ -1673,13 +1674,13 @@ namespace cxPriorityWebService
             inValue.Body = new cxPriorityWebService.GetResultsForScanRequestBody();
             inValue.Body.sessionID = sessionID;
             inValue.Body.scanId = scanId;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsBySeverityResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsBySeverity(cxPriorityWebService.GetResultsBySeverityRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsBySeverity(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsBySeverity(request));
         }
 
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsBySeverity(string sessionId, long scanId, int Severity, string Language)
@@ -1691,13 +1692,13 @@ namespace cxPriorityWebService
             inValue.Body.Severity = Severity;
             inValue.Body.Language = Language;
             cxPriorityWebService.GetResultsBySeverityResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverity(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsBySeverityResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsBySeverityResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsBySeverityAsync(cxPriorityWebService.GetResultsBySeverityRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsBySeverityAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsBySeverityAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityResponse> GetResultsBySeverityAsync(string sessionId, long scanId, int Severity, string Language)
@@ -1708,13 +1709,13 @@ namespace cxPriorityWebService
             inValue.Body.scanId = scanId;
             inValue.Body.Severity = Severity;
             inValue.Body.Language = Language;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForQueryWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryWithPaging(cxPriorityWebService.GetResultsForQueryWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQueryWithPaging(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQueryWithPaging(request));
         }
 
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryWithPaging(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryId)
@@ -1728,13 +1729,13 @@ namespace cxPriorityWebService
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.queryId = queryId;
             cxPriorityWebService.GetResultsForQueryWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryWithPaging(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryWithPagingResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryWithPagingResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryWithPagingAsync(cxPriorityWebService.GetResultsForQueryWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryWithPagingAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryWithPagingAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryWithPagingResponse> GetResultsForQueryWithPagingAsync(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryId)
@@ -1747,13 +1748,13 @@ namespace cxPriorityWebService
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.queryId = queryId;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryWithPagingAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryWithPagingAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanByLanguageWithPaging(cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScanByLanguageWithPaging(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScanByLanguageWithPaging(request));
         }
 
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanByLanguageWithPaging(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, string Language)
@@ -1767,13 +1768,13 @@ namespace cxPriorityWebService
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.Language = Language;
             cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageWithPaging(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanByLanguageWithPagingResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanByLanguageWithPagingResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanByLanguageWithPagingAsync(cxPriorityWebService.GetResultsForScanByLanguageWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanByLanguageWithPagingAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanByLanguageWithPagingAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanByLanguageWithPagingResponse> GetResultsForScanByLanguageWithPagingAsync(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, string Language)
@@ -1786,13 +1787,13 @@ namespace cxPriorityWebService
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.Language = Language;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageWithPagingAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanByLanguageWithPagingAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForScanWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanWithPaging(cxPriorityWebService.GetResultsForScanWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScanWithPaging(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForScanWithPaging(request));
         }
 
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForScanWithPaging(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount)
@@ -1805,13 +1806,13 @@ namespace cxPriorityWebService
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             cxPriorityWebService.GetResultsForScanWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanWithPaging(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanWithPagingResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForScanWithPagingResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForScanWithPagingAsync(cxPriorityWebService.GetResultsForScanWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanWithPagingAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForScanWithPagingAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForScanWithPagingResponse> GetResultsForScanWithPagingAsync(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount)
@@ -1823,13 +1824,13 @@ namespace cxPriorityWebService
             inValue.Body.skip = skip;
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanWithPagingAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForScanWithPagingAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsBySeverityWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsBySeverityWithPaging(cxPriorityWebService.GetResultsBySeverityWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsBySeverityWithPaging(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsBySeverityWithPaging(request));
         }
 
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsBySeverityWithPaging(string sessionId, long scanId, int skip, int take, bool calculateTotalResultsCount, int Severity, string Language)
@@ -1844,13 +1845,13 @@ namespace cxPriorityWebService
             inValue.Body.Severity = Severity;
             inValue.Body.Language = Language;
             cxPriorityWebService.GetResultsBySeverityWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityWithPaging(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsBySeverityWithPagingResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsBySeverityWithPagingResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsBySeverityWithPagingAsync(cxPriorityWebService.GetResultsBySeverityWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsBySeverityWithPagingAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsBySeverityWithPagingAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsBySeverityWithPagingResponse> GetResultsBySeverityWithPagingAsync(string sessionId, long scanId, int skip, int take, bool calculateTotalResultsCount, int Severity, string Language)
@@ -1864,13 +1865,13 @@ namespace cxPriorityWebService
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.Severity = Severity;
             inValue.Body.Language = Language;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityWithPagingAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsBySeverityWithPagingAsync(inValue));
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryQroupWithPaging(cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQueryQroupWithPaging(request));
+            return _retryPolicyProvider.ExecuteWithRetry(() => base.Channel.GetResultsForQueryQroupWithPaging(request));
         }
 
         public cxPriorityWebService.CxWSResponseScanResultsPriority GetResultsForQueryQroupWithPaging(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryGroupId)
@@ -1884,13 +1885,13 @@ namespace cxPriorityWebService
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.queryGroupId = queryGroupId;
             cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse retVal = ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupWithPaging(inValue);
-            return RetryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryQroupWithPagingResult);
+            return _retryPolicyProvider.ExecuteWithRetry(() => retVal.Body.GetResultsForQueryQroupWithPagingResult);
         }
 
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse> cxPriorityWebService.CxPriorityServiceSoap.GetResultsForQueryQroupWithPagingAsync(cxPriorityWebService.GetResultsForQueryQroupWithPagingRequest request)
         {
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryQroupWithPagingAsync(request));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => base.Channel.GetResultsForQueryQroupWithPagingAsync(request));
         }
 
         public System.Threading.Tasks.Task<cxPriorityWebService.GetResultsForQueryQroupWithPagingResponse> GetResultsForQueryQroupWithPagingAsync(string sessionID, long scanId, int skip, int take, bool calculateTotalResultsCount, long queryGroupId)
@@ -1903,12 +1904,12 @@ namespace cxPriorityWebService
             inValue.Body.take = take;
             inValue.Body.calculateTotalResultsCount = calculateTotalResultsCount;
             inValue.Body.queryGroupId = queryGroupId;
-            return RetryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupWithPagingAsync(inValue));
+            return _retryPolicyProvider.ExecuteWithRetryAsync(() => ((cxPriorityWebService.CxPriorityServiceSoap)(this)).GetResultsForQueryQroupWithPagingAsync(inValue));
         }
 
         public virtual System.Threading.Tasks.Task OpenAsync()
         {
-            return RetryPolicyProvider.ExecuteWithRetry(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen)));
+            return _retryPolicyProvider.ExecuteWithRetry(() => System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen)));
         }
 
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(Uri url, TimeSpan timeout)

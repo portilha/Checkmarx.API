@@ -17,6 +17,7 @@ namespace Checkmarx.API.SASTV4
 {
     using Checkmarx.API.Models;
     using System = global::System;
+    using static Checkmarx.API.CxClient;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.16.1.0 (NJsonSchema v10.7.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SASTV4Client
@@ -180,7 +181,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -272,7 +273,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -358,7 +359,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -457,7 +458,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -564,7 +565,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -657,7 +658,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -737,7 +738,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -825,7 +826,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -911,7 +912,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1003,7 +1004,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1101,7 +1102,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1205,7 +1206,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1310,7 +1311,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1409,7 +1410,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1508,7 +1509,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1613,7 +1614,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1718,7 +1719,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1812,7 +1813,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1906,7 +1907,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2000,7 +2001,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2094,7 +2095,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2186,7 +2187,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2292,7 +2293,7 @@ namespace Checkmarx.API.SASTV4
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await RetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {

@@ -100,7 +100,7 @@ namespace Checkmarx.API.SAST.OData
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         [global::Microsoft.OData.Client.OriginalNameAttribute("Projects")]
-        public virtual global::Microsoft.OData.Client.DataServiceQuery<Checkmarx.API.SAST.OData.Project> Projects
+        public virtual RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Project> Projects
         {
             get
             {
@@ -118,7 +118,7 @@ namespace Checkmarx.API.SAST.OData
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         [global::Microsoft.OData.Client.OriginalNameAttribute("Scans")]
-        public virtual global::Microsoft.OData.Client.DataServiceQuery<Checkmarx.API.SAST.OData.Scan> Scans
+        public virtual RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Scan> Scans
         {
             get
             {
@@ -136,7 +136,7 @@ namespace Checkmarx.API.SAST.OData
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
         [global::Microsoft.OData.Client.OriginalNameAttribute("Results")]
-        public virtual global::Microsoft.OData.Client.DataServiceQuery<Checkmarx.API.SAST.OData.Result> Results
+        public virtual RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Result> Results
         {
             get
             {

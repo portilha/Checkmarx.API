@@ -13,6 +13,7 @@ using Checkmarx.API.Exceptions;
 using Checkmarx.API.Models;
 using Checkmarx.API.Tests.Utils;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OData.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
@@ -111,6 +112,30 @@ namespace Checkmarx.API.Tests
                     return 0;
                 })
             );
+        }
+
+        [TestMethod]
+        public void ODataRetryableTest()
+        {
+            try
+            {
+                var projects1 = clientV9.ODataV95.Projects.Expand(x => x.Preset)
+                                                      .Expand(x => x.CustomFields)
+                                                      .Where(y => y.IsPublic && y.OwningTeamId != -1)
+                                                      .ToList();
+
+                DateTime date = new DateTime(2024, 2, 2);
+
+                Checkmarx.API.SAST.Scan scanBeforeChange = clientV9.GetScans(4, true, scanKind: CxClient.ScanRetrieveKind.Last, maxScanDate: date, includeGhostScans: false).SingleOrDefault();
+            }
+            catch (DataServiceQueryException ex)
+            {
+                Trace.WriteLine($"Status Code: {ex.Response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Status Code: {ex.Message}");
+            }
         }
 
         [TestMethod]

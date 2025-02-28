@@ -6619,7 +6619,7 @@ namespace DefaultV9
         /// There are no comments for Projects in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public virtual global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> Projects
+        public virtual RetryableDataServiceQuery<global::CxDataRepository.Project> Projects
         {
             get
             {
@@ -6636,7 +6636,7 @@ namespace DefaultV9
         /// There are no comments for Scans in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public virtual global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> Scans
+        public virtual RetryableDataServiceQuery<global::CxDataRepository.Scan> Scans
         {
             get
             {
@@ -6653,7 +6653,7 @@ namespace DefaultV9
         /// There are no comments for Results in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public virtual global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> Results
+        public virtual RetryableDataServiceQuery<global::CxDataRepository.Result> Results
         {
             get
             {

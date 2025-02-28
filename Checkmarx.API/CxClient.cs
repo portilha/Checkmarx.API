@@ -112,13 +112,13 @@ namespace Checkmarx.API
             }
         }
 
-        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Scan> _oDataScans => _isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages) : _oData.Scans.Expand(x => x.ScannedLanguages);
+        private RetryableDataServiceQuery<global::CxDataRepository.Scan> _oDataScans => _isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages) : _oData.Scans.Expand(x => x.ScannedLanguages);
 
-        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
+        private RetryableDataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
 
-        private global::Microsoft.OData.Client.DataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? _oDataV9.Results : _oData.Results;
+        private RetryableDataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? _oDataV9.Results : _oData.Results;
 
-        private global::Microsoft.OData.Client.DataServiceQuery<Checkmarx.API.SAST.OData.Result> _oDataV95Results => _isV95 ? _oDataV95.Results : null;
+        private RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Result> _oDataV95Results => _isV95 ? _oDataV95.Results : null;
 
         public IQueryable<Result> GetODataResults(long scanId)
         {

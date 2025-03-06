@@ -1813,7 +1813,7 @@ namespace Checkmarx.API
                         // Update SAST Project Config to match CI/CD
                         if (useLastScanPreset)
                         {
-                            var scanPreset = GetScanPresetName(scan.Id);
+                            var scanPreset = GetScanPreset(scan.Id);
                             if (scanPreset.Id != projectConfig.ProjectSettings.PresetID)
                                 SetPreset(projectId, scanPreset.PresetName);
                         }

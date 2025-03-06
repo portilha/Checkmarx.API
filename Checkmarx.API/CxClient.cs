@@ -1810,8 +1810,13 @@ namespace Checkmarx.API
                             }
                         }
 
-                        if (useLastScanPreset) // Update SAST Project Config to match CI/CD
-                            SetPreset(projectId, GetScanPreset(scan.Id));
+                        // Update SAST Project Config to match CI/CD
+                        if (useLastScanPreset)
+                        {
+                            var scanPreset = GetScanPresetName(scan.Id);
+                            if (scanPreset.Id != projectConfig.ProjectSettings.PresetID)
+                                SetPreset(projectId, scanPreset.PresetName);
+                        }
 
                         UploadSourceCode(projectId, sourceCodeZipContent);
                     }
@@ -1842,7 +1847,7 @@ namespace Checkmarx.API
                         }
 
                         if (useLastScanPreset) // Update SAST Project Config to match CI/CD
-                            cxClient2.SetPreset(projectId, GetScanPreset(scan.Id));
+                            cxClient2.SetPreset(projectId, GetScanPresetName(scan.Id));
 
                         cxClient2.UploadSourceCode(projectId, sourceCodeZipContent);
                     }
@@ -2628,11 +2633,21 @@ namespace Checkmarx.API
         }
 
         /// <summary>
+        /// Get the preset name for a specific scan.
+        /// </summary>
+        /// <param name="scanId"></param>
+        /// <returns></returns>
+        public string GetScanPresetName(long scanId)
+        {
+            return GetScanPreset(scanId).PresetName;
+        }
+
+        /// <summary>
         /// Get a preset for a specific scan.
         /// </summary>
         /// <param name="scanId"></param>
         /// <returns></returns>
-        public string GetScanPreset(long scanId)
+        public CxDataRepository.Scan GetScanPreset(long scanId)
         {
             checkConnection();
 
@@ -2663,13 +2678,13 @@ namespace Checkmarx.API
                 if (scan != null)
                 {
                     _scanCache.Add(scan.Id, scan);
-                    return scan.PresetName;
+                    return scan;
                 }
 
                 throw new KeyNotFoundException($"Scan with Id {scanId} does not exist.");
             }
 
-            return _scanCache[scanId].PresetName;
+            return _scanCache[scanId];
         }
 
         public Dictionary<string, List<long>> GetPresetCWEByLanguage(long presetId)

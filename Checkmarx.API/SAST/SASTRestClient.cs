@@ -19,6 +19,8 @@ namespace Checkmarx.API
     using Newtonsoft.Json;
     using System;
     using System.Net.Http;
+    using System.Collections.Generic;
+    using System.Linq;
     using System = global::System;
     using static Checkmarx.API.CxClient;
 
@@ -9399,12 +9401,15 @@ namespace Checkmarx.API
     public partial class EmailNotificationsDto
     {
         [Newtonsoft.Json.JsonProperty("failedScan", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonConverter(typeof(TrimStringCollectionConverter))]
         public System.Collections.Generic.ICollection<string> FailedScan { get; set; }
 
         [Newtonsoft.Json.JsonProperty("beforeScan", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonConverter(typeof(TrimStringCollectionConverter))]
         public System.Collections.Generic.ICollection<string> BeforeScan { get; set; }
 
         [Newtonsoft.Json.JsonProperty("afterScan", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonConverter(typeof(TrimStringCollectionConverter))]
         public System.Collections.Generic.ICollection<string> AfterScan { get; set; }
 
     }
@@ -9971,6 +9976,20 @@ namespace Checkmarx.API
         }
     }
 
+    internal class TrimStringCollectionConverter : JsonConverter<System.Collections.Generic.ICollection<string>>
+    {
+        public override System.Collections.Generic.ICollection<string> ReadJson(JsonReader reader, Type objectType,
+            System.Collections.Generic.ICollection<string> existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            var values = serializer.Deserialize<List<string>>(reader);
+            return values?.Select(s => s?.Trim()).ToList();
+        }
+
+        public override void WriteJson(JsonWriter writer, ICollection<string> value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value);
+        }
+    }
 }
 
 #pragma warning restore 1591

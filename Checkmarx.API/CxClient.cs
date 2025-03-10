@@ -2668,7 +2668,7 @@ namespace Checkmarx.API
                 //watch.Start();
 #endif
 
-                _scanCache = _oDataScans.Where(x => x.IsLocked).ToDictionary(x => x.Id);
+                _scanCache = _oDataScans.Expand(x => x.Preset).Where(x => x.IsLocked).ToDictionary(x => x.Id);
 
 #if DEBUG
                 //watch.Stop();
@@ -2679,7 +2679,7 @@ namespace Checkmarx.API
 
             if (!_scanCache.ContainsKey(scanId))
             {
-                var scan = _oDataScans.Where(x => x.Id == scanId).FirstOrDefault();
+                var scan = _oDataScans.Expand(x => x.Preset).Where(x => x.Id == scanId).FirstOrDefault();
                 if (scan != null)
                 {
                     _scanCache.Add(scan.Id, scan);

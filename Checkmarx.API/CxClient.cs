@@ -32,6 +32,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel.Security;
 using System.IO.Compression;
 using Checkmarx.API.Models;
+using Microsoft.OData.Client;
+using Checkmarx.API.SASTV5;
+using Checkmarx.API.SASTV5_1;
+using Checkmarx.API.SASTV6;
+using Checkmarx.API.Interfaces;
 
 namespace Checkmarx.API
 {
@@ -61,6 +66,8 @@ namespace Checkmarx.API
 
         private ODataClient95 _oDataV95;
 
+        private CxDataRepository97.Container _oDataV97;
+
         /// <summary>
         /// Returns the interface for the OData of SAST starting at V9.4 or higher
         /// </summary>
@@ -74,6 +81,22 @@ namespace Checkmarx.API
                     throw new NotSupportedException($"The SAST version  should be 9.4 or higher to support this OData interface, it is {Version.ToString()}");
 
                 return _oDataV95;
+            }
+        }
+
+        /// <summary>
+        /// Returns the interface for the OData of SAST starting at V9.7 or higher
+        /// </summary>
+        public CxDataRepository97.Container ODataV97
+        {
+            get
+            {
+                checkConnection();
+
+                if (_oDataV97 == null)
+                    throw new NotSupportedException($"The SAST version  should be 9.4 or higher to support this OData interface, it is {Version.ToString()}");
+
+                return _oDataV97;
             }
         }
 
@@ -112,26 +135,68 @@ namespace Checkmarx.API
             }
         }
 
+        private RetryableDataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
+
         private RetryableDataServiceQuery<global::CxDataRepository.Scan> _oDataScans => _isV9 ? _oDataV9.Scans.Expand(x => x.ScannedLanguages) : _oData.Scans.Expand(x => x.ScannedLanguages);
 
-        private RetryableDataServiceQuery<global::CxDataRepository.Project> _oDataProjects => _isV9 ? _oDataV9.Projects : _oData.Projects;
+        private RetryableDataServiceQuery<global::CxDataRepository97.Scan> _oData97Scans => _isV97 ? _oDataV97.Scans.Expand(x => x.ScannedLanguages) : null;
 
         private RetryableDataServiceQuery<global::CxDataRepository.Result> _oDataResults => _isV9 ? _oDataV9.Results : _oData.Results;
 
         private RetryableDataServiceQuery<Checkmarx.API.SAST.OData.Result> _oDataV95Results => _isV95 ? _oDataV95.Results : null;
 
-        public IQueryable<Result> GetODataResults(long scanId)
+        private RetryableDataServiceQuery<global::CxDataRepository97.Result> _oDataV97Results => _isV97 ? _oDataV97.Results : null;
+
+        public IEnumerable<CxDataRepository97.Result> GetODataResults(long scanId, bool includeScan = false, bool includeQuery = false)
         {
             checkConnection();
 
-            return _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId);
+            if (_isV97)
+            {
+                var results = _oDataV97Results;
+
+                if (includeScan)
+                    results = results.Expand(x => x.Scan);
+
+                if (includeQuery)
+                    results = results.Expand(x => x.Query).Expand(x => x.Query.QueryCxDescription);
+
+                return results.Where(x => x.ScanId == scanId);
+            }
+            else if (_isV95)
+            {
+                var results = _oDataV95Results;
+
+                if (includeScan)
+                    results = results.Expand(x => x.Scan);
+
+                if (includeQuery)
+                    results = results.Expand(x => x.Query).Expand(x => x.Query.QueryCxDescription);
+
+                return Mapper.MapOdataResults(results.Where(x => x.ScanId == scanId));
+            }
+            else
+            {
+                var results = _oDataResults;
+
+                if (includeScan)
+                    results = results.Expand(x => x.Scan);
+
+                if (includeQuery)
+                    results = results.Expand(x => x.Query).Expand(x => x.Query.QueryCxDescription);
+
+                return Mapper.MapOdataResults(results.Where(x => x.ScanId == scanId));
+            }
         }
 
-        public IQueryable<Checkmarx.API.SAST.OData.Result> GetODataV95Results(long scanId)
+        public IEnumerable<CxDataRepository97.Scan> GetScansFromOData(long projectId)
         {
             checkConnection();
 
-            return _oDataV95Results.Expand(x => x.Query).Expand(x => x.Scan).Where(x => x.ScanId == scanId);
+            if (_isV97)
+                return _oData97Scans.Where(x => x.ProjectId == projectId);
+            else
+                return Mapper.MapOdataScans(_oDataScans.Where(x => x.ProjectId == projectId));
         }
 
         /// <summary>
@@ -396,6 +461,111 @@ namespace Checkmarx.API
             }
         }
 
+        private bool? _supportsV5 = null;
+
+        public bool SupportsV5
+        {
+            get
+            {
+                if (_supportsV5 == null)
+                {
+                    checkConnection();
+                    _supportsV5 = SupportsRESTAPIVersion("5");
+                }
+                return _supportsV5.Value;
+            }
+        }
+
+        private SASTV5Client _sastClientV5;
+
+        /// <summary>
+        /// Interface to SAST V5 Client.
+        /// </summary>
+        /// <remarks>Supports only V5</remarks>
+        public SASTV5Client SASTClientV5
+        {
+            get
+            {
+                if (!SupportsV5)
+                    return null;
+
+                if (_sastClientV5 == null)
+                    _sastClientV5 = new SASTV5Client(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClientV5;
+            }
+        }
+
+        private bool? _supportsV5_1 = null;
+
+        public bool SupportsV5_1
+        {
+            get
+            {
+                if (_supportsV5_1 == null)
+                {
+                    checkConnection();
+                    _supportsV5_1 = SupportsRESTAPIVersion("5.1");
+                }
+                return _supportsV5_1.Value;
+            }
+        }
+
+        private SASTV5_1Client _sastClientV5_1;
+
+        /// <summary>
+        /// Interface to SAST V5.1 Client.
+        /// </summary>
+        /// <remarks>Supports only V5.1</remarks>
+        public SASTV5_1Client SASTClientV5_1
+        {
+            get
+            {
+                if (!SupportsV5_1)
+                    return null;
+
+                if (_sastClientV5_1 == null)
+                    _sastClientV5_1 = new SASTV5_1Client(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClientV5_1;
+            }
+        }
+
+        private bool? _supportsV6 = null;
+
+        public bool SupportsV6
+        {
+            get
+            {
+                if (_supportsV6 == null)
+                {
+                    checkConnection();
+                    _supportsV6 = SupportsRESTAPIVersion("6");
+                }
+                return _supportsV6.Value;
+            }
+        }
+
+        private SASTV6Client _sastClientV6;
+
+        /// <summary>
+        /// Interface to SAST V6 Client.
+        /// </summary>
+        /// <remarks>Supports only V6</remarks>
+        public SASTV6Client SASTClientV6
+        {
+            get
+            {
+                if (!SupportsV6)
+                    return null;
+
+                if (_sastClientV6 == null)
+                    _sastClientV6 = new SASTV6Client(httpClient.BaseAddress.AbsoluteUri, httpClient);
+
+                return _sastClientV6;
+            }
+        }
+
         private Dictionary<long, CxDataRepository.Scan> _scanCache;
 
         public cxPortalWebService93.CxWSResponceScanCompareResults GetCompareScanResultsAsync(long previousScanId, long newScanId)
@@ -578,9 +748,11 @@ namespace Checkmarx.API
         private bool _isV9 = false;
         private bool _isV94 = false;
         private bool _isV95 = false;
+        private bool _isV97 = false;
 
         public bool IsV94 { get { return _isV94; } }
         public bool IsV95 { get { return _isV95; } }
+        public bool IsV97 { get { return _isV97; } }
 
         #region Access Control 
 
@@ -661,6 +833,7 @@ namespace Checkmarx.API
             {
                 _isV94 = _version.Minor >= 4;
                 _isV95 = _version.Minor >= 5;
+                _isV97 = _version.Minor >= 7;
             }
 
             Console.WriteLine("Checkmarx " + _version.ToString());
@@ -794,9 +967,11 @@ namespace Checkmarx.API
                         // This object is to maintain compatibility with the current code.
                         _oDataV9 = CxOData.ConnectToODataV9(webServer, authToken, _defaultRetries);
 
-                        // ODATA V95
                         if (_isV95)
                             _oDataV95 = CxOData.ConnectToODataV95(webServer, authToken, _defaultRetries);
+
+                        if (_isV97)
+                            _oDataV97 = CxOData.ConnectToODataV97(webServer, authToken, _defaultRetries);
                     }
                     else
                     {
@@ -838,6 +1013,9 @@ namespace Checkmarx.API
 
             if (string.IsNullOrWhiteSpace(password))
                 throw new ArgumentNullException(nameof(password));
+
+            if (_retryPolicyProvider == null)
+                _retryPolicyProvider = new RetryPolicyProvider();
 
             string portalVersion = null;
             if (!ignoreCertificate)
@@ -1027,12 +1205,6 @@ namespace Checkmarx.API
                 throw new ActionNotSupportedException(result.ErrorMessage);
 
             return result.FailedScansList;
-        }
-
-        public IQueryable<CxDataRepository.Scan> GetScansFromOData(long projectId)
-        {
-            checkConnection();
-            return _oDataScans.Expand(x => x.ScannedLanguages).Where(x => x.ProjectId == projectId);
         }
 
         #endregion
@@ -2194,7 +2366,11 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            IQueryable<CxDataRepository.Scan> scans = _oDataScans.Where(x => x.ProjectId == projectId);
+            IQueryable<IODataScan> scans = null;
+            if (_isV97)
+                scans = _oData97Scans.Where(x => x.ProjectId == projectId);
+            else
+                scans = _oDataScans.Where(x => x.ProjectId == projectId);
 
             if (onlyPublic)
                 scans = scans.Where(x => x.IsPublic);
@@ -2232,129 +2408,11 @@ namespace Checkmarx.API
                 if (finished && scan.ScanType == 3)
                     continue;
 
-                yield return ConvertScanFromOData(scan);
+                if (_isV97)
+                    yield return Mapper.ConvertScanFromOData((CxDataRepository97.Scan)scan);
+                else
+                    yield return Mapper.ConvertScanFromOData((CxDataRepository.Scan)scan);
             }
-        }
-
-        public static Scan ConvertScanFromOData(CxDataRepository.Scan scan)
-        {
-            return new Scan
-            {
-                Comment = scan.Comment,
-                Id = scan.Id,
-                IsLocked = scan.IsLocked,
-                IsIncremental = scan.IsIncremental.HasValue ? scan.IsIncremental.Value : false,
-                InitiatorName = scan.InitiatorName,
-                OwningTeamId = scan.OwningTeamId,
-                PresetId = scan.PresetId,
-                PresetName = scan.PresetName,
-                IsPublic = scan.IsPublic,
-                ScanType = new FinishedScanStatus
-                {
-                    Id = scan.ScanType,
-                    //Value = 
-                },
-                ScanState = new ScanState
-                {
-                    LanguageStateCollection = scan.ScannedLanguages.Select(language => new LanguageStateCollection
-                    {
-                        LanguageName = language.LanguageName
-                    }).ToList(),
-
-                    LinesOfCode = scan.LOC.GetValueOrDefault(),
-                    CxVersion = scan.ProductVersion,
-                },
-                Origin = scan.Origin,
-                ScanRisk = scan.RiskScore,
-                DateAndTime = new DateAndTime
-                {
-                    EngineFinishedOn = scan.EngineFinishedOn,
-                    EngineStartedOn = scan.EngineStartedOn,
-                    StartedOn = scan.ScanRequestedOn,
-                    FinishedOn = scan.ScanCompletedOn
-                },
-                Results = new SASTResults
-                {
-                    High = (uint)scan.High,
-                    Medium = (uint)scan.Medium,
-                    Low = (uint)scan.Low,
-                    Info = (uint)scan.Info,
-
-                    HighToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.High && x.StateId == (int)ResultState.ToVerify).Count(),
-                    MediumToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.Medium && x.StateId == (int)ResultState.ToVerify).Count(),
-                    LowToVerify = (uint)scan.Results.Where(x => x.Severity == CxDataRepository.Severity.Low && x.StateId == (int)ResultState.ToVerify).Count(),
-
-                    ToVerify = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.ToVerify).Count(),
-                    NotExploitableMarked = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.NonExploitable).Count(),
-                    PNEMarked = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.ProposedNotExploitable).Count(),
-                    OtherStates = (uint)scan.Results.Where(x => x.StateId != (int)ResultState.Confirmed && x.StateId != (int)ResultState.Urgent && x.StateId != (int)ResultState.NonExploitable && x.StateId != (int)ResultState.ProposedNotExploitable && x.StateId != (int)ResultState.ToVerify).Count(),
-
-                    FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
-                    Loc = (int)scan.LOC.GetValueOrDefault()
-                }
-            };
-        }
-
-        public static Scan ConvertScanFromOData(Checkmarx.API.SAST.OData.Scan scan)
-        {
-            if (scan == null)
-                throw new ArgumentNullException(nameof(scan));
-
-            return new Scan
-            {
-                Comment = scan.Comment,
-                Id = scan.Id,
-                IsLocked = scan.IsLocked,
-                IsIncremental = scan.IsIncremental.HasValue ? scan.IsIncremental.Value : false,
-                IsPublic = scan.IsPublic,
-                InitiatorName = scan.InitiatorName,
-                OwningTeamId = scan.OwningTeamId.ToString(),
-                PresetId = scan.PresetId,
-                PresetName = scan.PresetName,
-                ScanType = new FinishedScanStatus
-                {
-                    Id = scan.ScanType,
-                    //Value = 
-                },
-                ScanState = new ScanState
-                {
-                    LanguageStateCollection = scan.ScannedLanguages.Select(language => new LanguageStateCollection
-                    {
-                        LanguageName = language.LanguageName
-                    }).ToList(),
-
-                    LinesOfCode = scan.LOC.GetValueOrDefault(),
-                    CxVersion = scan.ProductVersion,
-                },
-                Origin = scan.Origin,
-                ScanRisk = scan.RiskScore,
-                DateAndTime = new DateAndTime
-                {
-                    EngineFinishedOn = scan.EngineFinishedOn,
-                    EngineStartedOn = scan.EngineStartedOn,
-                    StartedOn = scan.ScanRequestedOn,
-                    FinishedOn = scan.ScanCompletedOn
-                },
-                Results = new SASTResults
-                {
-                    High = (uint)scan.High,
-                    Medium = (uint)scan.Medium,
-                    Low = (uint)scan.Low,
-                    Info = (uint)scan.Info,
-
-                    HighToVerify = (uint)scan.Results.Where(x => x.Severity == Checkmarx.API.SAST.OData.Severity.High && x.StateId == (int)ResultState.ToVerify).Count(),
-                    MediumToVerify = (uint)scan.Results.Where(x => x.Severity == Checkmarx.API.SAST.OData.Severity.Medium && x.StateId == (int)ResultState.ToVerify).Count(),
-                    LowToVerify = (uint)scan.Results.Where(x => x.Severity == Checkmarx.API.SAST.OData.Severity.Low && x.StateId == (int)ResultState.ToVerify).Count(),
-
-                    ToVerify = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.ToVerify).Count(),
-                    NotExploitableMarked = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.NonExploitable).Count(),
-                    PNEMarked = (uint)scan.Results.Where(x => x.StateId == (int)ResultState.ProposedNotExploitable).Count(),
-                    OtherStates = (uint)scan.Results.Where(x => x.StateId != (int)ResultState.Confirmed && x.StateId != (int)ResultState.Urgent && x.StateId != (int)ResultState.NonExploitable && x.StateId != (int)ResultState.ProposedNotExploitable && x.StateId != (int)ResultState.ToVerify).Count(),
-
-                    FailedLoC = (int)scan.FailedLOC.GetValueOrDefault(),
-                    Loc = (int)scan.LOC.GetValueOrDefault()
-                }
-            };
         }
 
         public Scan GetScanById(long scanId)
@@ -3695,27 +3753,18 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            var results = _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId && x.StateId == (int)ResultState.ToVerify);
+            var results = GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify);
 
-            foreach (var item in results)
-            {
-                if (string.IsNullOrEmpty(item.Comment) || string.IsNullOrWhiteSpace(item.Comment))
-                    return false;
-            }
-
-            return true;
+            return !results.Any(x => string.IsNullOrEmpty(x.Comment) || string.IsNullOrWhiteSpace(x.Comment));
         }
 
         public bool ScanHasResultsFlagedAsProposedNoExploitable(long scanId)
         {
             checkConnection();
 
-            var results = _oDataResults.Expand(x => x.Scan).Where(x => x.ScanId == scanId && x.StateId == (int)ResultState.ProposedNotExploitable);
+            var results = GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ProposedNotExploitable);
 
-            if (results.Count() > 0)
-                return true;
-
-            return false;
+            return results.Any();
         }
 
         public IEnumerable<SoapSingleResultData> GetScanResultsWithStateExclusions(long scanId, List<long> customStatesToExclude)
@@ -3730,10 +3779,10 @@ namespace Checkmarx.API
 
         public int GetTotalToVerifyFromScan(long scanId)
         {
-            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository.Severity.Info).Count();
+            return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository97.Severity.Info).Count();
         }
 
-        public IEnumerable<Result> GetNotExploitableFromScan(long scanId)
+        public IEnumerable<CxDataRepository97.Result> GetNotExploitableFromScan(long scanId)
         {
             return GetODataResults(scanId).Where(x => x.StateId == (int)ResultState.NonExploitable).ToList();
         }
@@ -3924,39 +3973,44 @@ namespace Checkmarx.API
 
         #region Queries
 
-        public Dictionary<CxDataRepository.Severity, int> GetODataScanResultsQuerySeverityCounters(long scanId)
+        public Dictionary<CxDataRepository97.Severity, int> GetODataScanResultsQuerySeverityCounters(long scanId)
         {
             checkConnection();
 
-            //var query1 = _oDataResults
-            //    .AddQueryOption("$filter", $"ScanId eq {scanId} and State ne null and QueryId ne null and StateId ne 1")
-            //    .AddQueryOption("$apply", "groupby((Severity), aggregate($countdistinct=QueryId as CountDistinct))");
+            IEnumerable<CxDataRepository97.Result> results = null;
+            string query = $"ScanId eq {scanId} and State ne null and QueryId ne null and StateId ne 1";
 
-            //var results1 = query1.Execute();
-
-            //var test = results1.ToList();
-
-            var query = _oDataResults.AddQueryOption("$filter", $"ScanId eq {scanId} and State ne null and QueryId ne null and StateId ne 1");
-
-            var results = query.Execute();
+            if (_isV97)
+            {
+                var instruction = _oDataV97Results.AddQueryOption("$filter", query);
+                results = instruction.Execute();
+            }
+            else
+            {
+                var instruction = _oDataResults.AddQueryOption("$filter", query);
+                results = Mapper.MapOdataResults(instruction.Execute());
+            }
 
             var dic = results
                 .GroupBy(entity => entity.Severity)
                 .ToDictionary(x => x.Key, y => y.Select(x => x.QueryId).Distinct().Count());
 
-            if (!dic.ContainsKey(CxDataRepository.Severity.High))
-                dic.Add(CxDataRepository.Severity.High, 0);
+            if (!dic.ContainsKey(CxDataRepository97.Severity.Critical))
+                dic.Add(CxDataRepository97.Severity.Critical, 0);
 
-            if (!dic.ContainsKey(CxDataRepository.Severity.Medium))
-                dic.Add(CxDataRepository.Severity.Medium, 0);
+            if (!dic.ContainsKey(CxDataRepository97.Severity.High))
+                dic.Add(CxDataRepository97.Severity.High, 0);
 
-            if (!dic.ContainsKey(CxDataRepository.Severity.Low))
-                dic.Add(CxDataRepository.Severity.Low, 0);
+            if (!dic.ContainsKey(CxDataRepository97.Severity.Medium))
+                dic.Add(CxDataRepository97.Severity.Medium, 0);
+
+            if (!dic.ContainsKey(CxDataRepository97.Severity.Low))
+                dic.Add(CxDataRepository97.Severity.Low, 0);
 
             return dic;
         }
 
-        public Dictionary<CxDataRepository.Severity, int> GetScanResultsQuerySeverityCounters(long scanId)
+        public Dictionary<CxDataRepository97.Severity, int> GetScanResultsQuerySeverityCounters(long scanId)
         {
             checkConnection();
 
@@ -3972,33 +4026,33 @@ namespace Checkmarx.API
             //var scanQueries = _cxPortalWebServiceSoapClient.GetQueriesForScan(_soapSessionId, scanId);
             var scanQueries = GetQueriesForScan(scanId);
 
-            Dictionary<long, CxDataRepository.Severity> queryDic = new Dictionary<long, CxDataRepository.Severity>();
+            Dictionary<long, CxDataRepository97.Severity> queryDic = new Dictionary<long, CxDataRepository97.Severity>();
             var distinctQueries = severityCounters.Select(x => x.QueryId).Distinct();
             foreach (var item in distinctQueries)
             {
                 var qry = scanQueries.Where(x => x.QueryId == item).FirstOrDefault();
                 if (qry != null)
-                    queryDic.Add(item, (CxDataRepository.Severity)qry.Severity);
+                    queryDic.Add(item, (CxDataRepository97.Severity)qry.Severity);
                 else
-                    queryDic.Add(item, (CxDataRepository.Severity)severityCounters.FirstOrDefault(x => x.QueryId == item).Severity);
+                    queryDic.Add(item, (CxDataRepository97.Severity)severityCounters.FirstOrDefault(x => x.QueryId == item).Severity);
             }
 
-            Dictionary<CxDataRepository.Severity, int> dic = queryDic.GroupBy(x => x.Value).ToDictionary(x => x.Key, y => y.Count());
+            Dictionary<CxDataRepository97.Severity, int> dic = queryDic.GroupBy(x => x.Value).ToDictionary(x => x.Key, y => y.Count());
 
-            if (!dic.ContainsKey(CxDataRepository.Severity.Critical))
-                dic.Add(CxDataRepository.Severity.Critical, 0);
+            if (!dic.ContainsKey(CxDataRepository97.Severity.Critical))
+                dic.Add(CxDataRepository97.Severity.Critical, 0);
 
-            if (!dic.ContainsKey(CxDataRepository.Severity.High))
-                dic.Add(CxDataRepository.Severity.High, 0);
+            if (!dic.ContainsKey(CxDataRepository97.Severity.High))
+                dic.Add(CxDataRepository97.Severity.High, 0);
 
-            if (!dic.ContainsKey(CxDataRepository.Severity.Medium))
-                dic.Add(CxDataRepository.Severity.Medium, 0);
+            if (!dic.ContainsKey(CxDataRepository97.Severity.Medium))
+                dic.Add(CxDataRepository97.Severity.Medium, 0);
 
-            if (!dic.ContainsKey(CxDataRepository.Severity.Low))
-                dic.Add(CxDataRepository.Severity.Low, 0);
+            if (!dic.ContainsKey(CxDataRepository97.Severity.Low))
+                dic.Add(CxDataRepository97.Severity.Low, 0);
 
-            if (!dic.ContainsKey(CxDataRepository.Severity.Info))
-                dic.Add(CxDataRepository.Severity.Info, 0);
+            if (!dic.ContainsKey(CxDataRepository97.Severity.Info))
+                dic.Add(CxDataRepository97.Severity.Info, 0);
 
             return dic;
         }

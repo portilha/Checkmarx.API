@@ -102,6 +102,60 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public void V97ConnectionTest()
+        {
+            try
+            {
+                // Scan
+                var scan = clientV9.GetLastScan(157);
+                //var scan = clientV89.GetLastScan(157);
+
+                // Queries
+                var scanQueries = clientV9.GetQueriesForScan(scan.Id).GroupBy(x => x.Severity).ToDictionary(x => x.Key, y => y.Count());
+                var scanQueriesCritical = scanQueries.ContainsKey((int)CxDataRepository97.Severity.Critical) ? scanQueries[(int)CxDataRepository97.Severity.Critical] : 0;
+                var scanQueriesHigh = scanQueries.ContainsKey((int)CxDataRepository97.Severity.High) ? scanQueries[(int)CxDataRepository97.Severity.High] : 0;
+                var scanQueriesMedium = scanQueries.ContainsKey((int)CxDataRepository97.Severity.Medium) ? scanQueries[(int)CxDataRepository97.Severity.Medium] : 0;
+                var scanQueriesLow = scanQueries.ContainsKey((int)CxDataRepository97.Severity.Low) ? scanQueries[(int)CxDataRepository97.Severity.Low] : 0;
+                var scanQueriesInfo = scanQueries.ContainsKey((int)CxDataRepository97.Severity.Info) ? scanQueries[(int)CxDataRepository97.Severity.Info] : 0;
+                Trace.WriteLine($"Detected Project Queries: Criticals: {scanQueriesCritical} | Highs: {scanQueriesHigh} | Mediums: {scanQueriesMedium} | Lows: {scanQueriesLow} | Info: {scanQueriesInfo}");
+
+                Trace.WriteLine("");
+
+                // SOAP
+                var soapResults = clientV9.GetResultsForScan(scan.Id);
+                var soapQueryCounters = clientV9.GetODataScanResultsQuerySeverityCounters(scan.Id);
+
+                var soapCriticals = soapResults.Count(x => x.Severity == (int)CxDataRepository97.Severity.Critical && x.State != (int)ResultState.NonExploitable);
+                var soapHigh = soapResults.Count(x => x.Severity == (int)CxDataRepository97.Severity.High && x.State != (int)ResultState.NonExploitable);
+                var soapMedium = soapResults.Count(x => x.Severity == (int)CxDataRepository97.Severity.Medium && x.State != (int)ResultState.NonExploitable);
+                var soapLow = soapResults.Count(x => x.Severity == (int)CxDataRepository97.Severity.Low && x.State != (int)ResultState.NonExploitable);
+                var soapInfo = soapResults.Count(x => x.Severity == (int)CxDataRepository97.Severity.Info && x.State != (int)ResultState.NonExploitable);
+                Trace.WriteLine($"SOAP Results - Criticals: {soapCriticals} | Highs: {soapHigh} | Mediums: {soapMedium} | Lows: {soapLow} | Info: {soapInfo}");
+                Trace.WriteLine($"SOAP Query Counters - Criticals: {soapQueryCounters[CxDataRepository97.Severity.Critical]} | Highs: {soapQueryCounters[CxDataRepository97.Severity.High]} | Mediums: {soapQueryCounters[CxDataRepository97.Severity.Medium]} | Lows: {soapQueryCounters[CxDataRepository97.Severity.Low]}");
+
+                Trace.WriteLine("");
+
+                // Odata
+                var oDataScanResults = clientV9.GetODataResults(scan.Id).ToList();
+                var odataQueryCounters = clientV9.GetScanResultsQuerySeverityCounters(scan.Id);
+
+                var criticals = oDataScanResults.Count(x => x.Severity == CxDataRepository97.Severity.Critical && x.StateId != (int)ResultState.NonExploitable);
+                var high = oDataScanResults.Count(x => x.Severity == CxDataRepository97.Severity.High && x.StateId != (int)ResultState.NonExploitable);
+                var medium = oDataScanResults.Count(x => x.Severity == CxDataRepository97.Severity.Medium && x.StateId != (int)ResultState.NonExploitable);
+                var low = oDataScanResults.Count(x => x.Severity == CxDataRepository97.Severity.Low && x.StateId != (int)ResultState.NonExploitable);
+                var info = oDataScanResults.Count(x => x.Severity == CxDataRepository97.Severity.Info && x.StateId != (int)ResultState.NonExploitable);
+
+                Trace.WriteLine($"OData Scan - Criticals: {scan.Results.Critical} | Highs: {scan.Results.High} | Mediums: {scan.Results.Medium} | Lows: {scan.Results.Low} | Info: {scan.Results.Info}");
+                Trace.WriteLine($"OData Results - Criticals: {criticals} | Highs: {high} | Mediums: {medium} | Lows: {low} | Info: {info}");
+                Trace.WriteLine($"OData Query Counters - Criticals: {odataQueryCounters[CxDataRepository97.Severity.Critical]} | Highs: {odataQueryCounters[CxDataRepository97.Severity.High]} | Mediums: {odataQueryCounters[CxDataRepository97.Severity.Medium]} | Lows: {odataQueryCounters[CxDataRepository97.Severity.Low]}");
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.Message);
+            }
+        }
+
+        [TestMethod]
         public void MarkResultsTest()
         {
             long projId = 2740;
@@ -117,7 +171,7 @@ namespace Checkmarx.API.Tests
 
             string resultState = "0";
 
-            var oDataScanResults = clientV89.GetODataV95Results(1024036);
+            var oDataScanResults = clientV89.GetODataResults(1024036);
             var results = new List<PortalSoap.ResultStateData>();
             try
             {
@@ -279,7 +333,7 @@ namespace Checkmarx.API.Tests
                 var lastScan = clientV9.GetLastScan(proj.Key);
                 if (lastScan != null)
                 {
-                    var oDataScanResults = clientV9.GetODataV95Results(lastScan.Id).ToList();
+                    var oDataScanResults = clientV9.GetODataResults(lastScan.Id).ToList();
                     if (oDataScanResults.Any(x => x.StateId == 5 && x.DetectionDate >= new DateTime(2023, 6, 6)))
                         Trace.WriteLine($"Project {proj.Key}");
                 }
@@ -297,19 +351,12 @@ namespace Checkmarx.API.Tests
             soapResultsStopwatch.Stop();
             Trace.WriteLine($"Time elapsed getting scan soap results: {soapResultsStopwatch.Elapsed}");
 
-            // ODATA V9
+            // ODATA
             Stopwatch odataV9ResultsStopwatch = new Stopwatch();
             odataV9ResultsStopwatch.Start();
             var results2 = clientV95.GetODataResults(1000122).ToList();
             odataV9ResultsStopwatch.Stop();
             Trace.WriteLine($"Time elapsed getting scan ODATA V9 results: {odataV9ResultsStopwatch.Elapsed}");
-
-            // ODATA V95
-            Stopwatch odataV95ResultsStopwatch = new Stopwatch();
-            odataV95ResultsStopwatch.Start();
-            var results3 = clientV95.GetODataV95Results(1000122).ToList();
-            odataV95ResultsStopwatch.Stop();
-            Trace.WriteLine($"Time elapsed getting scan ODATA V95 results: {odataV95ResultsStopwatch.Elapsed}");
         }
 
         [TestMethod]
@@ -651,7 +698,7 @@ namespace Checkmarx.API.Tests
         {
             foreach (var item in clientV93.GetODataResults(1031805).Where(x => x.PathId == 38))
             {
-                var uri = Checkmarx.API.Utils.GetLink(item, clientV93, item.Scan.ProjectId, item.ScanId);
+                var uri = Checkmarx.API.Utils.GetLink(item, clientV93, item.Scan.ProjectId.Value, item.ScanId.Value);
 
                 Trace.WriteLine($"{uri.AbsoluteUri}");
 
@@ -818,7 +865,7 @@ namespace Checkmarx.API.Tests
 
             var newProjects = fetchProjectsViaOData().Result;
 
-            Trace.WriteLine("ODATA Paging: " +  newProjects.Count + " took " + watch.Elapsed.TotalSeconds.ToString());
+            Trace.WriteLine("ODATA Paging: " + newProjects.Count + " took " + watch.Elapsed.TotalSeconds.ToString());
 
             watch.Restart();
 
@@ -826,7 +873,7 @@ namespace Checkmarx.API.Tests
                      .Where(x => x.TeamId != "-1")
                      .ToList();
 
-            Trace.WriteLine("REST: " +  projDetails.Count + " took " + watch.Elapsed.TotalSeconds.ToString());
+            Trace.WriteLine("REST: " + projDetails.Count + " took " + watch.Elapsed.TotalSeconds.ToString());
 
             watch.Restart();
 
@@ -838,7 +885,7 @@ namespace Checkmarx.API.Tests
                      .Where(y => y.OwningTeamId != -1)
                      .ToList();
 
-            Trace.WriteLine("ODATA Single Request: " +  oldQueryProjects.Count + " took " + watch.Elapsed.TotalSeconds.ToString());
+            Trace.WriteLine("ODATA Single Request: " + oldQueryProjects.Count + " took " + watch.Elapsed.TotalSeconds.ToString());
 
             var newIds = newProjects.Select(x => x.Id).ToHashSet();
 
@@ -1026,7 +1073,7 @@ namespace Checkmarx.API.Tests
             foreach (var result in results)
                 Trace.WriteLine(result.QueryId + ";" + result.QueryVersionCode);
 
-            var odataResults = clientV93.GetODataV95Results(2013975); // OData
+            var odataResults = clientV93.GetODataResults(2013975); // OData
             Trace.WriteLine("ODATA Count: " + odataResults.Count());
             foreach (var odataResult in odataResults)
                 Trace.WriteLine(odataResult.QueryId + ";" + odataResult.QueryVersionId + ";" + odataResult.Query.Name);
@@ -1076,7 +1123,7 @@ namespace Checkmarx.API.Tests
                     var scanInfo = clientV93.GetLastScan(project.Id);
                     if (scanInfo != null)
                     {
-                        var odataResults = clientV93.GetODataV95Results(scanInfo.Id); // OData
+                        var odataResults = clientV93.GetODataResults(scanInfo.Id); // OData
                         var results = clientV93.GetResultsForScan(scanInfo.Id); // SOAP
                         if (odataResults.Count() != results.Count())
                         {

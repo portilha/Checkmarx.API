@@ -12,11 +12,6 @@ namespace Checkmarx.API
 {
     public static class Utils
     {
-        public static Uri GetLink(this SoapSingleResultData result)
-        {
-            return new Uri(result.PathId.ToString());
-        }
-
         /// <summary>
         /// https://.checkmarx.net/cxwebclient/ViewerMain.aspx?scanid=1032992&projectid=12&pathid=1
         /// </summary>
@@ -39,6 +34,11 @@ namespace Checkmarx.API
         }
 
         public static Uri GetLink(this Checkmarx.API.SAST.OData.Result item, CxClient clientV94, long projectId, long scanId)
+        {
+            return new Uri(clientV94.SASTServerURL, $"cxwebclient/ViewerMain.aspx?scanid={scanId}&projectid={projectId}&pathid={item.PathId}");
+        }
+
+        public static Uri GetLink(this CxDataRepository97.Result item, CxClient clientV94, long projectId, long scanId)
         {
             return new Uri(clientV94.SASTServerURL, $"cxwebclient/ViewerMain.aspx?scanid={scanId}&projectid={projectId}&pathid={item.PathId}");
         }

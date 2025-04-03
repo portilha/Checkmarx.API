@@ -24,6 +24,8 @@ namespace Checkmarx.API.SAST.OData
         [global::Microsoft.OData.Client.OriginalNameAttribute("Medium")]
         Medium = 2,
         [global::Microsoft.OData.Client.OriginalNameAttribute("High")]
-        High = 3
+        High = 3,
+        [global::Microsoft.OData.Client.OriginalNameAttribute("Critical")]
+        Critical = 4
     }
 }

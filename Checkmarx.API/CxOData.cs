@@ -94,5 +94,29 @@ namespace Checkmarx.API
 
             return context;
         }
+
+        internal static CxDataRepository97.Container ConnectToODataV97(Uri webserverAddress, string bearerToken, int defaultRetries = 10)
+        {
+            Console.WriteLine($"Connecting to OData V97 ({webserverAddress.AbsoluteUri}CxWebInterface/odata/v1/)");
+
+            Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
+            var context = new CxDataRepository97.Container(serviceUri, defaultRetries)
+            {
+                Timeout = 7200,
+                MergeOption = Microsoft.OData.Client.MergeOption.NoTracking
+            };
+
+            //string auth = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
+            //Registering the handle to the BuildingRequest event. 
+            context.BuildingRequest += (sender, e) =>
+            {
+                e.Headers.Add("Authorization", $"Bearer {bearerToken}");
+                e.Headers.Add("Keep-Alive", "timeout=60, max=1000");
+            };
+
+            Console.WriteLine("Connected to OData V9!");
+
+            return context;
+        }
     }
 }

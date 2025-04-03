@@ -76,6 +76,7 @@
 		<EmbeddedResource Include="Assets\exclusions.json">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
+		<EmbeddedResource Include="Connected Services\CxSAST OData Service 97\OData ServiceCsdl.xml" />
 		<EmbeddedResource Include="Connected Services\CxSAST OData Service V94\CxSAST OData Service V94Csdl.xml" />
 		<EmbeddedResource Include="Connected Services\CxSAST OData Service\CxSAST OData ServiceCsdl.xml" />
 		<EmbeddedResource Include="Connected Services\CxSAST V9 OData Service\CxSAST V9 OData ServiceCsdl.xml" />

@@ -1,13 +1,15 @@
+using Checkmarx.API.Interfaces;
+
 namespace CxDataRepository
 {
-/// <summary>
+    /// <summary>
     /// There are no comments for Scan in the schema.
     /// </summary>
     /// <KeyProperties>
     /// Id
     /// </KeyProperties>
     [global::Microsoft.OData.Client.Key("Id")]
-    public partial class Scan : global::Microsoft.OData.Client.BaseEntityType
+    public partial class Scan : global::Microsoft.OData.Client.BaseEntityType, IODataScan
     {
         /// <summary>
         /// Create a new Scan object.
@@ -26,18 +28,18 @@ namespace CxDataRepository
         /// <param name="isPublic">Initial value of IsPublic.</param>
         /// <param name="isLocked">Initial value of IsLocked.</param>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "#VersionNumber#")]
-        public static Scan CreateScan(long ID, 
-                    int scanType, 
-                    global::System.DateTimeOffset engineStartedOn, 
-                    global::System.DateTimeOffset scanCompletedOn, 
-                    int high, 
-                    int medium, 
-                    int low, 
-                    int info, 
-                    int riskScore, 
-                    int quantityLevel, 
-                    int statisticsUpToDate, 
-                    bool isPublic, 
+        public static Scan CreateScan(long ID,
+                    int scanType,
+                    global::System.DateTimeOffset engineStartedOn,
+                    global::System.DateTimeOffset scanCompletedOn,
+                    int high,
+                    int medium,
+                    int low,
+                    int info,
+                    int riskScore,
+                    int quantityLevel,
+                    int statisticsUpToDate,
+                    bool isPublic,
                     bool isLocked)
         {
             Scan scan = new Scan();

@@ -50,9 +50,9 @@ namespace Checkmarx.API
         internal static RetryPolicyProvider _retryPolicyProvider;
         private readonly int _defaultRetries = 10;
 
-        public static string ScanStatus_Finished = "Finished";
-        public static string ScanStatus_Canceled = "Canceled";
-        public static string ScanStatus_Failed = "Failed";
+        public const string ScanStatus_Finished = "Finished";
+        public const string ScanStatus_Canceled = "Canceled";
+        public const string ScanStatus_Failed = "Failed";
 
         #region Clients
 

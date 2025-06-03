@@ -4061,6 +4061,60 @@ namespace Checkmarx.API
             return dic;
         }
 
+
+        public void OverrideQueryInCorporate(CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource, 
+            CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery, string customQuery, Severity severity, string description)
+        {
+            if (queryGroupSource == null)
+                throw new ArgumentNullException(nameof(queryGroupSource));
+
+            if (queryGroupSourceQuery == null)
+                throw new ArgumentNullException(nameof(queryGroupSourceQuery));
+
+            if (string.IsNullOrWhiteSpace(customQuery))
+                throw new ArgumentNullException(nameof(customQuery));
+
+            // Create query objects and insert new
+            CxAuditWebServiceV9.CxWSQuery queryToUp = new CxAuditWebServiceV9.CxWSQuery()
+            {
+                Cwe = queryGroupSourceQuery.Cwe,
+                EngineMetadata = " ",
+                Name = queryGroupSourceQuery.Name,
+                Severity = (int)severity,
+                Source = customQuery,
+                Status = CxAuditWebServiceV9.QueryStatus.New,
+                Type = CxAuditWebServiceV9.CxWSQueryType.Regular,
+                IsExecutable = queryGroupSourceQuery.IsExecutable,
+                IsEncrypted = queryGroupSourceQuery.IsEncrypted
+            };
+
+            string packageTypeName = $"Corp";
+            string packageFullName = $"{queryGroupSource.LanguageName}:Corp:{queryGroupSource.Name}";
+            var newQuerieGroup = new CxAuditWebServiceV9.CxWSQueryGroup()
+            {
+                Description = description,
+                IsEncrypted = queryGroupSource.IsEncrypted,
+                IsReadOnly = queryGroupSource.IsReadOnly,
+                Language = queryGroupSource.Language,
+                LanguageName = queryGroupSource.LanguageName,
+                Name = queryGroupSource.Name,
+                PackageType = CxAuditWebServiceV9.CxWSPackageTypeEnum.Corporate,
+                PackageTypeName = packageTypeName,
+                PackageFullName = packageFullName,                
+                Status = CxAuditWebServiceV9.QueryStatus.New,
+                Queries = [queryToUp]
+            };
+
+            UploadQueries([newQuerieGroup]);
+
+            //// For some reason, the description is not added when creating. We need to update again with the description
+            //var querieGroupsRefresh = GetAuditQueries();
+            //var createdQueryGroup = querieGroupsRefresh.Single(x => x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Project && x.ProjectId == projectId && x.PackageFullName == packageFullName);
+
+            //createdQueryGroup.Description = description;
+            //UploadQueries([createdQueryGroup]);
+        }
+
         /// <summary>
         /// not tested.
         /// </summary>
@@ -4100,7 +4154,6 @@ namespace Checkmarx.API
             string packageFullName = $"{queryGroupSource.LanguageName}:CxProject_{projectId}:{queryGroupSource.Name}";
             var newQuerieGroup = new CxAuditWebServiceV9.CxWSQueryGroup()
             {
-                //Description = queryGroupSource.Description,
                 Description = description,
                 IsEncrypted = queryGroupSource.IsEncrypted,
                 IsReadOnly = queryGroupSource.IsReadOnly,

@@ -4189,19 +4189,19 @@ namespace Checkmarx.API
                 throw new ApplicationException(uploadResponse.ErrorMessage);
         }
 
-        public void UpdateQueryGroup(CxAuditWebServiceV9.CxWSQueryGroup queryGroupToUpdate, long projectId, string description)
-        {
-            if (queryGroupToUpdate == null)
-                throw new ArgumentNullException(nameof(queryGroupToUpdate));
+        //public void UpdateQueryGroup(CxAuditWebServiceV9.CxWSQueryGroup queryGroupToUpdate, long projectId, string description)
+        //{
+        //    if (queryGroupToUpdate == null)
+        //        throw new ArgumentNullException(nameof(queryGroupToUpdate));
 
-            queryGroupToUpdate.Status = CxAuditWebServiceV9.QueryStatus.Edited;
-            queryGroupToUpdate.PackageTypeName = $"CxProject_{projectId}";
-            queryGroupToUpdate.PackageFullName = $"{queryGroupToUpdate.LanguageName}:CxProject_{projectId}:{queryGroupToUpdate.Name}";
-            queryGroupToUpdate.ProjectId = projectId;
-            queryGroupToUpdate.Description = description;
+        //    queryGroupToUpdate.Status = CxAuditWebServiceV9.QueryStatus.Edited;
+        //    queryGroupToUpdate.PackageTypeName = $"CxProject_{projectId}";
+        //    queryGroupToUpdate.PackageFullName = $"{queryGroupToUpdate.LanguageName}:CxProject_{projectId}:{queryGroupToUpdate.Name}";
+        //    queryGroupToUpdate.ProjectId = projectId;
+        //    queryGroupToUpdate.Description = description;
 
-            UploadQueries([queryGroupToUpdate]);
-        }
+        //    UploadQueries([queryGroupToUpdate]);
+        //}
 
         public void DeleteQueryGroup(CxAuditWebServiceV9.CxWSQueryGroup queryGroupToDelete)
         {

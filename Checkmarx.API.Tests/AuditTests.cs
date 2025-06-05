@@ -83,7 +83,7 @@ public class AuditTests
                     var overriden = corpGroups[queryGroupName].Queries.SingleOrDefault(x => x.Name == query.Name);
                     if (overriden!= null)
                     {
-                        Trace.WriteLine($"An overide already exists for {queryGroupName} {query.Name} with the severity {CxClient.toSeverityToString(overriden.Severity)}, skipping downgrade.");
+                        Trace.WriteLine($"An override already exists for {queryGroupName} {query.Name} with the severity {CxClient.toSeverityToString(overriden.Severity)}, skipping downgrade.");
                         continue;
                     }
                 }
@@ -93,12 +93,12 @@ public class AuditTests
 
                 try
                 {
-                    //cxInstance.Client.OverrideQueryInCorporate(
-                    //    queryGroup,
-                    //    query,
-                    //    $"result = base.{query.Name}();",
-                    //    CxClient.Severity.High,
-                    //    "Downgrade of query to High");
+                    _sastClient.OverrideQueryInCorporate(
+                        queryGroup,
+                        query,
+                        $"result = base.{query.Name}();",
+                        CxClient.Severity.High,
+                        "Downgrade of query to High");
                 }
                 catch (Exception ex)
                 {
@@ -106,5 +106,31 @@ public class AuditTests
                 }
             }
         }
+    }
+
+
+    [TestMethod]
+    public void DeleteQueriesTest()
+    {
+        // ask just once.
+        var queryGroups = _sastClient.GetAuditQueries().ToArray();
+
+        var corpGroups = queryGroups.Where(x => x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Corporate);
+
+        foreach (var item in corpGroups)
+        {
+            Trace.WriteLine(item.PackageFullName);
+
+            foreach (var query in item.Queries)
+            {
+                Trace.WriteLine(query.Name);
+
+                query.Status = CxAuditWebServiceV9.QueryStatus.Deleted;
+            }
+        }
+
+        _sastClient.UploadQueries(queryGroups);
+       
+
     }
 }

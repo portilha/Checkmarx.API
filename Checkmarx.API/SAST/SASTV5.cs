@@ -794,7 +794,7 @@ namespace Checkmarx.API.SASTV5
         public CustomFieldsClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -1038,7 +1038,7 @@ namespace Checkmarx.API.SASTV5
         public ProjectsManagementClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -1915,7 +1915,7 @@ namespace Checkmarx.API.SASTV5
         public PathFilterClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -2284,7 +2284,7 @@ namespace Checkmarx.API.SASTV5
         public UserPersistenceVClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -2641,7 +2641,7 @@ namespace Checkmarx.API.SASTV5
         public EngineServersClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -3410,7 +3410,7 @@ namespace Checkmarx.API.SASTV5
         public PresetsVClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -3666,7 +3666,7 @@ namespace Checkmarx.API.SASTV5
         public ScanMetricsVClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -3923,7 +3923,7 @@ namespace Checkmarx.API.SASTV5
         public SastResultLabelsActionClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -4181,7 +4181,7 @@ namespace Checkmarx.API.SASTV5
         public RolesAuditTrailClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -4445,7 +4445,7 @@ namespace Checkmarx.API.SASTV5
         public TeamsAuditTrailClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -4709,7 +4709,7 @@ namespace Checkmarx.API.SASTV5
         public PresetsAuditTrailClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -4973,7 +4973,7 @@ namespace Checkmarx.API.SASTV5
         public SastResultsAuditTrailClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }
@@ -5243,7 +5243,7 @@ namespace Checkmarx.API.SASTV5
         public ScanWithSettingsVClient(System.Net.Http.HttpClient httpClient)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            BaseUrl = "https://synapxe-hip.checkmarx.net/CxRestAPI/help";
+            
             _httpClient = httpClient;
             Initialize();
         }

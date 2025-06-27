@@ -762,7 +762,22 @@ namespace Checkmarx.API.Tests
             foreach (var scan in clientV93.GetScansQueue())
             {
                 Trace.WriteLine(scan.Project.Id + " - " + scan.Id.ToString());
+
+                var scanDef = clientV93.GetScanById(scan.Id);
+
+                Trace.WriteLine($"Scan {scanDef.Id} - {scanDef.Status.Name}");
+
             }
+
+            Trace.WriteLine("Failed Scans:");
+
+            foreach (var scan in clientV93.GetFailingScans())
+            {
+                Trace.WriteLine($"Scan {scan.Id}");
+
+            }
+
+
         }
 
         #region Write Tests

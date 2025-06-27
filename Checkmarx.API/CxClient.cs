@@ -2112,7 +2112,15 @@ namespace Checkmarx.API
             }
         }
 
-        private long? triggerNewScan(long projectId, bool forceScan, bool runPublicScan, string comment)
+        /// <summary>
+        /// Creates a new scan
+        /// </summary>
+        /// <param name="projectId">Specifies the Unique Id of the specific project to be scanned</param>
+        /// <param name="forceScan">Specifies whether the code should be scanned regardless of unchanged code ,</param>
+        /// <param name="publicScan">Specifies whether the requested scan is public or private</param>
+        /// <param name="comment">Specifies the scan comment</param>
+        /// <returns>the Id of the scan</returns>
+        private long? triggerNewScan(long projectId, bool forceScan, bool publicScan, string comment)
         {
             return SASTClient.SastScans_PostByscanAsync(new SastScanRequestWriteDTO
             {
@@ -2120,7 +2128,7 @@ namespace Checkmarx.API
                 Comment = comment ?? string.Empty,
                 ForceScan = forceScan,
                 IsIncremental = false,
-                IsPublic = runPublicScan
+                IsPublic = publicScan
             }).Result.Id;
         }
 

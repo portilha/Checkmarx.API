@@ -1,5 +1,6 @@
 ﻿using Checkmarx.API.Models;
 using Checkmarx.API.SAST;
+using Microsoft.OData.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -142,6 +143,19 @@ namespace Checkmarx.API
 
             var result = Map<CxDataRepository97.Scan>(data);
 
+            // Manually map the ScannedLanguages property
+            result.ScannedLanguages = new DataServiceCollection<CxDataRepository97.QueryLanguage>(
+                data.ScannedLanguages.Select(language => new CxDataRepository97.QueryLanguage
+                {
+                    LanguageName = language.LanguageName,
+                    LanguageId = language.LanguageId,
+                    VersionDate = language.VersionDate,
+                    VersionHash = language.VersionHash,
+                    VersionId = language.VersionId
+                }), TrackingMode.None
+            );
+
+            // Map the OwningTeamId property (string to int)
             if (int.TryParse(data.OwningTeamId, out int owningTeamId))
                 result.OwningTeamId = owningTeamId;
 

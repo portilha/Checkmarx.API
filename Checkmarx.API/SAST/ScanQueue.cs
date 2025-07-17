@@ -20,8 +20,13 @@
         [JsonProperty("project")]
         public Project Project { get; set; }
 
-        [JsonProperty("engine")]
-        public Engine Engine { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("engineId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long? EngineId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("engineFinishedOn", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset? EngineFinishedOn { get; set; }
+
 
         [JsonProperty("languages")]
         public Language[] Languages { get; set; }

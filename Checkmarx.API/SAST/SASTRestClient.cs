@@ -16,13 +16,14 @@ namespace Checkmarx.API
 {
     using Checkmarx.API.Models;
     using Checkmarx.API.SAST;
+    using Checkmarx.API.SASTV5;
     using Newtonsoft.Json;
     using System;
-    using System.Net.Http;
     using System.Collections.Generic;
     using System.Linq;
-    using System = global::System;
+    using System.Net.Http;
     using static Checkmarx.API.CxClient;
+    using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class SASTRestClient
@@ -6023,7 +6024,7 @@ namespace Checkmarx.API
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json;v=1.0"));
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json;v=1.2"));
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -9268,15 +9269,13 @@ namespace Checkmarx.API
         public Link Link { get; set; }
     }
 
-
-
     public partial class Status
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public long? Id { get; set; }
+        public int Id { get; set; }
 
         [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
-        public string Value { get; set; }
+        public EngineServerResponse5DtoStatus Value { get; set; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.5.0 (NJsonSchema v10.6.6.0 (Newtonsoft.Json v12.0.0.0))")]

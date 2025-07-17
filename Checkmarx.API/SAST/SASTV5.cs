@@ -4066,7 +4066,7 @@ namespace Checkmarx.API.SASTV5
         public string ItemType { get; set; }
 
         [Newtonsoft.Json.JsonProperty("itemId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long? ItemId { get; set; }
+        public long ItemId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("itemName", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string ItemName { get; set; }

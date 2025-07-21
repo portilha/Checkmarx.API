@@ -50,10 +50,6 @@ namespace Checkmarx.API
         internal static RetryPolicyProvider _retryPolicyProvider;
         private readonly int _defaultRetries = 10;
 
-        public const string ScanStatus_Finished = "Finished";
-        public const string ScanStatus_Canceled = "Canceled";
-        public const string ScanStatus_Failed = "Failed";
-
         #region Clients
 
         /// <summary>
@@ -3269,6 +3265,47 @@ namespace Checkmarx.API
             return QueryGroups
                 .Where(group => group.PackageType == CxWSPackageTypeEnum.Team)
                 .Where(group => group.OwningTeam.ToString() == teamid).ToArray();
+        }
+
+        #endregion
+
+        #region Engines
+
+        /// <summary>
+        /// Giving an LoC please look up
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="teamId"></param>
+        /// <param name="loc"></param>
+        /// <returns></returns>
+        private int GetAvaliableSlot(ProjectDetails project, long loc)
+        {
+            int capacity = 0;
+
+            var engines = SASTClientV5.EngineServers_GetV5Async().Result;
+
+            foreach (var engine in engines)
+            {
+                // If the LoC is higher than the engine's max loc, skip it
+                if (loc > engine.MaxLoc)
+                    continue;
+
+                var team = GetProjectTeamName(project.TeamId);
+
+                // If the engine is dedicated to other projects or teams , skip it
+                if (engine.Dedications.Any())
+                {
+                    if (!engine.Dedications
+                        .Where(d => 
+                        (d.ItemType == "Project" && d.ItemId == project.Id) 
+                     || (d.ItemType == "Team" &&  team.StartsWith(d.ItemName))).Any())
+                        continue;
+                }
+
+                capacity += engine.MaxScans;
+            }
+
+            return 0;
         }
 
         #endregion

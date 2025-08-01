@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
-using System.Xml.Linq;
-using Checkmarx.API.Exceptions;
+﻿using Checkmarx.API.Exceptions;
 using Checkmarx.API.Models;
 using Checkmarx.API.Tests.Utils;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +7,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Web;
+using System.Xml.Linq;
 using static Checkmarx.API.CxClient;
 
 namespace Checkmarx.API.Tests
@@ -89,9 +90,39 @@ namespace Checkmarx.API.Tests
         }
 
         [TestMethod]
+        public async Task RetryAggregateErrorPolicyTest()
+        {
+            // Arrange
+            var retryPolicy = new SOAPRetryPolicyProvider(defaultRetries: 3);
+            int attempt = 0;
+
+            Func<Task<string>> failingAction = async () =>
+            {
+                attempt++;
+                if (attempt < 3)
+                {
+                    var apiEx = new WebException("Too many requests", WebExceptionStatus.Timeout);
+
+                    throw new AggregateException(apiEx);
+
+                    //throw new ApiException("Too many requests", 429, "Response Test", null, null);
+                }
+
+                return "Success";
+            };
+
+            // Act
+            var result = await retryPolicy.ExecuteWithRetryAsync(failingAction);
+
+            // Assert
+            Assert.AreEqual("Success", result);
+            Assert.AreEqual(3, attempt); // should have retried 2 times before success
+        }
+
+        [TestMethod]
         public void RetryPolicyTest()
         {
-            RetryPolicyProvider retryPolicyProvider = new RetryPolicyProvider(2);
+            SOAPRetryPolicyProvider retryPolicyProvider = new SOAPRetryPolicyProvider(2);
 
             var mockResponse = new Mock<HttpWebResponse>();
             mockResponse.Setup(r => r.StatusCode).Returns(HttpStatusCode.InternalServerError); // Change to HttpStatusCode.RequestTimeout for 408

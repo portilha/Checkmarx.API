@@ -22,6 +22,7 @@ namespace Checkmarx.API.SASTV6
 {
     using System = global::System;
     using static Checkmarx.API.CxClient;
+    using Checkmarx.API.Models;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SASTV6Client
@@ -111,7 +112,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicy.ExecuteAsync(() => client_.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request_), System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -208,7 +209,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicy.ExecuteAsync(() => client_.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request_), System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {
@@ -325,7 +326,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicy.ExecuteAsync(() => client_.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request_), System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
                     var disposeResponse_ = true;
                     try
                     {

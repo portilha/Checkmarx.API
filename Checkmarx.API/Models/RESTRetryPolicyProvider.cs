@@ -1,9 +1,13 @@
 ﻿using Polly;
 using Polly.Extensions.Http;
+using Polly.Timeout;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Checkmarx.API.Models
 {
@@ -14,16 +18,91 @@ namespace Checkmarx.API.Models
             if (retries < 1)
                 throw new Exception("Number of REST policy number of retries must be greater than 0");
 
-            return HttpPolicyExtensions
-                .HandleTransientHttpError()
-                .OrResult(response => response.StatusCode == System.Net.HttpStatusCode.TooManyRequests) // Specifically handle 429
-                .WaitAndRetryAsync(10, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                (exception, timeSpan, retryCount, context) =>
+            var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(
+                TimeSpan.FromSeconds(120),
+                TimeoutStrategy.Pessimistic,
+                onTimeoutAsync: (context, timespan, task, exception) =>
                 {
-                    // Optional: Log the retry attempt
-                    Console.WriteLine($"Retry {retryCount} after {timeSpan.TotalSeconds} seconds due to: " +
-                        $"{(exception.Exception != null ? exception.Exception.Message : $"{(int?)exception.Result?.StatusCode} {exception.Result?.ReasonPhrase}")}");
+                    Console.WriteLine($"Request timed out after {timespan.TotalSeconds} seconds.");
+                    return Task.CompletedTask;
                 });
+
+            var sleepDurations = Enumerable.Range(1, retries)
+                .Select(i => TimeSpan.FromSeconds(Math.Pow(2, i)))
+                .ToArray();
+
+            var retryPolicy = Policy<HttpResponseMessage>
+                .Handle<HttpRequestException>()
+                .Or<TimeoutRejectedException>()
+                .OrResult(response =>
+                    response.StatusCode == HttpStatusCode.TooManyRequests ||
+                    ((int)response.StatusCode >= 500 && (int)response.StatusCode <= 599))
+                .WaitAndRetryAsync(
+                    sleepDurations,
+                    onRetryAsync: async (outcome, timespan, retryCount, context) =>
+                    {
+                        var totalTimeSpan = timespan.TotalSeconds;
+
+                        if (outcome?.Result?.StatusCode == HttpStatusCode.TooManyRequests)
+                        {
+                            totalTimeSpan = 60;
+                            Console.WriteLine($"Received Error 429 - Too Many Requests. Overriding wait to {totalTimeSpan} seconds for retry {retryCount}.");
+                            await Task.Delay(TimeSpan.FromSeconds(totalTimeSpan));
+                        }
+
+                        string message;
+                        if (outcome.Exception != null)
+                        {
+                            message = outcome.Exception.Message;
+                        }
+                        else if (outcome.Result != null)
+                        {
+                            var statusCode = outcome.Result.StatusCode;
+                            var statusCodeInt = (int)statusCode;
+                            var reason = string.IsNullOrWhiteSpace(outcome.Result.ReasonPhrase)
+                                ? statusCode.ToString()
+                                : outcome.Result.ReasonPhrase;
+
+                            message = $"{statusCodeInt} {reason}";
+                        }
+                        else
+                        {
+                            message = "Unknown error";
+                        }
+
+                        Console.WriteLine($"Retry {retryCount} after {totalTimeSpan} seconds due to: {message}");
+                    });
+
+            var fallbackPolicy = Policy<HttpResponseMessage>
+                .Handle<Exception>()
+                .OrResult(response => !response.IsSuccessStatusCode)
+                .FallbackAsync(
+                    fallbackValue: new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+                    {
+                        ReasonPhrase = "Fallback response"
+                    },
+                    onFallbackAsync: (outcome, context) =>
+                    {
+                        Console.WriteLine($"Fallback triggered due to: {outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString()}");
+                        return Task.CompletedTask;
+                    });
+
+            return fallbackPolicy.WrapAsync(retryPolicy.WrapAsync(timeoutPolicy));
+        }
+
+        public static Task<HttpResponseMessage> ExecuteRetryableAsync(this IAsyncPolicy<HttpResponseMessage> policy,
+            HttpClient client,
+            HttpRequestMessage request,
+            CancellationToken cancellationToken = default)
+        {
+            return policy.ExecuteAsync(
+                (context, token) =>
+                    client.SendAsync(
+                        RESTRetryPolicyProvider.CloneHttpRequestMessage(request),
+                        HttpCompletionOption.ResponseHeadersRead,
+                        token),
+                new Context(),  // or pass one if needed
+                cancellationToken);
         }
 
         public static HttpRequestMessage CloneHttpRequestMessage(HttpRequestMessage request)

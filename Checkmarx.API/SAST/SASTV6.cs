@@ -112,7 +112,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteAsync(() => client_.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request_), System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -209,7 +209,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteAsync(() => client_.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request_), System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -326,7 +326,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteAsync(() => client_.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request_), System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {

@@ -27,10 +27,6 @@ namespace Checkmarx.API.Models
                     return Task.CompletedTask;
                 });
 
-            var sleepDurations = Enumerable.Range(1, retries)
-                .Select(i => TimeSpan.FromSeconds(Math.Pow(2, i)))
-                .ToArray();
-
             var retryPolicy = Policy<HttpResponseMessage>
                 .Handle<HttpRequestException>()
                 .Or<TimeoutRejectedException>()
@@ -38,18 +34,26 @@ namespace Checkmarx.API.Models
                     response.StatusCode == HttpStatusCode.TooManyRequests ||
                     ((int)response.StatusCode >= 500 && (int)response.StatusCode <= 599))
                 .WaitAndRetryAsync(
-                    sleepDurations,
-                    onRetryAsync: async (outcome, timespan, retryCount, context) =>
+                    retryCount: retries,
+                    sleepDurationProvider: (retryAttempt, outcome, context) =>
                     {
-                        var totalTimeSpan = timespan.TotalSeconds;
+                        const string TooManyRequestsKey = "HadTooManyRequests";
 
-                        if (outcome?.Result?.StatusCode == HttpStatusCode.TooManyRequests)
+                        if (outcome.Result?.StatusCode == HttpStatusCode.TooManyRequests)
                         {
-                            totalTimeSpan = 60;
-                            Console.WriteLine($"Received Error 429 - Too Many Requests. Overriding wait to {totalTimeSpan} seconds for retry {retryCount}.");
-                            await Task.Delay(TimeSpan.FromSeconds(totalTimeSpan));
+                            context[TooManyRequestsKey] = true;
+                            return TimeSpan.FromSeconds(60);
                         }
 
+                        if (context.TryGetValue(TooManyRequestsKey, out var had429) && had429 is bool b && b)
+                        {
+                            return TimeSpan.FromSeconds(60);
+                        }
+
+                        return TimeSpan.FromSeconds(Math.Pow(2, retryAttempt));
+                    },
+                    onRetryAsync: async (outcome, timespan, retryCount, context) =>
+                    {
                         string message;
                         if (outcome.Exception != null)
                         {
@@ -70,7 +74,8 @@ namespace Checkmarx.API.Models
                             message = "Unknown error";
                         }
 
-                        Console.WriteLine($"Retry {retryCount} after {totalTimeSpan} seconds due to: {message}");
+                        Console.WriteLine($"Retry {retryCount} after {timespan.TotalSeconds} seconds due to: {message}");
+                        await Task.CompletedTask;
                     });
 
             var fallbackPolicy = Policy<HttpResponseMessage>

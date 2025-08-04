@@ -605,7 +605,7 @@ namespace Checkmarx.API
 
                 using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
                 {
-                    HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                    HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
@@ -1168,7 +1168,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     _teamsCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -1237,8 +1237,7 @@ namespace Checkmarx.API
                 {
                     request.Headers.Add("Accept", "application/json");
 
-                    HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
-
+                    HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         JObject excludeSettings = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
@@ -1255,8 +1254,7 @@ namespace Checkmarx.API
                 {
                     request.Headers.Add("Accept", "application/json");
 
-                    HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
-
+                    HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         JObject excludeSettings = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
@@ -1290,7 +1288,7 @@ namespace Checkmarx.API
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode != HttpStatusCode.OK)
                     throw new Exception($"Error updating excluded settings for project {projectId} ({response.StatusCode})");
@@ -1328,7 +1326,7 @@ namespace Checkmarx.API
 
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1398,7 +1396,7 @@ namespace Checkmarx.API
 
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
@@ -1445,7 +1443,7 @@ namespace Checkmarx.API
 
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
@@ -1469,7 +1467,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1513,7 +1511,7 @@ namespace Checkmarx.API
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode != HttpStatusCode.Accepted)
                 {
@@ -1665,7 +1663,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 Dictionary<string, int> customFields = new Dictionary<string, int>();
 
@@ -1708,7 +1706,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 var result = new List<Guid>();
 
@@ -1751,7 +1749,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1797,7 +1795,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1819,7 +1817,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2160,7 +2158,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2200,7 +2198,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2235,7 +2233,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2436,7 +2434,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2474,7 +2472,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2498,7 +2496,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2528,7 +2526,7 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2575,7 +2573,7 @@ namespace Checkmarx.API
                     projects.Headers.Add("Accept", $"application/json;v={version}");
                     projects.Headers.Add("Connection", "keep-alive");
 
-                    Task<HttpResponseMessage> projectListTask = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(projects)));
+                    Task<HttpResponseMessage> projectListTask = _retryPolicy.ExecuteRetryableAsync(httpClient, projects, CancellationToken.None);
 
                     var projectListResponse = projectListTask.GetAwaiter().GetResult();
 
@@ -2693,7 +2691,7 @@ namespace Checkmarx.API
             {
                 presets.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage presetResponse = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(presets))).Result;
+                HttpResponseMessage presetResponse = _retryPolicy.ExecuteRetryableAsync(httpClient, presets, CancellationToken.None).Result;
 
                 if (presetResponse.StatusCode == HttpStatusCode.OK)
                 {
@@ -3504,7 +3502,7 @@ namespace Checkmarx.API
 
                 request.Content = new FormUrlEncodedContent(values);
 
-                HttpResponseMessage response = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(request))).Result;
+                HttpResponseMessage response = _retryPolicy.ExecuteRetryableAsync(httpClient, request, CancellationToken.None).Result;
 
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
@@ -3523,7 +3521,7 @@ namespace Checkmarx.API
                     {
                         getReport.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue($"application/{reportTypeString}"));
 
-                        HttpResponseMessage getReportResponse = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(getReport))).Result;
+                        HttpResponseMessage getReportResponse = _retryPolicy.ExecuteRetryableAsync(httpClient, getReport, CancellationToken.None).Result;
 
                         if (getReportResponse.StatusCode == HttpStatusCode.OK)
                         {
@@ -3602,7 +3600,7 @@ namespace Checkmarx.API
 
             using (var getReportStatus = new HttpRequestMessage(HttpMethod.Get, $"reports/sastScan/{reportId}/status"))
             {
-                HttpResponseMessage getReportResponse = _retryPolicy.ExecuteAsync(() => httpClient.SendAsync(RESTRetryPolicyProvider.CloneHttpRequestMessage(getReportStatus))).Result;
+                HttpResponseMessage getReportResponse = _retryPolicy.ExecuteRetryableAsync(httpClient, getReportStatus, CancellationToken.None).Result;
 
                 if (getReportResponse.StatusCode == HttpStatusCode.OK)
                 {

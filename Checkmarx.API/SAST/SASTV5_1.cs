@@ -28,14 +28,16 @@ namespace Checkmarx.API.SASTV5_1
     public partial class SASTV5_1Client
     {
         private string _baseUrl = "";
+        private CxClient _cxClient;
         private System.Net.Http.HttpClient _httpClient;
         private static System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
         private Newtonsoft.Json.JsonSerializerSettings _instanceSettings;
 
-        public SASTV5_1Client(string baseUrl, System.Net.Http.HttpClient httpClient)
+        public SASTV5_1Client(CxClient cxClient, System.Net.Http.HttpClient httpClient)
         {
-            BaseUrl = baseUrl;
+            _cxClient = cxClient;
             _httpClient = httpClient;
+            BaseUrl = httpClient.BaseAddress.AbsoluteUri;
             _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
             Initialize();
         }
@@ -120,7 +122,7 @@ namespace Checkmarx.API.SASTV5_1
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {

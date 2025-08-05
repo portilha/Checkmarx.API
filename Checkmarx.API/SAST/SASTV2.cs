@@ -23,13 +23,15 @@ namespace Checkmarx.API.SASTV2
     public partial class SASTV2Client
     {
         private string _baseUrl = "";
+        private CxClient _cxClient;
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
 
-        public SASTV2Client(string baseUrl, System.Net.Http.HttpClient httpClient)
+        public SASTV2Client(CxClient cxClient, System.Net.Http.HttpClient httpClient)
         {
-            BaseUrl = baseUrl;
+            _cxClient = cxClient;
             _httpClient = httpClient;
+            BaseUrl = httpClient.BaseAddress.AbsoluteUri;
             _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
         }
 
@@ -110,7 +112,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -219,7 +221,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -311,7 +313,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -397,7 +399,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -497,7 +499,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -597,7 +599,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -697,7 +699,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -796,7 +798,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -890,7 +892,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1083,11 +1085,13 @@ namespace Checkmarx.API.SASTV2
     public partial class OsaLibraries2Client
     {
         private string _baseUrl = "http://michaelmat-lt.dm.cx/CxRestAPI/help";
+        private CxClient _cxClient;
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
 
-        public OsaLibraries2Client(System.Net.Http.HttpClient httpClient)
+        public OsaLibraries2Client(CxClient cxClient, System.Net.Http.HttpClient httpClient)
         {
+            _cxClient = cxClient;
             _httpClient = httpClient;
             _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
         }
@@ -1167,7 +1171,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1317,11 +1321,13 @@ namespace Checkmarx.API.SASTV2
     public partial class OsaVulnerabilities2Client
     {
         private string _baseUrl = "http://michaelmat-lt.dm.cx/CxRestAPI/help";
+        private CxClient _cxClient;
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
 
-        public OsaVulnerabilities2Client(System.Net.Http.HttpClient httpClient)
+        public OsaVulnerabilities2Client(CxClient cxClient, System.Net.Http.HttpClient httpClient)
         {
+            _cxClient = cxClient;
             _httpClient = httpClient;
             _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
         }
@@ -1431,7 +1437,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1581,11 +1587,13 @@ namespace Checkmarx.API.SASTV2
     public partial class ScanSettingsClient
     {
         private string _baseUrl = "http://michaelmat-lt.dm.cx/CxRestAPI/help";
+        private CxClient _cxClient;
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
 
-        public ScanSettingsClient(System.Net.Http.HttpClient httpClient)
+        public ScanSettingsClient(CxClient cxClient, System.Net.Http.HttpClient httpClient)
         {
+            _cxClient = cxClient;
             _httpClient = httpClient;
             _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
         }
@@ -1654,7 +1662,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1748,7 +1756,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1842,7 +1850,7 @@ namespace Checkmarx.API.SASTV2
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {

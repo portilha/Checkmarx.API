@@ -25,12 +25,14 @@ namespace Checkmarx.API.SAST
     public partial class SASTV1_1
     {
         private string _baseUrl = "";
+        private CxClient _cxClient;
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
 
-        public SASTV1_1(string baseUrl, System.Net.Http.HttpClient httpClient)
+        public SASTV1_1(string baseUrl, CxClient cxClient, System.Net.Http.HttpClient httpClient)
         {
             BaseUrl = baseUrl;
+            _cxClient = cxClient;
             _httpClient = httpClient;
             _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
         }
@@ -99,7 +101,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -183,7 +185,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -269,7 +271,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -354,7 +356,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -441,7 +443,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -535,7 +537,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -629,7 +631,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -734,7 +736,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -896,7 +898,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -989,7 +991,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1077,7 +1079,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1165,7 +1167,7 @@ namespace Checkmarx.API.SAST
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {

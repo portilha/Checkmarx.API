@@ -1,5 +1,4 @@
 ﻿using Polly;
-using Polly.Extensions.Http;
 using Polly.Timeout;
 using System;
 using System.Collections.Generic;
@@ -19,7 +18,7 @@ namespace Checkmarx.API.Models
                 throw new Exception("Number of REST policy number of retries must be greater than 0");
 
             var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(
-                TimeSpan.FromSeconds(120),
+                TimeSpan.FromSeconds(30),
                 TimeoutStrategy.Pessimistic,
                 onTimeoutAsync: (context, timespan, task, exception) =>
                 {
@@ -29,7 +28,7 @@ namespace Checkmarx.API.Models
 
             var retryPolicy = Policy<HttpResponseMessage>
                 .Handle<HttpRequestException>()
-                .Or<TimeoutRejectedException>()
+                //.Or<TimeoutRejectedException>()
                 .OrResult(response =>
                     response.StatusCode == HttpStatusCode.TooManyRequests ||
                     ((int)response.StatusCode >= 500 && (int)response.StatusCode <= 599))
@@ -37,18 +36,18 @@ namespace Checkmarx.API.Models
                     retryCount: retries,
                     sleepDurationProvider: (retryAttempt, outcome, context) =>
                     {
-                        const string TooManyRequestsKey = "HadTooManyRequests";
+                        //const string TooManyRequestsKey = "HadTooManyRequests";
 
-                        if (outcome.Result?.StatusCode == HttpStatusCode.TooManyRequests)
-                        {
-                            context[TooManyRequestsKey] = true;
-                            return TimeSpan.FromSeconds(60);
-                        }
+                        //if (outcome.Result?.StatusCode == HttpStatusCode.TooManyRequests)
+                        //{
+                        //    context[TooManyRequestsKey] = true;
+                        //    return TimeSpan.FromSeconds(10);
+                        //}
 
-                        if (context.TryGetValue(TooManyRequestsKey, out var had429) && had429 is bool b && b)
-                        {
-                            return TimeSpan.FromSeconds(60);
-                        }
+                        //if (context.TryGetValue(TooManyRequestsKey, out var had429) && had429 is bool b && b)
+                        //{
+                        //    return TimeSpan.FromSeconds(10);
+                        //}
 
                         return TimeSpan.FromSeconds(Math.Pow(2, retryAttempt));
                     },
@@ -79,7 +78,7 @@ namespace Checkmarx.API.Models
                     });
 
             var fallbackPolicy = Policy<HttpResponseMessage>
-                .Handle<Exception>()
+                .Handle<Exception>(ex => !(ex is TimeoutRejectedException))  // Exclude timeout here
                 .OrResult(response => !response.IsSuccessStatusCode)
                 .FallbackAsync(
                     fallbackValue: new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
@@ -95,15 +94,12 @@ namespace Checkmarx.API.Models
             return fallbackPolicy.WrapAsync(retryPolicy.WrapAsync(timeoutPolicy));
         }
 
-        public static Task<HttpResponseMessage> ExecuteRetryableAsync(this IAsyncPolicy<HttpResponseMessage> policy,
-            HttpClient client,
-            HttpRequestMessage request,
-            CancellationToken cancellationToken = default)
+        public static Task<HttpResponseMessage> ExecuteWithPolicyAsync(IAsyncPolicy<HttpResponseMessage> policy, HttpClient client, HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
             return policy.ExecuteAsync(
                 (context, token) =>
                     client.SendAsync(
-                        RESTRetryPolicyProvider.CloneHttpRequestMessage(request),
+                        CloneHttpRequestMessage(request),
                         HttpCompletionOption.ResponseHeadersRead,
                         token),
                 new Context(),  // or pass one if needed

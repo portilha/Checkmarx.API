@@ -28,13 +28,15 @@ namespace Checkmarx.API.SASTV6
     public partial class SASTV6Client
     {
         private string _baseUrl = "";
+        private CxClient _cxClient;
         private System.Net.Http.HttpClient _httpClient;
         private static System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
         private Newtonsoft.Json.JsonSerializerSettings _instanceSettings;
 
-        public SASTV6Client(string baseUrl, System.Net.Http.HttpClient httpClient)
+        public SASTV6Client(string baseUrl, CxClient cxClient, System.Net.Http.HttpClient httpClient)
         {
             BaseUrl = baseUrl;
+            _cxClient = cxClient;
             _httpClient = httpClient;
             _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
             Initialize();
@@ -112,7 +114,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -209,7 +211,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -326,7 +328,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _retryPolicy.ExecuteRetryableAsync(client_, request_, cancellationToken);
+                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {

@@ -52,21 +52,21 @@ namespace Checkmarx.API
         internal static SOAPRetryPolicyProvider _soapRetryPolicyProvider;
         internal static IAsyncPolicy<HttpResponseMessage> _retryPolicy;
 
-        public async Task<HttpResponseMessage> ExecuteWithRetryAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
+        public async Task<(HttpClient client, HttpResponseMessage response)> ExecuteWithRetryAsync(HttpClient client, HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await RESTRetryPolicyProvider.ExecuteWithPolicyAsync(_retryPolicy, httpClient, request, cancellationToken);
+                var response = await RESTRetryPolicyProvider.ExecuteWithPolicyAsync(_retryPolicy, client, request, cancellationToken);
+                return (client, response);
             }
             catch (TimeoutRejectedException)
             {
                 Console.WriteLine($"Timeout Rejected Exception: Refreshing connection...");
 
-                httpClient = Login(SASTServerURL.ToString(), Username, Password);
+                client = Login(SASTServerURL.ToString(), Username, Password);
 
-                return await RESTRetryPolicyProvider.ExecuteWithPolicyAsync(_retryPolicy, httpClient, request, cancellationToken);
-
-                throw;
+                var response = await RESTRetryPolicyProvider.ExecuteWithPolicyAsync(_retryPolicy, client, request, cancellationToken);
+                return (client, response);
             }
         }
 
@@ -624,8 +624,8 @@ namespace Checkmarx.API
 
                 using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
                 {
-                    HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
+                    var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                    HttpResponseMessage response = result.response;
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         return JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
@@ -1187,7 +1187,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     _teamsCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -1256,7 +1257,8 @@ namespace Checkmarx.API
                 {
                     request.Headers.Add("Accept", "application/json");
 
-                    HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                    var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                    HttpResponseMessage response = result.response;
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         JObject excludeSettings = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
@@ -1273,7 +1275,8 @@ namespace Checkmarx.API
                 {
                     request.Headers.Add("Accept", "application/json");
 
-                    HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                    var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                    HttpResponseMessage response = result.response;
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         JObject excludeSettings = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
@@ -1307,8 +1310,8 @@ namespace Checkmarx.API
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
                 if (response.StatusCode != HttpStatusCode.OK)
                     throw new Exception($"Error updating excluded settings for project {projectId} ({response.StatusCode})");
             }
@@ -1345,7 +1348,8 @@ namespace Checkmarx.API
 
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1415,8 +1419,8 @@ namespace Checkmarx.API
 
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
                     throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
@@ -1462,8 +1466,8 @@ namespace Checkmarx.API
 
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
                 if (response.StatusCode != HttpStatusCode.NoContent)
                 {
                     throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
@@ -1486,8 +1490,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     ProjectDetails projDetails = JsonConvert.DeserializeObject<ProjectDetails>(response.Content.ReadAsStringAsync().Result);
@@ -1530,8 +1534,8 @@ namespace Checkmarx.API
                 request.Content = new StringContent(JsonConvert.SerializeObject(settings));
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
                 if (response.StatusCode != HttpStatusCode.Accepted)
                 {
                     throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
@@ -1682,7 +1686,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
 
                 Dictionary<string, int> customFields = new Dictionary<string, int>();
 
@@ -1725,9 +1730,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
-                var result = new List<Guid>();
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -1768,8 +1772,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
+                var resultResponse = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = resultResponse.response;
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var result = JsonConvert.DeserializeObject<OSAReportDto>(response.Content.ReadAsStringAsync().Result);
@@ -1814,13 +1818,12 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=2.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<List<OSALibraryDto>>(response.Content.ReadAsStringAsync().Result);
-
-                    return result;
+                    return JsonConvert.DeserializeObject<List<OSALibraryDto>>(response.Content.ReadAsStringAsync().Result);
                 }
             }
 
@@ -1836,13 +1839,12 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var result = JsonConvert.DeserializeObject<List<OSALicenseDto>>(response.Content.ReadAsStringAsync().Result);
-
-                    return result;
+                    return JsonConvert.DeserializeObject<List<OSALicenseDto>>(response.Content.ReadAsStringAsync().Result);
                 }
 
                 throw new NotSupportedException(response.Content.ReadAsStringAsync().Result);
@@ -2177,7 +2179,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2217,7 +2220,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2252,7 +2256,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2453,7 +2458,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = result.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2491,7 +2497,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var resultResponse = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = resultResponse.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2515,7 +2522,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
+                var resultResponse = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage response = resultResponse.response;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -2545,8 +2553,8 @@ namespace Checkmarx.API
             {
                 request.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                var response = result.response;
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     return JsonConvert.DeserializeObject<List<ComponentConfiguration>>(response.Content.ReadAsStringAsync().Result);
@@ -2592,9 +2600,8 @@ namespace Checkmarx.API
                     projects.Headers.Add("Accept", $"application/json;v={version}");
                     projects.Headers.Add("Connection", "keep-alive");
 
-                    Task<HttpResponseMessage> projectListTask = ExecuteWithRetryAsync(projects, CancellationToken.None);
-
-                    var projectListResponse = projectListTask.GetAwaiter().GetResult();
+                    var result = ExecuteWithRetryAsync(httpClient, projects, CancellationToken.None).GetAwaiter().GetResult();
+                    var projectListResponse = result.response;
 
                     if (projectListResponse.StatusCode == HttpStatusCode.OK)
                     {
@@ -2710,7 +2717,8 @@ namespace Checkmarx.API
             {
                 presets.Headers.Add("Accept", "application/json;v=1.0");
 
-                HttpResponseMessage presetResponse = ExecuteWithRetryAsync(presets, CancellationToken.None).Result;
+                var resultResponse = ExecuteWithRetryAsync(httpClient, presets, CancellationToken.None).GetAwaiter().GetResult();
+                HttpResponseMessage presetResponse = resultResponse.response;
 
                 if (presetResponse.StatusCode == HttpStatusCode.OK)
                 {
@@ -3521,8 +3529,8 @@ namespace Checkmarx.API
 
                 request.Content = new FormUrlEncodedContent(values);
 
-                HttpResponseMessage response = ExecuteWithRetryAsync(request, CancellationToken.None).Result;
-
+                var result = ExecuteWithRetryAsync(httpClient, request, CancellationToken.None).GetAwaiter().GetResult();
+                var response = result.response;
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
                     JObject createReport = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
@@ -3540,8 +3548,8 @@ namespace Checkmarx.API
                     {
                         getReport.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue($"application/{reportTypeString}"));
 
-                        HttpResponseMessage getReportResponse = ExecuteWithRetryAsync(getReport, CancellationToken.None).Result;
-
+                        var reportResult = ExecuteWithRetryAsync(httpClient, getReport, CancellationToken.None).GetAwaiter().GetResult();
+                        var getReportResponse = reportResult.response;
                         if (getReportResponse.StatusCode == HttpStatusCode.OK)
                         {
                             return getReportResponse.Content.ReadAsStreamAsync().Result;
@@ -3619,11 +3627,11 @@ namespace Checkmarx.API
 
             using (var getReportStatus = new HttpRequestMessage(HttpMethod.Get, $"reports/sastScan/{reportId}/status"))
             {
-                HttpResponseMessage getReportResponse = ExecuteWithRetryAsync(getReportStatus, CancellationToken.None).Result;
-
-                if (getReportResponse.StatusCode == HttpStatusCode.OK)
+                var result = ExecuteWithRetryAsync(httpClient, getReportStatus, CancellationToken.None).GetAwaiter().GetResult();
+                var response = result.response;
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    JObject reportStatus = JsonConvert.DeserializeObject<JObject>(getReportResponse.Content.ReadAsStringAsync().Result);
+                    JObject reportStatus = JsonConvert.DeserializeObject<JObject>(response.Content.ReadAsStringAsync().Result);
 
                     return (string)reportStatus.SelectToken("status").SelectToken("value") == "Created";
                 }

@@ -33,11 +33,11 @@ namespace Checkmarx.API.SASTV6
         private static System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
         private Newtonsoft.Json.JsonSerializerSettings _instanceSettings;
 
-        public SASTV6Client(string baseUrl, CxClient cxClient, System.Net.Http.HttpClient httpClient)
+        public SASTV6Client(CxClient cxClient, System.Net.Http.HttpClient httpClient)
         {
-            BaseUrl = baseUrl;
             _cxClient = cxClient;
             _httpClient = httpClient;
+            BaseUrl = httpClient.BaseAddress.AbsoluteUri;
             _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
             Initialize();
         }

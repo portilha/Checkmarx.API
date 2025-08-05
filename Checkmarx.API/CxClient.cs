@@ -320,7 +320,7 @@ namespace Checkmarx.API
                     return null;
 
                 if (_sastClientV1_1 == null)
-                    _sastClientV1_1 = new SASTV1_1(httpClient.BaseAddress.AbsoluteUri, this, httpClient);
+                    _sastClientV1_1 = new SASTV1_1(this, httpClient);
 
                 return _sastClientV1_1;
             }
@@ -371,7 +371,7 @@ namespace Checkmarx.API
                     return null;
 
                 if (_sastClientV2_1 == null)
-                    _sastClientV2_1 = new SASTV2_1Client(httpClient.BaseAddress.AbsoluteUri, this, httpClient);
+                    _sastClientV2_1 = new SASTV2_1Client(this, httpClient);
 
                 return _sastClientV2_1;
             }
@@ -406,7 +406,7 @@ namespace Checkmarx.API
                     return null;
 
                 if (_sastClientV2 == null)
-                    _sastClientV2 = new SASTV2Client(httpClient.BaseAddress.AbsoluteUri, this, httpClient);
+                    _sastClientV2 = new SASTV2Client(this, httpClient);
 
                 return _sastClientV2;
             }
@@ -440,7 +440,7 @@ namespace Checkmarx.API
                     return null;
 
                 if (_sastClientV3 == null)
-                    _sastClientV3 = new SASTV3Client(httpClient.BaseAddress.AbsoluteUri, this, httpClient);
+                    _sastClientV3 = new SASTV3Client(this, httpClient);
 
                 return _sastClientV3;
             }
@@ -475,7 +475,7 @@ namespace Checkmarx.API
                     return null;
 
                 if (_sastClientV4 == null)
-                    _sastClientV4 = new SASTV4Client(httpClient.BaseAddress.AbsoluteUri, this, httpClient);
+                    _sastClientV4 = new SASTV4Client(this, httpClient);
 
                 return _sastClientV4;
             }
@@ -510,7 +510,7 @@ namespace Checkmarx.API
                     return null;
 
                 if (_sastClientV5 == null)
-                    _sastClientV5 = new SASTV5Client(httpClient.BaseAddress.AbsoluteUri, this, httpClient);
+                    _sastClientV5 = new SASTV5Client(this, httpClient);
 
                 return _sastClientV5;
             }
@@ -545,7 +545,7 @@ namespace Checkmarx.API
                     return null;
 
                 if (_sastClientV5_1 == null)
-                    _sastClientV5_1 = new SASTV5_1Client(httpClient.BaseAddress.AbsoluteUri, this, httpClient);
+                    _sastClientV5_1 = new SASTV5_1Client(this, httpClient);
 
                 return _sastClientV5_1;
             }
@@ -580,7 +580,7 @@ namespace Checkmarx.API
                     return null;
 
                 if (_sastClientV6 == null)
-                    _sastClientV6 = new SASTV6Client(httpClient.BaseAddress.AbsoluteUri, this, httpClient);
+                    _sastClientV6 = new SASTV6Client(this, httpClient);
 
                 return _sastClientV6;
             }

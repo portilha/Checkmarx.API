@@ -114,7 +114,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -211,7 +211,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -328,7 +328,7 @@ namespace Checkmarx.API.SASTV6
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _cxClient.ExecuteWithRetryAsync(request_, cancellationToken);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {

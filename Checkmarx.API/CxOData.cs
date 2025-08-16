@@ -20,7 +20,6 @@ namespace Checkmarx.API
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
             Default.ODataClient8 context = new Default.ODataClient8(serviceUri, defaultRetries)
             {
-                Timeout = 7200,
                 MergeOption = Microsoft.OData.Client.MergeOption.NoTracking
 
             };
@@ -52,7 +51,6 @@ namespace Checkmarx.API
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
             DefaultV9.Container context = new DefaultV9.Container(serviceUri, defaultRetries)
             {
-                Timeout = 7200,
                 MergeOption = Microsoft.OData.Client.MergeOption.NoTracking,
                 SaveChangesDefaultOptions = Microsoft.OData.Client.SaveChangesOptions.None
 
@@ -78,7 +76,6 @@ namespace Checkmarx.API
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
             var context = new ODataClient95(serviceUri, defaultRetries)
             {
-                Timeout = 7200,
                 MergeOption = Microsoft.OData.Client.MergeOption.NoTracking
             };
 
@@ -102,7 +99,6 @@ namespace Checkmarx.API
             Uri serviceUri = new Uri(webserverAddress, "/CxWebInterface/odata/v1/");
             var context = new CxDataRepository97.Container(serviceUri, defaultRetries)
             {
-                Timeout = 7200,
                 MergeOption = Microsoft.OData.Client.MergeOption.NoTracking
             };
 

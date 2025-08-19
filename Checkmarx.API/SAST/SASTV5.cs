@@ -2248,6 +2248,11 @@ namespace Checkmarx.API.SASTV5
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
                         }
                         else
+                        if (status_ == 404)
+                        {
+                            return null;
+                        }
+                        else
                         {
                             var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);

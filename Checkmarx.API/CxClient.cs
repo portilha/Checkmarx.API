@@ -712,7 +712,10 @@ namespace Checkmarx.API
             SASTServerURL = sastServerAddress;
             LcId = lcid;
 
-            if (defaultRetries > 0) _defaultRetries = defaultRetries;
+            if (defaultRetries <= 0)
+                throw new ArgumentOutOfRangeException(nameof(defaultRetries));
+
+            _defaultRetries = defaultRetries;
             _soapRetryPolicyProvider = new SOAPRetryPolicyProvider(_defaultRetries);
             _retryPolicy = RESTRetryPolicyProvider.CreateRetryPolicy(_defaultRetries);
         }
@@ -4138,7 +4141,7 @@ namespace Checkmarx.API
 
 
         public void OverrideQueryInCorporate(CxAuditWebServiceV9.CxWSQueryGroup queryGroupSource,
-            CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery, string customQuery, Severity severity, string description)
+            CxAuditWebServiceV9.CxWSQuery queryGroupSourceQuery, string customQuery, Severity severity, string description, bool alreadyExist = false)
         {
             if (queryGroupSource == null)
                 throw new ArgumentNullException(nameof(queryGroupSource));
@@ -4157,7 +4160,7 @@ namespace Checkmarx.API
                 Name = queryGroupSourceQuery.Name,
                 Severity = (int)severity,
                 Source = customQuery,
-                Status = CxAuditWebServiceV9.QueryStatus.New,
+                Status = alreadyExist ? CxAuditWebServiceV9.QueryStatus.Edited : CxAuditWebServiceV9.QueryStatus.New,
                 Type = CxAuditWebServiceV9.CxWSQueryType.Regular,
                 IsExecutable = queryGroupSourceQuery.IsExecutable,
                 IsEncrypted = queryGroupSourceQuery.IsEncrypted
@@ -4176,18 +4179,11 @@ namespace Checkmarx.API
                 PackageType = CxAuditWebServiceV9.CxWSPackageTypeEnum.Corporate,
                 PackageTypeName = packageTypeName,
                 PackageFullName = packageFullName,
-                Status = CxAuditWebServiceV9.QueryStatus.New,
+                Status = alreadyExist ? CxAuditWebServiceV9.QueryStatus.Edited : CxAuditWebServiceV9.QueryStatus.New,
                 Queries = [queryToUp]
             };
 
             UploadQueries([newQuerieGroup]);
-
-            //// For some reason, the description is not added when creating. We need to update again with the description
-            //var querieGroupsRefresh = GetAuditQueries();
-            //var createdQueryGroup = querieGroupsRefresh.Single(x => x.PackageType == CxAuditWebServiceV9.CxWSPackageTypeEnum.Project && x.ProjectId == projectId && x.PackageFullName == packageFullName);
-
-            //createdQueryGroup.Description = description;
-            //UploadQueries([createdQueryGroup]);
         }
 
         /// <summary>

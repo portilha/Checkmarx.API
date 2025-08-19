@@ -77,21 +77,23 @@ namespace Checkmarx.API.Models
                         await Task.CompletedTask;
                     });
 
-            var fallbackPolicy = Policy<HttpResponseMessage>
-                .Handle<Exception>(ex => !(ex is TimeoutRejectedException))  // Exclude timeout here
-                .OrResult(response => !response.IsSuccessStatusCode)
-                .FallbackAsync(
-                    fallbackValue: new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
-                    {
-                        ReasonPhrase = "Fallback response"
-                    },
-                    onFallbackAsync: (outcome, context) =>
-                    {
-                        Console.WriteLine($"Fallback triggered due to: {outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString()}");
-                        return Task.CompletedTask;
-                    });
+            //var fallbackPolicy = Policy<HttpResponseMessage>
+            //    .Handle<Exception>(ex => !(ex is TimeoutRejectedException))  // Exclude timeout here
+            //    .OrResult(response => !response.IsSuccessStatusCode)
+            //    .FallbackAsync(
+            //        fallbackValue: new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+            //        {
+            //            ReasonPhrase = "Fallback response"
+            //        },
+            //        onFallbackAsync: (outcome, context) =>
+            //        {
+            //            Console.WriteLine("Fallback policy triggered.");
 
-            return fallbackPolicy.WrapAsync(retryPolicy.WrapAsync(timeoutPolicy));
+            //            //Console.WriteLine($"Fallback triggered due to: {outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString()}");
+            //            return Task.CompletedTask;
+            //        });
+
+            return retryPolicy.WrapAsync(timeoutPolicy);
         }
 
         public static Task<HttpResponseMessage> ExecuteWithPolicyAsync(IAsyncPolicy<HttpResponseMessage> policy, HttpClient client, HttpRequestMessage request, CancellationToken cancellationToken = default)

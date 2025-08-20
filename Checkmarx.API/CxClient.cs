@@ -254,9 +254,18 @@ namespace Checkmarx.API
                 {
                     _cxAuditWebServiceSoapClientV9 = new CxAuditWebServiceV9.CxAuditWebServiceSoapClient(SASTServerURL, TimeSpan.FromSeconds(360), Username, Password);
 
+                    _cxAuditWebServiceSoapClientV9.ClientCredentials.ServiceCertificate.SslCertificateAuthentication =
+                                new System.ServiceModel.Security.X509ServiceCertificateAuthentication
+                                {
+                                    CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.None,
+                                    RevocationMode = X509RevocationMode.NoCheck
+                                };
+
                     var portalChannelFactory = _cxAuditWebServiceSoapClientV9.ChannelFactory;
                     portalChannelFactory.UseMessageInspector(async (request, channel, next) =>
                     {
+
+
                         HttpRequestMessageProperty reqProps = new HttpRequestMessageProperty();
                         reqProps.Headers.Add("Authorization", $"Bearer {AuthenticationToken.Parameter}");
                         request.Properties.Add(HttpRequestMessageProperty.Name, reqProps);

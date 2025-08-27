@@ -3011,29 +3011,17 @@ namespace Checkmarx.API
         /// Get Query Information about the CWE of the Checkmarx Queries and other information.
         /// </summary>
         /// <returns></returns>
-        public StringBuilder GetQueryInformation(bool detailedCategories = false, bool exportNonExecutableQueries = false, params string[] presetNames)
+        public IEnumerable<QueryInformationDTO> GetQueryInformation(bool detailedCategories = false, bool exportNonExecutableQueries = false, bool exportOnlyCx = false, params string[] presetNames)
         {
-            StringBuilder result = new StringBuilder();
-            result.AppendLine("sep=,");
+            Dictionary<string, HashSet<string>> standards = new Dictionary<string, HashSet<string>>();
 
-            List<string> headers = new List<string>
-            {
-                "QueryId",
-                "Preset QueryId",
-                "Language",
-                "PackageType",
-                "QueryGroup",
-                "QueryName",
-                "IsExecutable",
-                "CWE",
-                "Severity"
-            };
+            var queryGroups = this.GetQueries();
 
-            if (detailedCategories)
-                headers.Add("Categories");
+            var corpGroups = queryGroups.Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Corporate)
+                          .ToDictionary(y => $"{y.LanguageName}:{y.Name}");
 
             // we need order
-            List<HashSet<long>> presetQueries = new List<HashSet<long>>();
+            Dictionary<string, HashSet<long>> presetQueries = new Dictionary<string, HashSet<long>>();
 
             if (presetNames != null)
             {
@@ -3042,29 +3030,22 @@ namespace Checkmarx.API
                 foreach (var preset in presetNames)
                 {
                     var presetId = presets.First(x => x.Value == preset);
-
-                    headers.Add(preset);
-
-                    presetQueries.Add(GetPresetQueryIds(presetId.Key).ToHashSet());
+                    presetQueries.Add(presetId.Value, GetPresetQueryIds(presetId.Key).ToHashSet());
                 }
             }
 
-            Dictionary<string, HashSet<string>> standards = new Dictionary<string, HashSet<string>>();
-
-            result.AppendLine(string.Join(",", headers));
-
-            var queryGroups = this.GetQueries();
-
-            List<object> values;
-
             foreach (var queryGroup in queryGroups)
             {
+                if (exportOnlyCx && queryGroup.PackageType != cxPortalWebService93.CxWSPackageTypeEnum.Cx)
+                    continue;
+
                 foreach (var query in queryGroup.Queries)
                 {
                     if (!exportNonExecutableQueries && !query.IsExecutable)
                         continue;
 
                     List<string> categories = new List<string>();
+
                     foreach (var item in query.Categories)
                     {
                         if (!standards.ContainsKey(item.CategoryType.Name))
@@ -3080,33 +3061,47 @@ namespace Checkmarx.API
 
                     long presetQueryId = GetPresetQueryId(queryGroup, query);
 
-                    values = new List<object>
+                    var queryInfo = new QueryInformationDTO
                     {
-                        query.QueryId,
-                        presetQueryId,
-                        queryGroup.LanguageName,
-                        queryGroup.PackageTypeName,
-                        queryGroup.PackageFullName,
-                        query.Name,
-                        query.IsExecutable,
-                        query.Cwe,
-                        toSeverityToString(query.Severity)
+                        QueryId = query.QueryId,
+                        PresetQueryId = presetQueryId,
+                        Language = queryGroup.LanguageName,
+                        PackageType = queryGroup.PackageTypeName,
+                        QueryGroup = queryGroup.PackageFullName,
+                        QueryName = query.Name,
+                        IsExecutable = query.IsExecutable,
+                        CWE = query.Cwe,
+                        Severity = toSeverityToString(query.Severity),
+                        SystemSeverity = toSeverityToString(query.Severity)
                     };
 
-                    if (detailedCategories)
-                        values.Add(string.Join(";", categories));
-
-                    // add the presence of the queries in the presets.
-                    foreach (var preset in presetQueries)
+                    if (queryGroup.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx)
                     {
-                        values.Add(preset.Contains(presetQueryId).ToString());
+                        var queryGroupName = $"{queryGroup.LanguageName}:{queryGroup.Name}";
+
+                        // check if the query is already overwritten in CORP
+                        if (corpGroups.ContainsKey(queryGroupName))
+                        {
+                            var overriden = corpGroups[queryGroupName].Queries.SingleOrDefault(x => x.Name == query.Name);
+                            if (overriden != null)
+                                queryInfo.SystemSeverity = toSeverityToString(overriden.Severity);
+                        }
                     }
 
-                    result.AppendLine(string.Join(",", values.Select(x => $"\"{x?.ToString()}\"")));
+                    if (detailedCategories)
+                        queryInfo.Categories = string.Join(";", categories);
+
+                    // add the presence of the queries in the presets.
+                    queryInfo.PresetsPresence = new Dictionary<string, bool>();
+
+                    foreach (var preset in presetQueries)
+                    {
+                        queryInfo.PresetsPresence.Add(preset.Key, preset.Value.Contains(presetQueryId));
+                    }
+
+                    yield return queryInfo;
                 }
             }
-
-            return result;
         }
 
         public Dictionary<long, List<Tuple<long, string>>> GetQueryForCWE(ICollection<long> cwes)

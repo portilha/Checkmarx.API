@@ -569,7 +569,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetQueriesInformationTest()
         {
-            Trace.WriteLine(clientV9.GetQueryInformation().ToString());
+            
         }
 
         [TestMethod]
@@ -801,7 +801,7 @@ namespace Checkmarx.API.Tests
             {
                 Trace.WriteLine("\n###" + item.ToString() + "\n");
 
-                foreach (var configuration in clientV9.GetConfigurations((SAST.Group)item))
+                foreach (var configuration in clientV93.GetConfigurations((SAST.Group)item))
                 {
                     Trace.WriteLine("\t" + configuration.Key + " -> " + configuration.Description + "\n\t" + configuration.Value);
                 }

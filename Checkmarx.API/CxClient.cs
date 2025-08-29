@@ -3011,7 +3011,7 @@ namespace Checkmarx.API
         /// Get Query Information about the CWE of the Checkmarx Queries and other information.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<QueryInformationDTO> GetQueryInformation(bool detailedCategories = false, bool exportNonExecutableQueries = false, bool exportOnlyCx = false, params string[] presetNames)
+        public IEnumerable<QueryInformationDTO> GetQueryInformation(bool detailedCategories = false, bool exportNonExecutableQueries = false, bool exportOnlyCx = false, params int[] presetIds)
         {
             Dictionary<string, HashSet<string>> standards = new Dictionary<string, HashSet<string>>();
 
@@ -3021,18 +3021,25 @@ namespace Checkmarx.API
                           .ToDictionary(y => $"{y.LanguageName}:{y.Name}");
 
             // we need order
-            Dictionary<string, HashSet<long>> presetQueries = new Dictionary<string, HashSet<long>>();
+            Dictionary<(int, string), HashSet<long>> presetQueries = new Dictionary<(int, string), HashSet<long>>();
 
-            if (presetNames != null)
+            if (presetIds != null)
             {
                 var presets = GetPresets();
 
-                foreach (var preset in presetNames)
+                foreach (var presetId in presetIds)
                 {
-                    var presetId = presets.First(x => x.Value == preset);
-                    presetQueries.Add(presetId.Value, GetPresetQueryIds(presetId.Key).ToHashSet());
+                    var presetsFound = presets.First(x => x.Key == presetId);
+                    presetQueries.Add((presetsFound.Key, presetsFound.Value), GetPresetQueryIds(presetsFound.Key).ToHashSet());
                 }
             }
+
+            var duplicatedPresetNames = presetQueries
+                .Keys
+                .GroupBy(k => k.Item2)
+                .Where(g => g.Count() > 1)
+                .SelectMany(g => g)
+                .ToDictionary(k => k.Item1, k => k.Item2);
 
             foreach (var queryGroup in queryGroups)
             {
@@ -3096,7 +3103,10 @@ namespace Checkmarx.API
 
                     foreach (var preset in presetQueries)
                     {
-                        queryInfo.PresetsPresence.Add(preset.Key, preset.Value.Contains(presetQueryId));
+                        if (duplicatedPresetNames.ContainsKey(preset.Key.Item1))
+                            queryInfo.PresetsPresence.Add($"{preset.Key.Item2}_ID{preset.Key.Item1}", preset.Value.Contains(presetQueryId));
+                        else
+                            queryInfo.PresetsPresence.Add(preset.Key.Item2, preset.Value.Contains(presetQueryId));
                     }
 
                     yield return queryInfo;

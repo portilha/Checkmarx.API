@@ -18,7 +18,7 @@ namespace Checkmarx.API.Models
                 throw new Exception("Number of REST policy number of retries must be greater than 0");
 
             var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(
-                TimeSpan.FromSeconds(300),
+                TimeSpan.FromHours(1),
                 TimeoutStrategy.Pessimistic,
                 onTimeoutAsync: (context, timespan, task, exception) =>
                 {

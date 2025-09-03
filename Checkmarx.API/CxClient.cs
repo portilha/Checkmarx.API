@@ -2390,21 +2390,40 @@ namespace Checkmarx.API
             return GetScans(projectId, true, ScanRetrieveKind.Locked).LastOrDefault();
         }
 
-        public int GetScanCount()
+        public int GetScanCount(DateTime? minScanDate = null, DateTime? maxScanDate = null)
         {
             checkConnection();
-            return _oDataScans.Count();
+
+            var scans = _oDataScans.AsQueryable();
+
+            if (maxScanDate.HasValue)
+            {
+                var maxDto = new DateTimeOffset(DateTime.SpecifyKind(maxScanDate.Value, DateTimeKind.Unspecified), ServerDateTimeOffSet);
+                scans = scans.Where(x => x.ScanRequestedOn <= maxDto);
+            }
+
+            if (minScanDate.HasValue)
+            {
+                var minDto = new DateTimeOffset(DateTime.SpecifyKind(minScanDate.Value, DateTimeKind.Unspecified), ServerDateTimeOffSet);
+                scans = scans.Where(x => x.ScanRequestedOn >= minDto);
+            }
+
+            return scans.Count();
         }
 
         public IEnumerable<Scan> GetScans(long projectId, bool finished, ScanRetrieveKind scanKind = ScanRetrieveKind.All, string version = null, bool onlyPublic = false, DateTime? minScanDate = null, DateTime? maxScanDate = null, bool includeGhostScans = true, bool useServerTime = true)
         {
             DateTimeOffset? filterMaxDate = null;
             if (maxScanDate.HasValue)
-                filterMaxDate = useServerTime ? new DateTimeOffset(maxScanDate.Value, ServerDateTimeOffSet) : new DateTimeOffset(maxScanDate.Value);
+                filterMaxDate = useServerTime ?
+                    new DateTimeOffset(DateTime.SpecifyKind(maxScanDate.Value, DateTimeKind.Unspecified), ServerDateTimeOffSet) :
+                    new DateTimeOffset(maxScanDate.Value);
 
             DateTimeOffset? filterMinDate = null;
             if (minScanDate.HasValue)
-                filterMinDate = useServerTime ? new DateTimeOffset(minScanDate.Value, ServerDateTimeOffSet) : new DateTimeOffset(minScanDate.Value);
+                filterMinDate = useServerTime ?
+                    new DateTimeOffset(DateTime.SpecifyKind(minScanDate.Value, DateTimeKind.Unspecified), ServerDateTimeOffSet) :
+                    new DateTimeOffset(minScanDate.Value);
 
             return getODataScans(projectId, finished, scanKind, version, onlyPublic, filterMinDate, filterMaxDate, includeGhostScans);
         }

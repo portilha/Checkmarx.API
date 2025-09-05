@@ -326,7 +326,7 @@ namespace Checkmarx.API
             get
             {
                 if (!SupportsV1_1)
-                    return null;
+                    throw new NotSupportedException("The SAST version doesn't support the API v1.1.");
 
                 if (_sastClientV1_1 == null)
                     _sastClientV1_1 = new SASTV1_1(this, httpClient);
@@ -377,7 +377,7 @@ namespace Checkmarx.API
             get
             {
                 if (!SupportsV2_1)
-                    return null;
+                    throw new NotSupportedException("The SAST version doesn't support the API v2.1.");
 
                 if (_sastClientV2_1 == null)
                     _sastClientV2_1 = new SASTV2_1Client(this, httpClient);
@@ -412,7 +412,7 @@ namespace Checkmarx.API
             get
             {
                 if (!SupportsV2)
-                    return null;
+                    throw new NotSupportedException("The SAST version doesn't support the API v2.");
 
                 if (_sastClientV2 == null)
                     _sastClientV2 = new SASTV2Client(this, httpClient);
@@ -446,7 +446,7 @@ namespace Checkmarx.API
             get
             {
                 if (!SupportsV3)
-                    return null;
+                    throw new NotSupportedException("The SAST version doesn't support the API v3.");
 
                 if (_sastClientV3 == null)
                     _sastClientV3 = new SASTV3Client(this, httpClient);
@@ -481,7 +481,7 @@ namespace Checkmarx.API
             get
             {
                 if (!SupportsV4)
-                    return null;
+                    throw new NotSupportedException("The SAST version doesn't support the API v4.");
 
                 if (_sastClientV4 == null)
                     _sastClientV4 = new SASTV4Client(this, httpClient);
@@ -516,7 +516,7 @@ namespace Checkmarx.API
             get
             {
                 if (!SupportsV5)
-                    return null;
+                    throw new NotSupportedException("The SAST version doesn't support the API v5.");
 
                 if (_sastClientV5 == null)
                     _sastClientV5 = new SASTV5Client(this, httpClient);
@@ -551,7 +551,7 @@ namespace Checkmarx.API
             get
             {
                 if (!SupportsV5_1)
-                    return null;
+                    throw new NotSupportedException("The SAST version doesn't support the API v5.1.");
 
                 if (_sastClientV5_1 == null)
                     _sastClientV5_1 = new SASTV5_1Client(this, httpClient);
@@ -586,7 +586,7 @@ namespace Checkmarx.API
             get
             {
                 if (!SupportsV6)
-                    return null;
+                    throw new NotSupportedException("The SAST version doesn't support the API v6.0.");
 
                 if (_sastClientV6 == null)
                     _sastClientV6 = new SASTV6Client(this, httpClient);

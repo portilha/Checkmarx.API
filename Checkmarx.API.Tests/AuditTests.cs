@@ -59,6 +59,13 @@ public class AuditTests
 
     }
 
+    [TestMethod]
+    public void ProjectsByNameAndTeamTest()
+    {
+        var projectSearch = _sastClient.GetProjectsByNameAndTeam();
+
+        Trace.WriteLine($"{projectSearch.Count()} projects found");
+    }
 
     [TestMethod]
     public void LowerSeverityTEst()

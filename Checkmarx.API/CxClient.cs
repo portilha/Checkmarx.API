@@ -11,6 +11,8 @@ using Checkmarx.API.SASTV3;
 using Checkmarx.API.SASTV4;
 using Checkmarx.API.SASTV5;
 using Checkmarx.API.SASTV5_1;
+using Checkmarx.API.SASTV5_2;
+using Checkmarx.API.SASTV5_3;
 using Checkmarx.API.SASTV6;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -48,6 +50,7 @@ namespace Checkmarx.API
     {
         public string Origin { get; set; } = "Checkmarx.API";
 
+        private const long maxProjectsThreshold = 50_000;
         private readonly int _defaultRetries = 10;
         internal static SOAPRetryPolicyProvider _soapRetryPolicyProvider;
         internal static IAsyncPolicy<HttpResponseMessage> _retryPolicy;
@@ -557,6 +560,73 @@ namespace Checkmarx.API
                     _sastClientV5_1 = new SASTV5_1Client(this, httpClient);
 
                 return _sastClientV5_1;
+            }
+        }
+
+        private bool? _supportsV5_2 = null;
+
+        public bool SupportsV5_2
+        {
+            get
+            {
+                if (_supportsV5_2 == null)
+                {
+                    checkConnection();
+                    _supportsV5_2 = SupportsRESTAPIVersion("5.2");
+                }
+                return _supportsV5_2.Value;
+            }
+        }
+
+        private SASTV5_2Client _sastClientV5_2;
+
+        /// <summary>
+        /// Interface to SAST V5.2 Client.
+        /// </summary>
+        /// <remarks>Supports only V5.2</remarks>
+        public SASTV5_2Client SASTClientV5_2
+        {
+            get
+            {
+                if (!SupportsV5_2)
+                    throw new NotSupportedException("The SAST version doesn't support the API v5.2.");
+
+                if (_sastClientV5_2 == null)
+                    _sastClientV5_2 = new SASTV5_2Client(this, httpClient);
+
+                return _sastClientV5_2;
+            }
+        }
+
+        private bool? _supportsV5_3 = null;
+
+        public bool SupportsV5_3
+        {
+            get
+            {
+                if (_supportsV5_3 == null)
+                {
+                    checkConnection();
+                    _supportsV5_3 = SupportsRESTAPIVersion("5.3");
+                }
+                return _supportsV5_3.Value;
+            }
+        }
+
+        private SASTV5_3Client _sastClientV5_3;
+
+        /// <summary>
+        /// Interface to SAST V5.3 Client.
+        /// </summary>
+        /// <remarks>Supports only V5.3</remarks>
+        public SASTV5_3Client SASTClientV5_3
+        {
+            get
+            {
+                if (_sastClientV5_3 == null)
+                    _sastClientV5_3 = new SASTV5_3Client(this, httpClient);
+
+                return _sastClientV5_3;
             }
         }
 
@@ -2614,6 +2684,19 @@ namespace Checkmarx.API
         {
             checkConnection();
 
+            bool fetchProjectsPaginated = false;
+            if (SASTClientV5_3.GETProjectsIsSupported)
+            {
+                if (_oDataProjects.Count() > maxProjectsThreshold)
+                    fetchProjectsPaginated = true;
+            }
+
+            if (fetchProjectsPaginated)
+            {
+                Console.WriteLine($"Fetching {_oDataProjects.Count()} Projects from paginated method");
+                return Mapper.MapProjects(GetProjectsByNameAndTeam()).ToList();
+            }
+
             string version = "2.0";
             string link = "projects";
             if (SupportsRESTAPIVersion("2.2"))
@@ -2650,6 +2733,41 @@ namespace Checkmarx.API
                     throw;
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets details of all existing projects
+        /// </summary>
+        /// <param name="projectName">Name of a specific project (allows % syntax to 'like' functionality)</param>
+        /// <param name="teamId">Unique ID of a specific team (empty value allowed)</param>
+        /// <param name="showAlsoDeletedProjects">Expose deleted project information, default value is "false"</param>
+        /// <param name="limit">Number of projects to return</param>
+        /// <returns>Ok</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public IEnumerable<ProjectBaseDtoV53> GetProjectsByNameAndTeam(string projectName = null, string teamId = null, bool? showAlsoDeletedProjects = null, int limit = 1000)
+        {
+            checkConnection();
+
+            var offset = 0;
+            var allProjects = new List<ProjectBaseDtoV53>();
+
+            while (true)
+            {
+                var page = SASTClientV5_3.PagedByprojectNameteamIdshowAlsoDeletedProjectsoffsetlimitAsync(
+                    projectName, teamId, showAlsoDeletedProjects, limit, offset).GetAwaiter().GetResult();
+
+                if (page == null || !page.Any())
+                    break;
+
+                allProjects.AddRange(page);
+
+                if (page.Count < limit)
+                    break;
+
+                offset++;
+            }
+
+            return allProjects;
         }
 
         #endregion

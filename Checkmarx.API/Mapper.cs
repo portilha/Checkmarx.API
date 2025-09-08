@@ -1,5 +1,6 @@
 ﻿using Checkmarx.API.Models;
 using Checkmarx.API.SAST;
+using Checkmarx.API.SASTV5_3;
 using Microsoft.OData.Client;
 using System;
 using System.Collections.Generic;
@@ -71,6 +72,32 @@ namespace Checkmarx.API
             // Return the new object
             return newObject;
         }
+
+        #region Projects
+
+        internal static IEnumerable<ProjectDetails> MapProjects(IEnumerable<ProjectBaseDtoV53> data)
+        {
+            foreach (var item in data)
+            {
+                var result = Map<ProjectDetails>(item);
+
+                result.CustomFields = new List<CustomField>();
+                foreach (var customField in item.CustomFields)
+                    result.CustomFields.Add(Map<CustomField>(customField));
+
+                result.Links = new List<Link>();
+                foreach (var link in item.Links)
+                    result.Links.Add(Map<Link>(link));
+
+                result.RelatedProjects = item.RelatedProjects.ToList();
+
+                result.TeamId = item.TeamId?.ToString();
+
+                yield return result;
+            }
+        }
+
+        #endregion
 
         #region SOAP
 

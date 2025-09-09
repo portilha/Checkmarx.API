@@ -9,6 +9,7 @@
 
 using Checkmarx.API.Models;
 using System;
+using System.Data;
 using System.ServiceModel;
 using static Checkmarx.API.CxClient;
 
@@ -8852,7 +8853,7 @@ namespace PortalSoap
 
         private string sourceIdField;
 
-        private int lOCField;
+        private long lOCField;
 
         private int languageField;
 
@@ -9006,6 +9007,8 @@ namespace PortalSoap
             }
         }
 
+        public DateTime Created { get { return new DateTime(CreatedOn); } }
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order = 10)]
         public long CreatedOn
@@ -9019,6 +9022,8 @@ namespace PortalSoap
                 this.createdOnField = value;
             }
         }
+
+        public DateTime Updated { get { return new DateTime(UpdatedOn); } }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order = 11)]
@@ -9034,6 +9039,8 @@ namespace PortalSoap
             }
         }
 
+        public DateTime Queued { get { return new DateTime(QueuedOn); } }
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order = 12)]
         public long QueuedOn
@@ -9047,6 +9054,8 @@ namespace PortalSoap
                 this.queuedOnField = value;
             }
         }
+
+        public DateTime EngineStarted { get { return new DateTime(EngineStartedOn); } }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order = 13)]
@@ -9062,6 +9071,8 @@ namespace PortalSoap
             }
         }
 
+        public DateTime EngineFinished { get { return new DateTime(EngineFinishedOn); } }
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order = 14)]
         public long EngineFinishedOn
@@ -9075,6 +9086,8 @@ namespace PortalSoap
                 this.engineFinishedOnField = value;
             }
         }
+
+        public DateTime Completed { get { return new DateTime(CompletedOn); } }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order = 15)]
@@ -9120,7 +9133,7 @@ namespace PortalSoap
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order = 18)]
-        public int LOC
+        public long LOC
         {
             get
             {

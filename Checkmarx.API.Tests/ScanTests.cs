@@ -1,39 +1,17 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using Checkmarx.API.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
-using System.Dynamic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Security.Cryptography.Xml;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
-using System.Xml;
-using System.Xml.Linq;
-using Checkmarx.API;
-using Checkmarx.API.Exceptions;
-using Checkmarx.API.Models;
-using cxPriorityWebService;
-using Microsoft.Extensions.Configuration;
-using Microsoft.OData.Client;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using static Checkmarx.API.CxClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.OData.Client;
-using System.Diagnostics;
 
 namespace Checkmarx.API.Tests
 {

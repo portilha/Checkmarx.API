@@ -1,4 +1,3 @@
-using Checkmarx.API.SCA;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -34,6 +33,26 @@ public class AuditTests
     }
 
     [TestMethod]
+    public void VersionSupportTest()
+    {
+        if (!_sastClient.Connected)
+            throw new Exception("Not connected to SAST");
+
+        Assert.IsTrue(_sastClient.SASTClientV5.GETEngineVersionsIsSupported);
+        Assert.IsTrue(_sastClient.SASTClientV5_3.GETProjectsIsSupported);
+        Assert.IsFalse(_sastClient.SASTClientV5_3.POSTProjectsIsSupported);
+    }
+
+    [TestMethod]
+    public void GetEngineVersionsTest()
+    {
+        var engines = _sastClient.GetEngineServers();
+
+        foreach (var engine in engines)
+            Trace.WriteLine($"Id: {engine.Id} | Name: {engine.Name} | Version: {engine.CxVersion} | MinLoc: {engine.MinLoc} | MacLoC: {engine.MaxLoc} | MaxScans: {engine.MaxScans}");
+    }
+
+    [TestMethod]
     public void GetQueriesTest()
     {
         var queries = _sastClient.GetAuditQueries().ToArray();
@@ -56,7 +75,6 @@ public class AuditTests
             }
 
         }
-
     }
 
     [TestMethod]

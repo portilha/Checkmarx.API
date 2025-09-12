@@ -3455,6 +3455,16 @@ namespace Checkmarx.API
 
         #region Engines
 
+        public IEnumerable<EngineServerResponse5Dto> GetEngineServers()
+        {
+            checkConnection();
+
+            if (SASTClientV5.GETEngineVersionsIsSupported)
+                return SASTClientV5.EngineServers_GetV5Async().Result;
+            else
+                return Mapper.MapEngines(SASTClient.EngineServersV1_GetAsync().Result);
+        }
+
         /// <summary>
         /// Giving an LoC please look up
         /// </summary>

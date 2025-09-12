@@ -23,6 +23,7 @@
 namespace Checkmarx.API.SASTV5_3
 {
     using Checkmarx.API.Models;
+    using Checkmarx.API.Utils;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Linq;
@@ -82,7 +83,7 @@ namespace Checkmarx.API.SASTV5_3
             get
             {
                 if (_getProjectsIsSupported == null)
-                    _getProjectsIsSupported = SupportsMethod("get");
+                    _getProjectsIsSupported = VersioningUtils.SupportsAPIMethod(_httpClient, ApiVersionEnum.v5_3, "get", "/projects");
 
                 return _getProjectsIsSupported.Value;
             }
@@ -94,57 +95,9 @@ namespace Checkmarx.API.SASTV5_3
             get
             {
                 if (_postProjectsIsSupported == null)
-                    _postProjectsIsSupported = SupportsMethod("post");
+                    _postProjectsIsSupported = VersioningUtils.SupportsAPIMethod(_httpClient, ApiVersionEnum.v5_3, "post", "/projects");
 
                 return _postProjectsIsSupported.Value;
-            }
-        }
-
-        private bool SupportsMethod(string methodType)
-        {
-            try
-            {
-                if (_cxClient.SupportsV5_3)
-                    return true;
-
-                // Get Swagger JSON
-                using var request = new HttpRequestMessage(HttpMethod.Get, "help/swagger/docs/latest");
-                var response = _httpClient.SendAsync(request).GetAwaiter().GetResult();
-
-                if (!response.IsSuccessStatusCode)
-                    return false;
-
-                var swaggerJson = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                var swagger = JObject.Parse(swaggerJson);
-
-                // Look for paths
-                var paths = swagger["paths"] as JObject;
-                if (paths == null)
-                    return false;
-
-                // Find /projects path ignoring case
-                var projectPath = paths.Properties()
-                    .FirstOrDefault(p => string.Equals(p.Name, "/projects", StringComparison.OrdinalIgnoreCase));
-
-                if (projectPath == null)
-                    return false;
-
-                var methodNode = projectPath.Value[methodType];
-                if (methodNode == null)
-                    return false;
-
-                var responses = methodNode["responses"];
-                if (responses == null)
-                    return false;
-
-                // Swagger 2.0 uses "produces" instead of responses.content
-                var produces = methodNode["produces"]?.Values<string>() ?? Enumerable.Empty<string>();
-
-                return produces.Any(p => p.Equals("application/json;v=5.3", StringComparison.OrdinalIgnoreCase));
-            }
-            catch
-            {
-                return false;
             }
         }
 

@@ -1,13 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using Checkmarx.API.Utils;
 
 namespace Checkmarx.API.Tests
 {

@@ -50,7 +50,6 @@ namespace Checkmarx.API
     {
         public string Origin { get; set; } = "Checkmarx.API";
 
-        private const long maxProjectsThreshold = 50_000;
         private readonly int _defaultRetries = 10;
         internal static SOAPRetryPolicyProvider _soapRetryPolicyProvider;
         internal static IAsyncPolicy<HttpResponseMessage> _retryPolicy;
@@ -845,6 +844,25 @@ namespace Checkmarx.API
             {
                 checkConnection();
                 return _version;
+            }
+        }
+
+        private Version _engineVersion;
+        /// <summary>
+        /// Get Engine Version
+        /// </summary>
+        public Version EngineVersion
+        {
+            get
+            {
+                if (_engineVersion == null)
+                {
+                    _engineVersion = GetEngineServers()
+                        .Select(x => new Version(x.CxVersion))
+                        .Max();
+                }
+
+                return _engineVersion;
             }
         }
 
@@ -2684,18 +2702,16 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            bool fetchProjectsPaginated = false;
-            if (SASTClientV5_3.GETProjectsIsSupported)
+            try
             {
-                if (_oDataProjects.Count() > maxProjectsThreshold)
-                    fetchProjectsPaginated = true;
-            }
-
-            if (fetchProjectsPaginated)
-            {
-                Console.WriteLine($"Fetching {_oDataProjects.Count()} Projects from paginated method");
                 return Mapper.MapProjects(GetProjectsByNameAndTeam()).ToList();
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching projects. Reason: {ex.Message}");
+            }
+
+            Console.WriteLine($"Fetching projects from REST API 2.0...");
 
             string version = "2.0";
             string link = "projects";
@@ -3454,6 +3470,20 @@ namespace Checkmarx.API
         #endregion
 
         #region Engines
+
+        public IEnumerable<EngineServerResponse5Dto> GetEngineServers()
+        {
+            checkConnection();
+
+            try
+            {
+                return SASTClientV5.EngineServers_GetV5Async().Result;
+            }
+            catch
+            {
+                return Mapper.MapEngines(SASTClient.EngineServersV1_GetAsync().Result);
+            }
+        }
 
         /// <summary>
         /// Giving an LoC please look up

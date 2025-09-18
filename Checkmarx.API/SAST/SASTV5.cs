@@ -22,11 +22,13 @@
 
 namespace Checkmarx.API.SASTV5
 {
-    using Newtonsoft.Json;
-    using System.Diagnostics;
-    using System = global::System;
-    using static Checkmarx.API.CxClient;
     using Checkmarx.API.Models;
+    using Checkmarx.API.Utils;
+    using Newtonsoft.Json;
+    using System;
+    using System.Diagnostics;
+    using static Checkmarx.API.CxClient;
+    using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SASTV5Client
@@ -1371,6 +1373,18 @@ namespace Checkmarx.API.SASTV5
             }
         }
 
+        private bool? _getEngineVersionsIsSupported = null;
+        public bool GETEngineVersionsIsSupported
+        {
+            get
+            {
+                if (_getEngineVersionsIsSupported == null)
+                    _getEngineVersionsIsSupported = VersioningUtils.SupportsAPIMethod(_httpClient, ApiVersionEnum.v5, "get", "/sast/engineServers");
+
+                return _getEngineVersionsIsSupported.Value;
+            }
+        }
+
         /// <summary>
         /// Gets details of all Engine Servers
         /// </summary>
@@ -1389,6 +1403,9 @@ namespace Checkmarx.API.SASTV5
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<EngineServerResponse5Dto>> EngineServers_GetV5Async(System.Threading.CancellationToken cancellationToken)
         {
+            if (!GETEngineVersionsIsSupported)
+                throw new NotSupportedException("The SAST version doesn't support the GET EngineServers from API v5.");
+
             var client_ = _httpClient;
             var disposeClient_ = false;
             try

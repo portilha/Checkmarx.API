@@ -1,16 +1,10 @@
 ﻿using Checkmarx.API.Models;
 using CxDataRepository;
-using cxPortalWebService93;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 
-namespace Checkmarx.API
+namespace Checkmarx.API.Utils
 {
-    public static class Utils
+    public static class LinkUtils
     {
         /// <summary>
         /// https://.checkmarx.net/cxwebclient/ViewerMain.aspx?scanid=1032992&projectid=12&pathid=1

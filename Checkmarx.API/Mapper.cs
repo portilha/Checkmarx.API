@@ -1,5 +1,6 @@
 ﻿using Checkmarx.API.Models;
 using Checkmarx.API.SAST;
+using Checkmarx.API.SASTV5;
 using Checkmarx.API.SASTV5_3;
 using Microsoft.OData.Client;
 using System;
@@ -92,6 +93,35 @@ namespace Checkmarx.API
                 result.RelatedProjects = item.RelatedProjects.ToList();
 
                 result.TeamId = item.TeamId?.ToString();
+
+                yield return result;
+            }
+        }
+
+        #endregion
+
+        #region Engines
+
+        internal static IEnumerable<EngineServerResponse5Dto> MapEngines(IEnumerable<EngineServerResponsDto> data)
+        {
+            foreach (var item in data)
+            {
+                var result = Map<EngineServerResponse5Dto>(item);
+
+                result.Link = Map<SASTV5.LinkDtoBase>(item.Link);
+                result.Uri = item.Uri.ToString();
+
+                result.MaxLoc = item.MaxLoc >= int.MinValue && item.MaxLoc <= int.MaxValue ?
+                    (int)item.MaxLoc :
+                    throw new Exception("Error converting MaxLoc");
+
+                result.MinLoc = item.MinLoc >= int.MinValue && item.MinLoc <= int.MaxValue ?
+                    (int)item.MinLoc :
+                    throw new Exception("Error converting MinLoc");
+
+                result.MaxScans = item.MaxScans >= int.MinValue && item.MaxScans <= int.MaxValue ?
+                    (int)item.MaxScans :
+                    throw new Exception("Error converting MinLoc");
 
                 yield return result;
             }

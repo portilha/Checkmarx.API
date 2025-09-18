@@ -847,6 +847,25 @@ namespace Checkmarx.API
             }
         }
 
+        private Version _engineVersion;
+        /// <summary>
+        /// Get Engine Version
+        /// </summary>
+        public Version EngineVersion
+        {
+            get
+            {
+                if (_engineVersion == null)
+                {
+                    _engineVersion = GetEngineServers()
+                        .Select(x => new Version(x.CxVersion))
+                        .Max();
+                }
+
+                return _engineVersion;
+            }
+        }
+
         private bool _isV9 = false;
         private bool _isV94 = false;
         private bool _isV95 = false;

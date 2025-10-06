@@ -158,14 +158,44 @@ namespace Checkmarx.API.Models
                     return new KeyValuePair<string, string>(kv[0], kv.Length > 1 ? kv[1] : "");
                 }));
             }
-            else if (content is MultipartFormDataContent)
+            else if (content is MultipartFormDataContent multiPartContent)
             {
-                var multiPartContent = (MultipartFormDataContent)content;
-                var newMultipartContent = new MultipartFormDataContent();
+                // Preserve the original boundary
+                var boundary = multiPartContent.Headers.ContentType.Parameters
+                    .FirstOrDefault(p => p.Name.Equals("boundary", StringComparison.OrdinalIgnoreCase))
+                    ?.Value?.Trim('"'); // remove surrounding quotes if any
+
+                var newMultipartContent = string.IsNullOrEmpty(boundary)
+                    ? new MultipartFormDataContent()
+                    : new MultipartFormDataContent(boundary);
+
                 foreach (var partContent in multiPartContent)
                 {
-                    newMultipartContent.Add(partContent, partContent.Headers.ContentDisposition.Name, partContent.Headers.ContentDisposition.FileName);
+                    // Read the bytes of the part
+                    var partBytes = partContent.ReadAsByteArrayAsync().Result;
+                    var newPart = new ByteArrayContent(partBytes);
+
+                    // Copy headers
+                    foreach (var header in partContent.Headers)
+                    {
+                        newPart.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                    }
+
+                    // Get name and filename safely
+                    var cd = partContent.Headers.ContentDisposition;
+                    var name = cd?.Name?.Trim('"');
+                    var fileName = cd?.FileName?.Trim('"');
+
+                    if (!string.IsNullOrEmpty(fileName))
+                    {
+                        newMultipartContent.Add(newPart, name, fileName);
+                    }
+                    else
+                    {
+                        newMultipartContent.Add(newPart, name);
+                    }
                 }
+
                 return newMultipartContent;
             }
             else

@@ -1246,6 +1246,13 @@ namespace Checkmarx.API
             return _cxPortalWebServiceSoapClient.GetServerLicenseData(_soapSessionId);
         }
 
+        public PortalSoap.CxWSDataRetentionRequestResponse GetLatestDataRetention()
+        {
+            checkConnection();
+
+            return _cxPortalWebServiceSoapClient.GetLatestFinishedDataRetentionRequest(_soapSessionId);
+        }
+
         // Cache
         private Dictionary<string, string> _teamsCache;
 

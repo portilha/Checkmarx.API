@@ -1246,6 +1246,13 @@ namespace Checkmarx.API
             return _cxPortalWebServiceSoapClient.GetServerLicenseData(_soapSessionId);
         }
 
+        public PortalSoap.CxWSDataRetentionRequestResponse GetLatestDataRetention()
+        {
+            checkConnection();
+
+            return _cxPortalWebServiceSoapClient.GetLatestFinishedDataRetentionRequest(_soapSessionId);
+        }
+
         // Cache
         private Dictionary<string, string> _teamsCache;
 
@@ -2760,7 +2767,11 @@ namespace Checkmarx.API
         /// <param name="limit">Number of projects to return</param>
         /// <returns>Ok</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public IEnumerable<ProjectBaseDtoV53> GetProjectsByNameAndTeam(string projectName = null, string teamId = null, bool? showAlsoDeletedProjects = null, int limit = 1000)
+        public IEnumerable<ProjectBaseDtoV53> GetProjectsByNameAndTeam(
+            string projectName = null,
+            string teamId = null,
+            bool? showAlsoDeletedProjects = null,
+            int limit = 1000)
         {
             checkConnection();
 
@@ -2769,18 +2780,29 @@ namespace Checkmarx.API
 
             while (true)
             {
-                var page = SASTClientV5_3.PagedByprojectNameteamIdshowAlsoDeletedProjectsoffsetlimitAsync(
-                    projectName, teamId, showAlsoDeletedProjects, limit, offset).GetAwaiter().GetResult();
+                try
+                {
+                    var page = SASTClientV5_3.PagedByprojectNameteamIdshowAlsoDeletedProjectsoffsetlimitAsync(
+                        projectName, teamId, showAlsoDeletedProjects, limit, offset).GetAwaiter().GetResult();
 
-                if (page == null || !page.Any())
-                    break;
+                    if (page == null || !page.Any())
+                        break;
 
-                allProjects.AddRange(page);
+                    allProjects.AddRange(page);
 
-                if (page.Count < limit)
-                    break;
+                    if (page.Count < limit)
+                        break;
 
-                offset++;
+                    offset++;
+                }
+                catch (Exception ex)
+                {
+                    // Log pagination error
+                    Console.WriteLine($"Error fetching projects at pagination offset {offset}: {ex.Message}");
+
+                    // Re-throw
+                    throw;
+                }
             }
 
             return allProjects;

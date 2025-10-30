@@ -3254,7 +3254,8 @@ namespace Checkmarx.API
                         IsExecutable = query.IsExecutable,
                         CWE = query.Cwe,
                         Severity = toSeverityToString(query.Severity),
-                        SystemSeverity = toSeverityToString(query.Severity)
+                        SystemSeverity = toSeverityToString(query.Severity),
+                        IsDeprecated = query.IsDeprecated
                     };
 
                     if (queryGroup.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx)

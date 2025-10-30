@@ -7686,6 +7686,13 @@ namespace cxPortalWebService93
 
         private string engineMetadataField;
 
+        public bool IsDeprecated { 
+            get {
+                return !string.IsNullOrWhiteSpace(Source) 
+                    && Source.Contains("query is deprecated", StringComparison.InvariantCultureIgnoreCase);
+            }
+        }
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Order = 0)]
         public string Name

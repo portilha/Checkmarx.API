@@ -34,6 +34,9 @@ namespace Checkmarx.API
         /// </summary>
         public string Categories { get; set; }
 
+
+        public bool IsDeprecated { get; set; }
+
         /// <summary>
         /// Key: Preset Name, Value: Is Preset Present in the Scan
         /// </summary>

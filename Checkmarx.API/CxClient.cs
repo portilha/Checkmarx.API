@@ -4259,7 +4259,7 @@ namespace Checkmarx.API
 
         #region Queries
 
-        public Dictionary<CxDataRepository97.Severity, int> GetODataScanResultsQuerySeverityCounters(long scanId)
+        public (Dictionary<CxDataRepository97.Severity, int> SeverityCounters, int ToVerifyCounter) GetODataScanResultsQueryCounters(long scanId)
         {
             checkConnection();
 
@@ -4293,16 +4293,22 @@ namespace Checkmarx.API
             if (!dic.ContainsKey(CxDataRepository97.Severity.Low))
                 dic.Add(CxDataRepository97.Severity.Low, 0);
 
-            return dic;
+            // Calculate To Verify count
+            int toverifyCount = results
+                .Where(x => x.StateId == (int)ResultState.ToVerify && x.Severity != CxDataRepository97.Severity.Info)
+                .Select(x => x.QueryId)
+                .Distinct().Count();
+
+            return (dic, toverifyCount);
         }
 
-        public Dictionary<CxDataRepository97.Severity, int> GetScanResultsQuerySeverityCounters(long scanId)
+        public (Dictionary<CxDataRepository97.Severity, int> SeverityCounters, int ToVerifyCounter) GetScanResultsQueryCounters(long scanId)
         {
             checkConnection();
 
-            var severityCounters = GetResultsForScan(scanId).Where(x => x.QueryId != 0 && x.State != 1);
+            var scanResults = GetResultsForScan(scanId).Where(x => x.QueryId != 0 && x.State != (int)ResultState.NonExploitable);
 
-            //var dic = severityCounters
+            //var dic = scanResults
             //    .GroupBy(entity => entity.Severity)
             //    .ToDictionary(x => (CxDataRepository.Severity)x.Key, y => y.Select(x => x.QueryId).Distinct().Count());
 
@@ -4313,14 +4319,14 @@ namespace Checkmarx.API
             var scanQueries = GetQueriesForScan(scanId);
 
             Dictionary<long, CxDataRepository97.Severity> queryDic = new Dictionary<long, CxDataRepository97.Severity>();
-            var distinctQueries = severityCounters.Select(x => x.QueryId).Distinct();
+            var distinctQueries = scanResults.Select(x => x.QueryId).Distinct();
             foreach (var item in distinctQueries)
             {
                 var qry = scanQueries.Where(x => x.QueryId == item).FirstOrDefault();
                 if (qry != null)
                     queryDic.Add(item, (CxDataRepository97.Severity)qry.Severity);
                 else
-                    queryDic.Add(item, (CxDataRepository97.Severity)severityCounters.FirstOrDefault(x => x.QueryId == item).Severity);
+                    queryDic.Add(item, (CxDataRepository97.Severity)scanResults.FirstOrDefault(x => x.QueryId == item).Severity);
             }
 
             Dictionary<CxDataRepository97.Severity, int> dic = queryDic.GroupBy(x => x.Value).ToDictionary(x => x.Key, y => y.Count());
@@ -4340,7 +4346,13 @@ namespace Checkmarx.API
             if (!dic.ContainsKey(CxDataRepository97.Severity.Info))
                 dic.Add(CxDataRepository97.Severity.Info, 0);
 
-            return dic;
+            // Calculate To Verify count
+            int toverifyCount = scanResults
+                .Where(x => x.State == (int)ResultState.ToVerify && x.Severity != (int)Severity.Info)
+                .Select(x => x.QueryId)
+                .Distinct().Count();
+
+            return (dic, toverifyCount);
         }
 
 

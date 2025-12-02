@@ -102,7 +102,8 @@ namespace Checkmarx.API.Tests
 
                 // SOAP
                 var soapResults = clientV9.GetResultsForScan(scan.Id);
-                var soapQueryCounters = clientV9.GetODataScanResultsQuerySeverityCounters(scan.Id);
+                var queryCounters = clientV9.GetODataScanResultsQueryCounters(scan.Id);
+                var soapQueryCounters = queryCounters.SeverityCounters;
 
                 var soapCriticals = soapResults.Count(x => x.Severity == (int)CxDataRepository97.Severity.Critical && x.State != (int)ResultState.NonExploitable);
                 var soapHigh = soapResults.Count(x => x.Severity == (int)CxDataRepository97.Severity.High && x.State != (int)ResultState.NonExploitable);
@@ -110,13 +111,14 @@ namespace Checkmarx.API.Tests
                 var soapLow = soapResults.Count(x => x.Severity == (int)CxDataRepository97.Severity.Low && x.State != (int)ResultState.NonExploitable);
                 var soapInfo = soapResults.Count(x => x.Severity == (int)CxDataRepository97.Severity.Info && x.State != (int)ResultState.NonExploitable);
                 Trace.WriteLine($"SOAP Results - Criticals: {soapCriticals} | Highs: {soapHigh} | Mediums: {soapMedium} | Lows: {soapLow} | Info: {soapInfo}");
-                Trace.WriteLine($"SOAP Query Counters - Criticals: {soapQueryCounters[CxDataRepository97.Severity.Critical]} | Highs: {soapQueryCounters[CxDataRepository97.Severity.High]} | Mediums: {soapQueryCounters[CxDataRepository97.Severity.Medium]} | Lows: {soapQueryCounters[CxDataRepository97.Severity.Low]}");
+                Trace.WriteLine($"SOAP Query Counters - Criticals: {soapQueryCounters[CxDataRepository97.Severity.Critical]} | Highs: {soapQueryCounters[CxDataRepository97.Severity.High]} | Mediums: {soapQueryCounters[CxDataRepository97.Severity.Medium]} | Lows: {soapQueryCounters[CxDataRepository97.Severity.Low]} | Total ToVerify: {queryCounters.ToVerifyCounter}");
 
                 Trace.WriteLine("");
 
                 // Odata
                 var oDataScanResults = clientV9.GetODataResults(scan.Id).ToList();
-                var odataQueryCounters = clientV9.GetScanResultsQuerySeverityCounters(scan.Id);
+                var odQueryCounters = clientV9.GetScanResultsQueryCounters(scan.Id);
+                var odataQueryCounters = odQueryCounters.SeverityCounters;
 
                 var criticals = oDataScanResults.Count(x => x.Severity == CxDataRepository97.Severity.Critical && x.StateId != (int)ResultState.NonExploitable);
                 var high = oDataScanResults.Count(x => x.Severity == CxDataRepository97.Severity.High && x.StateId != (int)ResultState.NonExploitable);
@@ -126,7 +128,7 @@ namespace Checkmarx.API.Tests
 
                 Trace.WriteLine($"OData Scan - Criticals: {scan.Results.Critical} | Highs: {scan.Results.High} | Mediums: {scan.Results.Medium} | Lows: {scan.Results.Low} | Info: {scan.Results.Info}");
                 Trace.WriteLine($"OData Results - Criticals: {criticals} | Highs: {high} | Mediums: {medium} | Lows: {low} | Info: {info}");
-                Trace.WriteLine($"OData Query Counters - Criticals: {odataQueryCounters[CxDataRepository97.Severity.Critical]} | Highs: {odataQueryCounters[CxDataRepository97.Severity.High]} | Mediums: {odataQueryCounters[CxDataRepository97.Severity.Medium]} | Lows: {odataQueryCounters[CxDataRepository97.Severity.Low]}");
+                Trace.WriteLine($"OData Query Counters - Criticals: {odataQueryCounters[CxDataRepository97.Severity.Critical]} | Highs: {odataQueryCounters[CxDataRepository97.Severity.High]} | Mediums: {odataQueryCounters[CxDataRepository97.Severity.Medium]} | Lows: {odataQueryCounters[CxDataRepository97.Severity.Low]} | Total ToVerify: {odQueryCounters.ToVerifyCounter}");
             }
             catch (Exception ex)
             {

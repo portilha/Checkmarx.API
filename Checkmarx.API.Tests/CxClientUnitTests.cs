@@ -249,7 +249,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void OdataSpeedTest3()
         {
-            var severityCounters = clientV89.GetODataScanResultsQuerySeverityCounters(1003321);
+            var severityCounters = clientV89.GetODataScanResultsQueryCounters(1003321).SeverityCounters;
 
             var InitialQueriesHigh = severityCounters[CxDataRepository97.Severity.High];
             var InitialQueriesMedium = severityCounters[CxDataRepository97.Severity.Medium];
@@ -261,7 +261,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void OdataSpeedTest4()
         {
-            var severityCounters = clientV89.GetScanResultsQuerySeverityCounters(1003321);
+            var severityCounters = clientV89.GetScanResultsQueryCounters(1003321).SeverityCounters;
 
             var InitialQueriesHigh = severityCounters[CxDataRepository97.Severity.High];
             var InitialQueriesMedium = severityCounters[CxDataRepository97.Severity.Medium];
@@ -569,7 +569,7 @@ namespace Checkmarx.API.Tests
         [TestMethod]
         public void GetQueriesInformationTest()
         {
-            
+
         }
 
         [TestMethod]

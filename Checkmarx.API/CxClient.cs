@@ -3063,6 +3063,7 @@ namespace Checkmarx.API
 
         // structure the name of the queries -> id of the CX queries
         private Dictionary<string, long> _cxQueryId = null;
+        private readonly object _cxQueryIdLock = new object();
         public long GetPresetQueryId(cxPortalWebService93.CxWSQueryGroup queryGroup, cxPortalWebService93.CxWSQuery query)
         {
             if (queryGroup == null)
@@ -3076,53 +3077,80 @@ namespace Checkmarx.API
 
             if (_cxQueryId == null)
             {
-                var queryGroups = GetQueries();
-
-                _cxQueryId = new Dictionary<string, long>();
-
-                foreach (var queryGroupCx in queryGroups.Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx))
+                lock (_cxQueryIdLock)
                 {
-                    foreach (var queryCx in queryGroupCx.Queries)
+                    if (_cxQueryId == null)
                     {
-                        _cxQueryId.Add(queryGroupCx.Language + "_" + queryGroupCx.Name + "_" + queryCx.Name, queryCx.QueryId);
-                    }
-                }
+                        var queryGroups = GetQueries();
+                        var dict = new Dictionary<string, long>();
 
-                foreach (var queryGroupCorporate in queryGroups.Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Corporate))
-                {
-                    foreach (var queryCorporate in queryGroupCorporate.Queries)
-                    {
-                        string queryPAth = queryGroupCorporate.Language + "_" + queryGroupCorporate.Name + "_" + queryCorporate.Name;
+                        foreach (var queryGroupCx in queryGroups
+                            .Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Cx))
+                        {
+                            foreach (var queryCx in queryGroupCx.Queries)
+                            {
+                                dict[
+                                    $"{queryGroupCx.Language}_{queryGroupCx.Name}_{queryCx.Name}"
+                                ] = queryCx.QueryId;
+                            }
+                        }
 
-                        if (!_cxQueryId.ContainsKey(queryPAth))
-                            _cxQueryId.Add(queryPAth, query.QueryId);
+                        foreach (var queryGroupCorporate in queryGroups
+                            .Where(x => x.PackageType == cxPortalWebService93.CxWSPackageTypeEnum.Corporate))
+                        {
+                            foreach (var queryCorporate in queryGroupCorporate.Queries)
+                            {
+                                var queryPath =
+                                    $"{queryGroupCorporate.Language}_{queryGroupCorporate.Name}_{queryCorporate.Name}";
+
+                                if (!dict.ContainsKey(queryPath))
+                                    dict[queryPath] = queryCorporate.QueryId;
+                            }
+                        }
+
+                        _cxQueryId = dict;
                     }
                 }
             }
 
-            string queryFullName = queryGroup.Language + "_" + queryGroup.Name + "_" + query.Name;
+            string queryFullName = $"{queryGroup.Language}_{queryGroup.Name}_{query.Name}";
             if (_cxQueryId.ContainsKey(queryFullName))
                 return _cxQueryId[queryFullName];
 
             return query.QueryId;
         }
 
-        private Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>> _queryVersionCache = null;
+        private Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>> _queryVersionCache;
+        private readonly object _queryVersionCacheLock = new object();
         public long GetPresetQueryId(long queryVersionCode)
         {
             if (_queryVersionCache == null)
             {
-                _queryVersionCache = new Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>>();
-                foreach (var queryGroup in QueryGroupsByVersion)
+                lock (_queryVersionCacheLock)
                 {
-                    foreach (var query in queryGroup.Queries)
+                    if (_queryVersionCache == null)
                     {
-                        _queryVersionCache.Add(query.QueryVersionCode, new Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>(queryGroup, query));
+                        var dict =
+                            new Dictionary<long, Tuple<cxPortalWebService93.CxWSQueryGroup, cxPortalWebService93.CxWSQuery>>();
+
+                        foreach (var queryGroup in QueryGroupsByVersion)
+                        {
+                            foreach (var query in queryGroup.Queries)
+                            {
+                                dict[query.QueryVersionCode] =
+                                    Tuple.Create(queryGroup, query);
+                            }
+                        }
+
+                        _queryVersionCache = dict;
                     }
                 }
             }
 
-            var pair = _queryVersionCache[queryVersionCode];
+            if (!_queryVersionCache.TryGetValue(queryVersionCode, out var pair))
+                throw new KeyNotFoundException(
+                    $"QueryVersionCode {queryVersionCode} not found.");
+
             return GetPresetQueryId(pair.Item1, pair.Item2);
         }
 

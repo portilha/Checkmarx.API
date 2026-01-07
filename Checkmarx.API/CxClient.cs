@@ -1669,7 +1669,7 @@ namespace Checkmarx.API
         /// <returns>true if the api supports a given version of the REST API, otherwise false.</returns>
         public bool SupportsRESTAPIVersion(string version)
         {
-            var _ = double.Parse(version);
+            var _ = double.Parse(version, CultureInfo.InvariantCulture);
 
             try
             {

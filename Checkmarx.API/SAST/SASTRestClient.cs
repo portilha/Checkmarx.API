@@ -29,13 +29,15 @@ namespace Checkmarx.API
     public partial class SASTRestClient
     {
         private string _baseUrl = "";
+        private CxClient _cxClient;
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings;
 
-        public SASTRestClient(string baseUrl, System.Net.Http.HttpClient httpClient)
+        public SASTRestClient(CxClient cxClient, System.Net.Http.HttpClient httpClient)
         {
-            BaseUrl = baseUrl;
+            _cxClient = cxClient;
             _httpClient = httpClient;
+            BaseUrl = httpClient.BaseAddress.AbsoluteUri;
             _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings);
         }
 
@@ -116,7 +118,8 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
+
                     var disposeResponse_ = true;
                     try
                     {
@@ -225,7 +228,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -248,8 +251,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -311,7 +313,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -391,7 +393,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -477,7 +479,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -500,14 +502,12 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -583,7 +583,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -606,8 +606,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -683,7 +682,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -706,8 +705,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -783,7 +781,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -802,8 +800,7 @@ namespace Checkmarx.API
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -871,7 +868,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -894,8 +891,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -957,7 +953,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1043,7 +1039,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1066,14 +1062,12 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
                         }
-                        else
-                        if (status_ == 204)
+                        else if (status_ == 204)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
@@ -1145,7 +1139,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1231,7 +1225,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1254,8 +1248,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not found", status_, responseText_, headers_, null);
@@ -1323,7 +1316,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1417,7 +1410,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1503,7 +1496,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1589,7 +1582,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1612,8 +1605,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -1689,7 +1681,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1712,8 +1704,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -1781,7 +1772,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1875,7 +1866,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -1898,8 +1889,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -1967,7 +1957,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2061,7 +2051,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2084,8 +2074,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -2153,7 +2142,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2247,7 +2236,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2270,8 +2259,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -2339,7 +2327,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2433,7 +2421,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2456,8 +2444,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -2525,7 +2512,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2619,7 +2606,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2642,8 +2629,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -2711,7 +2697,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2805,7 +2791,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2828,8 +2814,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -2900,7 +2885,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -2988,7 +2973,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -3011,8 +2996,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -3082,7 +3066,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -3105,8 +3089,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -3182,7 +3165,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -3205,8 +3188,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -3282,7 +3264,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -3305,8 +3287,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -3389,7 +3370,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -3412,8 +3393,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -3489,7 +3469,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -3512,8 +3492,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -3614,7 +3593,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -3637,8 +3616,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -3748,7 +3726,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -3771,8 +3749,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -3834,7 +3811,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -3920,7 +3897,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4005,7 +3982,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4092,7 +4069,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4183,7 +4160,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4280,7 +4257,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4407,7 +4384,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4487,7 +4464,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4573,7 +4550,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4659,7 +4636,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4677,14 +4654,12 @@ namespace Checkmarx.API
                         {
                             return;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -4760,7 +4735,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4846,7 +4821,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -4926,7 +4901,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5014,7 +4989,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5037,8 +5012,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -5106,7 +5080,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5198,7 +5172,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5284,7 +5258,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5307,8 +5281,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -5384,7 +5357,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5407,14 +5380,12 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -5482,7 +5453,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5505,14 +5476,12 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -5588,7 +5557,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5611,14 +5580,12 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -5680,7 +5647,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5766,7 +5733,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5789,8 +5756,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -5858,7 +5824,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -5881,8 +5847,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -5948,7 +5913,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6033,7 +5998,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6125,7 +6090,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6148,20 +6113,17 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
                         }
-                        else
-                        if (status_ == 403)
+                        else if (status_ == 403)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Forbidden", status_, responseText_, headers_, null);
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -6229,7 +6191,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6328,7 +6290,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6418,7 +6380,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6441,8 +6403,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -6517,7 +6478,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6610,7 +6571,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6698,7 +6659,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6721,8 +6682,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -6792,7 +6752,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6815,8 +6775,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -6892,7 +6851,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -6915,8 +6874,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -6986,7 +6944,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -7009,8 +6967,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
@@ -7145,7 +7102,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -7168,14 +7125,12 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 400)
+                        else if (status_ == 400)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Bad Request", status_, responseText_, headers_, null);
                         }
-                        else
-                        if (status_ == 404)
+                        else if (status_ == 404)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Not Found", status_, responseText_, headers_, null);
@@ -7238,7 +7193,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -7326,7 +7281,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -7414,7 +7369,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -7501,7 +7456,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -7587,7 +7542,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {
@@ -7610,8 +7565,7 @@ namespace Checkmarx.API
                             }
                             return objectResponse_.Object;
                         }
-                        else
-                        if (status_ == 500)
+                        else if (status_ == 500)
                         {
                             string responseText_ = (response_.Content == null) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
                             throw new ApiException("Internal Server Error", status_, responseText_, headers_, null);
@@ -7693,7 +7647,7 @@ namespace Checkmarx.API
 
                     PrepareRequest(client_, request_, url_);
 
-                    var response_ = await _soapRetryPolicyProvider.ExecuteWithRetryAsync(() => client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken)).ConfigureAwait(false);
+                    (client_, var response_) = await _cxClient.ExecuteWithRetryAsync(client_, request_, cancellationToken);
                     var disposeResponse_ = true;
                     try
                     {

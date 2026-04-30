@@ -230,7 +230,6 @@ namespace Checkmarx.API
 
         private cxPriorityWebService.CxPriorityServiceSoapClient _cxPriorityServiceSoapClient;
 
-
         public cxPortalWebService93.CxPortalWebServiceSoapClient PortalSOAP
         {
             get
@@ -240,11 +239,9 @@ namespace Checkmarx.API
             }
         }
 
-
         #region CxAudit
 
         private CxAuditWebServiceV9.CxAuditWebServiceSoapClient _cxAuditWebServiceSoapClientV9 = null;
-
 
         public CxAuditWebServiceV9.CxAuditWebServiceSoapClient CxAuditV9
         {
@@ -254,7 +251,12 @@ namespace Checkmarx.API
 
                 if (_cxAuditWebServiceSoapClientV9 == null)
                 {
-                    _cxAuditWebServiceSoapClientV9 = new CxAuditWebServiceV9.CxAuditWebServiceSoapClient(SASTServerURL, TimeSpan.FromSeconds(360), Username, Password);
+                    _cxAuditWebServiceSoapClientV9 = new CxAuditWebServiceV9.CxAuditWebServiceSoapClient(
+                        SASTServerURL,
+                        TimeSpan.FromSeconds(360),
+                        Username,
+                        Password
+                    );
 
                     _cxAuditWebServiceSoapClientV9.ClientCredentials.ServiceCertificate.SslCertificateAuthentication =
                                 new System.ServiceModel.Security.X509ServiceCertificateAuthentication
@@ -266,8 +268,6 @@ namespace Checkmarx.API
                     var portalChannelFactory = _cxAuditWebServiceSoapClientV9.ChannelFactory;
                     portalChannelFactory.UseMessageInspector(async (request, channel, next) =>
                     {
-
-
                         HttpRequestMessageProperty reqProps = new HttpRequestMessageProperty();
                         reqProps.Headers.Add("Authorization", $"Bearer {AuthenticationToken.Parameter}");
                         request.Properties.Add(HttpRequestMessageProperty.Name, reqProps);
@@ -279,7 +279,6 @@ namespace Checkmarx.API
                 return _cxAuditWebServiceSoapClientV9;
             }
         }
-
 
         #endregion
 
@@ -296,7 +295,7 @@ namespace Checkmarx.API
                 checkConnection();
 
                 if (_sastClient == null)
-                    _sastClient = new SASTRestClient(httpClient.BaseAddress.AbsoluteUri, httpClient);
+                    _sastClient = new SASTRestClient(this, httpClient);
 
                 return _sastClient;
             }
@@ -903,8 +902,8 @@ namespace Checkmarx.API
 
             Uri baseServer = new Uri(webServer.AbsoluteUri);
 
-            var cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
-              baseServer, TimeSpan.FromSeconds(60), "dummy", "dummy");
+            PortalSoap.CxPortalWebServiceSoapClient cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
+              baseServer, TimeSpan.FromSeconds(360), "dummy", "dummy");
 
             return cxPortalWebServiceSoapClient.GetVersionNumber().Version;
         }
@@ -921,7 +920,7 @@ namespace Checkmarx.API
             Uri baseServer = new Uri(webServer.AbsoluteUri);
 
             _cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
-                baseServer, TimeSpan.FromSeconds(60), userName, password);
+                baseServer, TimeSpan.FromSeconds(360), userName, password);
 
             if (ignoreCertificate)
             {
@@ -1148,8 +1147,8 @@ namespace Checkmarx.API
             var webServer = new Uri(baseURL);
             Uri baseServer = new Uri(webServer.AbsoluteUri);
 
-            var cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
-                baseServer, TimeSpan.FromSeconds(60), userName, password);
+            PortalSoap.CxPortalWebServiceSoapClient cxPortalWebServiceSoapClient = new PortalSoap.CxPortalWebServiceSoapClient(
+                baseServer, TimeSpan.FromSeconds(360), userName, password);
 
             if (ignoreCertificate)
             {
@@ -1968,19 +1967,27 @@ namespace Checkmarx.API
 
             dynamic result = null;
 
-            if (_isV9)
+            try
             {
-                result = CxAuditV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
-            }
-            else
-            {
-                result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
-            }
+                if (_isV9)
+                {
+                    result = CxAuditV9.GetSourceCodeForScanAsync(_soapSessionId, scanId).Result;
+                }
+                else
+                {
+                    result = _cxPortalWebServiceSoapClient.GetSourceCodeForScan(_soapSessionId, scanId);
+                }
 
-            checkSoapResponse(result);
-            return result.sourceCodeContainer.ZippedFile;
+                checkSoapResponse(result);
+                return result.sourceCodeContainer.ZippedFile;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to retrieve source code for scan {scanId}. " +
+                    $"This may occur when the source code file is still being processed by the server. " +
+                    $"Waiting and retrying may resolve the issue. Inner error: {ex.Message}", ex);
+            }
         }
-
 
         public void CancelScan(string runId)
         {
@@ -2217,6 +2224,10 @@ namespace Checkmarx.API
 
         private void UploadSourceCode(long projectId, byte[] sourceCodeZipContent)
         {
+            var requestUri = $"projects/{projectId}/sourceCode/attachments";
+
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+
             using (var content = new MultipartFormDataContent())
             {
                 var fileContent = new ByteArrayContent(sourceCodeZipContent);
@@ -2227,14 +2238,13 @@ namespace Checkmarx.API
                 };
 
                 content.Add(fileContent);
+                request.Content = content;
 
-                string requestUri = $"projects/{projectId}/sourceCode/attachments";
+                (httpClient, var response) = ExecuteWithRetryAsync(httpClient, request).GetAwaiter().GetResult();
 
-                HttpResponseMessage attachCodeResponse = httpClient.PostAsync(requestUri, content).Result;
-
-                if (attachCodeResponse.StatusCode != HttpStatusCode.OK && attachCodeResponse.StatusCode != HttpStatusCode.NoContent)
+                if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    throw new NotSupportedException(attachCodeResponse.Content.ReadAsStringAsync().Result);
+                    throw new NotSupportedException(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
                 }
             }
         }

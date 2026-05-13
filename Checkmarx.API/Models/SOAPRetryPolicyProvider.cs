@@ -1,5 +1,5 @@
 ﻿using Polly;
-using Polly.Retry;
+using Polly.Timeout;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -39,21 +39,21 @@ namespace Checkmarx.API.Models
 
         #region Private Helpers
 
-        private RetryPolicy<T> GetOrCreateSyncPolicy<T>(int retries)
+        private ISyncPolicy<T> GetOrCreateSyncPolicy<T>(int retries)
         {
             int effectiveRetries = retries > 0 ? retries : _defaultRetries;
 
-            return (RetryPolicy<T>)_syncPolicyCache.GetOrAdd(
+            return (ISyncPolicy<T>)_syncPolicyCache.GetOrAdd(
                 (typeof(T), effectiveRetries),
                 _ => BuildRetryPolicy<T>(effectiveRetries)
             );
         }
 
-        private AsyncRetryPolicy<T> GetOrCreateAsyncPolicy<T>(int retries)
+        private IAsyncPolicy<T> GetOrCreateAsyncPolicy<T>(int retries)
         {
             int effectiveRetries = retries > 0 ? retries : _defaultRetries;
 
-            return (AsyncRetryPolicy<T>)_asyncPolicyCache.GetOrAdd(
+            return (IAsyncPolicy<T>)_asyncPolicyCache.GetOrAdd(
                 (typeof(T), effectiveRetries),
                 _ => BuildAsyncRetryPolicy<T>(effectiveRetries)
             );
@@ -63,9 +63,15 @@ namespace Checkmarx.API.Models
 
         #region Policy Builders
 
-        private static RetryPolicy<T> BuildRetryPolicy<T>(int retries)
+        private static ISyncPolicy<T> BuildRetryPolicy<T>(int retries)
         {
-            return Policy<T>
+            var timeoutPolicy = Policy.Timeout<T>(
+                TimeSpan.FromHours(1),
+                TimeoutStrategy.Pessimistic,
+                onTimeout: (context, timespan, task) =>
+                    Console.WriteLine($"SOAP request timed out after {timespan.TotalSeconds} seconds."));
+
+            var retryPolicy = Policy<T>
                 .Handle<FaultException>()
                 .Or<WebException>(IsTransientError)
                 .Or<AggregateException>(IsTransientError)
@@ -75,14 +81,24 @@ namespace Checkmarx.API.Models
                 .WaitAndRetry(
                     retryCount: retries,
                     sleepDurationProvider: (retryAttempt, outcome, context) => GetRetryDelayExponential<T>(outcome, retryAttempt),
-                    //retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     onRetry: (outcome, timeSpan, retryCount, context) => OnRetry(outcome, timeSpan, retryCount, context)
                 );
+
+            return retryPolicy.Wrap(timeoutPolicy);
         }
 
-        private static AsyncRetryPolicy<T> BuildAsyncRetryPolicy<T>(int retries)
+        private static IAsyncPolicy<T> BuildAsyncRetryPolicy<T>(int retries)
         {
-            return Policy<T>
+            var timeoutPolicy = Policy.TimeoutAsync<T>(
+                TimeSpan.FromHours(1),
+                TimeoutStrategy.Pessimistic,
+                onTimeoutAsync: (context, timespan, task) =>
+                {
+                    Console.WriteLine($"SOAP request timed out after {timespan.TotalSeconds} seconds.");
+                    return Task.CompletedTask;
+                });
+
+            var retryPolicy = Policy<T>
                 .Handle<FaultException>()
                 .Or<WebException>(IsTransientError)
                 .Or<AggregateException>(IsTransientError)
@@ -92,10 +108,11 @@ namespace Checkmarx.API.Models
                 .WaitAndRetryAsync(
                     retryCount: retries,
                     sleepDurationProvider: (retryAttempt, outcome, context) => GetRetryDelayExponential<T>(outcome, retryAttempt),
-                    //retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     onRetryAsync: async (outcome, timeSpan, retryCount, context) =>
                         await OnRetryAsync(outcome, timeSpan, retryCount, context)
                 );
+
+            return retryPolicy.WrapAsync(timeoutPolicy);
         }
 
 

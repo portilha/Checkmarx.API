@@ -1,14 +1,15 @@
 ﻿using Microsoft.OData.Client;
 using Polly;
+using Polly.Timeout;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Checkmarx.API.Models
 {
@@ -16,8 +17,8 @@ namespace Checkmarx.API.Models
     {
         private readonly IQueryable<T> _innerQuery;
         private readonly int _retryCount;
-        private readonly Policy<IEnumerable<T>> _retryPolicy;
-        private readonly Policy<object> _genericRetryPolicy;
+        private readonly ISyncPolicy<IEnumerable<T>> _retryPolicy;
+        private readonly ISyncPolicy<object> _genericRetryPolicy;
         private readonly RetryableQueryProvider<T> _retryableProvider;
 
         public RetryableDataServiceQuery(IQueryable<T> innerQuery, int retryCount = 10)
@@ -111,22 +112,46 @@ namespace Checkmarx.API.Models
             Console.WriteLine($"Retry {retryAttempt} after {timespan.TotalSeconds:F1} seconds due to: {message}");
         }
 
-        private static Policy<IEnumerable<T>> buildRetryPolicy(int retries)
+        private static ISyncPolicy<IEnumerable<T>> buildRetryPolicy(int retries)
         {
-            return Policy<IEnumerable<T>>
+            var timeoutPolicy = Policy.Timeout<IEnumerable<T>>(
+                TimeSpan.FromHours(1),
+                TimeoutStrategy.Pessimistic,
+                onTimeout: (context, timespan, task) =>
+                    Console.WriteLine($"OData request timed out after {timespan.TotalSeconds} seconds."));
+
+            var retryPolicy = Policy<IEnumerable<T>>
                 .Handle<DataServiceQueryException>(isTransientError)
                 .Or<HttpRequestException>(isTransientError)
                 .Or<WebException>(isTransientWebError)
+                .Or<TaskCanceledException>(isRetryableTaskCanceled)
                 .WaitAndRetry(retries, getRetryDelay, onRetry);
+
+            return retryPolicy.Wrap(timeoutPolicy);
         }
 
-        private static Policy<object> buildGenericRetryPolicy(int retries)
+        private static ISyncPolicy<object> buildGenericRetryPolicy(int retries)
         {
-            return Policy<object>
+            var timeoutPolicy = Policy.Timeout<object>(
+                TimeSpan.FromHours(1),
+                TimeoutStrategy.Pessimistic,
+                onTimeout: (context, timespan, task) =>
+                    Console.WriteLine($"OData request timed out after {timespan.TotalSeconds} seconds."));
+
+            var retryPolicy = Policy<object>
                 .Handle<DataServiceQueryException>(isTransientError)
                 .Or<HttpRequestException>(isTransientError)
                 .Or<WebException>(isTransientWebError)
+                .Or<TaskCanceledException>(isRetryableTaskCanceled)
                 .WaitAndRetry(retries, getRetryDelay, onRetry);
+
+            return retryPolicy.Wrap(timeoutPolicy);
+        }
+
+        private static bool isRetryableTaskCanceled(TaskCanceledException ex)
+        {
+            // Retry only on HTTP-layer timeouts, not on explicit user/application cancellations
+            return !ex.CancellationToken.IsCancellationRequested;
         }
 
         private static bool isTransientError(DataServiceQueryException ex)
@@ -169,11 +194,11 @@ namespace Checkmarx.API.Models
     public class RetryableQueryProvider<T> : IQueryProvider
     {
         private readonly IQueryProvider _innerProvider;
-        private readonly Policy<IEnumerable<T>> _retryPolicy;
-        private readonly Policy<object> _genericRetryPolicy;
+        private readonly ISyncPolicy<IEnumerable<T>> _retryPolicy;
+        private readonly ISyncPolicy<object> _genericRetryPolicy;
         private readonly int _retryCount;
 
-        public RetryableQueryProvider(IQueryProvider innerProvider, Policy<IEnumerable<T>> retryPolicy, Policy<object> genericRetryPolicy, int retryCount = 10)
+        public RetryableQueryProvider(IQueryProvider innerProvider, ISyncPolicy<IEnumerable<T>> retryPolicy, ISyncPolicy<object> genericRetryPolicy, int retryCount = 10)
         {
             _innerProvider = innerProvider;
             _retryPolicy = retryPolicy;

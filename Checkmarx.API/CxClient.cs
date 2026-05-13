@@ -4162,7 +4162,8 @@ namespace Checkmarx.API
         {
             checkConnection();
 
-            var response = _cxPortalWebServiceSoapClient.UpdateSetOfResultState(_soapSessionId, results);
+            var response = _soapRetryPolicyProvider.ExecuteWithRetry(
+                () => _cxPortalWebServiceSoapClient.UpdateSetOfResultState(_soapSessionId, results));
 
             checkSoapResponse(response);
         }

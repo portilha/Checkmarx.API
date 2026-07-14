@@ -5129,7 +5129,7 @@ namespace Checkmarx.API
         /// <param name="id">Unique ID of a specific scan in the queue</param>
         /// <param name="scanRequest">ScanRequest data that is needed to be updated, Status options: Canceled</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<object> ScansQueueV1_PatchScansQueueByidscanRequestAsync(long id, PatchScansQueue scanRequest)
+        public virtual System.Threading.Tasks.Task ScansQueueV1_PatchScansQueueByidscanRequestAsync(long id, PatchScansQueue scanRequest)
         {
             return ScansQueueV1_PatchScansQueueByidscanRequestAsync(id, scanRequest, System.Threading.CancellationToken.None);
         }
@@ -5141,7 +5141,7 @@ namespace Checkmarx.API
         /// <param name="id">Unique ID of a specific scan in the queue</param>
         /// <param name="scanRequest">ScanRequest data that is needed to be updated, Status options: Canceled</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<object> ScansQueueV1_PatchScansQueueByidscanRequestAsync(long id, PatchScansQueue scanRequest, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ScansQueueV1_PatchScansQueueByidscanRequestAsync(long id, PatchScansQueue scanRequest, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -5188,12 +5188,7 @@ namespace Checkmarx.API
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<object>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
+                            return;
                         }
                         else
                         {

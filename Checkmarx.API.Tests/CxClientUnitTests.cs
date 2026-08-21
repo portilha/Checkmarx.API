@@ -136,7 +136,7 @@ namespace Checkmarx.API.Tests
                 mockResponse.Object
             );
 
-            Assert.ThrowsException<WebException>(() =>
+            Assert.ThrowsExactly<WebException>(() =>
                 retryPolicyProvider.ExecuteWithRetry(() =>
                 {
                     throw webException;

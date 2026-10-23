@@ -738,6 +738,41 @@ namespace Checkmarx.API
         }
 
         /// <summary>
+        /// Permission that allows to run scans (included in the role "SAST Scanner").
+        /// </summary>
+        public const string ScanPermission = "save-sast-scan";
+
+        /// <summary>
+        /// Permissions of the connected user in the SAST service, taken from the claims of its login token.
+        /// It needs no API call and no permission to read anything, so it works for any user.
+        /// </summary>
+        /// <returns>Empty when the user has no permission in SAST (no role): its token then has no permission claims at all.</returns>
+        public IReadOnlyCollection<string> GetSastPermissions()
+        {
+            checkConnection(); // logs in, which is when the token is read
+
+            return _jwtSecurityToken?.Claims.Where(c => c.Type == "sast-permissions").Select(c => c.Value).ToArray() ?? Array.Empty<string>();
+        }
+
+        /// <summary>
+        /// Permission to use the OData API, which is how the scans of a project are read (included in "SAST Admin", not in "SAST Scanner").
+        /// </summary>
+        public const string ODataPermission = "use-odata";
+
+        public bool HasSastPermission(string permission) => GetSastPermissions().Contains(permission, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Whether the connected user is allowed to run scans. A user without any role has no permission claims in its token,
+        /// that is a user that cannot scan.
+        /// </summary>
+        public bool CanScan() => HasSastPermission(ScanPermission);
+
+        /// <summary>
+        /// Whether the connected user is allowed to use the OData API.
+        /// </summary>
+        public bool CanUseOData() => HasSastPermission(ODataPermission);
+
+        /// <summary>
         /// URI of the server.
         /// </summary>
         public Uri SASTServerURL { get; }
@@ -3554,40 +3589,18 @@ namespace Checkmarx.API
         }
 
         /// <summary>
-        /// Giving an LoC please look up
+        /// Estimates how many scan slots are free for a project given its LoC, looking at the engines
+        /// (online, LoC range, dedications) and at everything currently in the scan queue.
+        /// SAST chooses the engine itself, so this is only meant to throttle how many scans are triggered.
         /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="teamId"></param>
-        /// <param name="loc"></param>
-        /// <returns></returns>
-        private int GetAvaliableSlot(ProjectDetails project, long loc)
+        /// <param name="project">Project to scan</param>
+        /// <param name="loc">Lines of code of the project's last scan</param>
+        /// <param name="reserve">Slots to keep free for other users</param>
+        public SlotAvailability GetAvailableSlot(ProjectDetails project, long loc, int reserve = 0)
         {
-            int capacity = 0;
+            var team = string.IsNullOrWhiteSpace(project.TeamId) ? null : GetProjectTeamName(project.TeamId);
 
-            var engines = SASTClientV5.EngineServers_GetV5Async().Result;
-
-            foreach (var engine in engines)
-            {
-                // If the LoC is higher than the engine's max loc, skip it
-                if (loc > engine.MaxLoc)
-                    continue;
-
-                var team = GetProjectTeamName(project.TeamId);
-
-                // If the engine is dedicated to other projects or teams , skip it
-                if (engine.Dedications.Any())
-                {
-                    if (!engine.Dedications
-                        .Where(d =>
-                        (d.ItemType == "Project" && d.ItemId == project.Id)
-                     || (d.ItemType == "Team" && team.StartsWith(d.ItemName))).Any())
-                        continue;
-                }
-
-                capacity += engine.MaxScans;
-            }
-
-            return 0;
+            return SastSlotCalculator.Calculate(GetEngineServers(), GetScansQueue(), project.Id, team, loc, reserve);
         }
 
         #endregion

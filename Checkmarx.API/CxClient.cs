@@ -749,6 +749,27 @@ namespace Checkmarx.API
             return _jwtSecurityToken?.Claims.Where(c => c.Type == "sast-permissions").Select(c => c.Value).ToArray() ?? Array.Empty<string>();
         }
 
+        /// <summary>Permission that allows to run scans (included in the role "SAST Scanner").</summary>
+        public const string ScanPermission = "save-sast-scan";
+
+        /// <summary>
+        /// Permission to use the OData API, which is how the scans of a project are read
+        /// (included in "SAST Admin", not in "SAST Scanner").
+        /// </summary>
+        public const string ODataPermission = "use-odata";
+
+        public bool HasSastPermission(string permission) =>
+            GetSastPermissions().Contains(permission, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Whether the connected user is allowed to run scans. A user without any role has no permission claims in its token,
+        /// that is a user that cannot scan.
+        /// </summary>
+        public bool CanScan() => HasSastPermission(ScanPermission);
+
+        /// <summary>Whether the connected user is allowed to use the OData API.</summary>
+        public bool CanUseOData() => HasSastPermission(ODataPermission);
+
         /// <summary>
         /// URI of the server.
         /// </summary>

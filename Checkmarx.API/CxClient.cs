@@ -738,6 +738,39 @@ namespace Checkmarx.API
         }
 
         /// <summary>
+        /// Permissions of the connected user in the SAST service, taken from the claims of its login token.
+        /// It needs no API call and no permission to read anything, so it works for any user.
+        /// </summary>
+        /// <returns>Empty when the user has no permission in SAST (no role): its token then has no permission claims at all.</returns>
+        public IReadOnlyCollection<string> GetSastPermissions()
+        {
+            checkConnection(); // logs in, which is when the token is read
+
+            return _jwtSecurityToken?.Claims.Where(c => c.Type == "sast-permissions").Select(c => c.Value).ToArray() ?? Array.Empty<string>();
+        }
+
+        /// <summary>Permission that allows to run scans (included in the role "SAST Scanner").</summary>
+        public const string ScanPermission = "save-sast-scan";
+
+        /// <summary>
+        /// Permission to use the OData API, which is how the scans of a project are read
+        /// (included in "SAST Admin", not in "SAST Scanner").
+        /// </summary>
+        public const string ODataPermission = "use-odata";
+
+        public bool HasSastPermission(string permission) =>
+            GetSastPermissions().Contains(permission, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Whether the connected user is allowed to run scans. A user without any role has no permission claims in its token,
+        /// that is a user that cannot scan.
+        /// </summary>
+        public bool CanScan() => HasSastPermission(ScanPermission);
+
+        /// <summary>Whether the connected user is allowed to use the OData API.</summary>
+        public bool CanUseOData() => HasSastPermission(ODataPermission);
+
+        /// <summary>
         /// URI of the server.
         /// </summary>
         public Uri SASTServerURL { get; }
@@ -3551,43 +3584,6 @@ namespace Checkmarx.API
             {
                 return Mapper.MapEngines(SASTClient.EngineServersV1_GetAsync().Result);
             }
-        }
-
-        /// <summary>
-        /// Giving an LoC please look up
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <param name="teamId"></param>
-        /// <param name="loc"></param>
-        /// <returns></returns>
-        private int GetAvaliableSlot(ProjectDetails project, long loc)
-        {
-            int capacity = 0;
-
-            var engines = SASTClientV5.EngineServers_GetV5Async().Result;
-
-            foreach (var engine in engines)
-            {
-                // If the LoC is higher than the engine's max loc, skip it
-                if (loc > engine.MaxLoc)
-                    continue;
-
-                var team = GetProjectTeamName(project.TeamId);
-
-                // If the engine is dedicated to other projects or teams , skip it
-                if (engine.Dedications.Any())
-                {
-                    if (!engine.Dedications
-                        .Where(d =>
-                        (d.ItemType == "Project" && d.ItemId == project.Id)
-                     || (d.ItemType == "Team" && team.StartsWith(d.ItemName))).Any())
-                        continue;
-                }
-
-                capacity += engine.MaxScans;
-            }
-
-            return 0;
         }
 
         #endregion

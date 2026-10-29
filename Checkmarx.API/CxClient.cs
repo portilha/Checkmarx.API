@@ -282,6 +282,26 @@ namespace Checkmarx.API
 
         #endregion
 
+        /// <summary>
+        /// Drops the generated REST clients. They keep the HttpClient they were created with, so after a re-login
+        /// (new HttpClient, new token) they would keep sending the expired token and get 401 on every call.
+        /// They are created again, with the current HttpClient, the next time they are used.
+        /// </summary>
+        private void resetRestClients()
+        {
+            _sastClient = null;
+            _sastClientV1_1 = null;
+            _sastClientV2 = null;
+            _sastClientV2_1 = null;
+            _sastClientV3 = null;
+            _sastClientV4 = null;
+            _sastClientV5 = null;
+            _sastClientV5_1 = null;
+            _sastClientV5_2 = null;
+            _sastClientV5_3 = null;
+            _sastClientV6 = null;
+        }
+
         private SASTRestClient _sastClient;
 
         /// <summary>
@@ -1040,6 +1060,9 @@ namespace Checkmarx.API
                     string authToken = ((JProperty)accessToken.First).Value.ToString();
 
                     _cxAuditWebServiceSoapClientV9 = null;
+
+                    // The token changed: the cached REST clients still point at the previous HttpClient.
+                    resetRestClients();
 
                     if (_isV9)
                     {
